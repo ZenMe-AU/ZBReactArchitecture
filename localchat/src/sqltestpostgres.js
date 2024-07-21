@@ -1,3 +1,5 @@
+//https://www.npmjs.com/package/postgresql-client
+//npm i postgresql-client
 import {Connection} from 'postgresql-client';
 // Create connection
 const connection = new Connection('postgres://postgress1.database.windows.net');
@@ -29,4 +31,3 @@ const config = {
     }
 }
     */
-   

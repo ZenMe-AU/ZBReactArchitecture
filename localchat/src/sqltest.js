@@ -1,22 +1,6 @@
 //npm i mssql
 const sql = require('mssql');
 
-//npm i postgresql-client
-const sql = require('mssql');
-
-const config = {
-    user: 'zmpostressadmin', // better stored in an app setting such as process.env.DB_USER
-    password: '2024 Zenme Postgress admin', // better stored in an app setting such as process.env.DB_PASSWORD
-    server: 'postgress1.database.windows.net', // better stored in an app setting such as process.env.DB_SERVER
-    port: 1433, // optional, defaults to 1433, better stored in an app setting such as process.env.DB_PORT
-    database: 'AdventureWorksLT', // better stored in an app setting such as process.env.DB_NAME
-    authentication: {
-        type: 'default'
-    },
-    options: {
-        encrypt: true
-    }
-}
 
 /*
 const config = {
