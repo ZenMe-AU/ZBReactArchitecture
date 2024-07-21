@@ -1,2 +1,5 @@
 localchat/package-lock.json
 node_modules/
+*.env
+*.log
+*/__pycache__
