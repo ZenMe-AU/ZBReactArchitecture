@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>table</title>
+</head>
+<body>
+    <table border="1">
+        {% for user in users %}
+        {% if loop.index is not divisibleby 2 %}
+        <tr>
+        {% endif %}
+          <td>
+            user {{user.name}}</br>
+            <img alt="Avatar" src="{{ url_for('static', filename=user.avatar) }}" style="width: 160px">
+          </td>
+        {% if loop.index is divisibleby 2 or loop.last %}
+        </tr>
+        {% endif %}
+        {% endfor %}
+      </table>
+</body>
+</html>
