@@ -12,9 +12,10 @@
   "dependencies": {
     "axios": "^1.7.2",
     "bootstrap": "^5.3.3",
+    "dotenv": "^16.4.5",
     "moment": "^2.30.1",
     "mssql": "^11.0.1",
-    "postgresql-client": "^2.12.0",
+    "postgrejs": "^2.15.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
