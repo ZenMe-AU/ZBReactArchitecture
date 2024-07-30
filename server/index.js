@@ -14,15 +14,10 @@ const corsOptions = {
 
 // Use CORS middleware
 app.use(cors(corsOptions));
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
 
-  let users = getUsers();
-  let data = users.then(function(result) {
-    return result;
-  })
-  // console.log('results')
-  console.log(users);
-  res.send({'return': {'users':data}});
+  let users = await getUsers();
+  res.send({'return': {'users':users}});
 });
 
 app.listen(PORT, () => {
@@ -31,7 +26,7 @@ app.listen(PORT, () => {
 
 
 
-const getUsers = async() => {
+const getUsers = () => {
   let select_query = `
     SELECT   "users"."id", "location"."tid", "users"."name", "users"."avatar"
         FROM
@@ -48,10 +43,7 @@ const getUsers = async() => {
         GROUP BY "users"."id", "location"."tid";
   `;
   try {
-
-    // return await Users.findAll();
-    // console.log('All users:', JSON.stringify(users, null, 2));
-    return await sequelize.query(select_query,{
+    return sequelize.query(select_query,{
       type: QueryTypes.SELECT,
     });
   } catch (err) {
@@ -59,23 +51,3 @@ const getUsers = async() => {
     return [];
   }
 }
-
-
-  //   console.log();
-  // let users = [
-  //   {
-  //     "avatar": "pic/avatar_20.jpg",
-  //     "name": "user_20",
-  //     "tid": "20"
-  //   },
-  //   {
-  //     "avatar": "pic/avatar_43.jpg",
-  //     "name": "user_43",
-  //     "tid": "43"
-  //   },
-  //   {
-  //     "avatar": "pic/avatar_99.jpg",
-  //     "name": "user_99",
-  //     "tid": "99"
-  //   }
-  // ];
