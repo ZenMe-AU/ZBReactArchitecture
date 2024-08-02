@@ -2,6 +2,8 @@ import express from "express";
 import cors from 'cors';
 import { sequelize } from './db.js';
 import { QueryTypes } from 'sequelize';
+import validate from './validation/validate.js';
+import usersValidation from "./validation/users.js";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -13,13 +15,15 @@ const corsOptions = {
 
 // Use CORS middleware
 app.use(cors(corsOptions));
-app.get('/', async (req, res) => {
+app.get('/',validate(usersValidation.getUsers), async (req, res) => {
   let device_id = 'l1';
-  let request_time = req.query.datetime || new Date().toISOString().slice(0, 16);
+  let request_time = new Date().toISOString().slice(0, 16);
+  if (req.query.datetime) {
+    request_time = new Date(req.query.datetime).toISOString().slice(0, 16);
+  }
   let interval = req.query.interval || 60;
   let distance = (req.query.distance || 10) * 0.00001;
   let limited = req.query.limited || 100;
-
   let start_time = new Date(new Date(request_time+'Z').getTime() - (interval * 60 * 1000)).toISOString().slice(0, 16);
 
   let users = await getUsers(device_id, start_time,  request_time, distance, limited);
