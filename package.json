@@ -1,0 +1,17 @@
+{
+  "name": "zenmechatpoc1",
+  "version": "1.0.0",
+  "description": "POC location chat app",
+  "scripts": {
+    "client-install"  : "npm install  --prefix localchat",
+    "server-install"  : "npm install  --prefix server",
+    "install-all-deps": "concurrently \"npm run server-install\" \"npm run client-install\"",
+    "dev-all": "concurrently \"npm run mqtt --prefix server\" \"npm run dev --prefix server\" \"npm run dev --prefix localchat\"",
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix localchat\""
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
