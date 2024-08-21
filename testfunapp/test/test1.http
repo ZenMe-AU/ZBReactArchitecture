@@ -1,0 +1,23 @@
+post http://localhost:7071/api/httpTrigger2 HTTP/1.1
+Content-Type: application/json
+
+{
+    "_type": "location",
+    "BSSID": "3c:7c:3f:f9:44:04",
+    "SSID": "JPV5G",
+    "_id": "e5953ce5",
+    "acc": 4,
+    "alt": 69,
+    "batt": 32,
+    "bs": 1,
+    "conn": "w",
+    "created_at": 1724242731,
+    "lat": -27.6232899,
+    "lon": 153.034589,
+    "m": 2,
+    "tid": "J1",
+    "topic": "owntracks/jake/JS22",
+    "tst": 1724242731,
+    "vac": 0,
+    "vel": 0
+}
