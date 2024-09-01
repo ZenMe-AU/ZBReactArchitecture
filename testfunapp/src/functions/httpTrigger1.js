@@ -6,11 +6,12 @@ app.http('httpTrigger1', {
     methods: ['GET', 'POST'],
     authLevel: 'anonymous',
     handler: async (request, context) => {
-        let device_id = 'l1';
+        let device_id = request.query.get('device') || 'l1';
         let request_time = new Date().toISOString().slice(0, 16);
         if (request.query.get('datetime')) {
             request_time = new Date(request.query.get('datetime')).toISOString().slice(0, 16);
         }
+        request_time += ':59'
         let interval = request.query.get('interval') || 60;
         let distance = (request.query.get('distance') || 10) * 0.00001;
         let limited = request.query.get('limited') || 100;
