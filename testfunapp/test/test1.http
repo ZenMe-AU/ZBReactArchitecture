@@ -1,4 +1,4 @@
-post http://localhost:7071/api/httpTrigger2 HTTP/1.1
+post http://localhost:7071/api/httpTrigger2?name=testname HTTP/1.1
 Content-Type: application/json
 
 {
