@@ -30,13 +30,14 @@ app.http('httpTrigger2', {
                 context.log(`tid "${tid}"`);
                 context.log(`lat "${lat}"`);
                 context.log(`lon "${lon}"`);
-
+                let point = { type: 'Point', coordinates: [lon, lat] };
                 //  write actual data in database
                 Location.create({
                     topicId: topic,
                     tid: tid,
                     lat: lat,
                     lon: lon,
+                    geom: point,
                     response: bodytext
                 });
 
@@ -52,11 +53,15 @@ app.http('httpTrigger2', {
                 fakeNum = [...new Set(fakeNum)];
                 fakeNum.forEach((n) => {
                     if (n > 0) {
+                        let nLat = lat + (Math.random() * dLimit * 2) + (dLimit * -1);
+                        let nLon = lon + (Math.random() * dLimit * 2) + (dLimit * -1);
+                        let nPoint = { type: 'Point', coordinates: [nLon, nLat] };
                         fakeData.push({
                             topicId: topic.concat('', n),
                             tid: n,
-                            lat: lat + (Math.random() * dLimit * 2) + (dLimit * -1),
-                            lon: lon + (Math.random() * dLimit * 2) + (dLimit * -1),
+                            lat: nLat,
+                            lon: nLon,
+                            geom: nPoint,
                             response: bodytext
                         })
                     }
