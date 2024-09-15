@@ -1,0 +1,4 @@
+//Test the search for a device and time.
+//TODO: Luke update test to match above description
+post https://local-chat.azurewebsites.net/api/httpTrigger1 HTTP/1.1
+
