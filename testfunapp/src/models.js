@@ -56,10 +56,13 @@ const Location = sequelize.define(
     },
     response: {
       type: DataTypes.TEXT,
+    },
+    geom: {
+      type: DataTypes.GEOMETRY('POINT', 4326),
     }
   },
   {
-    tableName: 'location',
+    tableName: 'location2',
     id: {
       type: DataTypes.INTEGER,
       allowNull: false,

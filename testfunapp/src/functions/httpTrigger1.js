@@ -1,6 +1,7 @@
 const { app } = require('@azure/functions');
 const { sequelize }  = require('../db.js');
 const { QueryTypes }  = require('sequelize');
+const { Users } = require('../models.js');
 
 app.http('httpTrigger1', {
     methods: ['GET', 'POST'],
@@ -13,10 +14,16 @@ app.http('httpTrigger1', {
         }
         request_time += ':59'
         let interval = request.query.get('interval') || 60;
-        let distance = (request.query.get('distance') || 10) * 0.00001;
+        let distance = (request.query.get('distance') || 10);
         let limited = request.query.get('limited') || 100;
         let start_time = new Date(new Date(request_time+'Z').getTime() - (interval * 60 * 1000)).toISOString().slice(0, 16);
 
+        context.log('device_id'+device_id);
+        context.log('interval'+interval);
+        context.log('distance'+distance);
+        context.log('limited'+limited);
+        context.log('start_time'+start_time);
+        context.log('request_time'+request_time);
         let users = await getUsers(device_id, start_time,  request_time, distance, limited);
 
         return {
@@ -29,26 +36,34 @@ app.http('httpTrigger1', {
 });
 
 
-const getUsers = (deviceId, from, to, distance, limited) => {
+const getUsers = async (deviceId, from, to, distance, limited) => {
     let select_query = `
-      SELECT   "users"."id", "location"."tid", "users"."name", "users"."avatar"
-          FROM
-          (SELECT "id", "topicId", "tid", "lat", "lon", "response", "createdAt" FROM "location" AS "location"
-                  WHERE ("tid" = $deviceId) AND ("createdAt" BETWEEN $from AND $to)) AS "A",
-            "location" left JOIN "users" ON "location"."tid" = "users"."deviceId"
-            WHERE
-              ("location"."tid" != "A"."tid"
-  
-                  and ("location"."lat" BETWEEN "A"."lat"-$distance AND "A"."lat"+$distance )
-                  and ("location"."lon" BETWEEN "A"."lon"-$distance AND "A"."lon"+$distance ))
-              and ("location"."createdAt" BETWEEN ("A"."createdAt" - INTERVAL '1 MINUTE') and ("A"."createdAt" + INTERVAL '1 MINUTE'))
-  
-          GROUP BY "users"."id", "location"."tid";
+        SELECT   "location2"."tid"
+        FROM
+            (SELECT "id", "tid", "geom", "createdAt" FROM "location2" AS "location2"
+                WHERE ("tid" = $deviceId) AND ("createdAt" BETWEEN $from AND $to)) AS "A",
+            location2
+        WHERE
+            ("location2"."tid" != "A"."tid" and ST_DWithin("location2"."geom", "A"."geom", $distance, true))
+            and ("location2"."createdAt" BETWEEN ("A"."createdAt" - INTERVAL '1 MINUTE') and ("A"."createdAt" + INTERVAL '1 MINUTE'))
+
+        GROUP BY "location2"."tid";
     `;
     try {
-      return sequelize.query(select_query,{
+      var locationData = await sequelize.query(select_query,{
         bind: { deviceId:deviceId, from:from, to:to, distance:distance },
         type: QueryTypes.SELECT,
+      });
+      var deviceIds = [];
+      locationData.forEach((location) => {
+        deviceIds.push(location['tid']);
+      });
+
+      return await Users.findAll({
+        attributes: ['id', ['deviceId', 'tid'], 'name', 'avatar'],
+        where: {
+            deviceId: deviceIds,
+        },
       });
     } catch (err) {
       console.log(err)
