@@ -1,0 +1,8 @@
+post https://local-chat.azurewebsites.net/api/httpTrigger1 HTTP/1.1
+Content-Type: application/json
+
+{
+  "val1": "sample",
+  "val2": "Wed, 21 Oct 2015 18:27:50 GMT"
+}
+
