@@ -5,7 +5,7 @@ const { Users } = require('../models.js');
 
 //Search the database for users who were near the device at the given time.
 //parameters: device, datetime, interval, distance, limited
-app.http('searchnearme', {
+app.http('SearchNearMe', {
     methods: ['GET', 'POST'],
     authLevel: 'anonymous',
     handler: async (request, context) => {
