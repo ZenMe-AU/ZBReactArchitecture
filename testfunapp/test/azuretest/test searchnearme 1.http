@@ -1,4 +1,17 @@
 //Test the search for a device and time.
 //TODO: Luke update test to match above description
-post https://local-chat.azurewebsites.net/api/httpTrigger1 HTTP/1.1
+# post https://local-chat.azurewebsites.net/api/httpTrigger3?distance=5&interval=5000 HTTP/1.1
+@baseUrl = https://local-chat.azurewebsites.net/api/
+
+###
+@name = SearchNearMe
+
+GET {{baseUrl}}{{name}}
+    ?limited=100
+    &device=l1
+    &datetime=2024-09-21T14:00
+    &interval=5000
+    &distance=5
+###
+
 
