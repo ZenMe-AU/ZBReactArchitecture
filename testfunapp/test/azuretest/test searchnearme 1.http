@@ -1,4 +1,5 @@
-//Test the search for a device and time.
+//Test the search for a device and time based on preloaded data so that results are predictable.
+
 //TODO: Luke update test to match above description
 # post https://local-chat.azurewebsites.net/api/httpTrigger3?distance=5&interval=5000 HTTP/1.1
 @baseUrl = https://local-chat.azurewebsites.net/api/

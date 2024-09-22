@@ -1,6 +1,11 @@
+//run: node test/azuretest/LocationWrite.js
+//Load a predefined set of location data to the database.
+
+//+-100 locations at 10m, 100m, 200m so that search tests can be predictable.
+
 const { app } = require('@azure/functions');
 
-//This function generates random location points based on the input location and writes it to the database.
+
 app.http('LocationGenFake', {
     methods: ['POST'],
     authLevel: 'anonymous',
