@@ -27,14 +27,6 @@ const Users = sequelize.define(
   },
 );
 
-// // `sequelize.define` also returns the model
-// console.log(Users === sequelize.models.Users); // true
-
-// const users = await Users.findAll();
-// console.log(users.every(users => users instanceof Users)); // true
-// console.log('All users:', JSON.stringify(users, null, 2));
-
-
 const Location = sequelize.define(
   'location',
   {
@@ -72,22 +64,8 @@ const Location = sequelize.define(
   },
 );
 
-
-// const location = await Location.findAll();
-// console.log(location.every(location => location instanceof Location)); // true
-// console.log('All location:', JSON.stringify(location, null, 2));
-// let userData = []
-// for (let i = 3; i <=100; i++) {
-//   userData.push({
-//     id: i,
-//     name: i,
-//     avatar: "pic/avatar_" + i + ".jpg",
-//     deviceId: i
-//   });
-// }
-// Users.bulkCreate(userData, {
-//   validate: true,
-// });
+Users.hasMany(Location, {foreignKey : 'tid', sourceKey : 'deviceId'});
+Location.belongsTo(Users, { targetKey: 'deviceId', foreignKey: 'tid'});
 
 module.exports = {
     Users, Location
