@@ -57,11 +57,11 @@ app.http('LocationWriteAndGenFake', {
                 // ---fake data process--- //
                 let fakeDataParam = ('fakeData' in bodyJson) ? bodyJson.fakeData : {};
                 let fakeInputData = [];
-                let fakeDeviceAry = new Set();
+                let fakeDeviceAry = ('id' in fakeDataParam) ? Array.isArray(fakeDataParam.id) ? new Set(fakeDataParam.id) : new Set([fakeDataParam.id]) : new Set();
                 let fakeDeviceLimit = 100;
                 let maxDistance = ('maxDistance' in fakeDataParam) ? fakeDataParam.maxDistance : 10;
                 let minDistance = ('minDistance' in fakeDataParam) ? fakeDataParam.minDistance : 0;
-                let amount = ('amount' in fakeDataParam) ? fakeDataParam.amount : Math.floor(Math.random() * fakeDeviceLimit);
+                let amount = ('id' in fakeDataParam) ? fakeDeviceAry.size : ('amount' in fakeDataParam) ? fakeDataParam.amount : Math.floor(Math.random() * fakeDeviceLimit);
                 if (amount >= fakeDeviceLimit) {amount = fakeDeviceLimit-1;}
                 while (fakeDeviceAry.size < amount) {
                     let n = Math.floor(Math.random() * (fakeDeviceLimit)) + 1;
