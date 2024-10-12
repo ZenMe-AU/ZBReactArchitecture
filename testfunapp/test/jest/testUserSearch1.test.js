@@ -10,7 +10,8 @@
 // loop from A
 test.todo('something');
 
-const baseUrl = 'https://local-chat.azurewebsites.net/';
+// const baseUrl = 'https://local-chat.azurewebsites.net/';
+const baseUrl = 'http://localhost:7071/';
 const locationWriteUrl = new URL('/api/LocationWriteAndGenFake', baseUrl);
 const getUsersQtyUrl = new URL('/api/GetUsersQty', baseUrl);
 
