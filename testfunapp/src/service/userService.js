@@ -3,22 +3,32 @@ const { Op, Sequelize }  = require('sequelize');
 const { Users, Location } = require('../models.js');
 
 
-function getUsers(coord, from, to, distance, limited) {
+/**
+ * Get users from the database
+ * @param {*} coord The coordinate of the user
+ * @param {*} tFrom The start time
+ * @param {*} tTo The end time
+ * @param {*} distance The distance from the coordinate
+ * @param {*} CountOnly If true, return the count only
+ * @returns 
+ */
+function getUsers(coord, tFrom, tTo, distance, CountOnly) {
     try {
-        return Users.findAll({
+        const query = {
             attributes: ['id', ['deviceId', 'tid'], 'name', 'avatar'],
             // distinct: true,
             // col: 'id',
-            include:[{
+            include: [{
                 model: Location,
                 attributes: [],
-                where:[
-                    {createdAt: {[Op.between]: [from+'Z', to+'Z']}},
-                    Sequelize.where(Sequelize.fn('ST_DWithin', Sequelize.col('geom'), 'SRID=4326;POINT('+ coord[0] +' '+ coord[1] +')', distance, true), true)
+                where: [
+                    { createdAt: { [Op.between]: [tFrom + 'Z', tTo + 'Z'] } },
+                    Sequelize.where(Sequelize.fn('ST_DWithin', Sequelize.col('geom'), 'SRID=4326;POINT(' + coord[0] + ' ' + coord[1] + ')', distance, true), true)
                 ],
                 group: ['tid'],
             }]
-        });
+        };
+        return CountOnly ? Users.count(query) : Users.findAll(query);
 
 
         // var locationData =  await Location.findAll({

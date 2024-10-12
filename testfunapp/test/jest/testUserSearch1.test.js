@@ -11,12 +11,12 @@
 test.todo('something');
 
 const baseUrl = 'https://local-chat.azurewebsites.net/';
-const url = new URL('/api/LocationWriteAndGenFake', baseUrl);
+const locationWriteUrl = new URL('/api/LocationWriteAndGenFake', baseUrl);
 const getUsersQtyUrl = new URL('/api/GetUsersQty', baseUrl);
 
 const initCoord = [getRandomInRange(-180, 180, 15), getRandomInRange(-90, 90, 15)];
 // const initCoord = [153.10352173070004, -27.50177678975135]
-const interval = 5;
+const interval = 5; //Search time range in minutes
 const tid = 'l1';
 const testData = [
     {
@@ -97,7 +97,7 @@ describe('add test data', () => {
 
     test.each(testData)('Writing test data - user id: $id in range $minDistance - $maxDistance m(s).', async (t) => {
         let coord = coordSet.getCoord();
-        const response = await fetch(url, {
+        const response = await fetch(locationWriteUrl, {
             method: "POST",
             body: JSON.stringify({
                 topic: "owntracks/test/genbtn",
