@@ -2,7 +2,7 @@ const { app } = require('@azure/functions');
 const { Op, Sequelize }  = require('sequelize');
 const { Users, Location } = require('../models.js');
 
-app.http('httpTrigger3', {
+app.http('SearchNearMe2', {
     methods: ['GET', 'POST'],
     authLevel: 'anonymous',
     handler: async (request, context) => {
