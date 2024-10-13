@@ -1,8 +1,8 @@
-const { DataTypes }  = require("sequelize");
-const { sequelize }  = require('./db.js');
+const { DataTypes } = require("sequelize");
+const { sequelize } = require("./db.js");
 
 const Users = sequelize.define(
-  'users',
+  "users",
   {
     // Model attributes are defined here
     id: {
@@ -19,16 +19,16 @@ const Users = sequelize.define(
     },
     deviceId: {
       type: DataTypes.CHAR,
-    }
+    },
   },
   {
     timestamps: false,
     // Other model options go here
-  },
+  }
 );
 
 const Location = sequelize.define(
-  'location',
+  "location",
   {
     topicId: {
       type: DataTypes.CHAR,
@@ -50,23 +50,24 @@ const Location = sequelize.define(
       type: DataTypes.TEXT,
     },
     geom: {
-      type: DataTypes.GEOMETRY('POINT', 4326),
-    }
+      type: DataTypes.GEOMETRY("POINT", 4326),
+    },
   },
   {
-    tableName: 'location2',
+    tableName: "location2",
     id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
     },
     updatedAt: false,
-  },
+  }
 );
 
-Users.hasMany(Location, {foreignKey : 'tid', sourceKey : 'deviceId'});
-Location.belongsTo(Users, { targetKey: 'deviceId', foreignKey: 'tid'});
+Users.hasMany(Location, { foreignKey: "tid", sourceKey: "deviceId" });
+Location.belongsTo(Users, { targetKey: "deviceId", foreignKey: "tid" });
 
 module.exports = {
-    Users, Location
-  }
+  Users,
+  Location,
+};

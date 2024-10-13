@@ -1,5 +1,5 @@
 const { Op, Sequelize } = require("sequelize");
-const { Users, Location } = require("../models.js");
+const { Users, Location } = require("../Repository/models.js");
 
 /**
  * Get users from the database
