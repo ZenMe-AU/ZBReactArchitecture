@@ -1,7 +1,7 @@
 const { app } = require("@azure/functions");
-const { sequelize } = require("../Repository/db.js");
+const { sequelize } = require("../../src/Repository/db.js");
 const { QueryTypes } = require("sequelize");
-const { Users } = require("../Repository/models.js");
+const { Users } = require("../../src/Repository/models.js");
 
 //Search the database for users who were near the device at the given time.
 //parameters: device, datetime, interval, distance, limited

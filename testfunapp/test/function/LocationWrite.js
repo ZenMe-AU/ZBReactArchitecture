@@ -1,5 +1,5 @@
 const { app } = require("@azure/functions");
-const { Location } = require("../Repository/models.js");
+const { Location } = require("../../src/Repository/models.js");
 
 //This function writes the data as provided to the database.
 app.http("LocationWrite", {

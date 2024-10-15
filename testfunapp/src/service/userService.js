@@ -1,4 +1,5 @@
-const { Op, Sequelize } = require("sequelize");
+const { Op, Sequelize, QueryTypes } = require("sequelize");
+const { sequelize } = require("../Repository/db.js");
 const { Users, Location } = require("../Repository/models.js");
 
 /**
@@ -69,6 +70,42 @@ function getUsers(coord, tFrom, tTo, distance, CountOnly) {
   }
 }
 
+async function getUsersNearby(deviceId, from, to, distance, limited) {
+  let select_query = `
+        SELECT   "location2"."tid"
+        FROM
+            (SELECT "id", "tid", "geom", "createdAt" FROM "location2" AS "location2"
+                WHERE ("tid" = $deviceId) AND ("createdAt" BETWEEN $from AND $to)) AS "A",
+            location2
+        WHERE
+            ("location2"."tid" != "A"."tid" and ST_DWithin("location2"."geom", "A"."geom", $distance, true))
+            and ("location2"."createdAt" BETWEEN ("A"."createdAt" - INTERVAL '1 MINUTE') and ("A"."createdAt" + INTERVAL '1 MINUTE'))
+
+        GROUP BY "location2"."tid";
+    `;
+  try {
+    var locationData = await sequelize.query(select_query, {
+      bind: { deviceId: deviceId, from: from, to: to, distance: distance },
+      type: QueryTypes.SELECT,
+    });
+    var deviceIds = [];
+    locationData.forEach((location) => {
+      deviceIds.push(location["tid"]);
+    });
+
+    return await Users.findAll({
+      attributes: ["id", ["deviceId", "tid"], "name", "avatar"],
+      where: {
+        deviceId: deviceIds,
+      },
+    });
+  } catch (err) {
+    console.log(err);
+    return [];
+  }
+}
+
 module.exports = {
   getUsers,
+  getUsersNearby,
 };

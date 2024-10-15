@@ -1,5 +1,5 @@
 const { app } = require("@azure/functions");
-const { getUsers } = require("../service/userService.js");
+const { getUsers } = require("../../src/service/userService.js");
 
 app.http("GetUsersQty", {
   methods: ["GET", "POST"],
