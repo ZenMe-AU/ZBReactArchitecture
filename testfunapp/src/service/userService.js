@@ -3,13 +3,19 @@ const { sequelize } = require("../Repository/db.js");
 const { Users, Location } = require("../Repository/models.js");
 
 /**
+ * A coordinate array
+ * @typedef {Array} Coord
+ * @property {number} 0 - Longitude
+ * @property {number} 1 - Latitude
+ */
+/**
  * Get users from the database
- * @param {*} coord The coordinate of the user
- * @param {*} tFrom The start time
- * @param {*} tTo The end time
- * @param {*} distance The distance from the coordinate
- * @param {*} CountOnly If true, return the count only
- * @returns
+ * @param {Coord} coord The coordinate of the user
+ * @param {string} tFrom The start time
+ * @param {string} tTo The end time
+ * @param {number} distance The distance from the coordinate
+ * @param {boolean} CountOnly If true, return the count only
+ * @returns {Promise<Users>|number}
  */
 function getUsers(coord, tFrom, tTo, distance, CountOnly) {
   try {
@@ -70,7 +76,18 @@ function getUsers(coord, tFrom, tTo, distance, CountOnly) {
   }
 }
 
-async function getUsersNearby(deviceId, from, to, distance, limited) {
+/**
+ * Get the data of users who are near a certain user within a specific time period.
+ *
+ * @param {string|number} deviceId - The user's device id
+ * @param {string} startTime - The start time
+ * @param {string} endTime - The end time
+ * @param {number} distance - The distance from the user's coordinate
+ * @param {number} limited - The number of return amount
+ * @return {Promise<Users>}
+ *
+ */
+async function getUsersNearby(deviceId, startTime, endTime, distance, limited) {
   let select_query = `
         SELECT   "location2"."tid"
         FROM
@@ -85,7 +102,12 @@ async function getUsersNearby(deviceId, from, to, distance, limited) {
     `;
   try {
     var locationData = await sequelize.query(select_query, {
-      bind: { deviceId: deviceId, from: from, to: to, distance: distance },
+      bind: {
+        deviceId: deviceId,
+        from: startTime,
+        to: endTime,
+        distance: distance,
+      },
       type: QueryTypes.SELECT,
     });
     var deviceIds = [];

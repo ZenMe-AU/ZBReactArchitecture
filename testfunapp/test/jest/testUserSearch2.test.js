@@ -8,11 +8,20 @@ const baseUrl = process.env.BASE_URL || "http://localhost:7071";
 const locationWriteUrl = new URL("/api/LocationWrite", baseUrl);
 const getUsersQtyUrl = new URL("/api/GetUsersQtyByCoord", baseUrl);
 
+// The Random Coordinate at the beginning
 const initCoord = [
   getRandomInRange(-180, 180, 15),
   getRandomInRange(-90, 90, 15),
 ];
-const interval = 5; //Search time range in minutes
+
+// Search time range in minutes
+const timeInterval = 5;
+/**
+ * The data will be written in the database in this test
+ * minDistance: The limit of the nearest distance from the coordinates
+ * maxDistance: The limit of the farthest distance from the coordinates
+ * id: The user's device id
+ **/
 const testData = [
   {
     minDistance: 0,
@@ -40,9 +49,14 @@ const testData = [
     id: 6,
   },
 ];
-
+// The maximum distance according to the test data
 const expectRange = 5;
-
+/**
+ * The except result of the test
+ * minDistance: The limit of the nearest distance from the coordinates
+ * maxDistance: The limit of the farthest distance from the coordinates
+ * amount: The number of users within a certain distance
+ **/
 const testResult = [
   {
     minDistance: 0,
@@ -87,7 +101,7 @@ describe("add test data", () => {
     let qty = await checkUsersQty(getUsersQtyUrl, {
       lon: coord[0],
       lat: coord[1],
-      interval: interval,
+      interval: timeInterval,
       distance: maxRange,
     });
     expect(qty).toBe(0);
@@ -124,13 +138,13 @@ describe("add test data", () => {
       let urlParams = {
         lon: coord[0],
         lat: coord[1],
-        interval: interval,
+        interval: timeInterval,
         distance: r.minDistance,
       };
       let urlParams2 = {
         lon: coord[0],
         lat: coord[1],
-        interval: interval,
+        interval: timeInterval,
         distance: r.maxDistance,
       };
       const response = await fetch(
@@ -164,10 +178,11 @@ describe("add test data", () => {
   );
 });
 
+// Get the random integer
 function getRandomInRange(from, to, fixed) {
   return (Math.random() * (to - from) + from).toFixed(fixed) * 1;
 }
-
+// Count the number of users within a certain distance
 async function checkUsersQty(url, urlParams) {
   let response = await fetch(
     url + "?" + new URLSearchParams(urlParams).toString(),
@@ -196,7 +211,7 @@ function createCoord() {
     getCoord: () => coord,
   };
 }
-
+// Get the maximum distance
 function getRange() {
   let maxRange = 0;
   for (const t of testData) {
@@ -204,7 +219,8 @@ function getRange() {
   }
   return maxRange;
 }
-
+// Check if a coordinate has any users within a certain distance
+// If so, alternately shift the longitude and latitude until there are no users present
 async function checkCoord() {
   var searchUsers = true;
   while (searchUsers) {
@@ -212,7 +228,7 @@ async function checkCoord() {
     let qty = await checkUsersQty(getUsersQtyUrl, {
       lon: coord[0],
       lat: coord[1],
-      interval: interval,
+      interval: timeInterval,
       distance: maxRange,
     });
     if (qty === 0) {
