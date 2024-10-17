@@ -1,2 +1,2 @@
 // jest.setup.js
-require("dotenv").config();
+//require("<rootDir>/.env").config();

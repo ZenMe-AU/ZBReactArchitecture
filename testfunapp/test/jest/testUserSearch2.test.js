@@ -1,9 +1,9 @@
 require("dotenv").config(); // Load environment variables
 
-//npx cross-env BASE_URL=$BASE_URL_LOCAL jest testUserSearch2
-//npx cross-env BASE_URL=$BASE_URL_PRODUCTION jest testUserSearch2
-test.todo("test2");
+//npx env-cmd -f local.env jest testUserSearch2
+//npx env-cmd -f .env jest testUserSearch2
 
+test.todo("Testing User Search with BASE_URL=" + process.env.BASE_URL);
 const baseUrl = process.env.BASE_URL || "http://localhost:7071";
 const locationWriteUrl = new URL("/api/LocationWrite", baseUrl);
 const getUsersQtyUrl = new URL("/api/GetUsersQtyByCoord", baseUrl);
