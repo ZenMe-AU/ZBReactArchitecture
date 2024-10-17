@@ -1,7 +1,7 @@
 require("dotenv").config(); // Load environment variables
 
-//npx cross-env BASE_URL=$BASE_URL_LOCAL jest
-//npx cross-env BASE_URL=$BASE_URL_PRODUCTION jest
+//npx cross-env BASE_URL=$BASE_URL_LOCAL jest testUserSearch2
+//npx cross-env BASE_URL=$BASE_URL_PRODUCTION jest testUserSearch2
 test.todo("test2");
 
 const baseUrl = process.env.BASE_URL || "http://localhost:7071";
@@ -53,10 +53,10 @@ const testData = [
 const expectRange = 5;
 /**
  * The except result of the test
- * minDistance: The limit of the nearest distance from the coordinates
- * maxDistance: The limit of the farthest distance from the coordinates
+ * distance: The distance from the coordinates
  * amount: The number of users within a certain distance
  **/
+//TODO: remove mindistance from SpeechRecognitionResultList.
 const testResult = [
   {
     minDistance: 0,
@@ -69,14 +69,14 @@ const testResult = [
     amount: 3,
   },
   {
-    minDistance: 1,
+    minDistance: 0,
     maxDistance: 2,
-    amount: 1,
+    amount: 4,
   },
   {
-    minDistance: 2,
+    minDistance: 0,
     maxDistance: 5,
-    amount: 1,
+    amount: 5,
   },
 ];
 
