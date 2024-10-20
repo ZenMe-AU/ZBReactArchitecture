@@ -9,10 +9,10 @@ const locationWriteUrl = new URL("/api/LocationWrite", baseUrl);
 const getUsersQtyUrl = new URL("/api/GetUsersQtyByCoord", baseUrl);
 
 // The Random Coordinate at the beginning
-const initCoord = [
-  getRandomInRange(-180, 180, 15),
-  getRandomInRange(-90, 90, 15),
-];
+const initCoord = {
+  lon: getRandomInRange(-180, 180, 15),
+  lat: getRandomInRange(-90, 90, 15),
+};
 
 // Search time range in minutes
 const timeInterval = 5;
@@ -93,89 +93,68 @@ describe("add test data", () => {
     expect(maxRange).toBe(expectRange);
   });
 
-  test(`No user at [
-      ${coordSet.getCoord()[0]},
-      ${coordSet.getCoord()[1]}
-    ].`, async () => {
+  test(`No user at {lon: ${coordSet.getCoord().lon}, lat: ${coordSet.getCoord().lat}}.`, async () => {
     let coord = coordSet.getCoord();
     let qty = await checkUsersQty(getUsersQtyUrl, {
-      lon: coord[0],
-      lat: coord[1],
+      lon: coord.lon,
+      lat: coord.lat,
       interval: timeInterval,
       distance: maxRange,
     });
     expect(qty).toBe(0);
   });
 
-  test.each(testData)(
-    "Writing test data - user id: $id in range $minDistance - $maxDistance m(s).",
-    async (t) => {
-      let coord = coordSet.getCoord();
-      let nCoord = generateLocation(
-        coord[0],
-        coord[1],
-        t.maxDistance,
-        t.minDistance
-      );
-      const response = await fetch(locationWriteUrl, {
-        method: "POST",
-        body: JSON.stringify({
-          topic: "owntracks/test/genbtn",
-          _type: "location",
-          lon: nCoord[0],
-          lat: nCoord[1],
-          tid: t.id,
-        }),
-      });
-      expect(response.ok).toBeTruthy();
-    }
-  );
+  test.each(testData)("Writing test data - user id: $id in range $minDistance - $maxDistance m(s).", async (t) => {
+    let coord = coordSet.getCoord();
+    let nCoord = generateLocation(coord.lon, coord.lat, t.maxDistance, t.minDistance);
+    const response = await fetch(locationWriteUrl, {
+      method: "POST",
+      body: JSON.stringify({
+        topic: "owntracks/test/genbtn",
+        _type: "location",
+        lon: nCoord.lon,
+        lat: nCoord.lat,
+        tid: t.id,
+      }),
+    });
+    expect(response.ok).toBeTruthy();
+  });
 
-  test.each(testResult)(
-    "There should be $amount user(s) at a distance of $minDistance - $maxDistance m(s).",
-    async (r) => {
-      let coord = coordSet.getCoord();
-      let urlParams = {
-        lon: coord[0],
-        lat: coord[1],
-        interval: timeInterval,
-        distance: r.minDistance,
-      };
-      let urlParams2 = {
-        lon: coord[0],
-        lat: coord[1],
-        interval: timeInterval,
-        distance: r.maxDistance,
-      };
-      const response = await fetch(
-        getUsersQtyUrl + "?" + new URLSearchParams(urlParams).toString(),
-        {
-          method: "get",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-          },
-        }
-      );
-      const response2 = await fetch(
-        getUsersQtyUrl + "?" + new URLSearchParams(urlParams2).toString(),
-        {
-          method: "get",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-            "Access-Control-Allow-Origin": "*",
-          },
-        }
-      );
-      const data = await response.json();
-      const data2 = await response2.json();
-      const qty =
-        data2.return.qty - (r.minDistance === 0 ? 0 : data.return.qty);
-      expect(qty).toBe(r.amount);
-    }
-  );
+  test.each(testResult)("There should be $amount user(s) at a distance of $minDistance - $maxDistance m(s).", async (r) => {
+    let coord = coordSet.getCoord();
+    let urlParams = {
+      lon: coord.lon,
+      lat: coord.lat,
+      interval: timeInterval,
+      distance: r.minDistance,
+    };
+    let urlParams2 = {
+      lon: coord.lon,
+      lat: coord.lat,
+      interval: timeInterval,
+      distance: r.maxDistance,
+    };
+    const response = await fetch(getUsersQtyUrl + "?" + new URLSearchParams(urlParams).toString(), {
+      method: "get",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+    const response2 = await fetch(getUsersQtyUrl + "?" + new URLSearchParams(urlParams2).toString(), {
+      method: "get",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+    const data = await response.json();
+    const data2 = await response2.json();
+    const qty = data2.return.qty - (r.minDistance === 0 ? 0 : data.return.qty);
+    expect(qty).toBe(r.amount);
+  });
 });
 
 // Get the random integer
@@ -184,17 +163,14 @@ function getRandomInRange(from, to, fixed) {
 }
 // Count the number of users within a certain distance
 async function checkUsersQty(url, urlParams) {
-  let response = await fetch(
-    url + "?" + new URLSearchParams(urlParams).toString(),
-    {
-      method: "get",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
-    }
-  );
+  let response = await fetch(url + "?" + new URLSearchParams(urlParams).toString(), {
+    method: "get",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+    },
+  });
   let data = await response.json();
   return data.return.qty;
 }
@@ -204,8 +180,8 @@ function createCoord() {
   let coordSwitch = true;
   return {
     change: () => {
-      coord[0] += (coordSwitch ? maxRange : 0) * 0.00000901;
-      coord[1] += (coordSwitch ? 0 : maxRange) * 0.00000901;
+      coord.lon += (coordSwitch ? maxRange : 0) * 0.00000901;
+      coord.lat += (coordSwitch ? 0 : maxRange) * 0.00000901;
       coordSwitch = !coordSwitch;
     },
     getCoord: () => coord,
@@ -220,14 +196,14 @@ function getRange() {
   return maxRange;
 }
 // Check if a coordinate has any users within a certain distance
-// If so, alternately shift the longitude and latitude until there are no users present
+// If so, shift the longitude and latitude until there are no users present
 async function checkCoord() {
   var searchUsers = true;
   while (searchUsers) {
     let coord = coordSet.getCoord();
     let qty = await checkUsersQty(getUsersQtyUrl, {
-      lon: coord[0],
-      lat: coord[1],
+      lon: coord.lon,
+      lat: coord.lat,
       interval: timeInterval,
       distance: maxRange,
     });
@@ -253,8 +229,7 @@ function generateLocation(longitude, latitude, max, min = 0) {
   const dx = r * Math.cos(theta);
 
   let newLatitude = latitude + dy / DEGREE;
-  let newLongitude =
-    longitude + dx / (DEGREE * Math.cos(latitude * (Math.PI / 180)));
+  let newLongitude = longitude + dx / (DEGREE * Math.cos(latitude * (Math.PI / 180)));
 
-  return [newLongitude, newLatitude];
+  return { lon: newLongitude, lat: newLatitude };
 }
