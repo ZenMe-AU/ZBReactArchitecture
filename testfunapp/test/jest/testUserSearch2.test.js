@@ -49,8 +49,6 @@ const testData = [
   },
 ];
 
-const expectRange = 5; // The maximum distance according to the test data
-
 /**
  * The expected result of the test.
  * distance: The distance from the coordinates
@@ -60,22 +58,22 @@ const expectRange = 5; // The maximum distance according to the test data
 const testResult = [
   {
     minDistance: 0,
-    maxDistance: 0,
+    distance: 0,
     amount: 2,
   },
   {
     minDistance: 0,
-    maxDistance: 1,
+    distance: 1,
     amount: 3,
   },
   {
     minDistance: 0,
-    maxDistance: 2,
+    distance: 2,
     amount: 4,
   },
   {
     minDistance: 0,
-    maxDistance: 5,
+    distance: 5,
     amount: 5,
   },
 ];
@@ -85,15 +83,11 @@ const maxRange = getRange();
 
 beforeAll(async () => {
   // console.log(locationWriteUrl, getUsersQtyUrl);
-  await checkCoord();
+  await findStartingCoords(); //Find random location where there are no users to start from.
 }, 60000);
 
 describe("add test data", () => {
-  test(`Max range should be ${expectRange} m(s).`, async () => {
-    expect(maxRange).toBe(expectRange);
-  });
-
-  test(`No user at {lon: ${coordSet.getCoord().lon}, lat: ${coordSet.getCoord().lat}}.`, async () => {
+  test(`Starting location with no user at {lon: ${coordSet.getCoord().lon}, lat: ${coordSet.getCoord().lat}}.`, async () => {
     let coord = coordSet.getCoord();
     let qty = await checkUsersQty(getUsersQtyUrl, {
       lon: coord.lon,
@@ -104,9 +98,9 @@ describe("add test data", () => {
     expect(qty).toBe(0);
   });
 
-  test.each(testData)("Writing test data - user id: $id in range $minDistance - $maxDistance m(s).", async (t) => {
+  test.each(testData)("Writing test data - user id: $id in range $minDistance - $maxDistance meters.", async (t) => {
     let coord = coordSet.getCoord();
-    let nCoord = generateLocation(coord.lon, coord.lat, t.maxDistance, t.minDistance);
+    let nCoord = genRandomLocation(coord.lon, coord.lat, t.maxDistance, t.minDistance);
     const response = await fetch(locationWriteUrl, {
       method: "POST",
       body: JSON.stringify({
@@ -120,19 +114,13 @@ describe("add test data", () => {
     expect(response.ok).toBeTruthy();
   });
 
-  test.each(testResult)("There should be $amount user(s) at a distance of $minDistance - $maxDistance m(s).", async (r) => {
+  test.each(testResult)("There should be $amount user(s) at a distance of $distance meters.", async (r) => {
     let coord = coordSet.getCoord();
     let urlParams = {
       lon: coord.lon,
       lat: coord.lat,
       interval: timeInterval,
-      distance: r.minDistance,
-    };
-    let urlParams2 = {
-      lon: coord.lon,
-      lat: coord.lat,
-      interval: timeInterval,
-      distance: r.maxDistance,
+      distance: r.distance,
     };
     const response = await fetch(getUsersQtyUrl + "?" + new URLSearchParams(urlParams).toString(), {
       method: "get",
@@ -142,17 +130,8 @@ describe("add test data", () => {
         "Access-Control-Allow-Origin": "*",
       },
     });
-    const response2 = await fetch(getUsersQtyUrl + "?" + new URLSearchParams(urlParams2).toString(), {
-      method: "get",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
-    });
-    const data = await response.json();
-    const data2 = await response2.json();
-    const qty = data2.return.qty - (r.minDistance === 0 ? 0 : data.return.qty);
+    const resultdata = await response.json();
+    const qty = resultdata.return.qty;
     expect(qty).toBe(r.amount);
   });
 });
@@ -190,14 +169,13 @@ function createCoord() {
 // Get the maximum distance
 function getRange() {
   let maxRange = 0;
-  for (const t of testData) {
-    maxRange = Math.max(maxRange, t.maxDistance);
+  for (const dataToInsert of testData) {
+    maxRange = Math.max(maxRange, dataToInsert.maxDistance);
   }
   return maxRange;
 }
-// Check if a coordinate has any users within a certain distance
-// If so, shift the longitude and latitude until there are no users present
-async function checkCoord() {
+// Find the starting coordinates from a random origin, if there are users present then shift the coordinates by the max range of the test data.
+async function findStartingCoords() {
   var searchUsers = true;
   while (searchUsers) {
     let coord = coordSet.getCoord();
@@ -215,15 +193,11 @@ async function checkCoord() {
   }
 }
 
-function generateLocation(longitude, latitude, max, min = 0) {
-  // earth radius in meters
-  const EARTH_RADIUS = 6371 * 1000;
-  // 1° latitude length in meters
-  const DEGREE = (EARTH_RADIUS * 2 * Math.PI) / 360;
+function genRandomLocation(longitude, latitude, max, min = 0) {
+  const EARTH_RADIUS = 6371 * 1000; // earth radius in meters
+  const DEGREE = (EARTH_RADIUS * 2 * Math.PI) / 360; // 1° latitude length in meters
   const r = (max - min) * Math.random() ** 0.5 + min;
-
-  // random angle
-  const theta = Math.random() * 2 * Math.PI;
+  const theta = Math.random() * 2 * Math.PI; // random angle
 
   const dy = r * Math.sin(theta);
   const dx = r * Math.cos(theta);
