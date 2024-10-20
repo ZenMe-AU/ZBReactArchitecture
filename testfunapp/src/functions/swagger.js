@@ -3,7 +3,8 @@ const swaggerUI = require("../swagger/swaggerUI.js");
 const swaggerJSON = require("../swagger/swaggerJSON.js");
 const swaggerPath = require("../swagger/swaggerPath.js");
 
-app.http("docs", {
+app.http("swagger", {
+  route: "swagger",
   methods: ["GET"],
   authLevel: "anonymous",
   handler: swaggerUI,
