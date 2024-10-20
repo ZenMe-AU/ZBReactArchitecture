@@ -3,7 +3,7 @@ const Location = require("../service/locationService.js");
 
 /**
  * @swagger
- * /api/GetUsersQtyByCoord:
+ * /api/SearchAtLocationQty:
  *   get:
  *     summary: Count users quantity
  *     description: Get the number of users within a certain distance from a given coordinate in a specific time period
@@ -62,7 +62,7 @@ const Location = require("../service/locationService.js");
  *                       description: The number of users found
  *                       example: 1
  */
-async function GetUsersQtyByCoord(request, context) {
+async function SearchAtLocationQty(request, context) {
   let lon = request.query.get("lon");
   let lat = request.query.get("lat");
   let interval = request.query.get("interval") || 60;
@@ -70,28 +70,16 @@ async function GetUsersQtyByCoord(request, context) {
 
   let request_time = new Date().toISOString().slice(0, 16);
   if (request.query.get("searchTime")) {
-    request_time = new Date(request.query.get("searchTime"))
-      .toISOString()
-      .slice(0, 16);
+    request_time = new Date(request.query.get("searchTime")).toISOString().slice(0, 16);
   }
   request_time += ":59";
-  let start_time = new Date(
-    new Date(request_time + "Z").getTime() - interval * 60 * 1000
-  )
-    .toISOString()
-    .slice(0, 16);
+  let start_time = new Date(new Date(request_time + "Z").getTime() - interval * 60 * 1000).toISOString().slice(0, 16);
 
   context.log("interval" + interval);
   context.log("distance" + distance);
   context.log("start_time" + start_time);
   context.log("request_time" + request_time);
-  let qty = await Users.getUsers(
-    [lon, lat],
-    start_time,
-    request_time,
-    distance,
-    true
-  );
+  let qty = await Users.getUsers([lon, lat], start_time, request_time, distance, true);
   return { jsonBody: { return: { qty: qty } } };
 }
 
@@ -181,28 +169,16 @@ async function GetUsersDataByCoord(request, context) {
 
   let request_time = new Date().toISOString().slice(0, 16);
   if (request.query.get("searchTime")) {
-    request_time = new Date(request.query.get("searchTime"))
-      .toISOString()
-      .slice(0, 16);
+    request_time = new Date(request.query.get("searchTime")).toISOString().slice(0, 16);
   }
   request_time += ":59";
-  let start_time = new Date(
-    new Date(request_time + "Z").getTime() - interval * 60 * 1000
-  )
-    .toISOString()
-    .slice(0, 16);
+  let start_time = new Date(new Date(request_time + "Z").getTime() - interval * 60 * 1000).toISOString().slice(0, 16);
 
   context.log("interval" + interval);
   context.log("distance" + distance);
   context.log("start_time" + start_time);
   context.log("request_time" + request_time);
-  let users = await Users.getUsers(
-    [lon, lat],
-    start_time,
-    request_time,
-    distance,
-    false
-  );
+  let users = await Users.getUsers([lon, lat], start_time, request_time, distance, false);
   return { jsonBody: { return: { users: users } } };
 }
 
@@ -341,19 +317,13 @@ async function SearchUsersData(request, context) {
   let device_id = request.query.get("device") || "l1";
   let request_time = new Date().toISOString().slice(0, 16);
   if (request.query.get("searchTime")) {
-    request_time = new Date(request.query.get("searchTime"))
-      .toISOString()
-      .slice(0, 16);
+    request_time = new Date(request.query.get("searchTime")).toISOString().slice(0, 16);
   }
   request_time += ":59";
   let interval = request.query.get("interval") || 60;
   let distance = request.query.get("distance") || 10;
   let limited = request.query.get("limited") || 100;
-  let start_time = new Date(
-    new Date(request_time + "Z").getTime() - interval * 60 * 1000
-  )
-    .toISOString()
-    .slice(0, 16);
+  let start_time = new Date(new Date(request_time + "Z").getTime() - interval * 60 * 1000).toISOString().slice(0, 16);
 
   context.log("device_id" + device_id);
   context.log("interval" + interval);
@@ -361,19 +331,13 @@ async function SearchUsersData(request, context) {
   context.log("limited" + limited);
   context.log("start_time" + start_time);
   context.log("request_time" + request_time);
-  let users = await Users.getUsersNearby(
-    device_id,
-    start_time,
-    request_time,
-    distance,
-    limited
-  );
+  let users = await Users.getUsersNearby(device_id, start_time, request_time, distance, limited);
 
   return { jsonBody: { return: { users: users } } };
 }
 
 module.exports = {
-  GetUsersQtyByCoord,
+  SearchAtLocationQty,
   GetUsersDataByCoord,
   LocationWrite,
   SearchUsersData,

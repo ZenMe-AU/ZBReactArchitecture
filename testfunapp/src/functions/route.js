@@ -1,10 +1,10 @@
 const { app } = require("@azure/functions");
 const handler = require("./handler.js");
 
-app.http("GetUsersQtyByCoord", {
+app.http("SearchAtLocationQty", {
   methods: ["GET"],
   authLevel: "anonymous",
-  handler: handler.GetUsersQtyByCoord,
+  handler: handler.SearchAtLocationQty,
 });
 
 app.http("GetUsersDataByCoord", {

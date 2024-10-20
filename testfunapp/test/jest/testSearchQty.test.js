@@ -1,12 +1,12 @@
 require("dotenv").config(); // Load environment variables
 
-//npm run test:local testUserSearchQty
-//npm run test:prod testUserSearchQty
+//npm run test:local testSearchQty
+//npm run test:prod testSearchQty
 
 test.todo("Testing User Search with BASE_URL=" + process.env.BASE_URL);
 const baseUrl = process.env.BASE_URL || "http://localhost:7071";
 const locationWriteUrl = new URL("/api/LocationWrite", baseUrl);
-const getUsersQtyUrl = new URL("/api/GetUsersQtyByCoord", baseUrl);
+const getUsersQtyUrl = new URL("/api/SearchAtLocationQty", baseUrl);
 
 const initCoord = {
   lon: getRandomInRange(-180, 180, 15),
@@ -52,29 +52,29 @@ const testData = [
 /**
  * The expected result of the test.
  * distance: The distance from the coordinates
- * amount: The number of users within a certain distance
+ * count: The number of users within a certain distance
  **/
 //TODO: remove mindistance from testResult
 const testResult = [
   {
     minDistance: 0,
     distance: 0,
-    amount: 2,
+    count: 2,
   },
   {
     minDistance: 0,
     distance: 1,
-    amount: 3,
+    count: 3,
   },
   {
     minDistance: 0,
     distance: 2,
-    amount: 4,
+    count: 4,
   },
   {
     minDistance: 0,
     distance: 5,
-    amount: 5,
+    count: 5,
   },
 ];
 
@@ -114,7 +114,7 @@ describe("add test data", () => {
     expect(response.ok).toBeTruthy();
   });
 
-  test.each(testResult)("There should be $amount user(s) at a distance of $distance meters.", async (r) => {
+  test.each(testResult)("There should be $count user(s) at a distance of $distance meters.", async (r) => {
     let coord = coordSet.getCoord();
     let urlParams = {
       lon: coord.lon,
@@ -132,7 +132,7 @@ describe("add test data", () => {
     });
     const resultdata = await response.json();
     const qty = resultdata.return.qty;
-    expect(qty).toBe(r.amount);
+    expect(qty).toBe(r.count);
   });
 });
 

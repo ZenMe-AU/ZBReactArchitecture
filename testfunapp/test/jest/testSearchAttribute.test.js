@@ -6,7 +6,7 @@ require("dotenv").config(); // Load environment variables
 test.todo("Testing User Search with BASE_URL=" + process.env.BASE_URL);
 const baseUrl = process.env.BASE_URL || "http://localhost:7071";
 const locationWriteUrl = new URL("/api/LocationWrite", baseUrl);
-const getUsersQtyUrl = new URL("/api/GetUsersQtyByCoord", baseUrl);
+const getUsersQtyUrl = new URL("/api/SearchAtLocationQty", baseUrl);
 
 const initCoord = {
   lon: getRandomInRange(-180, 180, 15),
@@ -19,62 +19,78 @@ const timeInterval = 5; // Search time range in minutes
  * The data will be written in the database in this test
  * minDistance: The limit of the nearest distance from the coordinates
  * maxDistance: The limit of the farthest distance from the coordinates
- * id: The user's device id
+ * id: The user's device id.
  **/
 const testData = [
   {
+    id: 1,
     minDistance: 0,
     maxDistance: 0,
-    id: 2,
+    avatar: "",
+    attributes: ["blond", "male", "tall", "blue eyes"],
   },
   {
+    id: 2,
+    minDistance: 0,
+    maxDistance: 0,
+    avatar: "",
+    attributes: ["blond", "male", "tall", "blue eyes"],
+  },
+  {
+    id: 3,
     minDistance: 1,
     maxDistance: 2,
-    id: 3,
+    avatar: "",
+    attributes: ["blond", "male", "tall", "blue eyes"],
   },
   {
+    id: 4,
     minDistance: 2,
     maxDistance: 5,
-    id: 4,
+    avatar: "",
+    attributes: ["blond", "male", "tall", "blue eyes"],
   },
   {
+    id: 5,
     minDistance: 0,
     maxDistance: 1,
-    id: 5,
+    avatar: "",
+    attributes: ["blond", "male", "tall", "blue eyes"],
   },
   {
+    id: 6,
     minDistance: 0,
     maxDistance: 0,
-    id: 6,
+    avatar: "",
+    attributes: ["blond", "male", "tall", "blue eyes"],
   },
 ];
 
 /**
  * The expected result of the test.
- * distance: The distance from the coordinates
- * amount: The number of users within a certain distance
+ * distance: The distance from the coordinates.
+ * searchAttributes: The attributes to search for.
+ * count: The number of users within a certain distance
  **/
-//TODO: remove mindistance from testResult
+//TODO: how to structure the search string so that multiple attributes can be searched?
 const testResult = [
   {
     minDistance: 0,
-    distance: 0,
-    amount: 2,
-  },
-  {
-    minDistance: 0,
-    distance: 1,
-    amount: 3,
-  },
-  {
-    minDistance: 0,
-    distance: 2,
-    amount: 4,
+    distance: 5,
+    searchAttributes: ["blond"],
+    count: 2,
   },
   {
     minDistance: 0,
     distance: 5,
-    amount: 5,
+    searchAttributes: ["male"],
+    count: 3,
+  },
+  {
+    minDistance: 0,
+    distance: 5,
+    searchAttributes: ["blond", "male"],
+    count: 3,
   },
 ];
 
@@ -114,7 +130,7 @@ describe("add test data", () => {
     expect(response.ok).toBeTruthy();
   });
 
-  test.each(testResult)("There should be $amount user(s) at a distance of $distance meters.", async (r) => {
+  test.each(testResult)("There should be $count user(s) at a distance of $distance meters.", async (r) => {
     let coord = coordSet.getCoord();
     let urlParams = {
       lon: coord.lon,
@@ -132,7 +148,7 @@ describe("add test data", () => {
     });
     const resultdata = await response.json();
     const qty = resultdata.return.qty;
-    expect(qty).toBe(r.amount);
+    expect(qty).toBe(r.count);
   });
 });
 
