@@ -1,21 +1,20 @@
 require("dotenv").config(); // Load environment variables
 
-//npx env-cmd -f local.env jest testUserSearch2
-//npx env-cmd -f .env jest testUserSearch2
+//npm run test:local testUserSearch2
+//npm run test:prod testUserSearch2
 
 test.todo("Testing User Search with BASE_URL=" + process.env.BASE_URL);
 const baseUrl = process.env.BASE_URL || "http://localhost:7071";
 const locationWriteUrl = new URL("/api/LocationWrite", baseUrl);
 const getUsersQtyUrl = new URL("/api/GetUsersQtyByCoord", baseUrl);
 
-// The Random Coordinate at the beginning
 const initCoord = {
   lon: getRandomInRange(-180, 180, 15),
   lat: getRandomInRange(-90, 90, 15),
-};
+}; // The Random Coordinate at the beginning
 
-// Search time range in minutes
-const timeInterval = 5;
+const timeInterval = 5; // Search time range in minutes
+
 /**
  * The data will be written in the database in this test
  * minDistance: The limit of the nearest distance from the coordinates
@@ -49,14 +48,15 @@ const testData = [
     id: 6,
   },
 ];
-// The maximum distance according to the test data
-const expectRange = 5;
+
+const expectRange = 5; // The maximum distance according to the test data
+
 /**
- * The except result of the test
+ * The expected result of the test.
  * distance: The distance from the coordinates
  * amount: The number of users within a certain distance
  **/
-//TODO: remove mindistance from SpeechRecognitionResultList.
+//TODO: remove mindistance from testResult
 const testResult = [
   {
     minDistance: 0,
@@ -84,7 +84,7 @@ const coordSet = createCoord();
 const maxRange = getRange();
 
 beforeAll(async () => {
-  console.log(locationWriteUrl, getUsersQtyUrl);
+  // console.log(locationWriteUrl, getUsersQtyUrl);
   await checkCoord();
 }, 60000);
 
