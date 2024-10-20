@@ -1,7 +1,7 @@
 require("dotenv").config(); // Load environment variables
 
-//npm run test:local testUserSearch2
-//npm run test:prod testUserSearch2
+//npm run test:local testUserSearchQty
+//npm run test:prod testUserSearchQty
 
 test.todo("Testing User Search with BASE_URL=" + process.env.BASE_URL);
 const baseUrl = process.env.BASE_URL || "http://localhost:7071";
