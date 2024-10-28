@@ -15,71 +15,9 @@ const initCoord = {
 
 const timeInterval = 5; // Search time range in minutes
 
-/**
- * The data will be written in the database in this test
- * minDistance: The limit of the nearest distance from the coordinates
- * maxDistance: The limit of the farthest distance from the coordinates
- * id: The user's device id
- **/
-const testData = [
-  {
-    minDistance: 0,
-    maxDistance: 0,
-    id: 2,
-  },
-  {
-    minDistance: 1,
-    maxDistance: 2,
-    id: 3,
-  },
-  {
-    minDistance: 2,
-    maxDistance: 5,
-    id: 4,
-  },
-  {
-    minDistance: 0,
-    maxDistance: 1,
-    id: 5,
-  },
-  {
-    minDistance: 0,
-    maxDistance: 0,
-    id: 6,
-  },
-];
-
-/**
- * The expected result of the test.
- * distance: The distance from the coordinates
- * count: The number of users within a certain distance
- **/
-//TODO: remove mindistance from testResult
-const testResult = [
-  {
-    minDistance: 0,
-    distance: 0,
-    count: 2,
-  },
-  {
-    minDistance: 0,
-    distance: 1,
-    count: 3,
-  },
-  {
-    minDistance: 0,
-    distance: 2,
-    count: 4,
-  },
-  {
-    minDistance: 0,
-    distance: 5,
-    count: 5,
-  },
-];
-
+const maxTotalRange = getMaxRange();
 const coordSet = createCoord();
-const maxRange = getRange();
+// const maxTotalRange = getMaxRange();
 
 beforeAll(async () => {
   // console.log(locationWriteUrl, getUsersQtyUrl);
@@ -93,12 +31,12 @@ describe("add test data", () => {
       lon: coord.lon,
       lat: coord.lat,
       interval: timeInterval,
-      distance: maxRange,
+      distance: maxTotalRange,
     });
     expect(qty).toBe(0);
   });
 
-  test.each(testData)("Writing test data - user id: $id in range $minDistance - $maxDistance meters.", async (t) => {
+  test.each(getTestData())("Writing test data - user id: $id in range $minDistance - $maxDistance meters.", async (t) => {
     let coord = coordSet.getCoord();
     let nCoord = genRandomLocation(coord.lon, coord.lat, t.maxDistance, t.minDistance);
     const response = await fetch(locationWriteUrl, {
@@ -114,7 +52,7 @@ describe("add test data", () => {
     expect(response.ok).toBeTruthy();
   });
 
-  test.each(testResult)("There should be $count user(s) at a distance of $distance meters.", async (r) => {
+  test.each(getTestResult())("There should be $count user(s) at a distance of $distance meters.", async (r) => {
     let coord = coordSet.getCoord();
     let urlParams = {
       lon: coord.lon,
@@ -159,17 +97,17 @@ function createCoord() {
   let coordSwitch = true;
   return {
     change: () => {
-      coord.lon += (coordSwitch ? maxRange : 0) * 0.00000901;
-      coord.lat += (coordSwitch ? 0 : maxRange) * 0.00000901;
+      coord.lon += (coordSwitch ? maxTotalRange : 0) * 0.00000901;
+      coord.lat += (coordSwitch ? 0 : maxTotalRange) * 0.00000901;
       coordSwitch = !coordSwitch;
     },
     getCoord: () => coord,
   };
 }
 // Get the maximum distance
-function getRange() {
+function getMaxRange() {
   let maxRange = 0;
-  for (const dataToInsert of testData) {
+  for (const dataToInsert of getTestData()) {
     maxRange = Math.max(maxRange, dataToInsert.maxDistance);
   }
   return maxRange;
@@ -183,7 +121,7 @@ async function findStartingCoords() {
       lon: coord.lon,
       lat: coord.lat,
       interval: timeInterval,
-      distance: maxRange,
+      distance: maxTotalRange,
     });
     if (qty === 0) {
       searchUsers = false;
@@ -206,4 +144,71 @@ function genRandomLocation(longitude, latitude, max, min = 0) {
   let newLongitude = longitude + dx / (DEGREE * Math.cos(latitude * (Math.PI / 180)));
 
   return { lon: newLongitude, lat: newLatitude };
+}
+
+/**
+ * The data will be written in the database in this test
+ * minDistance: The limit of the nearest distance from the coordinates
+ * maxDistance: The limit of the farthest distance from the coordinates
+ * id: The user's device id
+ **/
+function getTestData() {
+  return [
+    {
+      minDistance: 0,
+      maxDistance: 0,
+      id: 2,
+    },
+    {
+      minDistance: 1,
+      maxDistance: 2,
+      id: 3,
+    },
+    {
+      minDistance: 2,
+      maxDistance: 5,
+      id: 4,
+    },
+    {
+      minDistance: 0,
+      maxDistance: 1,
+      id: 5,
+    },
+    {
+      minDistance: 0,
+      maxDistance: 0,
+      id: 6,
+    },
+  ];
+}
+
+/**
+ * The expected result of the test.
+ * distance: The distance from the coordinates
+ * count: The number of users within a certain distance
+ **/
+//TODO: remove mindistance from testResult
+function getTestResult() {
+  return [
+    {
+      minDistance: 0,
+      distance: 0,
+      count: 2,
+    },
+    {
+      minDistance: 0,
+      distance: 1,
+      count: 3,
+    },
+    {
+      minDistance: 0,
+      distance: 2,
+      count: 4,
+    },
+    {
+      minDistance: 0,
+      distance: 5,
+      count: 5,
+    },
+  ];
 }
