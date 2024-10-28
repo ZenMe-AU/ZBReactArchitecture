@@ -5,7 +5,9 @@
   "scripts": {
     "start": "func start",
     "test:local": "env-cmd -f local.env jest",
-    "test:prod": "env-cmd -f .env jest"
+    "test:prod": "env-cmd -f .env jest",
+    "migrate:up": "npx sequelize-cli db:migrate",
+    "migrate:down": "npx sequelize-cli db:migrate:undo"
   },
   "dependencies": {
     "@azure/functions": "^4.0.0",
