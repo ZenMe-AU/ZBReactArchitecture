@@ -24,3 +24,17 @@ app.http("SearchUsersData", {
   authLevel: "anonymous",
   handler: handler.SearchUsersData,
 });
+
+app.http("GetAttributes", {
+  route: "attributes/{userId}",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: handler.GetAttributes,
+});
+
+app.http("PutAttributes", {
+  route: "attributes/{userId}",
+  methods: ["PUT"],
+  authLevel: "anonymous",
+  handler: handler.PutAttributes,
+});

@@ -1,5 +1,6 @@
 const Users = require("../service/userService.js");
 const Location = require("../service/locationService.js");
+const Attributes = require("../service/attributeService.js");
 
 /**
  * @swagger
@@ -336,9 +337,106 @@ async function SearchUsersData(request, context) {
   return { jsonBody: { return: { users: users } } };
 }
 
+/**
+ * @swagger
+ * /api/GetAttributes/{userId}:
+ *   get:
+ *     summary: Get user's attributes
+ *     description: Get a list of attributes of a specific user.
+ *     parameters:
+ *       - name: userId
+ *         in: path
+ *         description: The id of the user
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: "3"
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved user attributes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 return:
+ *                   type: object
+ *                   properties:
+ *                     attributes:
+ *                       type: array
+ *                       description: Array of user attributes
+ *                       items:
+ *                         type: string
+ *                         example: "blond"
+ */
+async function GetAttributes(request, context) {
+  const userId = parseInt(request.params.userId);
+  let attributes = await Attributes.getByUser(userId);
+  return { jsonBody: { return: { attributes: attributes } } };
+}
+
+/**
+ * @swagger
+ * /api/PutAttributes/{userId}:
+ *   put:
+ *     summary: Update user's attributes
+ *     description: Update the attributes of a specific user.
+ *     parameters:
+ *       - name: userId
+ *         in: path
+ *         description: The id of the user
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: "1"
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               attributes:
+ *                 type: array
+ *                 description: Array of attributes to update for the user
+ *                 items:
+ *                   type: string
+ *                   example: "blond"
+ *     responses:
+ *       200:
+ *         description: Successfully updated user attributes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 return:
+ *                   type: object
+ *                   properties:
+ *                     attributes:
+ *                       type: array
+ *                       description: Array of updated user attributes
+ *                       items:
+ *                         type: string
+ *                         example: "blond"
+ */
+async function PutAttributes(request, context) {
+  const userId = parseInt(request.params.userId);
+  const bodyText = await request.text();
+  const bodyJson = JSON.parse(bodyText);
+  let attributes = bodyJson["attributes"];
+
+  context.log("request_time" + attributes);
+  let attrData = await Attributes.update(userId, attributes);
+
+  return { jsonBody: { return: { attributes: attrData } } };
+}
+
 module.exports = {
   SearchAtLocationQty,
   GetUsersDataByCoord,
   LocationWrite,
   SearchUsersData,
+  GetAttributes,
+  PutAttributes,
 };
