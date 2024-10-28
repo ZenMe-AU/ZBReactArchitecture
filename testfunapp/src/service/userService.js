@@ -1,6 +1,7 @@
 const { Op, Sequelize, QueryTypes } = require("sequelize");
-const { sequelize } = require("../Repository/db.js");
-const { Users, Location } = require("../Repository/models.js");
+// const { sequelize } = require("../Repository/db.js");
+const { Users, Location, Attributes } = require("../Repository/models.js");
+const { sequelize } = require("../../models/index");
 
 /**
  * A coordinate array
@@ -15,31 +16,33 @@ const { Users, Location } = require("../Repository/models.js");
  * @param {string} tTo The end time
  * @param {number} distance The distance from the coordinate
  * @param {boolean} CountOnly If true, return the count only
+ * @param {array|null} tags The attributes of users
  * @returns {Promise<Users>|number}
  */
-function getUsers(coord, tFrom, tTo, distance, CountOnly) {
+function getUsers(coord, tFrom, tTo, distance, CountOnly, tags = null) {
   try {
-    const include = [
+    var include = [
       {
         model: Location,
         attributes: [],
         where: [
           { createdAt: { [Op.between]: [tFrom + "Z", tTo + "Z"] } },
           Sequelize.where(
-            Sequelize.fn(
-              "ST_DWithin",
-              Sequelize.col("geom"),
-              "SRID=4326;POINT(" + coord[0] + " " + coord[1] + ")",
-              distance,
-              true
-            ),
+            Sequelize.fn("ST_DWithin", Sequelize.col("geom"), "SRID=4326;POINT(" + coord[0] + " " + coord[1] + ")", distance, true),
             true
           ),
         ],
         group: ["tid"],
       },
     ];
-
+    if (tags !== null) {
+      include.push({
+        model: Attributes,
+        attributes: [],
+        where: { tag: { [Op.like]: { [Op.any]: tags.map((tag) => "%" + tag + "%") } } },
+        group: ["user_id"],
+      });
+    }
     if (CountOnly) {
       return Users.count({ distinct: true, col: "id", include: include });
     } else {

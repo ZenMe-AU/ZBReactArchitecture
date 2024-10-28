@@ -47,6 +47,13 @@ const Attributes = require("../service/attributeService.js");
  *         schema:
  *           type: integer
  *           example: 30
+ *       - name: attributes
+ *         in: query
+ *         description: The attributes of users to filter by, such as "blond,tall,male,blue eyes". Separate multiple attributes with commas.
+ *         required: false
+ *         schema:
+ *           type: string
+ *           example: blond,tall,male,blue eyes
  *     responses:
  *       200:
  *         description: The number of users within the given conditions
@@ -76,11 +83,16 @@ async function SearchAtLocationQty(request, context) {
   request_time += ":59";
   let start_time = new Date(new Date(request_time + "Z").getTime() - interval * 60 * 1000).toISOString().slice(0, 16);
 
+  let attributes = null;
+  if (request.query.get("attributes")) {
+    attributes = request.query.get("attributes").split(",").filter(Boolean);
+  }
+
   context.log("interval" + interval);
   context.log("distance" + distance);
   context.log("start_time" + start_time);
   context.log("request_time" + request_time);
-  let qty = await Users.getUsers([lon, lat], start_time, request_time, distance, true);
+  let qty = await Users.getUsers([lon, lat], start_time, request_time, distance, true, attributes);
   return { jsonBody: { return: { qty: qty } } };
 }
 
@@ -129,6 +141,13 @@ async function SearchAtLocationQty(request, context) {
  *         schema:
  *           type: integer
  *           example: 30
+ *       - name: attributes
+ *         in: query
+ *         description: The attributes of users to filter by, such as "blond,tall,male,blue eyes". Separate multiple attributes with commas.
+ *         required: false
+ *         schema:
+ *           type: string
+ *           example: blond,tall,male,blue eyes
  *     responses:
  *       200:
  *         description: A list of users matching the given conditions
@@ -175,11 +194,16 @@ async function GetUsersDataByCoord(request, context) {
   request_time += ":59";
   let start_time = new Date(new Date(request_time + "Z").getTime() - interval * 60 * 1000).toISOString().slice(0, 16);
 
+  let attributes = null;
+  if (request.query.get("attributes")) {
+    attributes = request.query.get("attributes").split(",").filter(Boolean);
+  }
+
   context.log("interval" + interval);
   context.log("distance" + distance);
   context.log("start_time" + start_time);
   context.log("request_time" + request_time);
-  let users = await Users.getUsers([lon, lat], start_time, request_time, distance, false);
+  let users = await Users.getUsers([lon, lat], start_time, request_time, distance, false, attributes);
   return { jsonBody: { return: { users: users } } };
 }
 
