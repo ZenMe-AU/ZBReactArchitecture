@@ -363,7 +363,7 @@ async function SearchUsersData(request, context) {
 
 /**
  * @swagger
- * /api/GetAttributes/{userId}:
+ * /api/attributes/{userId}:
  *   get:
  *     summary: Get user's attributes
  *     description: Get a list of attributes of a specific user.
@@ -401,7 +401,7 @@ async function GetAttributes(request, context) {
 
 /**
  * @swagger
- * /api/PutAttributes/{userId}:
+ * /api/attributes/{userId}:
  *   put:
  *     summary: Update user's attributes
  *     description: Update the attributes of a specific user.
