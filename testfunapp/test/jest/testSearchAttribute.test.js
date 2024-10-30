@@ -45,7 +45,7 @@ describe("test attribute data", () => {
     const resultData = await response.json();
     const tags = resultData.return.attributes;
     expect(response.ok).toBeTruthy();
-    expect(tags).toEqual(t.attributes);
+    expect(tags.sort()).toEqual(t.attributes.sort());
   });
 
   test.each(getTestData())("Writing test data - user id: $id in range $minDistance - $maxDistance meters.", async (t) => {
