@@ -3,7 +3,7 @@ require("dotenv").config(); // Load environment variables
 //npm run test:local testSearchQty
 //npm run test:prod testSearchQty
 
-test.todo("Testing User Search with BASE_URL=" + process.env.BASE_URL);
+console.log("Testing User Search with BASE_URL=" + process.env.BASE_URL);
 const baseUrl = process.env.BASE_URL || "http://localhost:7071";
 const locationWriteUrl = new URL("/api/LocationWrite", baseUrl);
 const getUsersQtyUrl = new URL("/api/SearchAtLocationQty", baseUrl);
@@ -16,16 +16,15 @@ const initCoord = {
 const timeInterval = 5; // Search time range in minutes
 
 const maxTotalRange = getMaxRange();
-const coordSet = createCoord();
-// const maxTotalRange = getMaxRange();
-
+var coordSet;
 beforeAll(async () => {
-  // console.log(locationWriteUrl, getUsersQtyUrl);
+  coordSet = createCoord(maxTotalRange);
+  console.log(`Starting location with no user at {lon: ${coordSet.getCoord().lon}, lat: ${coordSet.getCoord().lat}}.`);
   await findStartingCoords(); //Find random location where there are no users to start from.
 }, 60000);
 
 describe("add test data", () => {
-  test(`Starting location with no user at {lon: ${coordSet.getCoord().lon}, lat: ${coordSet.getCoord().lat}}.`, async () => {
+  test("Starting location test", async () => {
     let coord = coordSet.getCoord();
     let qty = await checkUsersQty(getUsersQtyUrl, {
       lon: coord.lon,
@@ -92,13 +91,13 @@ async function checkUsersQty(url, urlParams) {
   return data.return.qty;
 }
 
-function createCoord() {
+function createCoord(range) {
   let coord = initCoord;
   let coordSwitch = true;
   return {
     change: () => {
-      coord.lon += (coordSwitch ? maxTotalRange : 0) * 0.00000901;
-      coord.lat += (coordSwitch ? 0 : maxTotalRange) * 0.00000901;
+      coord.lon += (coordSwitch ? range : 0) * 0.00000901;
+      coord.lat += (coordSwitch ? 0 : range) * 0.00000901;
       coordSwitch = !coordSwitch;
     },
     getCoord: () => coord,
