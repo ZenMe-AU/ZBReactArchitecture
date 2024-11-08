@@ -38,3 +38,17 @@ app.http("PutAttributes", {
   authLevel: "anonymous",
   handler: handler.PutAttributes,
 });
+
+app.http("CreateProfile", {
+  route: "profile",
+  methods: ["POST"],
+  authLevel: "anonymous",
+  handler: handler.CreateProfile,
+});
+
+app.http("SearchProfile", {
+  route: "profile",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: handler.SearchProfile,
+});

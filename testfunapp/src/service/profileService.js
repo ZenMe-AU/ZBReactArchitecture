@@ -1,7 +1,49 @@
 const { Op, Sequelize, QueryTypes } = require("sequelize");
-// const { sequelize } = require("../Repository/db.js");
-const { Users, Location, Attributes } = require("../Repository/models.js");
+const { Profiles, Location, Attributes } = require("../Repository/models.js");
 const { sequelize } = require("../../models/index");
+
+async function create(name, tags = []) {
+  try {
+    let profile = await Profiles.create(
+      {
+        name: name,
+        attributes: tags.map(function (tag) {
+          return { tag: tag };
+        }),
+      },
+      {
+        include: [Attributes],
+      }
+    );
+
+    profile.device_id = profile.id;
+    await profile.save();
+    return profile;
+  } catch (err) {
+    console.log(err);
+    return;
+  }
+}
+
+function getList(name, tags) {
+  try {
+    let includeAttributes = {
+      model: Attributes,
+      attributes: [],
+      group: ["profile_id"],
+    };
+    if (tags != null) {
+      includeAttributes.where = { tag: { [Op.like]: { [Op.any]: tags } } };
+    }
+    return Profiles.findAll({
+      attributes: ["id", "name", "avatar"],
+      include: [includeAttributes],
+    });
+  } catch (err) {
+    console.log(err);
+    return;
+  }
+}
 
 /**
  * A coordinate array
@@ -17,9 +59,9 @@ const { sequelize } = require("../../models/index");
  * @param {number} distance The distance from the coordinate
  * @param {boolean} CountOnly If true, return the count only
  * @param {array|null} tags The attributes of users
- * @returns {Promise<Users>|number}
+ * @returns {Promise<Profiles>|number}
  */
-function getUsers(coord, tFrom, tTo, distance, CountOnly, tags = null) {
+function getUsersProfile(coord, tFrom, tTo, distance, CountOnly, tags = null) {
   try {
     var include = [
       {
@@ -40,39 +82,17 @@ function getUsers(coord, tFrom, tTo, distance, CountOnly, tags = null) {
         model: Attributes,
         attributes: [],
         where: { tag: { [Op.like]: { [Op.any]: tags } } },
-        group: ["user_id"],
+        group: ["profile_id"],
       });
     }
     if (CountOnly) {
-      return Users.count({ distinct: true, col: "id", include: include });
+      return Profiles.count({ distinct: true, col: "id", include: include });
     } else {
-      return Users.findAll({
-        attributes: ["id", ["deviceId", "tid"], "name", "avatar"],
+      return Profiles.findAll({
+        attributes: ["id", ["id", "tid"], "name", "avatar"],
         include: include,
       });
     }
-
-    // var locationData =  await Location.findAll({
-    //   attributes: ['tid'],
-    //   where:[
-    //     {createdAt: {[Op.between]: [from+'Z', to+'Z']}},
-    //     Sequelize.where(Sequelize.fn('ST_DWithin', Sequelize.col('geom'), 'SRID=4326;POINT('+ coord[0] +' '+ coord[1] +')', distance, true), true)
-    //   ]
-    // });
-
-    // var deviceIds = [];
-    // locationData.forEach((location) => {
-    //   deviceIds.push(location['tid']);
-    // });
-
-    // if (deviceIds.length === 0) { console.log("User is empty!"); return [];}
-
-    // return await Users.findAll({
-    //   attributes: ['id', ['deviceId', 'tid'], 'name', 'avatar'],
-    //   where: {
-    //       deviceId: deviceIds,
-    //   },
-    // });
   } catch (err) {
     console.log(err);
     return [];
@@ -87,10 +107,10 @@ function getUsers(coord, tFrom, tTo, distance, CountOnly, tags = null) {
  * @param {string} endTime - The end time
  * @param {number} distance - The distance from the user's coordinate
  * @param {number} limited - The number of return amount
- * @return {Promise<Users>}
+ * @return {Promise<Profiles>}
  *
  */
-async function getUsersNearby(deviceId, startTime, endTime, distance, limited) {
+async function getUsersProfileNearby(deviceId, startTime, endTime, distance, limited) {
   let select_query = `
         SELECT   "location2"."tid"
         FROM
@@ -118,8 +138,8 @@ async function getUsersNearby(deviceId, startTime, endTime, distance, limited) {
       deviceIds.push(location["tid"]);
     });
 
-    return await Users.findAll({
-      attributes: ["id", ["deviceId", "tid"], "name", "avatar"],
+    return await Profiles.findAll({
+      attributes: ["id", ["id", "tid"], "name", "avatar"],
       where: {
         deviceId: deviceIds,
       },
@@ -131,6 +151,8 @@ async function getUsersNearby(deviceId, startTime, endTime, distance, limited) {
 }
 
 module.exports = {
-  getUsers,
-  getUsersNearby,
+  getUsersProfile,
+  getUsersProfileNearby,
+  create,
+  getList,
 };

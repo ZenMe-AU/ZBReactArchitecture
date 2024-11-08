@@ -68,7 +68,7 @@ const Location = sequelize.define(
 const Attributes = sequelize.define(
   "attributes",
   {
-    user_id: {
+    profile_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -87,13 +87,46 @@ const Attributes = sequelize.define(
   }
 );
 
-Users.hasMany(Location, { foreignKey: "tid", sourceKey: "deviceId" });
-Users.hasMany(Attributes, { foreignKey: "user_id", sourceKey: "id" });
-Location.belongsTo(Users, { targetKey: "deviceId", foreignKey: "tid" });
-Attributes.belongsTo(Attributes, { targetKey: "id", foreignKey: "user_id" });
+const Profiles = sequelize.define(
+  "profiles",
+  {
+    user_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    name: {
+      type: DataTypes.CHAR,
+      allowNull: false,
+    },
+    avatar: {
+      type: DataTypes.CHAR,
+      allowNull: true,
+    },
+    device_id: {
+      type: DataTypes.CHAR,
+    },
+  },
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      primaryKey: true,
+    },
+    timestamps: false,
+    // Other model options go here
+  }
+);
+
+// Users.hasMany(Location, { foreignKey: "tid", sourceKey: "deviceId" });
+// Location.belongsTo(Users, { targetKey: "deviceId", foreignKey: "tid" });
+Location.belongsTo(Profiles, { targetKey: "device_id", foreignKey: "tid" });
+Attributes.belongsTo(Profiles, { targetKey: "id", foreignKey: "profile_id" });
+Profiles.hasMany(Attributes, { foreignKey: "profile_id", sourceKey: "id" });
+Profiles.hasMany(Location, { foreignKey: "tid", sourceKey: "device_id" });
 
 module.exports = {
   Users,
   Location,
   Attributes,
+  Profiles,
 };

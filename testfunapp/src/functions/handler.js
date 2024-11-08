@@ -1,6 +1,7 @@
 const Users = require("../service/userService.js");
 const Location = require("../service/locationService.js");
 const Attributes = require("../service/attributeService.js");
+const Profiles = require("../service/profileService.js");
 
 /**
  * @swagger
@@ -54,6 +55,13 @@ const Attributes = require("../service/attributeService.js");
  *         schema:
  *           type: string
  *           example: blond,tall,male,blue eyes
+ *       - name: fuzzySearch
+ *         in: query
+ *         description: Enable fuzzy search for matching attributes.
+ *         required: false
+ *         schema:
+ *           type: boolean
+ *           example: true
  *     responses:
  *       200:
  *         description: The number of users within the given conditions
@@ -86,13 +94,18 @@ async function SearchAtLocationQty(request, context) {
   let attributes = null;
   if (request.query.get("attributes")) {
     attributes = request.query.get("attributes").split(",").filter(Boolean);
+    if (request.query.get("fuzzySearch") === true || request.query.get("fuzzySearch")?.toLowerCase?.() === "true") {
+      attributes = attributes.map((tag) => "%" + tag + "%");
+    }
   }
 
+  context.log("fuzzySearch" + request.query.get("fuzzySearch"));
+  context.log("attributes" + attributes);
   context.log("interval" + interval);
   context.log("distance" + distance);
   context.log("start_time" + start_time);
   context.log("request_time" + request_time);
-  let qty = await Users.getUsers([lon, lat], start_time, request_time, distance, true, attributes);
+  let qty = await Profiles.getUsersProfile([lon, lat], start_time, request_time, distance, true, attributes);
   return { jsonBody: { return: { qty: qty } } };
 }
 
@@ -148,6 +161,13 @@ async function SearchAtLocationQty(request, context) {
  *         schema:
  *           type: string
  *           example: blond,tall,male,blue eyes
+ *       - name: fuzzySearch
+ *         in: query
+ *         description: Enable fuzzy search for matching attributes.
+ *         required: false
+ *         schema:
+ *           type: boolean
+ *           example: true
  *     responses:
  *       200:
  *         description: A list of users matching the given conditions
@@ -197,13 +217,15 @@ async function GetUsersDataByCoord(request, context) {
   let attributes = null;
   if (request.query.get("attributes")) {
     attributes = request.query.get("attributes").split(",").filter(Boolean);
+    if (request.query.get("fuzzySearch") === true || request.query.get("fuzzySearch")?.toLowerCase?.() === "true") {
+      attributes = attributes.map((tag) => "%" + tag + "%");
+    }
   }
-
   context.log("interval" + interval);
   context.log("distance" + distance);
   context.log("start_time" + start_time);
   context.log("request_time" + request_time);
-  let users = await Users.getUsers([lon, lat], start_time, request_time, distance, false, attributes);
+  let users = await Profiles.getUsersProfile([lon, lat], start_time, request_time, distance, false, attributes);
   return { jsonBody: { return: { users: users } } };
 }
 
@@ -356,7 +378,7 @@ async function SearchUsersData(request, context) {
   context.log("limited" + limited);
   context.log("start_time" + start_time);
   context.log("request_time" + request_time);
-  let users = await Users.getUsersNearby(device_id, start_time, request_time, distance, limited);
+  let users = await Profiles.getUsersProfileNearby(device_id, start_time, request_time, distance, limited);
 
   return { jsonBody: { return: { users: users } } };
 }
@@ -449,11 +471,124 @@ async function PutAttributes(request, context) {
   const bodyText = await request.text();
   const bodyJson = JSON.parse(bodyText);
   let attributes = bodyJson["attributes"];
-
-  context.log("request_time" + attributes);
   let attrData = await Attributes.update(userId, attributes);
-
   return { jsonBody: { return: { attributes: attrData } } };
+}
+
+/**
+ * @swagger
+ * /api/profile:
+ *   post:
+ *     summary: Create a new user profile
+ *     description: Create a new profile with a name and a list of attributes.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: The name of the profile
+ *                 example: "John Doe"
+ *               attributes:
+ *                 type: array
+ *                 description: A list of attributes for the profile
+ *                 items:
+ *                   type: string
+ *                 example: ["blond", "tall", "athlete"]
+ *     responses:
+ *       200:
+ *         description: Profile created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 return:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       description: The ID of the created profile
+ *                       example: 101
+ */
+async function CreateProfile(request, context) {
+  const bodyText = await request.text();
+  const bodyJson = JSON.parse(bodyText);
+  let name = bodyJson["name"];
+  let attributes = bodyJson["attributes"] || [];
+  let profile = await Profiles.create(name, attributes);
+  return { jsonBody: { return: { id: profile.id } } };
+}
+
+/**
+ * @swagger
+ * /api/profile:
+ *   get:
+ *     summary: Search for profiles
+ *     description: Retrieve profiles matching specific attributes with optional fuzzy search.
+ *     parameters:
+ *       - name: attributes
+ *         in: query
+ *         description: Attributes to filter profiles by, separated by commas (e.g., "blond,athlete,tall")
+ *         required: false
+ *         schema:
+ *           type: string
+ *           example: "blond,athlete,tall"
+ *       - name: fuzzySearch
+ *         in: query
+ *         description: Enable fuzzy search on attributes by setting this to `true`.
+ *         required: false
+ *         schema:
+ *           type: boolean
+ *           example: true
+ *     responses:
+ *       200:
+ *         description: List of profiles matching the search criteria
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 return:
+ *                   type: object
+ *                   properties:
+ *                     profile:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: integer
+ *                             description: The ID of the profile
+ *                             example: 101
+ *                           name:
+ *                             type: string
+ *                             description: The name of the profile
+ *                             example: "John Doe"
+ *                           avatar:
+ *                             type: string
+ *                             description: The path to the user's avatar image
+ *                             example: "pic/avatar_1.jpg"
+ *                           attributes:
+ *                             type: array
+ *                             items:
+ *                               type: string
+ *                             description: Attributes of the profile
+ *                             example: ["blond", "athlete", "tall"]
+ */
+async function SearchProfile(request, context) {
+  let attributes = null;
+  if (request.query.get("attributes")) {
+    attributes = request.query.get("attributes").split(",").filter(Boolean);
+    if (request.query.get("fuzzySearch") === true || request.query.get("fuzzySearch")?.toLowerCase?.() === "true") {
+      attributes = attributes.map((tag) => "%" + tag + "%");
+    }
+  }
+  let profile = await Profiles.getList(null, attributes);
+  return { jsonBody: { return: { profile: profile } } };
 }
 
 module.exports = {
@@ -463,4 +598,6 @@ module.exports = {
   SearchUsersData,
   GetAttributes,
   PutAttributes,
+  CreateProfile,
+  SearchProfile,
 };

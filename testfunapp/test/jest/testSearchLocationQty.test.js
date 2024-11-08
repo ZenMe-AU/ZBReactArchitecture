@@ -67,8 +67,8 @@ describe("add test data", () => {
         "Access-Control-Allow-Origin": "*",
       },
     });
-    const resultdata = await response.json();
-    const qty = resultdata.return.qty;
+    const resultData = await response.json();
+    const qty = resultData.return.qty;
     expect(qty).toBe(r.count);
   });
 });

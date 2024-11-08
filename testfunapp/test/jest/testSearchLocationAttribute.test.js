@@ -8,6 +8,7 @@ const baseUrl = process.env.BASE_URL || "http://localhost:7071";
 const locationWriteUrl = new URL("/api/LocationWrite", baseUrl);
 const getUsersQtyUrl = new URL("/api/SearchAtLocationQty", baseUrl);
 const writeAttributesUrl = new URL("/api/attributes", baseUrl);
+const profileUrl = new URL("/api/profile", baseUrl);
 
 const initCoord = {
   lon: getRandomInRange(-180, 180, 15),
@@ -36,35 +37,43 @@ describe("test attribute data", () => {
     expect(qty).toBe(0);
   });
 
-  test.each(getTestData())(`Writing attribute data - user id: $id attr: $attributes`, async (t) => {
-    // console.log(JSON.stringify({ attributes: t.attributes }));
-    const response = await fetch(writeAttributesUrl + '/"' + t.id + '"', {
-      method: "PUT",
-      body: JSON.stringify({ attributes: t.attributes }),
-    });
-    const resultData = await response.json();
-    const tags = resultData.return.attributes;
+  test.each(getTestData())(`$command`, async (t) => {
+    var response;
+    switch (t.command) {
+      case "createUser":
+        response = await fetch(profileUrl, {
+          method: "POST",
+          body: JSON.stringify({
+            name: "user" + t.user_id,
+            avatar: t.avatar,
+            attributes: t.attributes,
+          }),
+        });
+
+        let profile = await response.json();
+        let profileId = profile.return.id;
+        profileIdLookup.add(t.user_id, profileId);
+        break;
+      case "writeLocation":
+        let coord = coordSet.getCoord();
+        let nCoord = genRandomLocation(coord.lon, coord.lat, t.maxDistance, t.minDistance);
+        response = await fetch(locationWriteUrl, {
+          method: "POST",
+          body: JSON.stringify({
+            topic: "owntracks/test/genbtn",
+            _type: "location",
+            lon: nCoord.lon,
+            lat: nCoord.lat,
+            tid: profileIdLookup.getProfileId(t.user_id),
+          }),
+        });
+        break;
+    }
+
     expect(response.ok).toBeTruthy();
-    expect(tags.sort()).toEqual(t.attributes.sort());
   });
 
-  test.each(getTestData())("Writing test data - user id: $id in range $minDistance - $maxDistance meters.", async (t) => {
-    let coord = coordSet.getCoord();
-    let nCoord = genRandomLocation(coord.lon, coord.lat, t.maxDistance, t.minDistance);
-    const response = await fetch(locationWriteUrl, {
-      method: "POST",
-      body: JSON.stringify({
-        topic: "owntracks/test/genbtn",
-        _type: "location",
-        lon: nCoord.lon,
-        lat: nCoord.lat,
-        tid: t.id,
-      }),
-    });
-    expect(response.ok).toBeTruthy();
-  });
-
-  test.each(getTestResult())("There should be $count user(s) at a distance of $distance meters.", async (r) => {
+  test.each(getTestResult())("There should be $count user(s) at a distance of $distance meters with matched attributes: $attributes.", async (r) => {
     let coord = coordSet.getCoord();
     let urlParams = {
       lon: coord.lon,
@@ -72,9 +81,10 @@ describe("test attribute data", () => {
       interval: timeInterval,
       distance: r.distance,
       attributes: r.searchAttributes.join(","),
+      fuzzySearch: !r.exactMatch,
     };
     const response = await fetch(getUsersQtyUrl + "?" + new URLSearchParams(urlParams).toString(), {
-      method: "get",
+      method: "GET",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
@@ -169,47 +179,108 @@ function getMaxRange() {
 function getTestData() {
   return [
     {
-      id: 1,
+      command: "createUser",
+      user_id: 1,
+      avatar: "",
+      attributes: ["blond", "female", "tall", "blue eyes"],
+    },
+    {
+      command: "writeLocation",
+      user_id: 1,
       minDistance: 0,
       maxDistance: 0,
+    },
+    {
+      command: "createUser",
+      user_id: 2,
       avatar: "",
       attributes: ["blond", "male", "tall", "blue eyes"],
     },
     {
-      id: 2,
-      minDistance: 0,
-      maxDistance: 0,
-      avatar: "",
-      attributes: ["blond", "male", "tall", "blue eyes"],
-    },
-    {
-      id: 3,
+      command: "writeLocation",
+      user_id: 2,
       minDistance: 1,
       maxDistance: 2,
-      avatar: "",
-      attributes: ["blond", "male", "tall", "green eyes"],
     },
     {
-      id: 4,
+      command: "createUser",
+      user_id: 3,
+      avatar: "",
+      attributes: ["brunette", "female", "tall", "blue eyes"],
+    },
+    {
+      command: "writeLocation",
+      user_id: 3,
       minDistance: 2,
       maxDistance: 5,
+    },
+    {
+      command: "createUser",
+      user_id: 4,
       avatar: "",
       attributes: ["blond", "male", "tall", "blue eyes"],
     },
     {
-      id: 5,
+      command: "writeLocation",
+      user_id: 4,
       minDistance: 0,
       maxDistance: 1,
-      avatar: "",
-      attributes: ["blond", "male", "tall", "green eyes"],
     },
     {
-      id: 6,
-      minDistance: 0,
-      maxDistance: 0,
+      command: "createUser",
+      user_id: 5,
       avatar: "",
-      attributes: ["blond", "male", "tall", "blue eyes"],
+      attributes: ["blond", "female", "tall", "blue eyes"],
     },
+    {
+      command: "writeLocation",
+      user_id: 5,
+      minDistance: 2,
+      maxDistance: 5,
+    },
+
+    // {
+    //   id: 1,
+    //   minDistance: 0,
+    //   maxDistance: 0,
+    //   avatar: "",
+    //   attributes: ["blond", "male", "tall", "blue eyes"],
+    // },
+    // {
+    //   id: 2,
+    //   minDistance: 0,
+    //   maxDistance: 0,
+    //   avatar: "",
+    //   attributes: ["blond", "male", "tall", "blue eyes"],
+    // },
+    // {
+    //   id: 3,
+    //   minDistance: 1,
+    //   maxDistance: 2,
+    //   avatar: "",
+    //   attributes: ["blond", "male", "tall", "green eyes"],
+    // },
+    // {
+    //   id: 4,
+    //   minDistance: 2,
+    //   maxDistance: 5,
+    //   avatar: "",
+    //   attributes: ["blond", "male", "tall", "blue eyes"],
+    // },
+    // {
+    //   id: 5,
+    //   minDistance: 0,
+    //   maxDistance: 1,
+    //   avatar: "",
+    //   attributes: ["blond", "male", "tall", "green eyes"],
+    // },
+    // {
+    //   id: 6,
+    //   minDistance: 0,
+    //   maxDistance: 0,
+    //   avatar: "",
+    //   attributes: ["blond", "male", "tall", "blue eyes"],
+    // },
   ];
 }
 
@@ -225,27 +296,58 @@ function getTestResult() {
     {
       distance: 0,
       searchAttributes: ["blond"],
-      count: 3,
+      exactMatch: true,
+      count: 1,
     },
     {
       distance: 5,
       searchAttributes: ["on"],
-      count: 6,
-    },
-    {
-      distance: 5,
-      searchAttributes: ["tal"],
-      count: 6,
-    },
-    {
-      distance: 1,
-      searchAttributes: ["male"],
+      exactMatch: false,
       count: 4,
     },
     {
       distance: 5,
+      searchAttributes: ["tal"],
+      exactMatch: false,
+      count: 5,
+    },
+    {
+      distance: 1,
+      searchAttributes: ["male"],
+      exactMatch: true,
+      count: 1,
+    },
+    {
+      distance: 5,
+      searchAttributes: ["male"],
+      exactMatch: false,
+      count: 5,
+    },
+    {
+      distance: 1,
+      searchAttributes: ["female"],
+      exactMatch: true,
+      count: 1,
+    },
+    {
+      distance: 5,
       searchAttributes: ["blond", "male"],
-      count: 6,
+      exactMatch: true,
+      count: 4,
     },
   ];
 }
+
+const profileIdLookup = {
+  data: [],
+  add: function (testId, profileId) {
+    this.data.push({
+      testId: testId,
+      profileId: profileId,
+    });
+  },
+  getProfileId: function (id) {
+    let obj = this.data.filter(({ testId }) => testId == id).pop();
+    return obj ? obj.profileId : null;
+  },
+};

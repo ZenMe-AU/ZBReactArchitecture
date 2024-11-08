@@ -4,14 +4,14 @@ const { Attributes } = require("../Repository/models.js");
 /**
  * get user's attributes
  *
- * @param {number} userId - User's id
+ * @param {number} profileId - User's id
  * @return {array}
  */
-async function getByUser(userId) {
+async function getByUser(profileId) {
   try {
     const attrData = await Attributes.findAll({
       where: {
-        user_id: userId,
+        profile_id: profileId,
       },
     });
 
@@ -25,15 +25,15 @@ async function getByUser(userId) {
 /**
  * update user's attributes
  *
- * @param {number} userId - User's id
+ * @param {number} profileId - User's id
  * @param {array} tags - The attributes of user
  * @return {array}
  */
-async function update(userId, tags) {
+async function update(profileId, tags) {
   try {
     const attrData = await Attributes.findAll({
       where: {
-        user_id: userId,
+        profile_id: profileId,
       },
     });
     const originTags = attrData.map(({ tag }) => tag);
@@ -41,7 +41,7 @@ async function update(userId, tags) {
       .filter((tag) => !originTags.includes(tag))
       .map(function (tag) {
         return {
-          user_id: userId,
+          profile_id: profileId,
           tag: tag,
         };
       });

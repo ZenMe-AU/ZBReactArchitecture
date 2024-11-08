@@ -10,7 +10,7 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      user_id: {
+      profile_id: {
         allowNull: false,
         type: Sequelize.INTEGER,
       },
@@ -25,7 +25,7 @@ module.exports = {
       },
     });
     await queryInterface.sequelize.query(
-      "ALTER TABLE attributes ADD CONSTRAINT attributes_user_id_fkey FOREIGN KEY (user_id) REFERENCES users (id);"
+      "ALTER TABLE attributes ADD CONSTRAINT attributes_profile_id_fkey FOREIGN KEY (profile_id) REFERENCES profiles (id);"
     );
   },
 
