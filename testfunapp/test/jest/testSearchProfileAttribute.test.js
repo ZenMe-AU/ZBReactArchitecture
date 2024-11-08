@@ -45,7 +45,7 @@ describe("test attribute data", () => {
     });
     expect(response.ok).toBeTruthy();
   });
-  test.each(testResult)("There should be $initCount + $count user(s) exactly ($exactMatch) matching attributes: $searchAttributes.", async (r) => {
+  test.each(testResult)("Verify attributes", async (r) => {
     const currentIndex = getTestResult()
       .map((e) => [e.searchAttributes.join(","), e.exactMatch.toString()].join(";"))
       .indexOf([r.searchAttributes.join(","), r.exactMatch.toString()].join(";"));
@@ -67,6 +67,7 @@ describe("test attribute data", () => {
       }
     );
     const resultData = await response.json();
+    //log("There should be $initCount + $count user(s) exactly ($exactMatch) matching attributes: $searchAttributes.")
     expect(resultData.return.profile.length).toBe(r.count + initCount);
   });
 });
