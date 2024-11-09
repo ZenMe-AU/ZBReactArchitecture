@@ -4,6 +4,11 @@ const { sequelize } = require("../../models/index");
 
 async function create(name, tags = []) {
   try {
+    //TODO: For testing, wait 1s if name is user3, to be removed for production.
+    if (name == "delaythisuser") {
+      await new Promise((resolve) => setTimeout(resolve, 10000));
+    }
+
     let profile = await Profiles.create(
       {
         name: name,
