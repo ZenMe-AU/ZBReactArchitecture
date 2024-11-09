@@ -32,18 +32,23 @@ async function create(name, tags = []) {
 
 function getList(name, tags) {
   try {
-    let includeAttributes = {
-      model: Attributes,
-      attributes: [],
-      group: ["profile_id"],
+    let queryObj = {
+      attributes: ["id", "name", "avatar"],
     };
     if (tags != null) {
-      includeAttributes.where = { tag: { [Op.like]: { [Op.any]: tags } } };
+      queryObj.include = [
+        {
+          model: Attributes,
+          attributes: [],
+          where: { tag: { [Op.like]: { [Op.any]: tags } } },
+        },
+      ];
+      queryObj.group = ["profiles.id"];
+      queryObj.having = Sequelize.where(Sequelize.fn("COUNT", Sequelize.col("attributes.id")), {
+        [Op.gte]: tags.length,
+      });
     }
-    return Profiles.findAll({
-      attributes: ["id", "name", "avatar"],
-      include: [includeAttributes],
-    });
+    return Profiles.findAll(queryObj);
   } catch (err) {
     console.log(err);
     return;
