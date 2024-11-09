@@ -1,6 +1,6 @@
 require("dotenv").config(); // Load environment variables
 
-//npm run test:local testUserSearch2
+//npm run test:local testSearchLocationAttribute
 //npm run test:prod testUserSearch2
 
 // test.todo("Testing User Search with BASE_URL=" + process.env.BASE_URL);
@@ -37,7 +37,7 @@ describe("test attribute data", () => {
     expect(qty).toBe(0);
   });
 
-  test.each(getTestData())(`$command`, async (t) => {
+  test.each(getTestData())("$command  $user_id", async (t) => {
     var response;
     switch (t.command) {
       case "createUser":
@@ -73,28 +73,31 @@ describe("test attribute data", () => {
     expect(response.ok).toBeTruthy();
   });
 
-  test.each(getTestResult())("There should be $count user(s) at a distance of $distance meters with matched attributes: $attributes.", async (r) => {
-    let coord = coordSet.getCoord();
-    let urlParams = {
-      lon: coord.lon,
-      lat: coord.lat,
-      interval: timeInterval,
-      distance: r.distance,
-      attributes: r.searchAttributes.join(","),
-      fuzzySearch: !r.exactMatch,
-    };
-    const response = await fetch(getUsersQtyUrl + "?" + new URLSearchParams(urlParams).toString(), {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
-    });
-    const resultData = await response.json();
-    const qty = resultData.return.qty;
-    expect(qty).toBe(r.count);
-  });
+  test.each(getTestResult())(
+    "There should be $count users at a distance of $distance meters with search attributes: $searchAttributes.",
+    async (r) => {
+      let coord = coordSet.getCoord();
+      let urlParams = {
+        lon: coord.lon,
+        lat: coord.lat,
+        interval: timeInterval,
+        distance: r.distance,
+        attributes: r.searchAttributes.join(","),
+        fuzzySearch: !r.exactMatch,
+      };
+      const response = await fetch(getUsersQtyUrl + "?" + new URLSearchParams(urlParams).toString(), {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
+      });
+      const resultData = await response.json();
+      const qty = resultData.return.qty;
+      expect(qty).toBe(r.count);
+    }
+  );
 });
 
 // Get the random integer
@@ -194,7 +197,7 @@ function getTestData() {
       command: "createUser",
       user_id: 2,
       avatar: "",
-      attributes: ["blond", "male", "tall", "blue eyes"],
+      attributes: ["brown hair", "male", "tall", "brown eyes"],
     },
     {
       command: "writeLocation",
@@ -218,7 +221,7 @@ function getTestData() {
       command: "createUser",
       user_id: 4,
       avatar: "",
-      attributes: ["blond", "male", "tall", "blue eyes"],
+      attributes: ["blue hair", "male", "tall", "blue eyes"],
     },
     {
       command: "writeLocation",
@@ -303,7 +306,7 @@ function getTestResult() {
       distance: 5,
       searchAttributes: ["on"],
       exactMatch: false,
-      count: 4,
+      count: 2,
     },
     {
       distance: 5,
