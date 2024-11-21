@@ -10,7 +10,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(false)
   const [users, setUsers] = useState(null)
   const [isDisabled, setDisabled] = useState(false)
-  const [params, setParams] = useState<{distance:number|null, limited:number|null, datetime:string|null, interval:number|null}>({distance:10, limited:100, datetime:'2024-08-26T04:00', interval:60})
+  const [params, setParams] = useState<{lat:number|null, lon:number|null, distance:number|null, limited:number|null, searchTime:string|null, interval:number|null, attributes:string|null, fuzzySearch:boolean}>({lat:32.2002163, lon:92.895663, distance:10, limited:100, searchTime:'2024-11-13T14:00', interval:60, attributes:'', fuzzySearch:true})
 
   useEffect(() => {
     fetchUsers();
@@ -26,7 +26,7 @@ function App() {
     });
     // console.log(urlParams)
     try {
-      const response = await fetch('https://local-chat.azurewebsites.net/api/httpTrigger1?' + new URLSearchParams(urlParams).toString(), {
+      const response = await fetch('https://local-chat.azurewebsites.net/api/GetUsersDataByCoord?' + new URLSearchParams(urlParams).toString(), {
         method: 'get' ,
         headers: {
           'Accept': 'application/json',
@@ -44,14 +44,14 @@ function App() {
     }
     setTimeout(() => {
       setIsLoading(false);
-    }, 1000);
+    }, 150);
   }
 
 
   const GenerateData = async () => {
     try {
       setDisabled(true);
-      const response = await fetch('https://local-chat.azurewebsites.net/api/httpTrigger2', {
+      const response = await fetch('https://local-chat.azurewebsites.net/api/LocationWriteAndGenFake', {
         method: 'post' ,
         headers: {
           'Accept': 'application/json',
@@ -82,8 +82,15 @@ function App() {
   }
 
   const handleGenerator = () => {
-    GenerateData();
+    // GenerateData();
     console.log('GEN BTN')
+  }
+
+  const handleCheckBox = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setParams({
+      ...params,
+      [e.target.name]: !e.target.checked
+      })
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,7 +104,7 @@ function App() {
 
   return (
     <>
-      <UserFilter onClick={handleClick} onChange={handleChange} params={params} onClickGenBtn={handleGenerator} isDisabled={isDisabled}></UserFilter>
+      <UserFilter onClick={handleClick} onChange={handleChange} params={params} onClickGenBtn={handleGenerator} onCheck={handleCheckBox} isDisabled={isDisabled}></UserFilter>
       {!isLoading && <UserList users={users}></UserList>}
       <div className='row mx-auto'>
         {users!== null && !isLoading && users.length == 0 && <span className='text-center'>No Data</span> }
