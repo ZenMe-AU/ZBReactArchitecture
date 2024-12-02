@@ -197,7 +197,7 @@ function getTestResult() {
     {
       searchAttributes: ["blond", "male"],
       exactMatch: true,
-      count: 4,
+      count: 1,
       initCount: 0,
     },
   ];
