@@ -2,31 +2,35 @@
 
 POC location chat app
 
-Running the script to start react.js node.js mqtt service:
-
-```
-npm run dev-all
-```
-
-react.js: http://localhost:5173/
-
-without mqtt:
+## Running the script to start react.js
 
 ```
 npm run dev
 ```
 
-install both client & server dependencies:
+## Running APIs
 
 ```
-npm run install-all-deps
+npm run api
 ```
 
-## before starting
-
-create a .env file in server folder
+or
 
 ```
-cd server
-mv .env.example .env
+cd api
+npm run start
+```
+
+## Testing
+
+go to the api folder first
+
+```
+cd api
+```
+
+and
+
+```
+npm run test:local <file name>
 ```
