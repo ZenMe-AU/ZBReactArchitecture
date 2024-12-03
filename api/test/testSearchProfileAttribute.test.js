@@ -107,8 +107,8 @@ function getTestData() {
   return [
     {
       id: 1,
-      avatar: "",
-      attributes: ["blond", "male", "tall", "blue eyes"],
+      avatar: "avatar_1.jpg",
+      attributes: ["blond", "gray", "female", "lady", "woman", "brown eyes", "Caucasian"],
     },
     {
       id: 2,

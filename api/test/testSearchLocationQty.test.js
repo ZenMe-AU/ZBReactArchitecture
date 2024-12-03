@@ -3,6 +3,13 @@ require("dotenv").config(); // Load environment variables
 //npm run test:local testSearchLocationQty
 //npm run test:prod testSearchLocationQty
 
+/*
+This test writes test data and then compare it with expected results.
+1. Find a location where there is no records in the DB for the max distance of the test data.
+2. Insert each test record at that location.
+3. Verify the test results against the data that is now in the dare correct.
+*/
+
 console.log("Testing User Search with BASE_URL=" + process.env.BASE_URL);
 const baseUrl = process.env.BASE_URL || "http://localhost:7071";
 const locationWriteUrl = new URL("/api/LocationWrite", baseUrl);
@@ -23,8 +30,8 @@ beforeAll(async () => {
   await findStartingCoords(); //Find random location where there are no users to start from.
 }, 60000);
 
-describe("add test data", () => {
-  test("Starting location test", async () => {
+describe("Insert test data", () => {
+  test("Verify there are no users at the starting location", async () => {
     let coord = coordSet.getCoord();
     let qty = await checkUsersQty(getUsersQtyUrl, {
       lon: coord.lon,
@@ -35,7 +42,7 @@ describe("add test data", () => {
     expect(qty).toBe(0);
   });
 
-  test.each(getTestData())("Writing test data - user id: $id in range $minDistance - $maxDistance meters.", async (t) => {
+  test.each(getTestData())("Write test data to API - user id: $id in range $minDistance - $maxDistance meters.", async (t) => {
     let coord = coordSet.getCoord();
     let nCoord = genRandomLocation(coord.lon, coord.lat, t.maxDistance, t.minDistance);
     const response = await fetch(locationWriteUrl, {
@@ -51,7 +58,7 @@ describe("add test data", () => {
     expect(response.ok).toBeTruthy();
   });
 
-  test.each(getTestResult())("There should be $count user(s) at a distance of $distance meters.", async (r) => {
+  test.each(getTestResult())("Verify there are $count user(s) at a distance of $distance meters.", async (r) => {
     let coord = coordSet.getCoord();
     let urlParams = {
       lon: coord.lon,
@@ -186,26 +193,21 @@ function getTestData() {
  * distance: The distance from the coordinates
  * count: The number of users within a certain distance
  **/
-//TODO: remove mindistance from testResult
 function getTestResult() {
   return [
     {
-      minDistance: 0,
       distance: 0,
       count: 2,
     },
     {
-      minDistance: 0,
       distance: 1,
       count: 3,
     },
     {
-      minDistance: 0,
       distance: 2,
       count: 4,
     },
     {
-      minDistance: 0,
       distance: 5,
       count: 5,
     },
