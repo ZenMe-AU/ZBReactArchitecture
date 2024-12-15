@@ -8,6 +8,12 @@ Follow these instructions to test the POC chat app on your local machine.
 npm run dev
 ```
 
+with local api domain:
+
+```
+npm run dev:local-api
+```
+
 ## Allow connection to Azure DB
 
 Allow your computer to connect to the DB on Azure.

@@ -11,6 +11,7 @@ function App() {
   const [users, setUsers] = useState(null)
   const [isDisabled, setDisabled] = useState(false)
   const [params, setParams] = useState<{lat:number|null, lon:number|null, distance:number|null, limited:number|null, searchTime:string|null, interval:number|null, attributes:string|null, fuzzySearch:boolean}>({lat:32.2002163, lon:92.895663, distance:10, limited:100, searchTime:'2024-11-13T14:00', interval:60, attributes:'', fuzzySearch:true})
+  const apiDomain = import.meta.env.VITE_API_DOMAIN || "https://local-chat.azurewebsites.net/";
 
   useEffect(() => {
     fetchUsers();
@@ -26,7 +27,7 @@ function App() {
     });
     // console.log(urlParams)
     try {
-      const response = await fetch('https://local-chat.azurewebsites.net/api/GetUsersDataByCoord?' + new URLSearchParams(urlParams).toString(), {
+      const response = await fetch(apiDomain + '/api/GetUsersDataByCoord?' + new URLSearchParams(urlParams).toString(), {
         method: 'get' ,
         headers: {
           'Accept': 'application/json',
@@ -51,7 +52,7 @@ function App() {
   const GenerateData = async () => {
     try {
       setDisabled(true);
-      const response = await fetch('https://local-chat.azurewebsites.net/api/LocationWriteAndGenFake', {
+      const response = await fetch(apiDomain + '/api/LocationWriteAndGenFake', {
         method: 'post' ,
         headers: {
           'Accept': 'application/json',
