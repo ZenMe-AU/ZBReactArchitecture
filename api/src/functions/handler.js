@@ -492,6 +492,10 @@ async function PutAttributes(request, context) {
  *                 type: string
  *                 description: The name of the profile
  *                 example: "John Doe"
+ *               avatar:
+ *                 type: string
+ *                 description: The name of the profile pic
+ *                 example: "pic/avatar_1.jpg"
  *               attributes:
  *                 type: array
  *                 description: A list of attributes for the profile
@@ -518,8 +522,9 @@ async function CreateProfile(request, context) {
   const bodyText = await request.text();
   const bodyJson = JSON.parse(bodyText);
   let name = bodyJson["name"];
+  let avatar = bodyJson["avatar"] || null;
   let attributes = bodyJson["attributes"] || [];
-  let profile = await Profiles.create(name, attributes);
+  let profile = await Profiles.create(name, attributes, avatar);
   return { jsonBody: { return: { id: profile.id } } };
 }
 

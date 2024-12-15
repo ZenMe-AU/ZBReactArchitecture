@@ -2,16 +2,20 @@ const { Op, Sequelize, QueryTypes } = require("sequelize");
 const { Profiles, Location, Attributes } = require("../Repository/models.js");
 const { sequelize } = require("../../models/index");
 
-async function create(name, tags = []) {
+async function create(name, tags = [], avatar = null) {
   try {
     //TODO: For testing, wait 1s if name is user3, to be removed for production.
     if (name == "delaythisuser") {
       await new Promise((resolve) => setTimeout(resolve, 10000));
     }
-
+    console.log({
+      name: name,
+      avatar: avatar,
+    });
     let profile = await Profiles.create(
       {
         name: name,
+        avatar: avatar,
         attributes: tags.map(function (tag) {
           return { tag: tag };
         }),

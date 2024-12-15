@@ -184,8 +184,8 @@ function getTestData() {
     {
       command: "createUser",
       user_id: 1,
-      avatar: "",
-      attributes: ["blond", "female", "tall", "blue eyes"],
+      avatar: "pic/avatar_1.jpg",
+      attributes: ["gray hair", "female", "lady", "woman", "brown eyes", "Caucasian"],
     },
     {
       command: "writeLocation",
@@ -196,8 +196,8 @@ function getTestData() {
     {
       command: "createUser",
       user_id: 2,
-      avatar: "",
-      attributes: ["brown hair", "male", "tall", "brown eyes"],
+      avatar: "pic/avatar_2.jpg",
+      attributes: ["brown hair", "female", "lady", "woman", "brown eyes", "Caucasian"],
     },
     {
       command: "writeLocation",
@@ -208,8 +208,8 @@ function getTestData() {
     {
       command: "createUser",
       user_id: 3,
-      avatar: "",
-      attributes: ["brunette", "female", "tall", "blue eyes"],
+      avatar: "pic/avatar_3.jpg",
+      attributes: ["black hair", "curly hair", "bun hair", "female", "lady", "woman", "Black"],
     },
     {
       command: "writeLocation",
@@ -220,8 +220,8 @@ function getTestData() {
     {
       command: "createUser",
       user_id: 4,
-      avatar: "",
-      attributes: ["blue hair", "male", "tall", "blue eyes"],
+      avatar: "pic/avatar_4.jpg",
+      attributes: ["black hair", "curly hair", "female", "lady", "woman", "Caucasian"],
     },
     {
       command: "writeLocation",
@@ -232,8 +232,8 @@ function getTestData() {
     {
       command: "createUser",
       user_id: 5,
-      avatar: "",
-      attributes: ["blond", "female", "tall", "blue eyes"],
+      avatar: "pic/avatar_5.jpg",
+      attributes: ["black hair", "buzz cut", "male", "man", "beard", "brown eyes", "Black"],
     },
     {
       command: "writeLocation",
@@ -298,27 +298,27 @@ function getTestResult() {
   return [
     {
       distance: 0,
-      searchAttributes: ["blond"],
+      searchAttributes: ["gray hair"],
       exactMatch: true,
       count: 1,
     },
     {
-      distance: 5,
-      searchAttributes: ["on"],
+      distance: 3,
+      searchAttributes: ["ow"],
       exactMatch: false,
       count: 2,
     },
     {
       distance: 5,
-      searchAttributes: ["tal"],
+      searchAttributes: ["air"],
       exactMatch: false,
       count: 5,
     },
     {
       distance: 1,
-      searchAttributes: ["male"],
+      searchAttributes: ["female"],
       exactMatch: true,
-      count: 1,
+      count: 2,
     },
     {
       distance: 5,
@@ -330,11 +330,11 @@ function getTestResult() {
       distance: 1,
       searchAttributes: ["female"],
       exactMatch: true,
-      count: 1,
+      count: 2,
     },
     {
       distance: 5,
-      searchAttributes: ["blond", "male"],
+      searchAttributes: ["brown eyes", "Caucasian"],
       exactMatch: true,
       count: 4,
     },
