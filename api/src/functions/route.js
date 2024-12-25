@@ -1,5 +1,6 @@
 const { app } = require("@azure/functions");
 const handler = require("./handler.js");
+const questionHandler = require("../handler/questionHandler.js");
 
 app.http("SearchAtLocationQty", {
   methods: ["GET"],
@@ -51,4 +52,46 @@ app.http("SearchProfile", {
   methods: ["GET"],
   authLevel: "anonymous",
   handler: handler.SearchProfile,
+});
+
+app.http("CreateQuestion", {
+  route: "question",
+  methods: ["POST"],
+  authLevel: "anonymous",
+  handler: questionHandler.CreateQuestion,
+});
+
+app.http("GetQuestionById", {
+  route: "question/{id}",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: questionHandler.GetQuestionById,
+});
+
+app.http("AddAnswer", {
+  route: "question/{id}/answer",
+  methods: ["POST"],
+  authLevel: "anonymous",
+  handler: questionHandler.AddAnswer,
+});
+
+app.http("GetAnswerById", {
+  route: "question/{id:int}/answer/{answerId:int}",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: questionHandler.GetAnswerById,
+});
+
+app.http("GetQuestionListByUser", {
+  route: "profile/{profileId}/question",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: questionHandler.GetQuestionListByUser,
+});
+
+app.http("GetAnswerListByQuestionId", {
+  route: "question/{id}/answer",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: questionHandler.GetAnswerListByQuestionId,
 });
