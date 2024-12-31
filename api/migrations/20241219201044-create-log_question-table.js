@@ -3,30 +3,34 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("question", {
+    await queryInterface.createTable("log_question", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
+      questionId: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+      },
+      action: {
+        allowNull: false,
+        type: Sequelize.STRING,
+      },
       profileId: {
         allowNull: false,
         type: Sequelize.INTEGER,
       },
-      title: {
-        allowNull: true,
-        type: Sequelize.STRING,
-      },
-      questionText: {
-        allowNull: false,
-        type: Sequelize.TEXT,
-      },
-      option: {
+      originalData: {
         allowNull: true,
         type: Sequelize.JSON,
       },
-      eventId: {
+      actionData: {
+        allowNull: false,
+        type: Sequelize.JSON,
+      },
+      lastEventId: {
         allowNull: true,
         type: Sequelize.INTEGER,
       },
@@ -37,11 +41,13 @@ module.exports = {
       },
     });
     await queryInterface.sequelize.query(
-      'ALTER TABLE question ADD CONSTRAINT question_profile_id_fkey FOREIGN KEY ("profileId") REFERENCES profiles (id);'
+      'ALTER TABLE log_question ADD CONSTRAINT log_question_questionId_fkey FOREIGN KEY ("questionId") REFERENCES question (id);',
+      'ALTER TABLE log_question ADD CONSTRAINT log_question_profileId_fkey FOREIGN KEY ("profileId") REFERENCES profiles (id);',
+      'ALTER TABLE log_question ADD CONSTRAINT log_question_lastEventId_fkey FOREIGN KEY ("lastEventId") REFERENCES log_question (id);'
     );
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("question");
+    await queryInterface.dropTable("log_question");
   },
 };

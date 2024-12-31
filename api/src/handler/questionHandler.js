@@ -63,6 +63,71 @@ async function CreateQuestion(request, context) {
 /**
  * @swagger
  * /api/question/{id}:
+ *   put:
+ *     tags:
+ *       - Question
+ *     summary: Update a question
+ *     description: Update the title, question text, or options of a specific question.
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *         description: The ID of the question to update.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 nullable: true
+ *                 description: The new title of the question (optional).
+ *                 example: "Updated Favorite Foods"
+ *               question:
+ *                 type: string
+ *                 description: The updated question text.
+ *                 example: "What is your updated favorite food?"
+ *               option:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 nullable: true
+ *                 description: Updated options for the question (optional).
+ *                 example: ["Pizza", "Burger", "Sushi", "Pasta"]
+ *     responses:
+ *       200:
+ *         description: Successfully updated the question.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 return:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: integer
+ *                       description: The ID of the updated question.
+ *                       example: 1
+ */
+async function UpdateQuestionById(request, context) {
+  const questionId = parseInt(request.params.id);
+  const bodyJson = JSON.parse(await request.text());
+  let title = bodyJson["title"] || null;
+  let option = bodyJson["option"] || null;
+  let questionText = bodyJson["question"];
+  let question = await Question.updateById(questionId, title, questionText, option);
+  return { jsonBody: { return: { id: question.id } } };
+}
+
+/**
+ * @swagger
+ * /api/question/{id}:
  *   get:
  *     tags:
  *       - Question
@@ -259,6 +324,7 @@ async function GetQuestionListByUser(request, context) {
   let question = await Question.getListByUser(profileId);
   return { jsonBody: { return: { list: question } } };
 }
+
 /**
  * @swagger
  * /api/question/{id}/answer:
@@ -319,11 +385,74 @@ async function GetAnswerListByQuestionId(request, context) {
   return { jsonBody: { return: { list: answers } } };
 }
 
+/**
+ * @swagger
+ * /api/question/{id}/share:
+ *   post:
+ *     tags:
+ *       - Question
+ *     summary: Share a question
+ *     description: Share a specific question with one or more users.
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           example: 1
+ *         description: The ID of the question to share.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               profile_id:
+ *                 type: integer
+ *                 description: The ID of the sender's profile.
+ *                 example: 123
+ *               receiver_ids:
+ *                 type: array
+ *                 items:
+ *                   type: integer
+ *                 description: A list of profile IDs of the receivers.
+ *                 example: [456, 789]
+ *     responses:
+ *       200:
+ *         description: Successfully shared the question.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 return:
+ *                   type: object
+ *                   properties:
+ *                     detail:
+ *                       type: object
+ *                       description: Details about the share operation.
+ *                       example:
+ *                         question_id: 1
+ *                         sender_id: 123
+ *                         receivers: [456, 789]
+ */
+async function ShareQuestionById(request, context) {
+  const questionId = parseInt(request.params.id);
+  const bodyJson = JSON.parse(await request.text());
+  let senderId = bodyJson["profile_id"] ?? null;
+  let receiverIds = bodyJson["receiver_ids"] ?? [];
+  let share = await Question.addShareByQuestionId(questionId, senderId, receiverIds);
+  return { jsonBody: { return: { detail: share } } };
+}
+
 module.exports = {
   CreateQuestion,
+  UpdateQuestionById,
   GetQuestionById,
   AddAnswer,
   GetAnswerById,
   GetQuestionListByUser,
   GetAnswerListByQuestionId,
+  ShareQuestionById,
 };

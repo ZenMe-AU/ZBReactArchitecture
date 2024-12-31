@@ -68,6 +68,13 @@ app.http("GetQuestionById", {
   handler: questionHandler.GetQuestionById,
 });
 
+app.http("UpdateQuestionById", {
+  route: "question/{id}",
+  methods: ["PUT"],
+  authLevel: "anonymous",
+  handler: questionHandler.UpdateQuestionById,
+});
+
 app.http("AddAnswer", {
   route: "question/{id}/answer",
   methods: ["POST"],
@@ -94,4 +101,11 @@ app.http("GetAnswerListByQuestionId", {
   methods: ["GET"],
   authLevel: "anonymous",
   handler: questionHandler.GetAnswerListByQuestionId,
+});
+
+app.http("ShareQuestion", {
+  route: "question/{id}/share",
+  methods: ["POST"],
+  authLevel: "anonymous",
+  handler: questionHandler.ShareQuestionById,
 });

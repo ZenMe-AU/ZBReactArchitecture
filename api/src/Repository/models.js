@@ -128,12 +128,16 @@ const Question = sequelize.define(
       type: DataTypes.CHAR,
       allowNull: true,
     },
-    question: {
+    questionText: {
       type: DataTypes.TEXT,
       allowNull: false,
     },
     option: {
       type: DataTypes.JSON,
+      allowNull: true,
+    },
+    eventId: {
+      type: DataTypes.INTEGER,
       allowNull: true,
     },
   },
@@ -159,17 +163,87 @@ const QuestionAnswer = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    answer: {
+    answerText: {
       type: DataTypes.TEXT,
       allowNull: true,
     },
-    option: {
+    optionId: {
       type: DataTypes.SMALLINT,
       allowNull: true,
     },
   },
   {
     tableName: "question_answer",
+    id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      primaryKey: true,
+    },
+    updatedAt: false,
+  }
+);
+
+const QuestionShare = sequelize.define(
+  "question_share",
+  {
+    questionId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    senderId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    receiverId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    status: {
+      type: DataTypes.SMALLINT,
+      allowNull: false,
+    },
+  },
+  {
+    tableName: "question_share",
+    id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      primaryKey: true,
+    },
+    updatedAt: false,
+  }
+);
+
+const QuestionLog = sequelize.define(
+  "log_question",
+  {
+    questionId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    action: {
+      type: DataTypes.CHAR,
+      allowNull: false,
+    },
+    profileId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    originalData: {
+      type: DataTypes.JSON,
+      allowNull: true,
+    },
+    actionData: {
+      type: DataTypes.JSON,
+      allowNull: false,
+    },
+    lastEventId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+  },
+  {
+    tableName: "log_question",
     id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -189,6 +263,32 @@ Profiles.hasMany(Question, { foreignKey: "profileId", sourceKey: "id" });
 Profiles.hasMany(QuestionAnswer, { foreignKey: "profileId", sourceKey: "id" });
 Question.hasMany(QuestionAnswer, { foreignKey: "questionId", sourceKey: "id" });
 QuestionAnswer.belongsTo(Question, { targetKey: "id", foreignKey: "questionId" });
+QuestionShare.belongsTo(Question, { targetKey: "id", foreignKey: "questionId" });
+
+// hook
+Question.addHook("afterSave", async (instance, options) => {
+  if (!instance.changed("eventId")) {
+    const isCreate = instance._options.isNewRecord;
+    const log = await QuestionLog.create(
+      {
+        questionId: instance.id,
+        profileId: instance.profileId,
+        actionData: instance.dataValues,
+        action: isCreate ? "create" : "update",
+        originalData: isCreate ? null : instance._previousDataValues,
+        lastEventId: isCreate ? null : instance._previousDataValues.eventId,
+      },
+      {
+        transaction: options.transaction,
+      }
+    );
+    // instance.eventId = log.id;
+    // await instance.save();
+    await instance.update({ eventId: log.id });
+    // } else {
+    //   console.log(instance);
+  }
+});
 
 module.exports = {
   Users,
@@ -197,4 +297,6 @@ module.exports = {
   Profiles,
   Question,
   QuestionAnswer,
+  QuestionShare,
+  QuestionLog,
 };

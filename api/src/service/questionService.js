@@ -1,14 +1,35 @@
 const { Op, Sequelize } = require("sequelize");
-const { Question, QuestionAnswer } = require("../Repository/models.js");
+const { Question, QuestionAnswer, QuestionShare } = require("../Repository/models.js");
 
 async function create(profileId, title = null, question = null, option = null) {
   try {
     return await Question.create({
       profileId: profileId,
       title: title,
-      question: question,
+      questionText: question,
       option: option,
     });
+  } catch (err) {
+    console.log(err);
+    return;
+  }
+}
+
+async function updateById(questionId, title = null, questionText = null, option = null) {
+  try {
+    return await Question.update(
+      {
+        title: title,
+        questionText: questionText,
+        option: option,
+      },
+      {
+        where: {
+          id: questionId,
+        },
+        individualHooks: true,
+      }
+    );
   } catch (err) {
     console.log(err);
     return;
@@ -39,8 +60,8 @@ async function addAnswerByQuestionId(questionId, profileId, answer = null, optio
     return await QuestionAnswer.create({
       questionId: questionId,
       profileId: profileId,
-      answer: answer,
-      option: option,
+      answerText: answer,
+      optionId: option,
     });
   } catch (err) {
     console.log(err);
@@ -66,11 +87,29 @@ async function getAnswerListByQuestionId(questionId) {
   }
 }
 
+async function addShareByQuestionId(questionId, senderId, receiverIds) {
+  try {
+    const addData = receiverIds.map(function (receiverId) {
+      return {
+        questionId: questionId,
+        senderId: senderId,
+        receiverId: receiverId,
+      };
+    });
+    return await QuestionShare.bulkCreate(addData);
+  } catch (err) {
+    console.log(err);
+    return;
+  }
+}
+
 module.exports = {
   create,
+  updateById,
   getById,
   getListByUser,
   addAnswerByQuestionId,
   getAnswerById,
   getAnswerListByQuestionId,
+  addShareByQuestionId,
 };

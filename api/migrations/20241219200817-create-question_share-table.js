@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("question_answer", {
+    await queryInterface.createTable("question_share", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -14,17 +14,18 @@ module.exports = {
         allowNull: false,
         type: Sequelize.INTEGER,
       },
-      profileId: {
+      senderId: {
         allowNull: false,
         type: Sequelize.INTEGER,
       },
-      answerText: {
-        allowNull: true,
-        type: Sequelize.TEXT,
+      receiverId: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
       },
-      optionId: {
-        allowNull: true,
+      status: {
+        allowNull: false,
         type: Sequelize.SMALLINT,
+        defaultValue: 0,
       },
       createdAt: {
         allowNull: false,
@@ -33,12 +34,13 @@ module.exports = {
       },
     });
     await queryInterface.sequelize.query(
-      'ALTER TABLE question_answer ADD CONSTRAINT answers_questionId_fkey FOREIGN KEY ("questionId") REFERENCES question (id);',
-      'ALTER TABLE question_answer ADD CONSTRAINT answers_profileId_fkey FOREIGN KEY ("profileId") REFERENCES profiles (id);'
+      'ALTER TABLE question_share ADD CONSTRAINT share_questionId_fkey FOREIGN KEY ("questionId") REFERENCES question (id);',
+      'ALTER TABLE question_share ADD CONSTRAINT share_senderId_fkey FOREIGN KEY ("senderId") REFERENCES profiles (id);',
+      'ALTER TABLE question_share ADD CONSTRAINT share_receiverId_fkey FOREIGN KEY ("receiverId") REFERENCES profiles (id);'
     );
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("question_answer");
+    await queryInterface.dropTable("question_share");
   },
 };
