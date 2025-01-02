@@ -11,11 +11,11 @@ function QuestionList() {
     const fetchQuestions = async () => {
       try {
         const data = await getQuestionsByUser();
-        setQuestions(data);  // Set fetched questions to state
+        setQuestions(data); // Set fetched questions to state
       } catch (error) {
         console.error("Error fetching questions:", error);
       } finally {
-        setLoading(false);  // Set loading to false after the request is done
+        setLoading(false); // Set loading to false after the request is done
       }
     };
     fetchQuestions();
