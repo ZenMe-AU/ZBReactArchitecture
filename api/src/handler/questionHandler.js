@@ -116,7 +116,7 @@ async function CreateQuestion(request, context) {
  *                       example: 1
  */
 async function UpdateQuestionById(request, context) {
-  const questionId = parseInt(request.params.id);
+  const questionId = request.params.id;
   const bodyJson = JSON.parse(await request.text());
   let title = bodyJson["title"] || null;
   let option = bodyJson["option"] || null;
@@ -156,7 +156,7 @@ async function UpdateQuestionById(request, context) {
  *                       description: Details of the questionnaire.
  */
 async function GetQuestionById(request, context) {
-  const questionId = parseInt(request.params.id);
+  const questionId = request.params.id;
   let questionnaire = await Question.getById(questionId);
   return { jsonBody: { return: { detail: questionnaire } } };
 }
@@ -212,7 +212,7 @@ async function GetQuestionById(request, context) {
  *                       example: 456
  */
 async function AddAnswer(request, context) {
-  const questionId = parseInt(request.params.id);
+  const questionId = request.params.id;
   const bodyText = await request.text();
   const bodyJson = JSON.parse(bodyText);
   let profileId = bodyJson["profile_id"];
@@ -259,7 +259,7 @@ async function AddAnswer(request, context) {
  *                       description: Details of the answer.
  */
 async function GetAnswerById(request, context) {
-  const questionId = parseInt(request.params.id);
+  const questionId = request.params.id;
   const answerId = parseInt(request.params.answerId);
   let answer = await Question.getAnswerById(questionId, answerId);
   return { jsonBody: { return: { detail: answer } } };
@@ -380,7 +380,7 @@ async function GetQuestionListByUser(request, context) {
  *                             example: "2024-12-18T17:49:08.219Z"
  */
 async function GetAnswerListByQuestionId(request, context) {
-  const questionId = parseInt(request.params.id);
+  const questionId = request.params.id;
   let answers = await Question.getAnswerListByQuestionId(questionId);
   return { jsonBody: { return: { list: answers } } };
 }
@@ -438,7 +438,7 @@ async function GetAnswerListByQuestionId(request, context) {
  *                         receivers: [456, 789]
  */
 async function ShareQuestionById(request, context) {
-  const questionId = parseInt(request.params.id);
+  const questionId = request.params.id;
   const bodyJson = JSON.parse(await request.text());
   let senderId = bodyJson["profile_id"] ?? null;
   let receiverIds = bodyJson["receiver_ids"] ?? [];

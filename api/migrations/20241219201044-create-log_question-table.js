@@ -6,13 +6,13 @@ module.exports = {
     await queryInterface.createTable("log_question", {
       id: {
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
       },
       questionId: {
         allowNull: false,
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
       },
       action: {
         allowNull: false,
@@ -32,7 +32,7 @@ module.exports = {
       },
       lastEventId: {
         allowNull: true,
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
       },
       createdAt: {
         allowNull: false,

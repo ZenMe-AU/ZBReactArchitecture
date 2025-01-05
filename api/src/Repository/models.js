@@ -120,6 +120,12 @@ const Profiles = sequelize.define(
 const Question = sequelize.define(
   "question",
   {
+    id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      primaryKey: true,
+      defaultValue: DataTypes.UUIDV4,
+    },
     profileId: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -137,17 +143,12 @@ const Question = sequelize.define(
       allowNull: true,
     },
     eventId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: true,
     },
   },
   {
     tableName: "question",
-    id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-    },
     updatedAt: false,
   }
 );
@@ -155,12 +156,18 @@ const Question = sequelize.define(
 const QuestionAnswer = sequelize.define(
   "question_answer",
   {
+    id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      primaryKey: true,
+      defaultValue: DataTypes.UUIDV4,
+    },
     profileId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
     questionId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
     },
     answerText: {
@@ -174,11 +181,6 @@ const QuestionAnswer = sequelize.define(
   },
   {
     tableName: "question_answer",
-    id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-    },
     updatedAt: false,
   }
 );
@@ -186,8 +188,14 @@ const QuestionAnswer = sequelize.define(
 const QuestionShare = sequelize.define(
   "question_share",
   {
+    id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      primaryKey: true,
+      defaultValue: DataTypes.UUIDV4,
+    },
     questionId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
     },
     senderId: {
@@ -205,11 +213,6 @@ const QuestionShare = sequelize.define(
   },
   {
     tableName: "question_share",
-    id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-    },
     updatedAt: false,
   }
 );
@@ -217,8 +220,14 @@ const QuestionShare = sequelize.define(
 const QuestionLog = sequelize.define(
   "log_question",
   {
+    id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      primaryKey: true,
+      defaultValue: DataTypes.UUIDV4,
+    },
     questionId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
     },
     action: {
@@ -238,17 +247,12 @@ const QuestionLog = sequelize.define(
       allowNull: false,
     },
     lastEventId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: true,
     },
   },
   {
     tableName: "log_question",
-    id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-    },
     updatedAt: false,
   }
 );
