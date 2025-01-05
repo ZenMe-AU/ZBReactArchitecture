@@ -446,6 +446,143 @@ async function ShareQuestionById(request, context) {
   return { jsonBody: { return: { detail: share } } };
 }
 
+/**
+ * @swagger
+ * /api/profile/{profileId}/sharedQuestion:
+ *   get:
+ *     tags:
+ *       - Question
+ *     summary: Get shared questions for a user
+ *     description: Retrieve the list of questions shared with the specified user.
+ *     parameters:
+ *       - name: profileId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: integer
+ *           example: 123
+ *         description: The ID of the profile to retrieve shared questions for.
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved the shared questions.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 return:
+ *                   type: object
+ *                   properties:
+ *                     list:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                             format: uuid
+ *                             description: The unique identifier of the shared question record.
+ *                             example: "f6c1d743-a63b-4818-b75d-a62b453e6080"
+ *                           questionId:
+ *                             type: string
+ *                             format: uuid
+ *                             description: The unique identifier of the question.
+ *                             example: "9f69968b-0689-435a-8694-4f9b78b87f11"
+ *                           senderId:
+ *                             type: integer
+ *                             description: The ID of the user who shared the question.
+ *                             example: 1007
+ *                           receiverId:
+ *                             type: integer
+ *                             description: The ID of the user receiving the shared question.
+ *                             example: 258
+ *                           status:
+ *                             type: integer
+ *                             description: The status of the shared question.
+ *                             example: 0
+ *                           createdAt:
+ *                             type: string
+ *                             format: date-time
+ *                             description: The timestamp when the question was shared.
+ *                             example: "2025-01-03T09:46:18.739Z"
+ */
+async function GetSharedQuestionListByUser(request, context) {
+  const profileId = request.params.profileId;
+  let sharedQuestion = await Question.getSharedQuestionListByUser(profileId);
+  return { jsonBody: { return: { list: sharedQuestion } } };
+}
+
+/**
+ * @swagger
+ * /api/question/{id}:
+ *   patch:
+ *     tags:
+ *       - Question
+ *     summary: Update a question using JSON Patch
+ *     description: Apply JSON Patch operations to update a question's data. Changes are recorded in the question_action table.
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *           example: "123e4567-e89b-12d3-a456-426614174000"
+ *         description: The UUID of the question to update.
+ *       - name: x-profile-id
+ *         in: header
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: "45678"
+ *         description: The ID of the profile making the request.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json-patch+json:
+ *           schema:
+ *             type: array
+ *             items:
+ *               type: object
+ *               properties:
+ *                 op:
+ *                   type: string
+ *                   enum: [add, remove, replace, move, copy, test]
+ *                   description: The operation to perform.
+ *                 path:
+ *                   type: string
+ *                   description: The JSON Pointer path to the field to operate on.
+ *                   example: "/title"
+ *                 value:
+ *                   type: string
+ *                   description: The value to set (required for `add` and `replace` operations).
+ *                   example: "Updated Title"
+ *     responses:
+ *       200:
+ *         description: Successfully queued patch operation.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 return:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                       format: uuid
+ *                       description: The unique identifier of the created question_action record.
+ *                       example: "b08992c2-7c89-43a6-a152-9d24a74349a7"
+ */
+async function PatchQuestionById(request, context) {
+  const questionId = request.params.id;
+  const profileId = request.headers.get("x-profile-id");
+  // const patches = request.body;
+  const bodyJson = JSON.parse(await request.text());
+  let questionAction = await Question.patchById(questionId, bodyJson, profileId);
+  return { jsonBody: { return: { id: questionAction.id } } };
+}
+
 module.exports = {
   CreateQuestion,
   UpdateQuestionById,
@@ -455,4 +592,6 @@ module.exports = {
   GetQuestionListByUser,
   GetAnswerListByQuestionId,
   ShareQuestionById,
+  GetSharedQuestionListByUser,
+  PatchQuestionById,
 };

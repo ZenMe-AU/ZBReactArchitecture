@@ -109,3 +109,17 @@ app.http("ShareQuestion", {
   authLevel: "anonymous",
   handler: questionHandler.ShareQuestionById,
 });
+
+app.http("GetSharedQuestionListByUser", {
+  route: "profile/{profileId}/sharedQuestion",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: questionHandler.GetSharedQuestionListByUser,
+});
+
+app.http("PatchQuestionById", {
+  route: "question/{id}",
+  methods: ["PATCH"],
+  authLevel: "anonymous",
+  handler: questionHandler.PatchQuestionById,
+});

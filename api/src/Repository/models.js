@@ -1,6 +1,7 @@
 const { DataTypes } = require("sequelize");
 // const { sequelize } = require("./db.js");
 const { sequelize } = require("../../models/index");
+const { applyPatch } = require("fast-json-patch");
 
 const Users = sequelize.define(
   "users",
@@ -257,6 +258,34 @@ const QuestionLog = sequelize.define(
   }
 );
 
+const QuestionAction = sequelize.define(
+  "question_action",
+  {
+    id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      primaryKey: true,
+      defaultValue: DataTypes.UUIDV4,
+    },
+    profileId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    questionId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+    },
+    action: {
+      type: DataTypes.JSON,
+      allowNull: false,
+    },
+  },
+  {
+    tableName: "question_action",
+    updatedAt: false,
+  }
+);
+
 // Users.hasMany(Location, { foreignKey: "tid", sourceKey: "deviceId" });
 // Location.belongsTo(Users, { targetKey: "deviceId", foreignKey: "tid" });
 Location.belongsTo(Profiles, { targetKey: "device_id", foreignKey: "tid" });
@@ -294,6 +323,27 @@ Question.addHook("afterSave", async (instance, options) => {
   }
 });
 
+QuestionAction.addHook("afterSave", async (instance, options) => {
+  try {
+    const { questionId, action } = instance;
+    const question = await Question.findByPk(questionId);
+    if (!question) {
+      console.error(`Question with ID ${questionId} not found.`);
+      return;
+    }
+    // Apply patches to the question
+    const updatedData = applyPatch(question.toJSON(), action).newDocument;
+    await question.update({
+      title: updatedData.title ?? null,
+      questionText: updatedData.questionText ?? null,
+      option: updatedData.option ?? null,
+    });
+    console.log(`Question with ID ${questionId} updated successfully.`);
+  } catch (error) {
+    console.error("Error processing afterSave hook:", error);
+  }
+});
+
 module.exports = {
   Users,
   Location,
@@ -303,4 +353,5 @@ module.exports = {
   QuestionAnswer,
   QuestionShare,
   QuestionLog,
+  QuestionAction,
 };

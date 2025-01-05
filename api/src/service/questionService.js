@@ -1,5 +1,5 @@
 const { Op, Sequelize } = require("sequelize");
-const { Question, QuestionAnswer, QuestionShare } = require("../Repository/models.js");
+const { Question, QuestionAnswer, QuestionShare, QuestionAction } = require("../Repository/models.js");
 
 async function create(profileId, title = null, question = null, option = null) {
   try {
@@ -103,6 +103,32 @@ async function addShareByQuestionId(questionId, senderId, receiverIds) {
   }
 }
 
+async function getSharedQuestionListByUser(profileId) {
+  try {
+    return await QuestionShare.findAll({
+      where: { receiverId: profileId },
+      include: [
+        {
+          model: Question,
+          attributes: ["title", "questionText", "option"],
+        },
+      ],
+    });
+  } catch (err) {
+    console.log(err);
+    return;
+  }
+}
+
+async function patchById(questionId, action, profileId) {
+  try {
+    return await QuestionAction.create({ questionId, profileId, action });
+  } catch (err) {
+    console.log(err);
+    return;
+  }
+}
+
 module.exports = {
   create,
   updateById,
@@ -112,4 +138,6 @@ module.exports = {
   getAnswerById,
   getAnswerListByQuestionId,
   addShareByQuestionId,
+  getSharedQuestionListByUser,
+  patchById,
 };
