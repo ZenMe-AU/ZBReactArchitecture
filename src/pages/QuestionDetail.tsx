@@ -32,7 +32,7 @@ function QuestionDetail() {
         question.option.map((opt, index) => (
           <li key={index}>{opt}</li> // Render each option in a list
         ))}
-      <Link to="/question">Back to Question List</Link> {/* Link to navigate back */}
+      <Link to="/question">Back to Question List</Link>
       <Link to={`/question/${question.id}/edit`}>Edit</Link>
       <Link to={`/question/${question.id}/share`}>Share</Link>
     </div>
