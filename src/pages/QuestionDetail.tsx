@@ -34,6 +34,7 @@ function QuestionDetail() {
         ))}
       <Link to="/question">Back to Question List</Link> {/* Link to navigate back */}
       <Link to={`/question/${question.id}/edit`}>Edit</Link>
+      <Link to={`/question/${question.id}/share`}>Share</Link>
     </div>
   );
 }

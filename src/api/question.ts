@@ -1,5 +1,6 @@
 const apiDomain = import.meta.env.VITE_API_DOMAIN;
 const profileId = "1007"; // Replace with actual user ID
+const receiverId = "258";
 
 // Fetch list of questions for a specific user
 export const getQuestionsByUser = async () => {
@@ -108,7 +109,7 @@ export const updateQuestion = async (id: string, data: { title: string; question
 };
 
 // Share a question
-export const shareQuestion = async (id: string, email: string) => {
+export const shareQuestion = async (id: string, profileId: number, receiverIds: number[]) => {
   try {
     const response = await fetch(`${apiDomain}/api/question/${id}/share`, {
       method: "POST",
@@ -116,7 +117,10 @@ export const shareQuestion = async (id: string, email: string) => {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify({
+        profile_id: profileId,
+        receiver_ids: receiverIds,
+      }),
     });
 
     if (!response.ok) {
@@ -128,5 +132,88 @@ export const shareQuestion = async (id: string, email: string) => {
   } catch (error) {
     console.error("Error sharing question:", error);
     throw error;
+  }
+};
+
+export const submitAnswer = async (id: string, answerPayload: { option: string | null; answerText: string | null }, questionText: string | null) => {
+  try {
+    const response = await fetch(`${apiDomain}/api/question/${id}/answer`, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        profile_id: receiverId,
+        question: questionText,
+        option: answerPayload.option,
+        answer: answerPayload.answerText,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to submit answer");
+    }
+
+    // Parse the JSON response body
+    const data = await response.json();
+    return data.return;
+  } catch (err) {
+    console.error("Error submitting answer:", err);
+    throw err;
+  }
+};
+
+export const getSharedQuestionList = async () => {
+  try {
+    const response = await fetch(`${apiDomain}/api/profile/${receiverId}/sharedQuestion`, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch shared questions");
+    }
+
+    const data = await response.json();
+    return data.return.list;
+  } catch (err) {
+    console.error("Error fetching shared questions:", err);
+    throw err;
+  }
+};
+
+type PatchOperation = {
+  op: "add" | "remove" | "replace" | "move" | "copy" | "test";
+  path: string;
+  value?: any;
+};
+
+export const updateQuestionPatch = async (id: string, patches: PatchOperation[]) => {
+  try {
+    const response = await fetch(`${apiDomain}/api/question/${id}`, {
+      method: "PATCH",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json-patch+json",
+        "x-profile-id": profileId,
+      },
+      body: JSON.stringify(patches),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Failed to update question. Status: ${response.status}. Response: ${errorText}`);
+    }
+
+    // Ensure JSON parsing handles potential errors
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error("Error updating question:", error);
+    throw new Error(`An error occurred while updating the question: ${error.message}`);
   }
 };

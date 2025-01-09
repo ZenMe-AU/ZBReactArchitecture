@@ -34,6 +34,7 @@ function QuestionList() {
         ))}
       </ul>
       <Link to="/question/add">+Add Question</Link>
+      <Link to="/sharedQuestion">Shared Question List</Link>
     </div>
   );
 }

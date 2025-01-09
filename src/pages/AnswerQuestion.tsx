@@ -1,0 +1,97 @@
+import { useEffect, useState } from "react";
+import { Link, useParams, useNavigate } from "react-router-dom";
+import { getQuestionById, submitAnswer } from "../api/question";
+import { Question } from "../types/interfaces";
+
+function AnswerQuestion() {
+  const { id } = useParams<{ id: string }>(); // Retrieve question ID from URL
+  const [question, setQuestion] = useState<Question | null>(null);
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [textAnswer, setTextAnswer] = useState<string>(""); // For text-based answers
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!id) return;
+
+    const fetchQuestion = async () => {
+      try {
+        setLoading(true);
+        const fetchedQuestion = await getQuestionById(id);
+        setQuestion(fetchedQuestion);
+      } catch (err) {
+        console.error("Error fetching question:", err);
+        setError("Failed to load the question.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchQuestion();
+  }, [id]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!id || !question) {
+      alert("Invalid question ID.");
+      return;
+    }
+
+    const answerPayload =
+      question?.option && question.option.length > 0 ? { option: selectedOption, answerText: null } : { option: null, answerText: textAnswer };
+
+    if (!answerPayload.option && !answerPayload.answerText) {
+      alert("Please provide an answer.");
+      return;
+    }
+
+    try {
+      await submitAnswer(id, answerPayload, question.questionText);
+      alert("Answer submitted successfully!");
+      navigate(`/question/${id}`);
+    } catch (err) {
+      console.error("Error submitting answer:", err);
+      alert("Failed to submit the answer.");
+    }
+  };
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>{error}</p>;
+  if (!question) return <p>No question found.</p>;
+
+  return (
+    <div>
+      <h1>Answer Question</h1>
+      <h2>{question.title}</h2>
+      <p>{question.questionText}</p>
+
+      <form onSubmit={handleSubmit}>
+        {question.option && question.option.length > 0 ? (
+          // Render options as radio buttons if available
+          <ul>
+            {question.option.map((option, index) => (
+              <li key={index}>
+                <label>
+                  <input type="radio" name="answer" value={option} checked={selectedOption === option} onChange={() => setSelectedOption(option)} />
+                  {option}
+                </label>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          // Render a text input if no options are available
+          <div>
+            <label>Your Answer:</label>
+            <textarea value={textAnswer} onChange={(e) => setTextAnswer(e.target.value)} placeholder="Type your answer here" required />
+          </div>
+        )}
+        <button type="submit">Submit Answer</button>
+      </form>
+      <Link to="/sharedQuestion">Back to Shared Question</Link>
+    </div>
+  );
+}
+
+export default AnswerQuestion;
