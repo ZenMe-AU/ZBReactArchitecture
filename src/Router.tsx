@@ -10,6 +10,7 @@ import AddQuestion from "./pages/AddQuestion";
 import EditQuestion from "./pages/EditQuestion";
 import ShareQuestion from "./pages/ShareQuestion";
 import AnswerQuestion from "./pages/AnswerQuestion";
+import AnswerList from "./pages/AnswerList";
 import SharedQuestionList from "./pages/SharedQuestionList";
 import Login from "./pages/Login";
 
@@ -18,6 +19,7 @@ const protectedRoutes = [
   { path: "/question", element: <QuestionList /> },
   { path: "/question/:id", element: <QuestionDetail /> },
   { path: "/question/:id/answer", element: <AnswerQuestion /> },
+  { path: "/question/:id/answerList", element: <AnswerList /> },
   { path: "/question/add", element: <AddQuestion /> },
   { path: "/question/:id/edit", element: <EditQuestion /> },
   { path: "/question/:id/share", element: <ShareQuestion /> },
