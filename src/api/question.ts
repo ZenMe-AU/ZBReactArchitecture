@@ -1,17 +1,12 @@
-const apiDomain = import.meta.env.VITE_API_DOMAIN;
-const profileId = "1007"; // Replace with actual user ID
-const receiverId = "258";
+import { jwtFetch } from "./jwtFetch";
 
+const apiDomain = import.meta.env.VITE_API_DOMAIN;
 // Fetch list of questions for a specific user
 export const getQuestionsByUser = async () => {
+  const profileId = localStorage.getItem("profileId");
   try {
-    const response = await fetch(`${apiDomain}/api/profile/${profileId}/question`, {
-      method: "GET", // HTTP method
-      headers: {
-        Accept: "application/json", // We expect JSON in response
-        "Content-Type": "application/json", // We're sending JSON
-        "Access-Control-Allow-Origin": "*", // Allow cross-origin requests (CORS)
-      },
+    const response = await jwtFetch(`${apiDomain}/api/profile/${profileId}/question`, {
+      method: "GET",
     });
 
     // Check if the response is okay (status code 2xx)
@@ -30,13 +25,10 @@ export const getQuestionsByUser = async () => {
 
 // Create a new questionnaire
 export const createQuestion = async (title: string, questionText: string, option: string[]) => {
+  const profileId = localStorage.getItem("profileId");
   try {
-    const response = await fetch(`${apiDomain}/api/question`, {
+    const response = await jwtFetch(`${apiDomain}/api/question`, {
       method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         profile_id: profileId,
         title: title,
@@ -60,12 +52,8 @@ export const createQuestion = async (title: string, questionText: string, option
 // Get question detail
 export const getQuestionById = async (id: string) => {
   try {
-    const response = await fetch(`${apiDomain}/api/question/${id}`, {
+    const response = await jwtFetch(`${apiDomain}/api/question/${id}`, {
       method: "GET",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
     });
 
     if (!response.ok) {
@@ -83,12 +71,8 @@ export const getQuestionById = async (id: string) => {
 // Update an existing question
 export const updateQuestion = async (id: string, data: { title: string; questionText: string; option: string[] }) => {
   try {
-    const response = await fetch(`${apiDomain}/api/question/${id}`, {
+    const response = await jwtFetch(`${apiDomain}/api/question/${id}`, {
       method: "PUT",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         title: data.title,
         question: data.questionText,
@@ -111,12 +95,8 @@ export const updateQuestion = async (id: string, data: { title: string; question
 // Share a question
 export const shareQuestion = async (id: string, profileId: number, receiverIds: number[]) => {
   try {
-    const response = await fetch(`${apiDomain}/api/question/${id}/share`, {
+    const response = await jwtFetch(`${apiDomain}/api/question/${id}/share`, {
       method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         profile_id: profileId,
         receiver_ids: receiverIds,
@@ -136,15 +116,12 @@ export const shareQuestion = async (id: string, profileId: number, receiverIds: 
 };
 
 export const submitAnswer = async (id: string, answerPayload: { option: string | null; answerText: string | null }, questionText: string | null) => {
+  const profileId = localStorage.getItem("profileId");
   try {
-    const response = await fetch(`${apiDomain}/api/question/${id}/answer`, {
+    const response = await jwtFetch(`${apiDomain}/api/question/${id}/answer`, {
       method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
-        profile_id: receiverId,
+        profile_id: profileId,
         question: questionText,
         option: answerPayload.option,
         answer: answerPayload.answerText,
@@ -164,14 +141,29 @@ export const submitAnswer = async (id: string, answerPayload: { option: string |
   }
 };
 
-export const getSharedQuestionList = async () => {
+export const getAnswerListByQuestionId = async (id: string) => {
   try {
-    const response = await fetch(`${apiDomain}/api/profile/${receiverId}/sharedQuestion`, {
+    const response = await jwtFetch(`${apiDomain}/api/question/${id}/answer`, {
       method: "GET",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch answers");
+    }
+
+    const data = await response.json();
+    return data.return.list;
+  } catch (err) {
+    console.error("Error fetching answers:", err);
+    throw err;
+  }
+};
+
+export const getSharedQuestionList = async () => {
+  const profileId = localStorage.getItem("profileId");
+  try {
+    const response = await jwtFetch(`${apiDomain}/api/profile/${profileId}/sharedQuestion`, {
+      method: "GET",
     });
 
     if (!response.ok) {
@@ -193,11 +185,11 @@ type PatchOperation = {
 };
 
 export const updateQuestionPatch = async (id: string, patches: PatchOperation[]) => {
+  const profileId = localStorage.getItem("profileId");
   try {
-    const response = await fetch(`${apiDomain}/api/question/${id}`, {
+    const response = await jwtFetch(`${apiDomain}/api/question/${id}`, {
       method: "PATCH",
       headers: {
-        Accept: "application/json",
         "Content-Type": "application/json-patch+json",
         "x-profile-id": profileId,
       },
