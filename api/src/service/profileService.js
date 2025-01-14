@@ -34,6 +34,21 @@ async function create(name, tags = [], avatar = null) {
   }
 }
 
+/**
+ * get user's profile
+ *
+ * @param {number} profileId - profile id
+ * @return {array}
+ */
+async function getById(profileId) {
+  try {
+    return await Profiles.findByPk(profileId);
+  } catch (err) {
+    console.log(err);
+    return;
+  }
+}
+
 function getList(name, tags) {
   try {
     let queryObj = {
@@ -168,5 +183,6 @@ module.exports = {
   getUsersProfile,
   getUsersProfileNearby,
   create,
+  getById,
   getList,
 };

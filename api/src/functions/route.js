@@ -1,6 +1,7 @@
 const { app } = require("@azure/functions");
 const handler = require("./handler.js");
 const questionHandler = require("../handler/questionHandler.js");
+const authHandler = require("../handler/authHandler.js");
 
 app.http("SearchAtLocationQty", {
   methods: ["GET"],
@@ -122,4 +123,18 @@ app.http("PatchQuestionById", {
   methods: ["PATCH"],
   authLevel: "anonymous",
   handler: questionHandler.PatchQuestionById,
+});
+
+app.http("Login", {
+  route: "auth/login",
+  methods: ["POST"],
+  authLevel: "anonymous",
+  handler: authHandler.loginUser,
+});
+
+app.http("Verify", {
+  route: "auth/verify",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: authHandler.verify,
 });
