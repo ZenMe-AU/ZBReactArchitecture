@@ -2,6 +2,20 @@ import { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { getQuestionById, submitAnswer } from "../api/question";
 import { Question } from "../types/interfaces";
+import {
+  Container,
+  Typography,
+  Box,
+  Button,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  FormControl,
+  FormLabel,
+  TextField,
+  IconButton,
+} from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 function AnswerQuestion() {
   const { id } = useParams<{ id: string }>(); // Retrieve question ID from URL
@@ -62,36 +76,84 @@ function AnswerQuestion() {
   if (!question) return <p>No question found.</p>;
 
   return (
-    <div>
-      <h1>Answer Question</h1>
-      <h2>{question.title}</h2>
-      <p>{question.questionText}</p>
+    <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Box display="flex" alignItems="center" mb={2}>
+        <IconButton onClick={() => navigate(-1)}>
+          <ArrowBackIcon />
+        </IconButton>
+        <Typography variant="h4">Answer Question</Typography>
+      </Box>
+
+      <Typography variant="h5" gutterBottom>
+        {question.title}
+      </Typography>
+      <Typography variant="body1" paragraph>
+        {question.questionText}
+      </Typography>
 
       <form onSubmit={handleSubmit}>
         {question.option && question.option.length > 0 ? (
-          // Render options as radio buttons if available
-          <ul>
-            {question.option.map((option, index) => (
-              <li key={index}>
-                <label>
-                  <input type="radio" name="answer" value={option} checked={selectedOption === option} onChange={() => setSelectedOption(option)} />
-                  {option}
-                </label>
-              </li>
-            ))}
-          </ul>
+          <FormControl component="fieldset" sx={{ mb: 2 }}>
+            <FormLabel component="legend">Options</FormLabel>
+            <RadioGroup name="answer" value={selectedOption} onChange={(e) => setSelectedOption(e.target.value)}>
+              {question.option.map((option, index) => (
+                <FormControlLabel key={index} value={option} control={<Radio />} label={option} />
+              ))}
+            </RadioGroup>
+          </FormControl>
         ) : (
-          // Render a text input if no options are available
-          <div>
-            <label>Your Answer:</label>
-            <textarea value={textAnswer} onChange={(e) => setTextAnswer(e.target.value)} placeholder="Type your answer here" required />
-          </div>
+          <TextField
+            label="Your Answer"
+            multiline
+            rows={4}
+            fullWidth
+            value={textAnswer}
+            onChange={(e) => setTextAnswer(e.target.value)}
+            placeholder="Type your answer here"
+            required
+            sx={{ mb: 2 }}
+          />
         )}
-        <button type="submit">Submit Answer</button>
+        <Box display="flex" justifyContent="center">
+          <Button type="submit" variant="contained" color="primary">
+            Submit Answer
+          </Button>
+        </Box>
       </form>
-      <Link to="/sharedQuestion">Back to Shared Question</Link>
-    </div>
+    </Container>
   );
 }
+// return (
+//   <div>
+//     <h1>Answer Question</h1>
+//     <h2>{question.title}</h2>
+//     <p>{question.questionText}</p>
+
+//     <form onSubmit={handleSubmit}>
+//       {question.option && question.option.length > 0 ? (
+//         // Render options as radio buttons if available
+//         <ul>
+//           {question.option.map((option, index) => (
+//             <li key={index}>
+//               <label>
+//                 <input type="radio" name="answer" value={option} checked={selectedOption === option} onChange={() => setSelectedOption(option)} />
+//                 {option}
+//               </label>
+//             </li>
+//           ))}
+//         </ul>
+//       ) : (
+//         // Render a text input if no options are available
+//         <div>
+//           <label>Your Answer:</label>
+//           <textarea value={textAnswer} onChange={(e) => setTextAnswer(e.target.value)} placeholder="Type your answer here" required />
+//         </div>
+//       )}
+//       <button type="submit">Submit Answer</button>
+//     </form>
+//     <Link to="/sharedQuestion">Back to Shared Question</Link>
+//   </div>
+// );
+// }
 
 export default AnswerQuestion;

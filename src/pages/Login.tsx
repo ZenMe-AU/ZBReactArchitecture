@@ -4,7 +4,7 @@ import { useAuth } from "../AuthContext";
 import { getProfileList } from "../api/profile";
 import { login as authLogin } from "../api/auth";
 import { Profile } from "../types/interfaces";
-import { Box, Button, Typography, Select, MenuItem, FormControl, InputLabel, Alert, CircularProgress } from "@mui/material";
+import { Box, Button, Typography, Select, MenuItem, FormControl, InputLabel, Alert, CircularProgress, Autocomplete, TextField } from "@mui/material";
 
 function Login() {
   const { isAuthenticated, login, logout } = useAuth();
@@ -95,7 +95,7 @@ function Login() {
               {error}
             </Alert>
           )}
-          <FormControl fullWidth sx={{ mb: 2 }}>
+          {/* <FormControl fullWidth sx={{ mb: 2 }}>
             <InputLabel id="user-select-label">Select a user</InputLabel>
             <Select
               labelId="user-select-label"
@@ -113,7 +113,17 @@ function Login() {
                 </MenuItem>
               ))}
             </Select>
-          </FormControl>
+          </FormControl> */}
+          <Autocomplete
+            disablePortal
+            onChange={(_, newValue) => {
+              setSelectedUserId(newValue?.id);
+            }}
+            getOptionLabel={(user) => `${user.id} - ${user.name}`}
+            options={userList}
+            sx={{ width: 300, mb: 2 }}
+            renderInput={(params) => <TextField {...params} label="Select a user" />}
+          />
           <Button variant="contained" color="primary" onClick={handleLogin} disabled={loading} fullWidth>
             {loading ? <CircularProgress size={24} color="inherit" /> : "Login"}
           </Button>
