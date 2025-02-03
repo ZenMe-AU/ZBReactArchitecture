@@ -55,6 +55,31 @@ async function getListByUser(profileId) {
   }
 }
 
+async function getCombinationListByUser(profileId) {
+  try {
+    return await Question.findAll({
+      where: {
+        [Op.or]: [
+          { profileId: profileId },
+          {
+            "$question_shares.receiverId$": profileId,
+          },
+        ],
+      },
+      include: [
+        {
+          model: QuestionShare,
+          attributes: [],
+          group: ["questionId"],
+        },
+      ],
+    });
+  } catch (err) {
+    console.log(err);
+    return;
+  }
+}
+
 async function addAnswerByQuestionId(questionId, profileId, duration, answer = null, option = null) {
   try {
     return await QuestionAnswer.create({
@@ -135,6 +160,7 @@ module.exports = {
   updateById,
   getById,
   getListByUser,
+  getCombinationListByUser,
   addAnswerByQuestionId,
   getAnswerById,
   getAnswerListByQuestionId,
