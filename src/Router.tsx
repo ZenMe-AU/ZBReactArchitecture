@@ -4,7 +4,7 @@ import { AuthProvider } from "./AuthContext";
 import { ProtectedRoute } from "./ProtectedRoute";
 import Location from "./App";
 import HomePage from "./pages/HomePage";
-import QuestionList from "./pages/QuestionList";
+import QuestionCombinationList from "./pages/QuestionCombinationList";
 import QuestionDetail from "./pages/QuestionDetail2";
 import AddQuestion from "./pages/AddQuestion";
 import EditQuestion from "./pages/EditQuestion";
@@ -16,7 +16,7 @@ import Login from "./pages/Login";
 
 const protectedRoutes = [
   { path: "/*", element: <HomePage /> },
-  { path: "/question", element: <QuestionList /> },
+  { path: "/question", element: <QuestionCombinationList /> },
   { path: "/question/:id", element: <QuestionDetail /> },
   { path: "/question/:id/answer", element: <AnswerQuestion /> },
   { path: "/question/:id/answerList", element: <AnswerList /> },
