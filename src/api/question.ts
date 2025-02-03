@@ -115,7 +115,11 @@ export const shareQuestion = async (id: string, profileId: number, receiverIds: 
   }
 };
 
-export const submitAnswer = async (id: string, answerPayload: { option: string | null; answerText: string | null }, questionText: string | null) => {
+export const submitAnswer = async (
+  id: string,
+  answerPayload: { option: string | null; answerText: string | null; answerDuration: number },
+  questionText: string | null
+) => {
   const profileId = localStorage.getItem("profileId");
   try {
     const response = await jwtFetch(`${apiDomain}/api/question/${id}/answer`, {
@@ -125,6 +129,7 @@ export const submitAnswer = async (id: string, answerPayload: { option: string |
         question: questionText,
         option: answerPayload.option,
         answer: answerPayload.answerText,
+        duration: answerPayload.answerDuration,
       }),
     });
 

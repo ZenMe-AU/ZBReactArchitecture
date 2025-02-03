@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { getQuestionById, submitAnswer } from "../api/question";
 import { Question } from "../types/interfaces";
 import {
@@ -18,12 +18,13 @@ import {
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 function AnswerQuestion() {
-  const { id } = useParams<{ id: string }>(); // Retrieve question ID from URL
+  const { id } = useParams<{ id: string }>();
   const [question, setQuestion] = useState<Question | null>(null);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
-  const [textAnswer, setTextAnswer] = useState<string>(""); // For text-based answers
+  const [textAnswer, setTextAnswer] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [startTime, setStartTime] = useState<number>(0);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -34,6 +35,7 @@ function AnswerQuestion() {
         setLoading(true);
         const fetchedQuestion = await getQuestionById(id);
         setQuestion(fetchedQuestion);
+        setStartTime(performance.now());
       } catch (err) {
         console.error("Error fetching question:", err);
         setError("Failed to load the question.");
@@ -53,8 +55,14 @@ function AnswerQuestion() {
       return;
     }
 
-    const answerPayload =
-      question?.option && question.option.length > 0 ? { option: selectedOption, answerText: null } : { option: null, answerText: textAnswer };
+    const endTime = performance.now();
+    const answerDuration = Math.round(endTime - startTime);
+
+    const answerPayload = {
+      option: question?.option && question.option.length > 0 ? selectedOption : null,
+      answerText: question?.option && question.option.length > 0 ? null : textAnswer,
+      answerDuration,
+    };
 
     if (!answerPayload.option && !answerPayload.answerText) {
       alert("Please provide an answer.");
