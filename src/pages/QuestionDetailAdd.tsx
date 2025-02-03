@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { compare } from "fast-json-patch";
-import { getQuestionById, updateQuestionPatch } from "../api/question";
+import { getQuestionById, createQuestion } from "../api/question";
 import { Container, Typography, Box, TextField, Button, List, ListItem, IconButton } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -18,7 +18,7 @@ const ReadOnlyText = styled("div")(({ theme }) => ({
   },
 }));
 
-function QuestionDetail() {
+function QuestionDetailAdd() {
   const { id } = useParams();
   const [questionData, setQuestionData] = useState(null); // Original question data
   const [editedData, setEditedData] = useState(null); // Edited data
@@ -64,16 +64,19 @@ function QuestionDetail() {
   // Update the question data using a patch API
   const handleUpdate = async () => {
     const patches = compare(questionData, editedData);
-    try {
-      setIsEditing(false);
-      const result = await updateQuestionPatch(id, patches);
-      console.log("Updated successfully!");
-    } catch (error) {
-      setIsEditing(true);
-      console.error("Error updating question:", error);
-    } finally {
-      setQuestionData(editedData);
-      setEditingFields({});
+    if (patches.length > 0) {
+      try {
+        setIsEditing(false);
+        const result = await createQuestion(editedData.title, editedData.questionText, editedData.options);
+        console.log("ADD!!!!");
+      } catch (error) {
+        setIsEditing(true);
+        console.error("Error editing question:", error);
+      } finally {
+        setQuestionData(editedData);
+        setEditingFields({});
+        navigate(`/question`);
+      }
     }
   };
 
@@ -195,7 +198,7 @@ function QuestionDetail() {
         {isEditing && (
           <Box display="flex" justifyContent="flex-end" gap={2} mb={3}>
             <Button variant="contained" color="primary" onClick={handleUpdate}>
-              Update
+              Create
             </Button>
             <Button variant="outlined" onClick={handleCancel}>
               Cancel
@@ -207,8 +210,4 @@ function QuestionDetail() {
   );
 }
 
-export default QuestionDetail;
-// <div>
-// <Link to="/question">[Back to Question List]</Link>
-// <Link to={`/question/${id}/share`}>[Share]</Link>
-// </div>
+export default QuestionDetailAdd;

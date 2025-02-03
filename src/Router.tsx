@@ -6,6 +6,7 @@ import Location from "./App";
 import HomePage from "./pages/HomePage";
 import QuestionCombinationList from "./pages/QuestionCombinationList";
 import QuestionDetail from "./pages/QuestionDetail2";
+import QuestionDetailAdd from "./pages/QuestionDetailAdd";
 import AddQuestion from "./pages/AddQuestion";
 import EditQuestion from "./pages/EditQuestion";
 import ShareQuestion from "./pages/ShareQuestion";
@@ -18,6 +19,7 @@ const protectedRoutes = [
   { path: "/*", element: <HomePage /> },
   { path: "/question", element: <QuestionCombinationList /> },
   { path: "/question/:id", element: <QuestionDetail /> },
+  { path: "/question/:id/add", element: <QuestionDetailAdd /> },
   { path: "/question/:id/answer", element: <AnswerQuestion /> },
   { path: "/question/:id/answerList", element: <AnswerList /> },
   { path: "/question/add", element: <AddQuestion /> },
