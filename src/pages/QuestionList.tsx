@@ -36,7 +36,7 @@ function QuestionList() {
             </ListItemButton>
             <Box display="flex" gap={1} ml={2}>
               <Button variant="outlined" size="small" component={Link} to={`/question/${q.id}`}>
-                Detail
+                Edit
               </Button>
               <Button variant="outlined" size="small" component={Link} to={`/question/${q.id}/share`}>
                 Share
