@@ -55,13 +55,14 @@ async function getListByUser(profileId) {
   }
 }
 
-async function addAnswerByQuestionId(questionId, profileId, answer = null, option = null) {
+async function addAnswerByQuestionId(questionId, profileId, duration, answer = null, option = null) {
   try {
     return await QuestionAnswer.create({
       questionId: questionId,
       profileId: profileId,
       answerText: answer,
       optionId: option,
+      duration: duration,
     });
   } catch (err) {
     console.log(err);

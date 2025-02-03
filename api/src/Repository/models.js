@@ -179,6 +179,10 @@ const QuestionAnswer = sequelize.define(
       type: DataTypes.SMALLINT,
       allowNull: true,
     },
+    duration: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
   },
   {
     tableName: "question_answer",
@@ -295,6 +299,7 @@ Profiles.hasMany(Location, { foreignKey: "tid", sourceKey: "device_id" });
 Profiles.hasMany(Question, { foreignKey: "profileId", sourceKey: "id" });
 Profiles.hasMany(QuestionAnswer, { foreignKey: "profileId", sourceKey: "id" });
 Question.hasMany(QuestionAnswer, { foreignKey: "questionId", sourceKey: "id" });
+Question.hasMany(QuestionShare, { foreignKey: "questionId", sourceKey: "id" });
 QuestionAnswer.belongsTo(Question, { targetKey: "id", foreignKey: "questionId" });
 QuestionShare.belongsTo(Question, { targetKey: "id", foreignKey: "questionId" });
 

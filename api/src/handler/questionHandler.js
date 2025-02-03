@@ -218,7 +218,8 @@ async function AddAnswer(request, context) {
   let profileId = bodyJson["profile_id"];
   let answer = bodyJson["answer"] || null;
   let option = bodyJson["option"] || null;
-  let questionnaire = await Question.addAnswerByQuestionId(questionId, profileId, answer, option);
+  let duration = bodyJson["duration"];
+  let questionnaire = await Question.addAnswerByQuestionId(questionId, profileId, duration, answer, option);
   return { jsonBody: { return: { id: questionnaire.id } } };
 }
 
@@ -321,7 +322,7 @@ async function GetAnswerById(request, context) {
  */
 async function GetQuestionListByUser(request, context) {
   const profileId = parseInt(request.params.profileId);
-  let question = await Question.getListByUser(profileId);
+  let question = await Question.getCombinationListByUser(profileId);
   return { jsonBody: { return: { list: question } } };
 }
 
