@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getQuestionsByUser } from "../api/question";
-import { Container, Typography, List, ListItem, ListItemButton, ListItemText, Button, Box, IconButton } from "@mui/material";
+import { Container, Typography, List, ListItem, ListItemButton, ListItemText, Button, Box, IconButton, Divider } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import ShareIcon from "@mui/icons-material/Share";
 
 function QuestionCombinationList() {
   const profileId = localStorage.getItem("profileId");
@@ -31,30 +33,29 @@ function QuestionCombinationList() {
         Question List
       </Typography>
       <List>
-        {questions.map((q) => (
-          <ListItem key={q.id} disablePadding>
-            <ListItemButton component={Link} to={`/question/${q.id}/answer`}>
-              <ListItemText primary={q.title} />
-            </ListItemButton>
-            <Box display="flex" gap={1} ml={2}>
-              <Button variant="outlined" size="small" component={Link} to={`/question/${q.id}` + (q.profileId != profileId ? "/add" : "")}>
-                Edit
-              </Button>
-
-              <Button variant="outlined" size="small" component={Link} to={`/question/${q.id}/share`}>
-                Share
-              </Button>
-              <Button
-                variant="outlined"
-                size="small"
-                component={Link}
-                to={`/question/${q.id}/answerList`}
-                style={{ visibility: q.profileId != profileId ? "hidden" : "visible" }}
-              >
-                View Answers
-              </Button>
-            </Box>
-          </ListItem>
+        {questions.map((q, index) => (
+          <>
+            <ListItem key={q.id} disablePadding>
+              <ListItemButton component={Link} to={`/question/${q.id}/answer`}>
+                <ListItemText primary={q.title} />
+                <Box display="flex" gap={1} ml={2}>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={<EditIcon />}
+                    component={Link}
+                    to={`/question/${q.id}` + (q.profileId != profileId ? "/add" : "")}
+                  >
+                    Edit
+                  </Button>
+                  <Button variant="outlined" size="small" startIcon={<ShareIcon />} component={Link} to={`/question/${q.id}/share`}>
+                    Share
+                  </Button>
+                </Box>
+              </ListItemButton>
+            </ListItem>
+            {index < questions.length - 1 && <Divider sx={{ bgcolor: "grey.800" }} />}
+          </>
         ))}
       </List>
       <Box mt={4} display="flex" justifyContent="space-between">
