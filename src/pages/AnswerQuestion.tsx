@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { getQuestionById, submitAnswer } from "../api/question";
+import { useParams, useNavigate, Link } from "react-router-dom";
+import { getQuestionById, submitAnswer, getAnswerListByQuestionId } from "../api/question";
 import { Question } from "../types/interfaces";
 import {
   Container,
@@ -14,17 +14,25 @@ import {
   FormLabel,
   TextField,
   IconButton,
+  List,
+  ListItem,
+  ListItemText,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 function AnswerQuestion() {
+  const profileId = localStorage.getItem("profileId");
   const { id } = useParams<{ id: string }>();
   const [question, setQuestion] = useState<Question | null>(null);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [textAnswer, setTextAnswer] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
   const [startTime, setStartTime] = useState<number>(0);
+
+  const [prevAns, setPrevAns] = useState({});
+  const [answerList, setAnswerList] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -45,13 +53,47 @@ function AnswerQuestion() {
     };
 
     fetchQuestion();
+
+    const fetchAnswers = async () => {
+      try {
+        const data = await getAnswerListByQuestionId(id);
+        console.log(data);
+        const answerList = data.reduce(
+          (acc, q) => {
+            if (q.profileId == profileId) {
+              acc.self.push(q);
+            } else {
+              acc.others.push(q);
+            }
+            return acc;
+          },
+          { self: [], others: [] }
+        );
+        console.log(answerList);
+
+        setAnswerList(answerList.others);
+        if (answerList.self.length > 0) {
+          setPrevAns(answerList.self[0]);
+          setSelectedOption(answerList.self[0].optionId);
+          setTextAnswer(answerList.self[0].answerText);
+        }
+      } catch (error) {
+        console.error("Error fetching answers:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAnswers();
+    console.log(answerList);
+    console.log(prevAns);
   }, [id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    setSubmitting(true);
     if (!id || !question) {
       alert("Invalid question ID.");
+      setSubmitting(false);
       return;
     }
 
@@ -66,16 +108,31 @@ function AnswerQuestion() {
 
     if (!answerPayload.option && !answerPayload.answerText) {
       alert("Please provide an answer.");
+      setSubmitting(false);
+      return;
+    }
+
+    if (answerPayload.option == prevAns.optionId && answerPayload.answerText == prevAns.answerText) {
+      console.log("nothing changed!");
+      setSubmitting(false);
       return;
     }
 
     try {
       await submitAnswer(id, answerPayload, question.questionText);
       alert("Answer submitted successfully!");
-      navigate(`/question/${id}`);
+      setPrevAns((prev) => ({
+        ...prev,
+        optionId: answerPayload.option,
+        answerText: answerPayload.answerText,
+      }));
+      // navigate(`/question/${id}`);
     } catch (err) {
       console.error("Error submitting answer:", err);
       alert("Failed to submit the answer.");
+    } finally {
+      setSubmitting(false);
+      setStartTime(performance.now());
     }
   };
 
@@ -89,12 +146,11 @@ function AnswerQuestion() {
         <IconButton onClick={() => navigate(-1)}>
           <ArrowBackIcon />
         </IconButton>
-        <Typography variant="h4">Answer Question</Typography>
+        <Typography variant="h4">{question.title}</Typography>
       </Box>
-
-      <Typography variant="h5" gutterBottom>
+      {/* <Typography variant="h5" gutterBottom>
         {question.title}
-      </Typography>
+      </Typography> */}
       <Typography variant="body1" paragraph>
         {question.questionText}
       </Typography>
@@ -102,7 +158,7 @@ function AnswerQuestion() {
       <form onSubmit={handleSubmit}>
         {question.option && question.option.length > 0 ? (
           <FormControl component="fieldset" sx={{ mb: 2 }}>
-            <FormLabel component="legend">Options</FormLabel>
+            <FormLabel component="legend">choose your answer</FormLabel>
             <RadioGroup name="answer" value={selectedOption} onChange={(e) => setSelectedOption(e.target.value)}>
               {question.option.map((option, index) => (
                 <FormControlLabel key={index} value={option} control={<Radio />} label={option} />
@@ -123,11 +179,26 @@ function AnswerQuestion() {
           />
         )}
         <Box display="flex" justifyContent="center">
-          <Button type="submit" variant="contained" color="primary">
-            Submit Answer
+          <Button type="submit" variant="contained" color="primary" disabled={submitting}>
+            {submitting ? "Submitting..." : "Submit Answer"}
           </Button>
         </Box>
       </form>
+      {answerList.length > 0 && (
+        <Box display="flex" alignItems="center" mt={3}>
+          <Typography variant="h8" gutterBottom>
+            Others Answer:
+          </Typography>
+        </Box>
+      )}
+      <List>
+        {answerList.length > 0 &&
+          answerList.map((answer) => (
+            <ListItem key={answer.id} disablePadding>
+              <ListItemText primary={answer.answerText || answer.optionId} secondary={`By: ${answer.profileId}`} />
+            </ListItem>
+          ))}
+      </List>
     </Container>
   );
 }
