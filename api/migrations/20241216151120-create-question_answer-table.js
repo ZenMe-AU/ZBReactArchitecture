@@ -24,7 +24,7 @@ module.exports = {
       },
       optionId: {
         allowNull: true,
-        type: Sequelize.SMALLINT,
+        type: Sequelize.STRING,
       },
       duration: {
         allowNull: false,

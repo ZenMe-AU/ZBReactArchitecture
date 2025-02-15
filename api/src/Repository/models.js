@@ -132,7 +132,7 @@ const Question = sequelize.define(
       allowNull: false,
     },
     title: {
-      type: DataTypes.CHAR,
+      type: DataTypes.STRING,
       allowNull: true,
     },
     questionText: {
@@ -176,7 +176,7 @@ const QuestionAnswer = sequelize.define(
       allowNull: true,
     },
     optionId: {
-      type: DataTypes.SMALLINT,
+      type: DataTypes.STRING,
       allowNull: true,
     },
     duration: {
