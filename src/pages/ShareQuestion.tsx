@@ -53,7 +53,7 @@ function ShareQuestion() {
       );
       alert("Question shared successfully!");
 
-      navigate(`/question/${id}`); // Navigate back to the question detail
+      navigate(`/question/${id}/answer`); // Navigate back to the question detail
     } catch (err) {
       setError("Failed to share the question. Please try again.");
       console.error(err);

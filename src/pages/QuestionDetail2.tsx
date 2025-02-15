@@ -33,6 +33,9 @@ function QuestionDetail() {
         const data = await getQuestionById(id);
         setQuestionData(data);
         setEditedData(data); // Initialize editing data
+        if (data.profileId != localStorage.getItem("profileId")) {
+          navigate(`/question/${id}/add`, { replace: true });
+        }
       } catch (error) {
         console.error("Error fetching question:", error);
       }
