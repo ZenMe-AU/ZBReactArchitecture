@@ -1,4 +1,5 @@
 const Question = require("../service/questionService.js");
+const { decode } = require("../service/utils/authUtils");
 
 /**
  * @swagger
@@ -339,8 +340,16 @@ async function GetQuestionListByUser(request, context) {
  *         in: path
  *         required: true
  *         schema:
- *           type: integer
- *           example: 2
+ *           type: string
+ *           format: uuid
+ *           example: "985953ea-77d4-4b64-b11c-764d51c93b73"
+ *       - name: Authorization
+ *         in: header
+ *         required: true
+ *         schema:
+ *           type: string
+ *           example: "Bearer <your_jwt_token>"
+ *         description: Bearer token to authorize the request.
  *     responses:
  *       200:
  *         description: Successfully retrieved list of answers.
@@ -358,32 +367,55 @@ async function GetQuestionListByUser(request, context) {
  *                         type: object
  *                         properties:
  *                           id:
+ *                             type: string
+ *                             format: uuid
+ *                             example: "d520b3fb-f2ce-4d08-b865-6d813812b7c3"
+ *                           profileId:
  *                             type: integer
- *                             example: 1
- *                           profile_id:
- *                             type: integer
- *                             example: 999
- *                           questionnaire_id:
- *                             type: integer
- *                             example: 2
- *                           answer:
+ *                             nullable: true
+ *                             example: null
+ *                           questionId:
+ *                             type: string
+ *                             format: uuid
+ *                             example: "985953ea-77d4-4b64-b11c-764d51c93b73"
+ *                           answerText:
  *                             type: string
  *                             nullable: true
- *                             example: "Pizza"
- *                           option:
+ *                             example: "I think it's Mandarin? Not sure if Taiwanese counts."
+ *                           optionId:
  *                             type: integer
  *                             nullable: true
  *                             description: The index of the selected option (starting from 0).
- *                             example: 1
+ *                             example: null
+ *                           duration:
+ *                             type: integer
+ *                             description: Time spent answering the question (in seconds).
+ *                             example: 587
+ *                           isEdited:
+ *                             type: boolean
+ *                             description: Indicates if the answer has been edited.
+ *                             example: false
  *                           createdAt:
  *                             type: string
  *                             format: date-time
- *                             example: "2024-12-18T17:49:08.219Z"
+ *                             example: "2025-02-15T15:42:36.892Z"
  */
 async function GetAnswerListByQuestionId(request, context) {
   const questionId = request.params.id;
+  const authorization = request.headers.get("authorization");
+  const token = authorization.split(" ")[1];
+  const decoded = decode(token);
+  const profileId = decoded.profileId;
   let answers = await Question.getAnswerListByQuestionId(questionId);
-  return { jsonBody: { return: { list: answers } } };
+  const processedAnswers = answers.map((ans) => {
+    return {
+      ...ans,
+      isEdited: ans.answerCount > 1 ? true : false,
+      profileId: ans.profileId === profileId ? ans.profileId : null,
+      answerCount: undefined,
+    };
+  });
+  return { jsonBody: { return: { list: processedAnswers } } };
 }
 
 /**

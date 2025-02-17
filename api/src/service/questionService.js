@@ -106,7 +106,40 @@ async function getAnswerById(questionId, answerId) {
 
 async function getAnswerListByQuestionId(questionId) {
   try {
-    return await QuestionAnswer.findAll({ where: { questionId: questionId } });
+    // return await QuestionAnswer.findAll({ where: { questionId: questionId }, order: [["createdAt", "DESC"]] });
+    // return await QuestionAnswer.findAll({
+    //   attributes: [
+    //     "profileId",
+    //     [Sequelize.fn("MAX", Sequelize.col("createdAt")), "latestCreatedAt"],
+    //     [Sequelize.fn("COUNT", Sequelize.col("id")), "answerCount"],
+    //     [Sequelize.literal(`FIRST_VALUE("answerText") OVER (PARTITION BY "profileId" ORDER BY "createdAt" DESC)`), "answerText"],
+    //     [Sequelize.literal(`FIRST_VALUE("optionId") OVER (PARTITION BY "profileId" ORDER BY "createdAt" DESC)`), "optionId"],
+    //    ],
+    //   where: { questionId },
+    //   group: ["profileId"],
+    //   order: [[Sequelize.fn("MAX", Sequelize.col("createdAt")), "DESC"]],
+    //   raw: true,
+    // });
+    return await await QuestionAnswer.sequelize.query(
+      `
+          SELECT DISTINCT ON ("profileId")
+            "id",
+            "profileId",
+            "createdAt",
+            COUNT("id") OVER (PARTITION BY "profileId") AS "answerCount",
+            "questionId",
+            "answerText",
+            "optionId",
+            "duration"
+          FROM "question_answer"
+          WHERE "questionId" = :questionId
+          ORDER BY "profileId", "createdAt" DESC;
+        `,
+      {
+        replacements: { questionId },
+        type: QuestionAnswer.sequelize.QueryTypes.SELECT,
+      }
+    );
   } catch (err) {
     console.log(err);
     return;
