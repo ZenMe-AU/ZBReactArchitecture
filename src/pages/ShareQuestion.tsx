@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getQuestionById, shareQuestion } from "../api/question";
 import { getProfileList } from "../api/profile";
 import { Profile } from "../types/interfaces";
-import { Container, Typography, Box, Button, IconButton, CircularProgress, Alert, TextField } from "@mui/material";
+import { Container, Typography, Box, Button, IconButton, Alert, TextField } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Autocomplete from "@mui/material/Autocomplete";
 
 function ShareQuestion() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [profileId, setProfileId] = useState<number | null>(null);
+  const [profileId, setProfileId] = useState<string | null>(null);
   const [friends, setFriends] = useState<Profile[]>([]);
-  const [selectedReceivers, setSelectedReceivers] = useState<number[]>([]);
+  const [selectedReceivers, setSelectedReceivers] = useState<Profile[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,8 +21,9 @@ function ShareQuestion() {
       try {
         const profiles = await getProfileList(); // Fetch profiles using API
         setFriends(profiles);
-        const questions = await getQuestionById(id);
-        setProfileId(questions.profileId);
+        if (!id) throw new Error("Question ID is undefined");
+        const question = await getQuestionById(id);
+        setProfileId(question.profileId);
       } catch (err) {
         console.error("Error fetching profile list:", err);
         setError("Failed to fetch friends list.");
@@ -60,11 +61,6 @@ function ShareQuestion() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleReceiverChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedOptions = Array.from(e.target.selectedOptions, (option) => Number(option.value));
-    setSelectedReceivers(selectedOptions);
   };
 
   if (loading) return <p>Loading...</p>;
@@ -109,30 +105,5 @@ function ShareQuestion() {
     </Container>
   );
 }
-
-//   return (
-//     <div>
-//       <h1>Share Question</h1>
-//       {error && <p style={{ color: "red" }}>{error}</p>}
-//       <form onSubmit={handleShare}>
-//         <div>
-//           <label htmlFor="friends">Select Friends:</label>
-//           <select id="friends" multiple value={selectedReceivers} onChange={handleReceiverChange}>
-//             {friends.map((friend) => (
-//               <option key={friend.id} value={friend.id}>
-//                 {friend.id}-{friend.name}
-//               </option>
-//             ))}
-//           </select>
-//         </div>
-//         <button type="submit" disabled={loading}>
-//           {loading ? "Sharing..." : "Share"}
-//         </button>
-//       </form>
-
-//       <Link to={`/question/${id}`}>Back to Detail</Link>
-//     </div>
-//   );
-// }
 
 export default ShareQuestion;

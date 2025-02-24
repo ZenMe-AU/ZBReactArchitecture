@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { getQuestionById, submitAnswer, getAnswerListByQuestionId } from "../api/question";
-import { Question } from "../types/interfaces";
+import { Question, Answer } from "../types/interfaces";
 import {
   Container,
   Typography,
@@ -34,12 +34,15 @@ function AnswerQuestion() {
   const [submitting, setSubmitting] = useState(false);
   const [startTime, setStartTime] = useState<number>(0);
 
-  const [prevAns, setPrevAns] = useState({});
-  const [answerList, setAnswerList] = useState([]);
+  const [prevAns, setPrevAns] = useState<{
+    optionId: string | null;
+    answerText: string | null;
+  } | null>(null);
+  const [answerList, setAnswerList] = useState<Answer[]>([]);
 
-  const [pieChartData, setPieChartData] = useState([]);
-  const [pieChartColors, setPieChartColors] = useState([]);
-  const [wordCloudData, setWordCloudData] = useState([]);
+  const [pieChartData, setPieChartData] = useState<{ name: string; value: number; percentage: string }[]>([]);
+  const [pieChartColors, setPieChartColors] = useState<string[]>([]);
+  const [wordCloudData, setWordCloudData] = useState<{ text: string; value: number }[]>([]);
   const [isOption, setIsOption] = useState<boolean>(true);
   const navigate = useNavigate();
 
@@ -70,8 +73,8 @@ function AnswerQuestion() {
         const data = await getAnswerListByQuestionId(id);
         console.log(data);
         const answerList = data.reduce(
-          (acc: { self: any[]; others: any[] }, q) => {
-            if (q.profileId == profileId) {
+          (acc: { self: Answer[]; others: Answer[] }, q: Answer) => {
+            if (q.profileId === profileId) {
               acc.self.push(q);
             } else {
               acc.others.push(q);
@@ -101,16 +104,13 @@ function AnswerQuestion() {
     console.log(isOption);
   }, [id]);
 
-  // useEffect(() => {
-
-  // }, [isOption]);
-
   useEffect(() => {
-    var categoryList = answerList;
+    if (!answerList.length) return;
+
     if (!isOption) {
       const words = answerList
-        .flatMap((ans) => ans.answerText.toLowerCase().match(/\b[\w\d]+\b/g))
-        .reduce((acc, word) => {
+        .flatMap((ans) => ans.answerText?.toLowerCase().match(/\b[\w\d]+\b/g) || [])
+        .reduce((acc: Record<string, number>, word: string) => {
           acc[word] = (acc[word] || 0) + 1;
           return acc;
         }, {});
@@ -122,21 +122,21 @@ function AnswerQuestion() {
       console.log(wordCount);
       setWordCloudData(wordCount);
     } else {
-      const optionCount = categoryList.reduce((acc, item) => {
-        acc[item.optionId] = (acc[item.optionId] || 0) + 1;
+      const optionCount = answerList.reduce((acc: Record<string, number>, item: Answer) => {
+        if (item.optionId) {
+          acc[item.optionId] = (acc[item.optionId] || 0) + 1;
+        }
         return acc;
       }, {});
 
-      const total = categoryList.length;
+      const total = answerList.length;
       const chartData = Object.entries(optionCount)
         .map(([option, count]) => ({
           name: option,
           value: count,
           percentage: ((count / total) * 100).toFixed(2),
         }))
-        .sort(function (a, b) {
-          return a.value - b.value;
-        });
+        .sort((a, b) => a.value - b.value);
 
       const generatedColors = chartData.map((_, index) => {
         const hue = (index * 360) / chartData.length;
@@ -147,7 +147,7 @@ function AnswerQuestion() {
       setPieChartData(chartData);
       setPieChartColors(generatedColors);
     }
-  }, [answerList]);
+  }, [answerList, isOption]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -173,7 +173,7 @@ function AnswerQuestion() {
       return;
     }
 
-    if (answerPayload.option == prevAns.optionId && answerPayload.answerText == prevAns.answerText) {
+    if (answerPayload.option === prevAns?.optionId && answerPayload.answerText === prevAns?.answerText) {
       console.log("nothing changed!");
       setSubmitting(false);
       return;
@@ -182,11 +182,18 @@ function AnswerQuestion() {
     try {
       await submitAnswer(id, answerPayload, question.questionText);
       alert("Answer submitted successfully!");
-      setPrevAns((prev) => ({
-        ...prev,
-        optionId: answerPayload.option,
-        answerText: answerPayload.answerText,
-      }));
+      setPrevAns((prev) => {
+        if (!prev)
+          return {
+            optionId: answerPayload.option,
+            answerText: answerPayload.answerText,
+          };
+        return {
+          ...prev,
+          optionId: answerPayload.option,
+          answerText: answerPayload.answerText,
+        };
+      });
       // navigate(`/question/${id}`);
     } catch (err) {
       console.error("Error submitting answer:", err);
@@ -248,7 +255,7 @@ function AnswerQuestion() {
       {answerList.length > 0 && (
         <>
           <Box display="flex" alignItems="center" mt={3}>
-            <Typography variant="h8" gutterBottom>
+            <Typography variant="h6" gutterBottom>
               Answers Received:
             </Typography>
           </Box>
@@ -266,7 +273,7 @@ function AnswerQuestion() {
                 startAngle={-270}
                 legendType={"square"}
               >
-                {pieChartData.map((entry, index) => (
+                {pieChartData.map((_, index) => (
                   <Cell key={`cell-${index}`} fill={pieChartColors[index]} />
                 ))}
               </Pie>
@@ -292,56 +299,5 @@ function AnswerQuestion() {
     </Container>
   );
 }
-// return (
-//   <div>
-//     <h1>Answer Question</h1>
-//     <h2>{question.title}</h2>
-//     <p>{question.questionText}</p>
-
-//     <form onSubmit={handleSubmit}>
-//       {question.option && question.option.length > 0 ? (
-//         // Render options as radio buttons if available
-//         <ul>
-//           {question.option.map((option, index) => (
-//             <li key={index}>
-//               <label>
-//                 <input type="radio" name="answer" value={option} checked={selectedOption === option} onChange={() => setSelectedOption(option)} />
-//                 {option}
-//               </label>
-//             </li>
-//           ))}
-//         </ul>
-//       ) : (
-//         // Render a text input if no options are available
-//         <div>
-//           <label>Your Answer:</label>
-//           <textarea value={textAnswer} onChange={(e) => setTextAnswer(e.target.value)} placeholder="Type your answer here" required />
-//         </div>
-//       )}
-//       <button type="submit">Submit Answer</button>
-//     </form>
-//     <Link to="/sharedQuestion">Back to Shared Question</Link>
-//   </div>
-// );
-// }
 
 export default AnswerQuestion;
-
-// Classify the text field of each object according to these rules:
-
-// If only one answer is clearly mentioned, classify as that answer.
-// If multiple answers are mentioned, but one is certain, classify as the certain answer.
-// If multiple answers are equally certain, join them with a comma.
-// If no answer is clearly certain, classify as "Uncertain".
-// Group synonymous or commonly related terms under a unified category.
-// Keep only the id and cat keys in the output.
-
-// Classify the "text" field of each object according to these rules:
-
-// 1. If only one answer is clearly mentioned, classify as that answer.
-// 2. If multiple answers are mentioned, but one is certain, classify as the certain answer.
-// 3. If multiple answers are equally certain, join them with a comma.
-// 4. If the answer contains phrases that suggest uncertainty but leans toward one specific answer, classify as that answer.
-// 5. If no answer is clearly certain (e.g. full of questions, doubts, contradictions), classify as "Uncertain".
-// 6. Group synonymous or commonly related terms under a unified category.
-// 7. Keep only the `id` and `cat` keys in the output, where `cat` is the classification result.

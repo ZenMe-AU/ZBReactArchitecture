@@ -2,14 +2,17 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { getQuestionById, updateQuestion } from "../api/question";
+import { Question } from "../types/interfaces";
 
 function EditQuestion() {
-  const { id } = useParams(); // Retrieve question ID from the URL
+  const { id } = useParams<{ id: string }>(); // Retrieve question ID from the URL
   const navigate = useNavigate();
-  const [question, setQuestion] = useState({
+  const [question, setQuestion] = useState<Question>({
+    id: "",
     title: "",
     questionText: "",
-    option: [""],
+    option: null,
+    profileId: "",
   });
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -19,6 +22,7 @@ function EditQuestion() {
     // Fetch the question details for editing
     const fetchQuestion = async () => {
       try {
+        if (!id) return;
         const data = await getQuestionById(id);
         setQuestion(data);
       } catch (error) {
@@ -31,22 +35,22 @@ function EditQuestion() {
     fetchQuestion();
   }, [id]);
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: keyof Question, value: string) => {
     setQuestion({ ...question, [field]: value });
   };
 
   const handleOptionChange = (index: number, value: string) => {
-    const updatedOptions = [...question.option];
+    const updatedOptions = [...(question.option || [])];
     updatedOptions[index] = value;
     setQuestion({ ...question, option: updatedOptions });
   };
 
   const handleAddOption = () => {
-    setQuestion({ ...question, option: [...question.option, ""] });
+    setQuestion({ ...question, option: [...(question.option || []), ""] });
   };
 
   const handleRemoveOption = (index: number) => {
-    const updatedOptions = question.option.filter((_, i) => i !== index);
+    const updatedOptions = question.option ? question.option.filter((_, i) => i !== index) : null;
     setQuestion({ ...question, option: updatedOptions });
   };
 
@@ -54,10 +58,16 @@ function EditQuestion() {
     e.preventDefault();
     try {
       setSubmitting(true);
-      await updateQuestion(id, question);
+      if (id) {
+        await updateQuestion(id, question);
+      } else {
+        console.error("Question ID is undefined");
+      }
       navigate(`/question/${id}`);
     } catch (err) {
       console.error("Error updating question:", err);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -83,11 +93,7 @@ function EditQuestion() {
             question.option.map((opt, index) => (
               <div key={index}>
                 <input type="text" value={opt} onChange={(e) => handleOptionChange(index, e.target.value)} />
-                <button
-                  type="button"
-                  onClick={() => handleRemoveOption(index)}
-                  disabled={question.option.length <= 1} // Prevent removing all options
-                >
+                <button type="button" onClick={() => handleRemoveOption(index)} disabled={!question.option || question.option.length <= 1}>
                   Remove
                 </button>
               </div>

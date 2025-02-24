@@ -63,13 +63,13 @@ export const getQuestionById = async (id: string) => {
     const data = await response.json();
     return data.return.detail;
   } catch (error) {
-    console.error("Error creating question:", error);
+    console.error("Error fetching question details:", error);
     throw error;
   }
 };
 
 // Update an existing question
-export const updateQuestion = async (id: string, data: { title: string; questionText: string; option: string[] }) => {
+export const updateQuestion = async (id: string, data: { title: string; questionText: string; option: string[] | null }) => {
   try {
     const response = await jwtFetch(`${apiDomain}/api/question/${id}`, {
       method: "PUT",
@@ -93,7 +93,7 @@ export const updateQuestion = async (id: string, data: { title: string; question
 };
 
 // Share a question
-export const shareQuestion = async (id: string, profileId: number, receiverIds: number[]) => {
+export const shareQuestion = async (id: string, profileId: string, receiverIds: string[]) => {
   try {
     const response = await jwtFetch(`${apiDomain}/api/question/${id}/share`, {
       method: "POST",
@@ -115,6 +115,7 @@ export const shareQuestion = async (id: string, profileId: number, receiverIds: 
   }
 };
 
+// Submit an answer
 export const submitAnswer = async (
   id: string,
   answerPayload: { option: string | null; answerText: string | null; answerDuration: number },
@@ -196,7 +197,7 @@ export const updateQuestionPatch = async (id: string, patches: PatchOperation[])
       method: "PATCH",
       headers: {
         "Content-Type": "application/json-patch+json",
-        "x-profile-id": profileId,
+        ...(profileId && { "x-profile-id": profileId }),
       },
       body: JSON.stringify(patches),
     });
@@ -211,6 +212,10 @@ export const updateQuestionPatch = async (id: string, patches: PatchOperation[])
     return result;
   } catch (error) {
     console.error("Error updating question:", error);
-    throw new Error(`An error occurred while updating the question: ${error.message}`);
+    if (error instanceof Error) {
+      throw new Error(`An error occurred while updating the question: ${error.message}`);
+    } else {
+      throw new Error("An unknown error occurred while updating the question");
+    }
   }
 };

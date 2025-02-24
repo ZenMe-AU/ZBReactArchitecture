@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getQuestionsByUser } from "../api/question";
-import { Container, Typography, List, ListItem, ListItemButton, ListItemText, Button, Box, IconButton, Divider } from "@mui/material";
+import { Container, Typography, List, ListItem, ListItemButton, ListItemText, Button, Box, Divider } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import ShareIcon from "@mui/icons-material/Share";
+import { Question } from "../types/interfaces";
 
 function QuestionCombinationList() {
   const profileId = localStorage.getItem("profileId");
-  const [questions, setQuestions] = useState([]);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,7 +24,7 @@ function QuestionCombinationList() {
       }
     };
     fetchQuestions();
-  }, []);
+  }, [profileId]);
 
   if (loading) return <Typography>Loading...</Typography>;
 
@@ -34,8 +35,8 @@ function QuestionCombinationList() {
       </Typography>
       <List>
         {questions.map((q, index) => (
-          <>
-            <ListItem key={q.id} disablePadding>
+          <div key={q.id}>
+            <ListItem disablePadding>
               <ListItemButton component={Link} to={`/question/${q.id}/answer`}>
                 <ListItemText primary={q.title} />
                 <Box display="flex" gap={1} ml={2}>
@@ -44,7 +45,7 @@ function QuestionCombinationList() {
                     size="small"
                     startIcon={<EditIcon />}
                     component={Link}
-                    to={`/question/${q.id}` + (q.profileId != profileId ? "/add" : "")}
+                    to={`/question/${q.id}` + (q.profileId !== profileId ? "/add" : "")}
                   >
                     Edit
                   </Button>
@@ -55,7 +56,7 @@ function QuestionCombinationList() {
               </ListItemButton>
             </ListItem>
             {index < questions.length - 1 && <Divider sx={{ bgcolor: "grey.800" }} />}
-          </>
+          </div>
         ))}
       </List>
       <Box mt={4} display="flex" justifyContent="space-between">
