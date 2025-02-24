@@ -6,13 +6,13 @@ module.exports = {
     await queryInterface.createTable("attributes", {
       id: {
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
+        defaultValue: Sequelize.UUIDV4,
       },
       profile_id: {
         allowNull: false,
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
       },
       tag: {
         allowNull: false,
@@ -24,9 +24,19 @@ module.exports = {
         defaultValue: Sequelize.NOW,
       },
     });
-    await queryInterface.sequelize.query(
-      "ALTER TABLE attributes ADD CONSTRAINT attributes_profile_id_fkey FOREIGN KEY (profile_id) REFERENCES profiles (id);"
-    );
+    // await queryInterface.sequelize.query(
+    //   "ALTER TABLE attributes ADD CONSTRAINT attributes_profile_id_fkey FOREIGN KEY (profile_id) REFERENCES profiles (id);"
+    // );
+    await queryInterface.addConstraint("attributes", {
+      fields: ["profile_id"],
+      type: "foreign key",
+      name: "attributes_profile_id_fkey",
+      references: {
+        table: "profiles",
+        field: "id",
+      },
+      onDelete: "CASCADE",
+    });
   },
 
   async down(queryInterface, Sequelize) {

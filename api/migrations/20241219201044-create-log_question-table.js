@@ -20,7 +20,7 @@ module.exports = {
       },
       profileId: {
         allowNull: false,
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
       },
       originalData: {
         allowNull: true,

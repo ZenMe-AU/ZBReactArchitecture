@@ -8,9 +8,10 @@ const Users = sequelize.define(
   {
     // Model attributes are defined here
     id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
       primaryKey: true,
+      defaultValue: DataTypes.UUIDV4,
     },
     name: {
       type: DataTypes.CHAR,
@@ -32,6 +33,12 @@ const Users = sequelize.define(
 const Location = sequelize.define(
   "location",
   {
+    id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      primaryKey: true,
+      defaultValue: DataTypes.UUIDV4,
+    },
     topicId: {
       type: DataTypes.CHAR,
       allowNull: false,
@@ -56,12 +63,7 @@ const Location = sequelize.define(
     },
   },
   {
-    tableName: "location2",
-    id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-    },
+    tableName: "location",
     updatedAt: false,
   }
 );
@@ -69,8 +71,14 @@ const Location = sequelize.define(
 const Attributes = sequelize.define(
   "attributes",
   {
+    id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      primaryKey: true,
+      defaultValue: DataTypes.UUIDV4,
+    },
     profile_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
     },
     tag: {
@@ -79,11 +87,6 @@ const Attributes = sequelize.define(
     },
   },
   {
-    id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-    },
     updatedAt: false,
   }
 );
@@ -91,8 +94,14 @@ const Attributes = sequelize.define(
 const Profiles = sequelize.define(
   "profiles",
   {
+    id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      primaryKey: true,
+      defaultValue: DataTypes.UUIDV4,
+    },
     user_id: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: true,
     },
     name: {
@@ -108,11 +117,6 @@ const Profiles = sequelize.define(
     },
   },
   {
-    id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true,
-    },
     timestamps: false,
     // Other model options go here
   }
@@ -128,7 +132,7 @@ const Question = sequelize.define(
       defaultValue: DataTypes.UUIDV4,
     },
     profileId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
     },
     title: {
@@ -164,7 +168,7 @@ const QuestionAnswer = sequelize.define(
       defaultValue: DataTypes.UUIDV4,
     },
     profileId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
     },
     questionId: {
@@ -204,11 +208,11 @@ const QuestionShare = sequelize.define(
       allowNull: false,
     },
     senderId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
     },
     receiverId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
     },
     status: {
@@ -240,7 +244,7 @@ const QuestionLog = sequelize.define(
       allowNull: false,
     },
     profileId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
     },
     originalData: {
@@ -272,7 +276,7 @@ const QuestionAction = sequelize.define(
       defaultValue: DataTypes.UUIDV4,
     },
     profileId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.UUID,
       allowNull: false,
     },
     questionId: {

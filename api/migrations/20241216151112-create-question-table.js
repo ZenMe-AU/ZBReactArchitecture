@@ -12,7 +12,7 @@ module.exports = {
       },
       profileId: {
         allowNull: false,
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
       },
       title: {
         allowNull: true,

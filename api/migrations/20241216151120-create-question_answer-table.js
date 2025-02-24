@@ -16,7 +16,7 @@ module.exports = {
       },
       profileId: {
         allowNull: false,
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
       },
       answerText: {
         allowNull: true,

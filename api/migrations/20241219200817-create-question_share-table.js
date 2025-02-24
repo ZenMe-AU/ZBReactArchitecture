@@ -16,11 +16,11 @@ module.exports = {
       },
       senderId: {
         allowNull: false,
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
       },
       receiverId: {
         allowNull: false,
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
       },
       status: {
         allowNull: false,

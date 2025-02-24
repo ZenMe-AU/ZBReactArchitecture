@@ -141,16 +141,16 @@ function getUsersProfile(coord, tFrom, tTo, distance, CountOnly, tags = null) {
  */
 async function getUsersProfileNearby(deviceId, startTime, endTime, distance, limited) {
   let select_query = `
-        SELECT   "location2"."tid"
+        SELECT   "location"."tid"
         FROM
-            (SELECT "id", "tid", "geom", "createdAt" FROM "location2" AS "location2"
+            (SELECT "id", "tid", "geom", "createdAt" FROM "location" AS "location"
                 WHERE ("tid" = $deviceId) AND ("createdAt" BETWEEN $from AND $to)) AS "A",
-            location2
+            location
         WHERE
-            ("location2"."tid" != "A"."tid" and ST_DWithin("location2"."geom", "A"."geom", $distance, true))
-            and ("location2"."createdAt" BETWEEN ("A"."createdAt" - INTERVAL '1 MINUTE') and ("A"."createdAt" + INTERVAL '1 MINUTE'))
+            ("location"."tid" != "A"."tid" and ST_DWithin("location"."geom", "A"."geom", $distance, true))
+            and ("location"."createdAt" BETWEEN ("A"."createdAt" - INTERVAL '1 MINUTE') and ("A"."createdAt" + INTERVAL '1 MINUTE'))
 
-        GROUP BY "location2"."tid";
+        GROUP BY "location"."tid";
     `;
   try {
     var locationData = await sequelize.query(select_query, {

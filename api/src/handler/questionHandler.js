@@ -237,14 +237,16 @@ async function AddAnswer(request, context) {
  *         in: path
  *         required: true
  *         schema:
- *           type: integer
- *           example: 123
+ *           type: string
+ *           format: uuid
+ *           example: "550e8400-e29b-41d4-a716-446655440000"
  *       - name: answerId
  *         in: path
  *         required: true
  *         schema:
- *           type: integer
- *           example: 456
+ *           type: string
+ *           format: uuid
+ *           example: "f47ac10b-58cc-4372-a567-0e02b2c3d479"
  *     responses:
  *       200:
  *         description: Successfully retrieved answer.
@@ -262,7 +264,7 @@ async function AddAnswer(request, context) {
  */
 async function GetAnswerById(request, context) {
   const questionId = request.params.id;
-  const answerId = parseInt(request.params.answerId);
+  const answerId = request.params.answerId;
   let answer = await Question.getAnswerById(questionId, answerId);
   return { jsonBody: { return: { detail: answer } } };
 }
@@ -273,18 +275,19 @@ async function GetAnswerById(request, context) {
  *   get:
  *     tags:
  *       - Question
- *     summary: Get list of question by user
- *     description: Retrieve all question created by a specific user.
+ *     summary: Get list of questions by user
+ *     description: Retrieve all questions created by a specific user.
  *     parameters:
  *       - name: profileId
  *         in: path
  *         required: true
  *         schema:
- *           type: integer
- *           example: 955
+ *           type: string
+ *           format: uuid
+ *           example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
  *     responses:
  *       200:
- *         description: Successfully retrieved list of question.
+ *         description: Successfully retrieved list of questions.
  *         content:
  *           application/json:
  *             schema:
@@ -299,11 +302,13 @@ async function GetAnswerById(request, context) {
  *                         type: object
  *                         properties:
  *                           id:
- *                             type: integer
- *                             example: 1
+ *                             type: string
+ *                             format: uuid
+ *                             example: "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
  *                           profile_id:
- *                             type: integer
- *                             example: 955
+ *                             type: string
+ *                             format: uuid
+ *                             example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
  *                           title:
  *                             type: string
  *                             example: "Favorite Foods"
@@ -322,7 +327,7 @@ async function GetAnswerById(request, context) {
  *                             example: "2024-12-18T13:05:14.411Z"
  */
 async function GetQuestionListByUser(request, context) {
-  const profileId = parseInt(request.params.profileId);
+  const profileId = request.params.profileId;
   let question = await Question.getCombinationListByUser(profileId);
   return { jsonBody: { return: { list: question } } };
 }
