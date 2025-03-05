@@ -294,6 +294,192 @@ const QuestionAction = sequelize.define(
   }
 );
 
+const FollowUpCmd = sequelize.define(
+  "followUpCmd",
+  {
+    id: {
+      allowNull: false,
+      primaryKey: true,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+    },
+    profileId: {
+      allowNull: false,
+      type: DataTypes.UUID,
+    },
+    refQuestionId: {
+      allowNull: false,
+      type: DataTypes.UUID,
+    },
+    questionId: {
+      allowNull: false,
+      type: DataTypes.UUID,
+    },
+    option: {
+      allowNull: false,
+      type: DataTypes.JSON,
+    },
+    isSave: {
+      allowNull: false,
+      type: DataTypes.BOOLEAN,
+    },
+    status: {
+      allowNull: false,
+      type: DataTypes.SMALLINT,
+      defaultValue: 0,
+    },
+  },
+  {
+    tableName: "followUpCmd",
+    timestamps: true,
+  }
+);
+
+const FollowUpFilter = sequelize.define(
+  "followUpFilter",
+  {
+    id: {
+      allowNull: false,
+      primaryKey: true,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+    },
+    profileId: {
+      allowNull: false,
+      type: DataTypes.UUID,
+    },
+    refQuestionId: {
+      allowNull: false,
+      type: DataTypes.UUID,
+    },
+    questionId: {
+      allowNull: false,
+      type: DataTypes.UUID,
+    },
+    option: {
+      allowNull: false,
+      type: DataTypes.JSON,
+    },
+    createdAt: {
+      allowNull: false,
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+  },
+  {
+    tableName: "followUpFilter",
+    updatedAt: false,
+  }
+);
+
+const FollowUpEvent = sequelize.define(
+  "followUpEvent",
+  {
+    id: {
+      allowNull: false,
+      primaryKey: true,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+    },
+    followUpId: {
+      allowNull: false,
+      type: DataTypes.UUID,
+    },
+    action: {
+      allowNull: false,
+      type: DataTypes.STRING,
+    },
+    profileId: {
+      allowNull: false,
+      type: DataTypes.UUID,
+    },
+    originalData: {
+      allowNull: true,
+      type: DataTypes.JSON,
+    },
+    actionData: {
+      allowNull: false,
+      type: DataTypes.JSON,
+    },
+    createdAt: {
+      allowNull: false,
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+  },
+  {
+    tableName: "followUpEvent",
+    updatedAt: false,
+  }
+);
+
+const FollowUpShare = sequelize.define(
+  "followUpShare",
+  {
+    id: {
+      allowNull: false,
+      primaryKey: true,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+    },
+    refQuestionId: {
+      allowNull: false,
+      type: DataTypes.UUID,
+    },
+    questionId: {
+      allowNull: false,
+      type: DataTypes.UUID,
+    },
+    senderId: {
+      allowNull: false,
+      type: DataTypes.UUID,
+    },
+    receiverId: {
+      allowNull: false,
+      type: DataTypes.UUID,
+    },
+  },
+  {
+    tableName: "followUpShare",
+    updatedAt: false,
+  }
+);
+
+const FollowUpShareEvent = sequelize.define(
+  "followUpShareEvent",
+  {
+    id: {
+      allowNull: false,
+      primaryKey: true,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+    },
+    followUpShareId: {
+      allowNull: false,
+      type: DataTypes.UUID,
+    },
+    action: {
+      allowNull: false,
+      type: DataTypes.STRING,
+    },
+    profileId: {
+      allowNull: false,
+      type: DataTypes.UUID,
+    },
+    originalData: {
+      allowNull: true,
+      type: DataTypes.JSON,
+    },
+    actionData: {
+      allowNull: false,
+      type: DataTypes.JSON,
+    },
+  },
+  {
+    tableName: "followUpShareEvent",
+    updatedAt: false,
+  }
+);
 // Users.hasMany(Location, { foreignKey: "tid", sourceKey: "deviceId" });
 // Location.belongsTo(Users, { targetKey: "deviceId", foreignKey: "tid" });
 Location.belongsTo(Profiles, { targetKey: "device_id", foreignKey: "tid" });
@@ -363,4 +549,9 @@ module.exports = {
   QuestionShare,
   QuestionLog,
   QuestionAction,
+  FollowUpCmd,
+  FollowUpFilter,
+  FollowUpEvent,
+  FollowUpShare,
+  FollowUpShareEvent,
 };
