@@ -219,3 +219,28 @@ export const updateQuestionPatch = async (id: string, patches: PatchOperation[])
     }
   }
 };
+
+export const sendFollowUpQuestion = async (questionId: string, question: { option: string[]; question_id: string }[], saveFilter: boolean) => {
+  const profileId = localStorage.getItem("profileId");
+  try {
+    const response = await jwtFetch(`${apiDomain}/api/question/${questionId}/followUp`, {
+      method: "POST",
+      body: JSON.stringify({
+        profile_id: profileId,
+        question: question,
+        save: saveFilter,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to submit answer");
+    }
+
+    // Parse the JSON response body
+    const data = await response.json();
+    return data.return;
+  } catch (err) {
+    console.error("Error submitting answer:", err);
+    throw err;
+  }
+};

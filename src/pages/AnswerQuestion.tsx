@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { getQuestionById, submitAnswer, getAnswerListByQuestionId } from "../api/question";
 import { Question, Answer } from "../types/interfaces";
 import {
@@ -246,10 +246,15 @@ function AnswerQuestion() {
             sx={{ mb: 2 }}
           />
         )}
-        <Box display="flex" justifyContent="center">
+        <Box display="flex" justifyContent="center" gap={2}>
           <Button type="submit" variant="contained" color="primary" disabled={submitting}>
             {submitting ? "Submitting..." : "Submit Answer"}
           </Button>
+          {isOption && (
+            <Button type="button" variant="outlined" color="secondary" component={Link} to={`/question/${question.id}/followUp`}>
+              Follow Up
+            </Button>
+          )}
         </Box>
       </form>
       {answerList.length > 0 && (
