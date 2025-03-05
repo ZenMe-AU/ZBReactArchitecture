@@ -621,6 +621,87 @@ async function PatchQuestionById(request, context) {
   return { jsonBody: { return: { id: questionAction.id } } };
 }
 
+/**
+ * @swagger
+ * /api/question/{id}/followUp:
+ *   post:
+ *     tags:
+ *       - Question
+ *     summary: Follow up on a question
+ *     description: Create a follow-up action for a specific question.
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *           example: "550e8400-e29b-41d4-a716-446655440000"
+ *         description: The UUID of the question to follow up on.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               profile_id:
+ *                 type: string
+ *                 format: uuid
+ *                 description: The UUID of the user's profile performing the follow-up.
+ *                 example: "123e4567-e89b-12d3-a456-426614174000"
+ *               question:
+ *                 type: object
+ *                 description: Question details.
+ *                 properties:
+ *                   option:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                     description: List of options related to the question.
+ *                     example: ["Option 1", "Option 2"]
+ *                   question_id:
+ *                     type: string
+ *                     format: uuid
+ *                     description: The UUID of the question being followed up.
+ *                     example: "550e8400-e29b-41d4-a716-446655440111"
+ *               save:
+ *                 type: boolean
+ *                 description: Indicates whether the follow-up should be saved.
+ *                 example: true
+ *     responses:
+ *       200:
+ *         description: Successfully created a follow-up action.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 return:
+ *                   type: object
+ *                   properties:
+ *                     detail:
+ *                       type: object
+ *                       description: Details about the follow-up action.
+ *                       example:
+ *                         profile_id: "123e4567-e89b-12d3-a456-426614174000"
+ *                         question:
+ *                           option: ["Option 1", "Option 2"]
+ *                           questionId: "550e8400-e29b-41d4-a716-446655440111"
+ *                         save: true
+ */
+async function FollowUpOnQuestion(request, context) {
+  const questionId = request.params.id;
+  const bodyJson = JSON.parse(await request.text());
+  let profileId = bodyJson["profile_id"] ?? null;
+  let question = bodyJson["question"] ?? {};
+  let isSave = bodyJson["save"] ?? false;
+
+  let followUp = await Question.addFollowUpByQuestionId(questionId, profileId, question, isSave);
+
+  return { jsonBody: { return: { detail: followUp } } };
+}
+
 module.exports = {
   CreateQuestion,
   UpdateQuestionById,
@@ -632,4 +713,5 @@ module.exports = {
   ShareQuestionById,
   GetSharedQuestionListByUser,
   PatchQuestionById,
+  FollowUpOnQuestion,
 };

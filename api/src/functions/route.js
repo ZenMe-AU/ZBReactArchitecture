@@ -111,6 +111,13 @@ app.http("ShareQuestion", {
   handler: questionHandler.ShareQuestionById,
 });
 
+app.http("FollowUpOnQuestion", {
+  route: "question/{id}/FollowUp",
+  methods: ["POST"],
+  authLevel: "anonymous",
+  handler: questionHandler.FollowUpOnQuestion,
+});
+
 app.http("GetSharedQuestionListByUser", {
   route: "profile/{profileId}/sharedQuestion",
   methods: ["GET"],

@@ -1,5 +1,6 @@
 const { Op, Sequelize } = require("sequelize");
-const { Question, QuestionAnswer, QuestionShare, QuestionAction } = require("../Repository/models.js");
+const { Question, QuestionAnswer, QuestionShare, QuestionAction, FollowUpCmd } = require("../Repository/models.js");
+const { followUpCmdQueue } = require("../queue");
 
 async function create(profileId, title = null, question = null, option = null) {
   try {
@@ -162,6 +163,26 @@ async function addShareByQuestionId(questionId, senderId, receiverIds) {
   }
 }
 
+async function addFollowUpByQuestionId(questionId, senderId, questionList, isSave) {
+  try {
+    const addData = questionList.map(function (question) {
+      return {
+        profileId: senderId,
+        refQuestionId: questionId,
+        questionId: question.question_id,
+        option: question.option,
+        isSave: isSave,
+      };
+    });
+    const list = await FollowUpCmd.bulkCreate(addData);
+    await followUpCmdQueue.add("processFollowUpCmd", { tasks: list });
+    return list;
+  } catch (err) {
+    console.log(err);
+    return;
+  }
+}
+
 async function getSharedQuestionListByUser(profileId) {
   try {
     return await QuestionShare.findAll({
@@ -198,6 +219,7 @@ module.exports = {
   getAnswerById,
   getAnswerListByQuestionId,
   addShareByQuestionId,
+  addFollowUpByQuestionId,
   getSharedQuestionListByUser,
   patchById,
 };
