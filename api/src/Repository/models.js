@@ -539,6 +539,49 @@ QuestionAction.addHook("afterSave", async (instance, options) => {
   }
 });
 
+FollowUpShare.addHook("afterBulkCreate", async (instances, options) => {
+  try {
+    instances.map(async (instance) => {
+      await FollowUpShareEvent.create(
+        {
+          followUpShareId: instance.id,
+          action: "create",
+          profileId: instance.senderId,
+          actionData: instance.dataValues,
+          originalData: null,
+        },
+        {
+          transaction: options.transaction,
+        }
+      );
+    });
+  } catch (error) {
+    console.error("Error processing afterBulkCreate hook:", error);
+  }
+});
+
+FollowUpCmd.addHook("afterUpdate", async (instance, options) => {
+  try {
+    if (instance.previousStatus !== 1 && instance.status === 1) {
+      await FollowUpEvent.create(
+        {
+          followUpId: instance.id,
+          action: "create",
+          profileId: instance.profileId,
+          actionData: instance.dataValues,
+          originalData: null,
+        },
+        {
+          transaction: options.transaction,
+        }
+      );
+    }
+  } catch (error) {
+    console.error("Error processing afterUpdate hook:", error);
+  }
+});
+
+
 module.exports = {
   Users,
   Location,

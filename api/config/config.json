@@ -8,6 +8,10 @@
     "dialect": "postgres",
     "dialectOptions": {
       "ssl": true
+    },
+    "redis": {
+      "host": "localhost",
+      "port": 6379
     }
   }
 }
