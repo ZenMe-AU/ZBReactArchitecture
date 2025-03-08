@@ -1,6 +1,7 @@
 const { Op, Sequelize } = require("sequelize");
 const { Question, QuestionAnswer, QuestionShare, QuestionAction, FollowUpCmd, FollowUpFilter, FollowUpShare } = require("../Repository/models.js");
 const { followUpCmdQueue } = require("../queue");
+const { v4: uuidv4 } = require("uuid");
 
 async function create(profileId, title = null, question = null, option = null) {
   try {
@@ -183,6 +184,76 @@ async function addFollowUpByQuestionId(newQuestionId, senderId, questionList, is
   }
 }
 
+async function addFollowUpCmd(senderId, action, cmdData) {
+  try {
+    const newQuestionId = cmdData.new_question_id;
+    const cmd = await FollowUpCmd.create({
+      senderProfileId: senderId,
+      action: action,
+      data: cmdData,
+      //-------------------------------------
+      refQuestionId: senderId,
+      refOption: [],
+      newQuestionId: senderId,
+      isSave: false,
+    });
+    // save to filter
+    if (cmdData.save) {
+      const filterId = uuidv4();
+      const filterDataAry = cmdData.question.map(function (filter, i) {
+        return {
+          id: filterId,
+          order: i + 1,
+          senderProfileId: senderId,
+          refQuestionId: filter.question_id,
+          refOption: filter.option,
+          newQuestionId: newQuestionId,
+        };
+      });
+      await FollowUpFilter.bulkCreate(filterDataAry);
+    }
+    // save to share
+    const filterReceiverIdAry = await Promise.all(
+      cmdData.question.map(async function (filter) {
+        const ansList = await getAnswerListByQuestionId(filter.question_id);
+        return ansList.reduce((acc, ans) => {
+          if (ans.profileId !== senderId && filter.option.includes(ans.optionId)) {
+            acc.push(ans.profileId);
+          }
+          return acc;
+        }, []);
+      })
+    );
+    console.log(filterReceiverIdAry);
+    const receiverIds = filterReceiverIdAry.reduce((acc, arr) => {
+      const set = new Set(arr);
+      return acc.filter((item) => set.has(item));
+    });
+    console.log(receiverIds);
+    if (receiverIds.length > 0) {
+      // await addShareByQuestionId(newQuestionId, senderId, receiverIds);
+      await FollowUpShare.bulkCreate(
+        receiverIds.map(function (receiverId) {
+          return {
+            senderProfileId: senderId,
+            receiverProfileId: receiverId,
+            newQuestionId: newQuestionId,
+            // -------------------------------------
+            refQuestionId: senderId,
+          };
+        })
+      );
+    }
+
+    // todo: enum
+    await cmd.update({ status: 1 });
+    return cmd;
+  } catch (err) {
+    console.log(err);
+    return;
+  }
+}
+
 async function getSharedQuestionListByUser(profileId) {
   try {
     return await QuestionShare.findAll({
@@ -220,6 +291,7 @@ module.exports = {
   getAnswerListByQuestionId,
   addShareByQuestionId,
   addFollowUpByQuestionId,
+  addFollowUpCmd,
   getSharedQuestionListByUser,
   patchById,
 };
