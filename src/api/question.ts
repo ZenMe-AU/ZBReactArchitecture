@@ -24,7 +24,7 @@ export const getQuestionsByUser = async () => {
 };
 
 // Create a new questionnaire
-export const createQuestion = async (title: string, questionText: string, option: string[]) => {
+export const createQuestion = async (title: string, questionText: string, option: string[] | null) => {
   const profileId = localStorage.getItem("profileId");
   try {
     const response = await jwtFetch(`${apiDomain}/api/question`, {
@@ -220,14 +220,20 @@ export const updateQuestionPatch = async (id: string, patches: PatchOperation[])
   }
 };
 
-export const sendFollowUpQuestion = async (questionId: string, question: { option: string[]; question_id: string }[], saveFilter: boolean) => {
+export const sendFollowUpQuestion = async (
+  questionId: string,
+  questionFilter: { option: string[]; question_id: string }[],
+  followUpQuestionId: string,
+  saveFilter: boolean
+) => {
   const profileId = localStorage.getItem("profileId");
   try {
     const response = await jwtFetch(`${apiDomain}/api/question/${questionId}/followUp`, {
       method: "POST",
       body: JSON.stringify({
         profile_id: profileId,
-        question: question,
+        new_question_id: followUpQuestionId,
+        question: questionFilter,
         save: saveFilter,
       }),
     });
