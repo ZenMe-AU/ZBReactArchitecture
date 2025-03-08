@@ -14,15 +14,15 @@ module.exports = {
         allowNull: false,
         type: Sequelize.UUID,
       },
-      questionId: {
+      newQuestionId: {
         allowNull: false,
         type: Sequelize.UUID,
       },
-      senderId: {
+      senderProfileId: {
         allowNull: false,
         type: Sequelize.UUID,
       },
-      receiverId: {
+      receiverProfileId: {
         allowNull: false,
         type: Sequelize.UUID,
       },

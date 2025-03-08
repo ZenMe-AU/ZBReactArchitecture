@@ -303,21 +303,29 @@ const FollowUpCmd = sequelize.define(
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
     },
-    profileId: {
+    senderProfileId: {
       allowNull: false,
       type: DataTypes.UUID,
+    },
+    action: {
+      allowNull: false,
+      type: DataTypes.STRING,
+    },
+    data: {
+      allowNull: false,
+      type: DataTypes.JSON,
     },
     refQuestionId: {
       allowNull: false,
       type: DataTypes.UUID,
     },
-    questionId: {
-      allowNull: false,
-      type: DataTypes.UUID,
-    },
-    option: {
+    refOption: {
       allowNull: false,
       type: DataTypes.JSON,
+    },
+    newQuestionId: {
+      allowNull: false,
+      type: DataTypes.UUID,
     },
     isSave: {
       allowNull: false,
@@ -344,7 +352,12 @@ const FollowUpFilter = sequelize.define(
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
     },
-    profileId: {
+    order: {
+      allowNull: false,
+      primaryKey: true,
+      type: DataTypes.SMALLINT,
+    },
+    senderProfileId: {
       allowNull: false,
       type: DataTypes.UUID,
     },
@@ -352,13 +365,13 @@ const FollowUpFilter = sequelize.define(
       allowNull: false,
       type: DataTypes.UUID,
     },
-    questionId: {
-      allowNull: false,
-      type: DataTypes.UUID,
-    },
-    option: {
+    refOption: {
       allowNull: false,
       type: DataTypes.JSON,
+    },
+    newQuestionId: {
+      allowNull: false,
+      type: DataTypes.UUID,
     },
     createdAt: {
       allowNull: false,
@@ -369,6 +382,7 @@ const FollowUpFilter = sequelize.define(
   {
     tableName: "followUpFilter",
     updatedAt: false,
+    primaryKey: ["id", "order"],
   }
 );
 
@@ -389,7 +403,7 @@ const FollowUpEvent = sequelize.define(
       allowNull: false,
       type: DataTypes.STRING,
     },
-    profileId: {
+    senderProfileId: {
       allowNull: false,
       type: DataTypes.UUID,
     },
@@ -426,15 +440,15 @@ const FollowUpShare = sequelize.define(
       allowNull: false,
       type: DataTypes.UUID,
     },
-    questionId: {
+    newQuestionId: {
       allowNull: false,
       type: DataTypes.UUID,
     },
-    senderId: {
+    senderProfileId: {
       allowNull: false,
       type: DataTypes.UUID,
     },
-    receiverId: {
+    receiverProfileId: {
       allowNull: false,
       type: DataTypes.UUID,
     },
@@ -462,7 +476,7 @@ const FollowUpShareEvent = sequelize.define(
       allowNull: false,
       type: DataTypes.STRING,
     },
-    profileId: {
+    senderProfileId: {
       allowNull: false,
       type: DataTypes.UUID,
     },
@@ -546,7 +560,7 @@ FollowUpShare.addHook("afterBulkCreate", async (instances, options) => {
         {
           followUpShareId: instance.id,
           action: "create",
-          profileId: instance.senderId,
+          senderProfileId: instance.senderProfileId,
           actionData: instance.dataValues,
           originalData: null,
         },
@@ -567,7 +581,7 @@ FollowUpCmd.addHook("afterUpdate", async (instance, options) => {
         {
           followUpId: instance.id,
           action: "create",
-          profileId: instance.profileId,
+          senderProfileId: instance.senderProfileId,
           actionData: instance.dataValues,
           originalData: null,
         },
@@ -580,7 +594,6 @@ FollowUpCmd.addHook("afterUpdate", async (instance, options) => {
     console.error("Error processing afterUpdate hook:", error);
   }
 });
-
 
 module.exports = {
   Users,

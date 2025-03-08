@@ -1,5 +1,5 @@
 const { Op, Sequelize } = require("sequelize");
-const { Question, QuestionAnswer, QuestionShare, QuestionAction, FollowUpCmd } = require("../Repository/models.js");
+const { Question, QuestionAnswer, QuestionShare, QuestionAction, FollowUpCmd, FollowUpFilter, FollowUpShare } = require("../Repository/models.js");
 const { followUpCmdQueue } = require("../queue");
 
 async function create(profileId, title = null, question = null, option = null) {
@@ -163,14 +163,14 @@ async function addShareByQuestionId(questionId, senderId, receiverIds) {
   }
 }
 
-async function addFollowUpByQuestionId(questionId, senderId, questionList, isSave) {
+async function addFollowUpByQuestionId(newQuestionId, senderId, questionList, isSave) {
   try {
     const addData = questionList.map(function (question) {
       return {
-        profileId: senderId,
-        refQuestionId: questionId,
-        questionId: question.question_id,
-        option: question.option,
+        senderProfileId: senderId,
+        refQuestionId: question.question_id,
+        refOption: question.option,
+        newQuestionId: newQuestionId,
         isSave: isSave,
       };
     });

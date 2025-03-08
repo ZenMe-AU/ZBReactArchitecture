@@ -10,25 +10,17 @@ module.exports = {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
       },
-      profileId: {
+      senderProfileId: {
         allowNull: false,
         type: Sequelize.UUID,
       },
-      refQuestionId: {
+      action: {
         allowNull: false,
-        type: Sequelize.UUID,
+        type: Sequelize.STRING,
       },
-      questionId: {
-        allowNull: false,
-        type: Sequelize.UUID,
-      },
-      option: {
+      data: {
         allowNull: false,
         type: Sequelize.JSON,
-      },
-      isSave: {
-        allowNull: false,
-        type: Sequelize.BOOLEAN,
       },
       status: {
         allowNull: false,
@@ -44,6 +36,23 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
+      },
+
+      refQuestionId: {
+        allowNull: false,
+        type: Sequelize.UUID,
+      },
+      refOption: {
+        allowNull: false,
+        type: Sequelize.JSON,
+      },
+      newQuestionId: {
+        allowNull: false,
+        type: Sequelize.UUID,
+      },
+      isSave: {
+        allowNull: false,
+        type: Sequelize.BOOLEAN,
       },
     });
   },
