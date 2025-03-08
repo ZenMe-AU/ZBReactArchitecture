@@ -1,5 +1,6 @@
 const Question = require("../service/questionService.js");
 const { decode } = require("../service/utils/authUtils");
+const { sendMessageToQueue } = require("../queue/sb/sender.js");
 
 /**
  * @swagger
@@ -691,15 +692,18 @@ async function PatchQuestionById(request, context) {
  *                         save: true
  */
 async function FollowUpOnQuestion(request, context) {
-  const questionId = request.params.id;
+  const refQuestionId = request.params.id;
   const bodyJson = JSON.parse(await request.text());
   let profileId = bodyJson["profile_id"] ?? null;
   let question = bodyJson["question"] ?? {};
   let isSave = bodyJson["save"] ?? false;
+  let newQuestionId = bodyJson["new_question_id"] ?? null;
 
-  let followUp = await Question.addFollowUpByQuestionId(questionId, profileId, question, isSave);
+  await sendMessageToQueue("followUpCmd", bodyJson);
 
-  return { jsonBody: { return: { detail: followUp } } };
+  // let followUp = await Question.addFollowUpByQuestionId(newQuestionId, profileId, question, isSave);
+  // let followUp = await Question.addFollowUpCmd(profileId, "create", bodyJson);
+  return { jsonBody: { return: { status: true } } };
 }
 
 module.exports = {
