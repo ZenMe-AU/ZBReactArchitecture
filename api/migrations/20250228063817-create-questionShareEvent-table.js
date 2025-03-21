@@ -3,14 +3,14 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("followUpShareEvent", {
+    await queryInterface.createTable("questionShareEvent", {
       id: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
       },
-      followUpShareId: {
+      questionShareId: {
         allowNull: false,
         type: Sequelize.UUID,
       },
@@ -39,6 +39,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("followUpShareEvent");
+    await queryInterface.dropTable("questionShareEvent");
   },
 };

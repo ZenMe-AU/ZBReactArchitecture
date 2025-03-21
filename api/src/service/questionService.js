@@ -1,5 +1,5 @@
 const { Op, Sequelize } = require("sequelize");
-const { Question, QuestionAnswer, QuestionShare, QuestionAction, FollowUpCmd, FollowUpFilter, FollowUpShare } = require("../Repository/models.js");
+const { Question, QuestionAnswer, QuestionShare, QuestionShareCmd, QuestionAction, FollowUpCmd, FollowUpFilter } = require("../Repository/models.js");
 const { followUpCmdQueue } = require("../queue");
 const { v4: uuidv4 } = require("uuid");
 
@@ -148,7 +148,7 @@ async function getAnswerListByQuestionId(questionId) {
   }
 }
 
-async function addShareByQuestionId(questionId, senderId, receiverIds) {
+async function shareQuestion(questionId, senderId, receiverIds) {
   try {
     const addData = receiverIds.map(function (receiverId) {
       return {
@@ -184,40 +184,48 @@ async function addFollowUpByQuestionId(newQuestionId, senderId, questionList, is
   }
 }
 
-async function addFollowUpCmd(senderId, action, cmdData) {
+async function insertFollowUpCmd(senderId, cmdData) {
   try {
-    const newQuestionId = cmdData.new_question_id;
-    const cmd = await FollowUpCmd.create({
+    return await FollowUpCmd.create({
       senderProfileId: senderId,
-      action: action,
+      action: "create",
       data: cmdData,
-      //-------------------------------------
-      refQuestionId: senderId,
-      refOption: [],
-      newQuestionId: senderId,
-      isSave: false,
     });
-    // save to filter
+  } catch (err) {
+    console.log(err);
+    return;
+  }
+}
+
+async function insertFollowUpFilter(cmdData) {
+  try {
     if (cmdData.save) {
       const filterId = uuidv4();
       const filterDataAry = cmdData.question.map(function (filter, i) {
         return {
           id: filterId,
           order: i + 1,
-          senderProfileId: senderId,
+          senderProfileId: cmdData["profile_id"],
           refQuestionId: filter.question_id,
           refOption: filter.option,
-          newQuestionId: newQuestionId,
+          newQuestionId: cmdData.new_question_id,
         };
       });
-      await FollowUpFilter.bulkCreate(filterDataAry);
+      return await FollowUpFilter.bulkCreate(filterDataAry);
     }
-    // save to share
+  } catch (err) {
+    console.log(err);
+  }
+  return;
+}
+
+async function getFollowUpReceiver(cmdData) {
+  try {
     const filterReceiverIdAry = await Promise.all(
       cmdData.question.map(async function (filter) {
         const ansList = await getAnswerListByQuestionId(filter.question_id);
         return ansList.reduce((acc, ans) => {
-          if (ans.profileId !== senderId && filter.option.includes(ans.optionId)) {
+          if (ans.profileId !== cmdData["profile_id"] && filter.option.includes(ans.optionId)) {
             acc.push(ans.profileId);
           }
           return acc;
@@ -225,34 +233,111 @@ async function addFollowUpCmd(senderId, action, cmdData) {
       })
     );
     console.log(filterReceiverIdAry);
-    const receiverIds = filterReceiverIdAry.reduce((acc, arr) => {
+    return filterReceiverIdAry.reduce((acc, arr) => {
       const set = new Set(arr);
       return acc.filter((item) => set.has(item));
     });
-    console.log(receiverIds);
-    if (receiverIds.length > 0) {
-      // await addShareByQuestionId(newQuestionId, senderId, receiverIds);
-      await FollowUpShare.bulkCreate(
-        receiverIds.map(function (receiverId) {
-          return {
-            senderProfileId: senderId,
-            receiverProfileId: receiverId,
-            newQuestionId: newQuestionId,
-            // -------------------------------------
-            refQuestionId: senderId,
-          };
-        })
-      );
-    }
-
-    // todo: enum
-    await cmd.update({ status: 1 });
-    return cmd;
   } catch (err) {
     console.log(err);
     return;
   }
 }
+
+async function updateFollowUpCmdStatus(id) {
+  try {
+    return await FollowUpCmd.update({ status: 1 }, { where: { id: id }, individualHooks: true });
+  } catch (err) {
+    console.log(err);
+    return;
+  }
+}
+
+async function insertQuestionShareCmd(senderId, cmdData) {
+  try {
+    return await QuestionShareCmd.create({
+            senderProfileId: senderId,
+      action: "create",
+      data: cmdData,
+    });
+  } catch (err) {
+    console.log(err);
+    return;
+  }
+}
+
+async function updateQuestionShareCmdStatus(id) {
+  try {
+    return await QuestionShareCmd.update({ status: 1 }, { where: { id: id }, individualHooks: true });
+  } catch (err) {
+    console.log(err);
+    return;
+  }
+}
+
+// async function insertFollowUpCmd(senderId, action, cmdData) {
+//   try {
+//     const newQuestionId = cmdData.new_question_id;
+//     const cmd = await FollowUpCmd.create({
+//       senderProfileId: senderId,
+//       action: action,
+//       data: cmdData,
+//     });
+//     // save to filter
+//     if (cmdData.save) {
+//       const filterId = uuidv4();
+//       const filterDataAry = cmdData.question.map(function (filter, i) {
+//         return {
+//           id: filterId,
+//           order: i + 1,
+//           senderProfileId: senderId,
+//           refQuestionId: filter.question_id,
+//           refOption: filter.option,
+//           newQuestionId: newQuestionId,
+//         };
+//       });
+//       await FollowUpFilter.bulkCreate(filterDataAry);
+//     }
+//     // save to share
+//     const filterReceiverIdAry = await Promise.all(
+//       cmdData.question.map(async function (filter) {
+//         const ansList = await getAnswerListByQuestionId(filter.question_id);
+//         return ansList.reduce((acc, ans) => {
+//           if (ans.profileId !== senderId && filter.option.includes(ans.optionId)) {
+//             acc.push(ans.profileId);
+//           }
+//           return acc;
+//         }, []);
+//       })
+//     );
+//     console.log(filterReceiverIdAry);
+//     const receiverIds = filterReceiverIdAry.reduce((acc, arr) => {
+//       const set = new Set(arr);
+//       return acc.filter((item) => set.has(item));
+//     });
+//     console.log(receiverIds);
+//     if (receiverIds.length > 0) {
+//       await addShareByQuestionId(newQuestionId, senderId, receiverIds);
+//       // await FollowUpShare.bulkCreate(
+//       //   receiverIds.map(function (receiverId) {
+//       //     return {
+//       //       senderProfileId: senderId,
+//       //       receiverProfileId: receiverId,
+//       //       newQuestionId: newQuestionId,
+//       //       // -------------------------------------
+//       //       refQuestionId: senderId,
+//       //     };
+//       //   })
+//       // );
+//     }
+
+//     // todo: enum
+//     await cmd.update({ status: 1 });
+//     return cmd;
+//   } catch (err) {
+//     console.log(err);
+//     return;
+//   }
+// }
 
 async function getSharedQuestionListByUser(profileId) {
   try {
@@ -289,9 +374,14 @@ module.exports = {
   addAnswerByQuestionId,
   getAnswerById,
   getAnswerListByQuestionId,
-  addShareByQuestionId,
+  shareQuestion,
   addFollowUpByQuestionId,
-  addFollowUpCmd,
   getSharedQuestionListByUser,
   patchById,
+  insertFollowUpCmd,
+  insertFollowUpFilter,
+  getFollowUpReceiver,
+  updateFollowUpCmdStatus,
+  insertQuestionShareCmd,
+  updateQuestionShareCmdStatus,
 };

@@ -37,23 +37,6 @@ module.exports = {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
       },
-
-      refQuestionId: {
-        allowNull: false,
-        type: Sequelize.UUID,
-      },
-      refOption: {
-        allowNull: false,
-        type: Sequelize.JSON,
-      },
-      newQuestionId: {
-        allowNull: false,
-        type: Sequelize.UUID,
-      },
-      isSave: {
-        allowNull: false,
-        type: Sequelize.BOOLEAN,
-      },
     });
   },
 

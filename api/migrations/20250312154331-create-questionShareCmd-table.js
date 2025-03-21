@@ -3,30 +3,36 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("followUpShare", {
+    await queryInterface.createTable("questionShareCmd", {
       id: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
       },
-      refQuestionId: {
-        allowNull: false,
-        type: Sequelize.UUID,
-      },
-      newQuestionId: {
-        allowNull: false,
-        type: Sequelize.UUID,
-      },
       senderProfileId: {
         allowNull: false,
         type: Sequelize.UUID,
       },
-      receiverProfileId: {
+      action: {
         allowNull: false,
-        type: Sequelize.UUID,
+        type: Sequelize.STRING,
+      },
+      data: {
+        allowNull: false,
+        type: Sequelize.JSON,
+      },
+      status: {
+        allowNull: false,
+        type: Sequelize.SMALLINT,
+        defaultValue: 0,
       },
       createdAt: {
+        allowNull: false,
+        type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW,
+      },
+      updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
@@ -35,6 +41,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("followUpShare");
+    await queryInterface.dropTable("questionShareCmd");
   },
 };

@@ -315,22 +315,22 @@ const FollowUpCmd = sequelize.define(
       allowNull: false,
       type: DataTypes.JSON,
     },
-    refQuestionId: {
-      allowNull: false,
-      type: DataTypes.UUID,
-    },
-    refOption: {
-      allowNull: false,
-      type: DataTypes.JSON,
-    },
-    newQuestionId: {
-      allowNull: false,
-      type: DataTypes.UUID,
-    },
-    isSave: {
-      allowNull: false,
-      type: DataTypes.BOOLEAN,
-    },
+    // refQuestionId: {
+    //   allowNull: false,
+    //   type: DataTypes.UUID,
+    // },
+    // refOption: {
+    //   allowNull: false,
+    //   type: DataTypes.JSON,
+    // },
+    // newQuestionId: {
+    //   allowNull: false,
+    //   type: DataTypes.UUID,
+    // },
+    // isSave: {
+    //   allowNull: false,
+    //   type: DataTypes.BOOLEAN,
+    // },
     status: {
       allowNull: false,
       type: DataTypes.SMALLINT,
@@ -427,40 +427,72 @@ const FollowUpEvent = sequelize.define(
   }
 );
 
-const FollowUpShare = sequelize.define(
-  "followUpShare",
+// const FollowUpShare = sequelize.define(
+//   "followUpShare",
+//   {
+//     id: {
+//       allowNull: false,
+//       primaryKey: true,
+//       type: DataTypes.UUID,
+//       defaultValue: DataTypes.UUIDV4,
+//     },
+//     refQuestionId: {
+//       allowNull: false,
+//       type: DataTypes.UUID,
+//     },
+//     newQuestionId: {
+//       allowNull: false,
+//       type: DataTypes.UUID,
+//     },
+//     senderProfileId: {
+//       allowNull: false,
+//       type: DataTypes.UUID,
+//     },
+//     receiverProfileId: {
+//       allowNull: false,
+//       type: DataTypes.UUID,
+//     },
+//   },
+//   {
+//     tableName: "followUpShare",
+//     updatedAt: false,
+//   }
+// );
+
+const QuestionShareCmd = sequelize.define(
+  "questionShareCmd",
   {
     id: {
       allowNull: false,
       primaryKey: true,
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
-    },
-    refQuestionId: {
-      allowNull: false,
-      type: DataTypes.UUID,
-    },
-    newQuestionId: {
-      allowNull: false,
-      type: DataTypes.UUID,
     },
     senderProfileId: {
       allowNull: false,
       type: DataTypes.UUID,
     },
-    receiverProfileId: {
+    action: {
       allowNull: false,
-      type: DataTypes.UUID,
+      type: DataTypes.STRING,
+    },
+    data: {
+      allowNull: false,
+      type: DataTypes.JSON,
+    },
+    status: {
+      allowNull: false,
+      type: DataTypes.SMALLINT,
+      defaultValue: 0,
     },
   },
   {
-    tableName: "followUpShare",
-    updatedAt: false,
+    tableName: "questionShareCmd",
+    timestamps: true,
   }
 );
-
-const FollowUpShareEvent = sequelize.define(
-  "followUpShareEvent",
+const QuestionShareEvent = sequelize.define(
+  "questionShareEvent",
   {
     id: {
       allowNull: false,
@@ -468,7 +500,7 @@ const FollowUpShareEvent = sequelize.define(
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
     },
-    followUpShareId: {
+    questionShareId: {
       allowNull: false,
       type: DataTypes.UUID,
     },
@@ -490,7 +522,7 @@ const FollowUpShareEvent = sequelize.define(
     },
   },
   {
-    tableName: "followUpShareEvent",
+    tableName: "questionShareEvent",
     updatedAt: false,
   }
 );
@@ -553,14 +585,16 @@ QuestionAction.addHook("afterSave", async (instance, options) => {
   }
 });
 
-FollowUpShare.addHook("afterBulkCreate", async (instances, options) => {
+QuestionShare.addHook("afterBulkCreate", async (instances, options) => {
   try {
     instances.map(async (instance) => {
-      await FollowUpShareEvent.create(
+      await QuestionShareEvent.create(
         {
-          followUpShareId: instance.id,
+          questionShareId: instance.id,
           action: "create",
-          senderProfileId: instance.senderProfileId,
+          // todo: fix
+          // senderProfileId: instance.senderProfileId,
+          senderProfileId: instance.senderId,
           actionData: instance.dataValues,
           originalData: null,
         },
@@ -608,6 +642,7 @@ module.exports = {
   FollowUpCmd,
   FollowUpFilter,
   FollowUpEvent,
-  FollowUpShare,
-  FollowUpShareEvent,
+  // FollowUpShare,
+  QuestionShareCmd,
+  QuestionShareEvent,
 };

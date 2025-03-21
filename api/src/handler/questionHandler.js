@@ -481,7 +481,7 @@ async function ShareQuestionById(request, context) {
   const bodyJson = JSON.parse(await request.text());
   let senderId = bodyJson["profile_id"] ?? null;
   let receiverIds = bodyJson["receiver_ids"] ?? [];
-  let share = await Question.addShareByQuestionId(questionId, senderId, receiverIds);
+  let share = await Question.shareQuestion(questionId, senderId, receiverIds);
   return { jsonBody: { return: { detail: share } } };
 }
 
