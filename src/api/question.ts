@@ -95,9 +95,17 @@ export const updateQuestion = async (id: string, data: { title: string; question
 // Share a question
 export const shareQuestion = async (id: string, profileId: string, receiverIds: string[]) => {
   try {
-    const response = await jwtFetch(`${apiDomain}/api/question/${id}/share`, {
+    // const response = await jwtFetch(`${apiDomain}/api/question/${id}/share`, {
+    //   method: "POST",
+    //   body: JSON.stringify({
+    //     profile_id: profileId,
+    //     receiver_ids: receiverIds,
+    //   }),
+    // });
+    const response = await jwtFetch(`${apiDomain}/api/shareQuestionCmd`, {
       method: "POST",
       body: JSON.stringify({
+        new_question_id: id,
         profile_id: profileId,
         receiver_ids: receiverIds,
       }),
@@ -228,7 +236,7 @@ export const sendFollowUpQuestion = async (
 ) => {
   const profileId = localStorage.getItem("profileId");
   try {
-    const response = await jwtFetch(`${apiDomain}/api/question/${questionId}/followUp`, {
+    const response = await jwtFetch(`${apiDomain}/api/sendFollowUpCmd`, {
       method: "POST",
       body: JSON.stringify({
         profile_id: profileId,

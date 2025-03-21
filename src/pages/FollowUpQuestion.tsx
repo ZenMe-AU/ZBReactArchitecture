@@ -287,7 +287,7 @@ function FollowUpQuestion() {
 
         {cards.map((cardId) => (
           <>
-            <Divider sx={{ backgroundColor: "#757575", my: 1 }} />
+            <Divider sx={{ borderBottom: "2px dashed #757575", my: 1 }} />
             <Card
               key={cardId}
               sx={{
@@ -360,25 +360,37 @@ function FollowUpQuestion() {
           </Button>
         </Box>
 
-        <Box display="flex" justifyContent="center" my={2}>
-          <Select
-            variant="standard"
-            sx={{ mx: 1, width: "30%" }}
-            displayEmpty
-            value={followUpQuestionId || ""}
-            onChange={(e) => setFollowUpQuestionId(e.target.value)}
-            error={submittingError && !followUpQuestionId}
-            fullWidth
-          >
-            <MenuItem value="" disabled>
-              Select a follow-up question
-            </MenuItem>
-            {questionList.map((question) => (
-              <MenuItem key={question.id} value={question.id} disabled={Object.values(selectedQuestions).includes(question.id)}>
-                {question.title}
+        <Divider sx={{ backgroundColor: "#000000", my: 2, height: 2 }} />
+        <Card
+          key="card-initial"
+          sx={{
+            mx: "auto",
+            border: "none",
+            boxShadow: "none",
+          }}
+        >
+          <CardContent>
+            <Select
+              sx={{ mx: 1 }}
+              displayEmpty
+              value={followUpQuestionId || ""}
+              onChange={(e) => setFollowUpQuestionId(e.target.value)}
+              error={submittingError && !followUpQuestionId}
+              fullWidth
+            >
+              <MenuItem value="" disabled>
+                Select a follow-up question
               </MenuItem>
-            ))}
-          </Select>
+              {questionList.map((question) => (
+                <MenuItem key={question.id} value={question.id} disabled={Object.values(selectedQuestions).includes(question.id)}>
+                  {question.title}
+                </MenuItem>
+              ))}
+            </Select>
+          </CardContent>
+        </Card>
+
+        <Box display="flex" justifyContent="center" my={2}>
           <Button variant="contained" onClick={handleFollowUp} sx={{ mx: 1 }} disabled={submitting}>
             send
           </Button>
