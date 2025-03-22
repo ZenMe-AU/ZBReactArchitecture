@@ -1,7 +1,7 @@
 const { app } = require("@azure/functions");
-const swaggerUI = require("../swagger/swaggerUI.js");
-const swaggerJSON = require("../swagger/swaggerJSON.js");
-const swaggerPath = require("../swagger/swaggerPath.js");
+const swaggerUI = require("../module/swagger/swaggerUI.js");
+const swaggerJSON = require("../module/swagger/swaggerJSON.js");
+const swaggerPath = require("../module/swagger/swaggerPath.js");
 
 app.http("swagger", {
   route: "swagger",
