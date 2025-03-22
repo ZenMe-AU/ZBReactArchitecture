@@ -1,5 +1,5 @@
 const Joi = require("joi");
-const { uuidSchema } = require("./utils/commonSchema");
+const { uuidSchema } = require("../../shared/schema/commonSchema");
 
 const sendFollowUpSchema = Joi.object({
   profile_id: uuidSchema.required(),

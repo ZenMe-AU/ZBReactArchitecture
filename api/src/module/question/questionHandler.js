@@ -1,6 +1,6 @@
-const Question = require("../service/questionService.js");
-const { decode } = require("../service/utils/authUtils");
-const { sendMessageToQueue } = require("../module/shared/sender.js");
+const Question = require("./service/questionService.js");
+const { decode } = require("../shared/service/authUtils.js");
+const { sendMessageToQueue } = require("../shared/sender.js");
 
 /**
  * @swagger
@@ -707,7 +707,69 @@ async function FollowUpOnQuestion(request, context) {
   return { jsonBody: { return: { status: true } }, return: "here!" };
 }
 
-// todo: merge into questionHandler.js
+/**
+ * @swagger
+ * /api/sendFollowUpCmd:
+ *   post:
+ *     tags:
+ *       - Question
+ *     summary: Follow up on a question
+ *     description: Create a follow-up action for a specific question.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               profile_id:
+ *                 type: string
+ *                 format: uuid
+ *                 description: The UUID of the user's profile performing the follow-up.
+ *                 example: "7a232055-5355-422a-9ca7-b7e567103fd4"
+ *               new_question_id:
+ *                 type: string
+ *                 format: uuid
+ *                 description: The UUID of the new question being followed up.
+ *                 example: "945515c2-bf55-40f6-aba2-ae0fa0c88507"
+ *               question:
+ *                 type: array
+ *                 description: List of questions to follow up on.
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     question_id:
+ *                       type: string
+ *                       format: uuid
+ *                       description: The UUID of the question being followed up.
+ *                       example: "12c9a107-53c2-4b77-8cf7-d58856a582da"
+ *                     option:
+ *                       type: array
+ *                       items:
+ *                         type: string
+ *                       description: List of options related to the question.
+ *                       example: ["Chushan"]
+ *               save:
+ *                 type: boolean
+ *                 description: Indicates whether the follow-up should be saved.
+ *                 example: true
+ *     responses:
+ *       200:
+ *         description: Successfully created a follow-up action.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: Whether the request was successful.
+ *                   example: true
+ *                 return:
+ *                   type: boolean
+ *                   description: Indicates whether the follow-up was successfully processed.
+ *                   example: true
+ */
 async function SendFollowUpCmd(message, context) {
   context.log("Service bus queue function processed message:", message);
 
@@ -732,6 +794,55 @@ async function SendFollowUpCmd(message, context) {
   }
 }
 
+/**
+ * @swagger
+ * /api/shareQuestionCmd:
+ *   post:
+ *     tags:
+ *       - Question
+ *     summary: Share a question
+ *     description: Share a specific question with one or more users.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               profile_id:
+ *                 type: string
+ *                 format: uuid
+ *                 description: The UUID of the sender's profile.
+ *                 example: "7a232055-5355-422a-9ca7-b7e567103fd4"
+ *               new_question_id:
+ *                 type: string
+ *                 format: uuid
+ *                 description: The UUID of the question being shared.
+ *                 example: "12c9a107-53c2-4b77-8cf7-d58856a582da"
+ *               receiver_ids:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: uuid
+ *                 description: A list of UUIDs of the receivers.
+ *                 example: ["76c527d3-9f37-4605-aac6-65527f7392da"]
+ *     responses:
+ *       200:
+ *         description: Successfully shared the question.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: Whether the request was successful.
+ *                   example: true
+ *                 return:
+ *                   type: boolean
+ *                   description: Indicates whether the question was successfully shared.
+ *                   example: true
+ */
 async function ShareQuestionCmd(message, context) {
   context.log("Service bus queue function processed message:", message);
 

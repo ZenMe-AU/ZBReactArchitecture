@@ -1,5 +1,5 @@
 const { app } = require("@azure/functions");
-const coordinateHandler = require("../handler/coordinateHandler.js");
+const coordinateHandler = require("../module/coordinate/coordinateHandler.js");
 
 app.http("SearchAtLocationQty", {
   methods: ["GET"],

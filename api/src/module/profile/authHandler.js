@@ -1,5 +1,5 @@
-const { getById } = require("../service/profileService");
-const { generateToken, decode } = require("../service/utils/authUtils");
+const { getById } = require("./service/profileService");
+const { generateToken, decode } = require("../shared/service/authUtils");
 
 /**
  * @swagger
@@ -93,23 +93,34 @@ async function loginUser(request, context) {
  *                       example: "https://example.com/avatar.jpg"
  */
 async function verify(request, context) {
-  const authorization = request.headers.get("authorization");
-  if (!authorization || !authorization.startsWith("Bearer ")) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-  const token = authorization.split(" ")[1];
-  const decoded = decode(token);
+  try {
+    const authorization = request.headers.get("authorization");
+    if (!authorization || !authorization.startsWith("Bearer ")) {
+      context.log("Unauthorized");
+      return { status: 401 };
+      // return request.status(401).json({ error: "Unauthorized" });
+    }
+    const token = authorization.split(" ")[1];
+    const decoded = decode(token);
 
-  if (!decoded.profileId) {
-    return res.status(400).json({ error: "User ID is required" });
-  }
+    if (!decoded.profileId) {
+      context.log("User ID is required");
+      return { status: 400 };
+      // return request.status(400).json({ error: "User ID is required" });
+    }
 
-  const profile = await getById(decoded.profileId);
-  if (!profile) {
-    return res.status(404).json({ error: "User not found" });
-  }
+    const profile = await getById(decoded.profileId);
+    if (!profile) {
+      context.log("User not found");
+      return { status: 404 };
+      // return request.status(404).json({ error: "User not found" });
+    }
 
-  return { jsonBody: { detail: profile } };
+    return { jsonBody: { detail: profile } };
+  } catch (error) {
+    context.log("in");
+    return { status: 401 };
+  }
 }
 
 module.exports = { loginUser, verify };

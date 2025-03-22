@@ -1,5 +1,5 @@
 const { Op, Sequelize } = require("sequelize");
-const { Attributes } = require("../Repository/models.js");
+const { Attributes } = require("../../../Repository/models.js");
 
 /**
  * get user's attributes

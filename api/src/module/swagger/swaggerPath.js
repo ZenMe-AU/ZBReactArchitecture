@@ -2,21 +2,12 @@ const fs = require("fs");
 const path = require("path");
 
 module.exports = async function (request, context) {
-  const filePath = path.join(
-    __dirname,
-    "../../node_modules/swagger-ui-dist",
-    request.params.path || "index.html"
-  );
+  const filePath = path.join(__dirname, "../../../node_modules/swagger-ui-dist", request.params.path || "index.html");
   console.log(filePath);
   if (fs.existsSync(filePath)) {
     var content = fs.readFileSync(filePath);
     if (request.params.path === "swagger-initializer.js") {
-      content = content
-        .toString()
-        .replace(
-          "https://petstore.swagger.io/v2/swagger.json",
-          "/api/swagger.json"
-        );
+      content = content.toString().replace("https://petstore.swagger.io/v2/swagger.json", "/api/swagger.json");
     }
     context.res = {
       status: 200,

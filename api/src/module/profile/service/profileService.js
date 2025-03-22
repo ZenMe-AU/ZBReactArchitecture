@@ -1,6 +1,6 @@
 const { Op, Sequelize, QueryTypes } = require("sequelize");
-const { Profiles, Location, Attributes } = require("../Repository/models.js");
-const { sequelize } = require("../../models/index");
+const { Profiles, Location, Attributes } = require("../../../Repository/models.js");
+const { sequelize } = require("../../../../models/index");
 
 async function create(name, tags = [], avatar = null) {
   try {

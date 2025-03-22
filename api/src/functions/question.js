@@ -1,10 +1,9 @@
 const { app } = require("@azure/functions");
 const requestHandler = require("../module/shared/handler.js");
-const questionHandler = require("../handler/questionHandler.js");
-const queueHandler = require("../handler/queueHandler.js");
+const questionHandler = require("../module/question/questionHandler.js");
+const queueHandler = require("../module/shared/queueHandler.js");
 // const followUpSchema = require("../schemas/sendFollowUpCmdSchema.js");
 const schemas = require("../schemas/index.js");
-const serviceBusHandler = require("../handler/serviceBusHandler.js");
 
 app.http("CreateQuestion", {
   route: "question",
@@ -108,11 +107,11 @@ app.http("shareQuestionCmd", {
 app.serviceBusQueue("sendFollowUpCmdQueue", {
   connection: "Zmchat_SERVICEBUS",
   queueName: "followupcmd",
-  handler: serviceBusHandler.SendFollowUpCmd,
+  handler: questionHandler.SendFollowUpCmd,
 });
 
 app.serviceBusQueue("shareQuestionCmdQueue", {
   connection: "Zmchat_SERVICEBUS",
   queueName: "ShareQuestionCmd",
-  handler: serviceBusHandler.ShareQuestionCmd,
+  handler: questionHandler.ShareQuestionCmd,
 });

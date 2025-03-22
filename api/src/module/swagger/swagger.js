@@ -14,7 +14,7 @@ const swaggerOptions = {
     //   },
     // ],
   },
-  apis: ["./src/functions/**/*.js", "./src/handler/**/*.js"], // Point to your function files
+  apis: ["./src/functions/**/*.js", "./src/handler/**/*.js", "./src/module/**/*.js"], // Point to your function files
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);

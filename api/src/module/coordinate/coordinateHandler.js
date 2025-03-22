@@ -1,5 +1,5 @@
-const Location = require("../service/locationService.js");
-const Profiles = require("../service/profileService.js");
+const Location = require("./service/locationService.js");
+const Profiles = require("../profile/service/profileService.js");
 
 /**
  * @swagger

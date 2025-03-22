@@ -1,5 +1,5 @@
-const Profiles = require("../service/profileService.js");
-const Attributes = require("../service/attributeService.js");
+const Profiles = require("./service/profileService.js");
+const Attributes = require("./service/attributeService.js");
 
 /**
  * @swagger

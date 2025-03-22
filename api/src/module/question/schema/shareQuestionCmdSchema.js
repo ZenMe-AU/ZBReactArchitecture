@@ -1,5 +1,5 @@
 const Joi = require("joi");
-const { uuidSchema } = require("./utils/commonSchema");
+const { uuidSchema } = require("../../shared/schema/commonSchema");
 
 const shareQuestionSchema = Joi.object({
   new_question_id: uuidSchema.required(),

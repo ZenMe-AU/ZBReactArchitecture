@@ -1,6 +1,6 @@
 const { app } = require("@azure/functions");
-const authHandler = require("../handler/authHandler.js");
-const profileHandler = require("../handler/profileHandler.js");
+const authHandler = require("../module/profile/authHandler.js");
+const profileHandler = require("../module/profile/profileHandler.js");
 
 app.http("Login", {
   route: "auth/login",
