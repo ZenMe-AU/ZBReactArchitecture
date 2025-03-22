@@ -1,5 +1,5 @@
 const { app } = require("@azure/functions");
-const requestHandler = require("../handler/requestHandler.js");
+const requestHandler = require("../shared/handler.js");
 const questionHandler = require("../handler/questionHandler.js");
 const queueHandler = require("../handler/queueHandler.js");
 // const followUpSchema = require("../schemas/sendFollowUpCmdSchema.js");

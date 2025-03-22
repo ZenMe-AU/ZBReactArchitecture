@@ -1,4 +1,3 @@
-const validationMiddleware = require("../middleware/validationMiddleware");
 // todo: rename to handler move into shared
 const requestHandler =
   (fn, { schemas = [], customParams = {}, requireAuth = true }) =>
@@ -6,7 +5,7 @@ const requestHandler =
     try {
       if (!request.clientParams) request.clientParams = await request.json();
       // todo: exit if equal 0
-      if (schemas.length > 0) await validationMiddleware(request, schemas);
+      if (schemas.length > 0) await validate(request, schemas);
       request.customParams = customParams;
       const result = await fn(request, context);
       return {
@@ -33,5 +32,15 @@ const requestHandler =
       };
     }
   };
+
+const validate = async (request, schemas) => {
+  for (const schema of schemas) {
+    const { error, value } = schema.validate(request.clientParams);
+    if (error) {
+      throw new Error("Validation failed: " + error.details[0].message);
+    }
+    return value;
+  }
+};
 
 module.exports = requestHandler;
