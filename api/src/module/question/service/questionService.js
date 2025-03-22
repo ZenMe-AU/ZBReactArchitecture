@@ -8,7 +8,6 @@ const {
   FollowUpCmd,
   FollowUpFilter,
 } = require("../../../Repository/models.js");
-const { followUpCmdQueue } = require("../../../queue/index.js");
 const { v4: uuidv4 } = require("uuid");
 
 async function create(profileId, title = null, question = null, option = null) {
@@ -185,8 +184,8 @@ async function addFollowUpByQuestionId(newQuestionId, senderId, questionList, is
       };
     });
     const list = await FollowUpCmd.bulkCreate(addData);
-    await followUpCmdQueue.add("processFollowUpCmd", { tasks: list });
-    console.log(list.map(({ id }) => id));
+    // await followUpCmdQueue.add("processFollowUpCmd", { tasks: list });
+    // console.log(list.map(({ id }) => id));
     // await followUpCmdQueue.add("processFollowUpCmd", { tasks: list.map(({ id }) => id) });
     return list;
   } catch (err) {
