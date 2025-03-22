@@ -692,18 +692,60 @@ async function PatchQuestionById(request, context) {
  *                         save: true
  */
 async function FollowUpOnQuestion(request, context) {
-  const refQuestionId = request.params.id;
   const bodyJson = JSON.parse(await request.text());
-  let profileId = bodyJson["profile_id"] ?? null;
-  let question = bodyJson["question"] ?? {};
-  let isSave = bodyJson["save"] ?? false;
-  let newQuestionId = bodyJson["new_question_id"] ?? null;
+  // const refQuestionId = request.params.id;
+  // let profileId = bodyJson["profile_id"] ?? null;
+  // let question = bodyJson["question"] ?? {};
+  // let isSave = bodyJson["save"] ?? false;
+  // let newQuestionId = bodyJson["new_question_id"] ?? null;
 
   await sendMessageToQueue("followUpCmd", bodyJson);
 
   // let followUp = await Question.addFollowUpByQuestionId(newQuestionId, profileId, question, isSave);
   // let followUp = await Question.addFollowUpCmd(profileId, "create", bodyJson);
-  return { jsonBody: { return: { status: true } } };
+
+  return { jsonBody: { return: { status: true } }, return: "here!" };
+}
+
+// todo: merge into questionHandler.js
+async function SendFollowUpCmd(message, context) {
+  context.log("Service bus queue function processed message:", message);
+
+  try {
+    // todo: change to insert / update / delete
+    // await insertFollowUpCmd(message["profile_id"], message);
+    const cmd = await Question.insertFollowUpCmd(message["profile_id"], message);
+    const filters = Question.insertFollowUpFilter(message);
+    const receiverIds = Question.getFollowUpReceiver(message);
+    const sharedQuestions = Question.shareQuestion(message["new_question_id"], message["profile_id"], await receiverIds);
+
+    const [resolvedFilters, resolvedSharedQuestions] = await Promise.all([filters, sharedQuestions]);
+
+    await Question.updateFollowUpCmdStatus(cmd["id"]);
+
+    context.log(`resolvedFilters`, resolvedFilters);
+    context.log(`resolvedSharedQuestions`, resolvedSharedQuestions);
+    context.log(`✅ Succeed:`, message);
+  } catch (error) {
+    context.log(`❌ Failed:`, error);
+    throw error;
+  }
+}
+
+async function ShareQuestionCmd(message, context) {
+  context.log("Service bus queue function processed message:", message);
+
+  try {
+    const cmd = await Question.insertQuestionShareCmd(message["profile_id"], message);
+    const sharedQuestions = await Question.shareQuestion(message["new_question_id"], message["profile_id"], message["receiver_ids"]);
+
+    await Question.updateQuestionShareCmdStatus(cmd["id"]);
+    context.log(`sharedQuestions:`, sharedQuestions);
+    context.log(`✅ Succeed:`, message);
+  } catch (error) {
+    context.log(`❌ Failed:`, error);
+    throw error;
+  }
 }
 
 module.exports = {
@@ -718,4 +760,6 @@ module.exports = {
   GetSharedQuestionListByUser,
   PatchQuestionById,
   FollowUpOnQuestion,
+  SendFollowUpCmd,
+  ShareQuestionCmd,
 };
