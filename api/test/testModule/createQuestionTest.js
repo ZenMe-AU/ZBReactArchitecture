@@ -1,5 +1,7 @@
 const baseUrl = process.env.BASE_URL || "http://localhost:7071";
 const questionUrl = new URL("/api/question", baseUrl);
+const profileUrl = new URL("/api/profile", baseUrl);
+const { questionData, questionTestResult } = require("./createQuestionTestData");
 
 const createQuestion = (profileIdLookup) => {
   test.each(questionData())("create question $question_id", async (q) => {
@@ -21,6 +23,22 @@ const createQuestion = (profileIdLookup) => {
   });
 };
 
+const checkQuestion = (profileIdLookup) => {
+  test.each(questionTestResult())("There should be $count questions by user $user_id.", async (r) => {
+    const response = await fetch(profileUrl + "/" + profileIdLookup.getProfileId(r.user_id) + "/question", {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+    const resultData = await response.json();
+    const qty = resultData.return.list.length;
+    expect(qty).toBe(r.count);
+  });
+};
+
 const questionIdLookup = {
   data: [],
   add: function (testId, questionId) {
@@ -35,53 +53,4 @@ const questionIdLookup = {
   },
 };
 
-function questionData() {
-  return [
-    {
-      user_id: 1,
-      question_id: 1,
-      title: "Taiwan's Capital City",
-      question: "The capital city is situated in the north. What is it called?",
-      option: ["Taipei", "Taichung", "Tainan", "Taidong"],
-    },
-    {
-      user_id: 1,
-      question_id: 2,
-      title: "Taiwan's Tallest Peak",
-      question: `Taiwan is the island with the highest mountain density in the world, with 268 peaks over 3,000 meters.
-      What is the highest peak, meaning "Jade Mountain," in Taiwan at 3,952 meters?`,
-      option: ["Alishan", "Chushan", "Tienmu", "Yushan"],
-    },
-    {
-      user_id: 1,
-      question_id: 3,
-      title: "Sky Lantern Festival",
-      question: `Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?`,
-      option: ["Jiufen", "Pingxi", "Tamsui", "Kenting"],
-    },
-    {
-      user_id: 1,
-      question_id: 4,
-      title: "Taiwan’s Indigenous Languages",
-      question: `Taiwan is home to 16 officially recognized indigenous groups. But did you know that their languages belong to a single language family that stretches all the way from Taiwan to the Philippines, Hawaii, New Zealand, and even Madagascar?
-      Which language family do Taiwan’s indigenous languages belong to?`,
-      option: ["Min ", "Austro-Asiatic", "Austronesian", "Sino-Tibetan"],
-    },
-    {
-      user_id: 1,
-      question_id: 5,
-      title: "Temple Culture in Taiwan",
-      question: "Which sea goddess is the most widely worshiped deity in Taiwan, with hundreds of temples dedicated to her?",
-      option: ["Guanyin", "Mazu", "Sun Wukong", "Confucius"],
-    },
-    {
-      user_id: 1,
-      question_id: 6,
-      title: "Language of Taiwan",
-      question: "What is the official language of Taiwan?",
-      option: null,
-    },
-  ];
-}
-
-module.exports = { createQuestion, questionIdLookup };
+module.exports = { createQuestion, checkQuestion, questionIdLookup };

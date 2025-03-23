@@ -19,7 +19,7 @@ const checkAnswer = (profileIdLookup, questionIdLookup) => {
       const resultData = await response.json();
       tokenLookup.add(resultData.return.token);
     }
-    console.log(tokenLookup.data);
+    // console.log(tokenLookup.data);
     const response = await fetch(questionUrl + "/" + questionIdLookup.getQuestionId(r.question_id) + "/answer", {
       method: "GET",
       headers: {
