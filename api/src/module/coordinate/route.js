@@ -1,26 +1,25 @@
-const { app } = require("@azure/functions");
-const coordinateHandler = require("../module/coordinate/coordinateHandler.js");
+// This file is auto-loaded by functions/routes.js
+const coordinateHandler = require("./handler.js");
 
-app.http("SearchAtLocationQty", {
-  methods: ["GET"],
-  authLevel: "anonymous",
-  handler: coordinateHandler.SearchAtLocationQty,
-});
-
-app.http("GetUsersDataByCoord", {
-  methods: ["GET"],
-  authLevel: "anonymous",
-  handler: coordinateHandler.GetUsersDataByCoord,
-});
-
-app.http("LocationWrite", {
-  methods: ["POST"],
-  authLevel: "anonymous",
-  handler: coordinateHandler.LocationWrite,
-});
-
-app.http("SearchUsersData", {
-  methods: ["GET"],
-  authLevel: "anonymous",
-  handler: coordinateHandler.SearchUsersData,
-});
+module.exports = [
+  {
+    name: "SearchAtLocationQty",
+    methods: ["GET"],
+    handler: coordinateHandler.SearchAtLocationQty,
+  },
+  {
+    name: "GetUsersDataByCoord",
+    methods: ["GET"],
+    handler: coordinateHandler.GetUsersDataByCoord,
+  },
+  {
+    name: "LocationWrite",
+    methods: ["POST"],
+    handler: coordinateHandler.LocationWrite,
+  },
+  {
+    name: "SearchUsersData",
+    methods: ["GET"],
+    handler: coordinateHandler.SearchUsersData,
+  },
+];

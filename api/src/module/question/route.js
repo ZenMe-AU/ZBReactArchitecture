@@ -1,117 +1,104 @@
-const { app } = require("@azure/functions");
-const requestHandler = require("../module/shared/handler.js");
-const questionHandler = require("../module/question/questionHandler.js");
-const queueHandler = require("../module/shared/queueHandler.js");
-// const followUpSchema = require("../schemas/sendFollowUpCmdSchema.js");
-const schemas = require("../schemas/index.js");
+// This file is auto-loaded by functions/routes.js
+const requestHandler = require("../shared/handler.js");
+const questionHandler = require("./questionHandler.js");
+const schemas = require("../../schemas/index.js");
 
-app.http("CreateQuestion", {
-  route: "question",
-  methods: ["POST"],
-  authLevel: "anonymous",
-  handler: questionHandler.CreateQuestion,
-});
+module.exports = [
+  {
+    name: "CreateQuestion",
+    path: "question",
+    methods: ["POST"],
+    handler: questionHandler.CreateQuestion,
+  },
+  {
+    name: "GetQuestionById",
+    path: "question/{id}",
+    methods: ["GET"],
+    handler: questionHandler.GetQuestionById,
+  },
+  {
+    name: "UpdateQuestionById",
+    path: "question/{id}",
+    methods: ["PUT"],
+    handler: questionHandler.UpdateQuestionById,
+  },
+  {
+    name: "PatchQuestionById",
+    path: "question/{id}",
+    methods: ["PATCH"],
+    handler: questionHandler.PatchQuestionById,
+  },
+  {
+    name: "AddAnswer",
+    path: "question/{id}/answer",
+    methods: ["POST"],
+    handler: questionHandler.AddAnswer,
+  },
+  {
+    name: "GetAnswerById",
+    path: "question/{id:int}/answer/{answerId:int}",
+    methods: ["GET"],
+    handler: questionHandler.GetAnswerById,
+  },
+  {
+    name: "GetQuestionListByUser",
+    path: "profile/{profileId}/question",
+    methods: ["GET"],
+    handler: questionHandler.GetQuestionListByUser,
+  },
+  {
+    name: "GetAnswerListByQuestionId",
+    path: "question/{id}/answer",
+    methods: ["GET"],
+    handler: questionHandler.GetAnswerListByQuestionId,
+  },
+  {
+    name: "ShareQuestion",
+    path: "question/{id}/share",
+    methods: ["POST"],
+    handler: questionHandler.ShareQuestionById,
+  },
+  {
+    name: "FollowUpOnQuestion",
+    path: "question/{id}/FollowUp",
+    methods: ["POST"],
+    handler: questionHandler.FollowUpOnQuestion,
+  },
+  {
+    name: "GetSharedQuestionListByUser",
+    path: "profile/{profileId}/sharedQuestion",
+    methods: ["GET"],
+    handler: questionHandler.GetSharedQuestionListByUser,
+  },
 
-app.http("GetQuestionById", {
-  route: "question/{id}",
-  methods: ["GET"],
-  authLevel: "anonymous",
-  handler: questionHandler.GetQuestionById,
-});
-
-app.http("UpdateQuestionById", {
-  route: "question/{id}",
-  methods: ["PUT"],
-  authLevel: "anonymous",
-  handler: questionHandler.UpdateQuestionById,
-});
-
-app.http("AddAnswer", {
-  route: "question/{id}/answer",
-  methods: ["POST"],
-  authLevel: "anonymous",
-  handler: questionHandler.AddAnswer,
-});
-
-app.http("GetAnswerById", {
-  route: "question/{id:int}/answer/{answerId:int}",
-  methods: ["GET"],
-  authLevel: "anonymous",
-  handler: questionHandler.GetAnswerById,
-});
-
-app.http("GetQuestionListByUser", {
-  route: "profile/{profileId}/question",
-  methods: ["GET"],
-  authLevel: "anonymous",
-  handler: questionHandler.GetQuestionListByUser,
-});
-
-app.http("GetAnswerListByQuestionId", {
-  route: "question/{id}/answer",
-  methods: ["GET"],
-  authLevel: "anonymous",
-  handler: questionHandler.GetAnswerListByQuestionId,
-});
-
-app.http("ShareQuestion", {
-  route: "question/{id}/share",
-  methods: ["POST"],
-  authLevel: "anonymous",
-  handler: questionHandler.ShareQuestionById,
-});
-
-app.http("FollowUpOnQuestion", {
-  route: "question/{id}/FollowUp",
-  methods: ["POST"],
-  authLevel: "anonymous",
-  handler: questionHandler.FollowUpOnQuestion,
-});
-
-app.http("GetSharedQuestionListByUser", {
-  route: "profile/{profileId}/sharedQuestion",
-  methods: ["GET"],
-  authLevel: "anonymous",
-  handler: questionHandler.GetSharedQuestionListByUser,
-});
-
-app.http("PatchQuestionById", {
-  route: "question/{id}",
-  methods: ["PATCH"],
-  authLevel: "anonymous",
-  handler: questionHandler.PatchQuestionById,
-});
-
-// todo: put in swagger ui
-app.http("SendFollowUpCmd", {
-  route: "sendFollowUpCmd",
-  methods: ["POST"],
-  authLevel: "anonymous",
-  handler: requestHandler(queueHandler.SendQueue, {
-    schemas: [schemas.sendFollowUpCmdSchema],
-    customParams: { queueName: "followUpCmd" },
-  }),
-});
-
-app.http("shareQuestionCmd", {
-  route: "shareQuestionCmd",
-  methods: ["POST"],
-  authLevel: "anonymous",
-  handler: requestHandler(queueHandler.SendQueue, {
-    schemas: [schemas.shareQuestionCmdSchema],
-    customParams: { queueName: "shareQuestionCmd" },
-  }),
-});
-
-// change name
-app.serviceBusQueue("sendFollowUpCmdQueue", {
-  connection: "Zmchat_SERVICEBUS",
-  queueName: "followupcmd",
-  handler: questionHandler.SendFollowUpCmd,
-});
-
-app.serviceBusQueue("shareQuestionCmdQueue", {
-  connection: "Zmchat_SERVICEBUS",
-  queueName: "ShareQuestionCmd",
-  handler: questionHandler.ShareQuestionCmd,
-});
+  {
+    name: "SendFollowUpCmd",
+    path: "sendFollowUpCmd",
+    methods: ["POST"],
+    handler: requestHandler(questionHandler.SendQueue, {
+      schemas: [schemas.sendFollowUpCmdSchema],
+      customParams: { queueName: "followUpCmd" },
+    }),
+  },
+  {
+    name: "ShareQuestionCmd",
+    path: "shareQuestionCmd",
+    methods: ["POST"],
+    handler: requestHandler(questionHandler.SendQueue, {
+      schemas: [schemas.shareQuestionCmdSchema],
+      customParams: { queueName: "shareQuestionCmd" },
+    }),
+  },
+  {
+    trigger: "serviceBus",
+    name: "sendFollowUpCmdQueue",
+    queueName: "followupcmd",
+    handler: questionHandler.SendFollowUpCmd,
+  },
+  {
+    trigger: "serviceBus",
+    name: "shareQuestionCmdQueue",
+    queueName: "ShareQuestionCmd",
+    handler: questionHandler.ShareQuestionCmd,
+  },
+];
