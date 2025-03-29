@@ -770,28 +770,10 @@ async function FollowUpOnQuestion(request, context) {
  *                   description: Indicates whether the follow-up was successfully processed.
  *                   example: true
  */
-async function SendFollowUpCmd(message, context) {
-  context.log("Service bus queue function processed message:", message);
+async function SendFollowUpCmdQueue(request, context) {
+  await sendMessageToQueue(request.customParams.queueName, request.clientParams);
 
-  try {
-    // todo: change to insert / update / delete
-    // await insertFollowUpCmd(message["profile_id"], message);
-    const cmd = await Question.insertFollowUpCmd(message["profile_id"], message);
-    const filters = Question.insertFollowUpFilter(message);
-    const receiverIds = Question.getFollowUpReceiver(message);
-    const sharedQuestions = Question.shareQuestion(message["new_question_id"], message["profile_id"], await receiverIds);
-
-    const [resolvedFilters, resolvedSharedQuestions] = await Promise.all([filters, sharedQuestions]);
-
-    await Question.updateFollowUpCmdStatus(cmd["id"]);
-
-    context.log(`resolvedFilters`, resolvedFilters);
-    context.log(`resolvedSharedQuestions`, resolvedSharedQuestions);
-    context.log(`✅ Succeed:`, message);
-  } catch (error) {
-    context.log(`❌ Failed:`, error);
-    throw error;
-  }
+  return { return: true };
 }
 
 /**
@@ -843,6 +825,36 @@ async function SendFollowUpCmd(message, context) {
  *                   description: Indicates whether the question was successfully shared.
  *                   example: true
  */
+async function SendShareQuestionCmdQueue(request, context) {
+  await sendMessageToQueue(request.customParams.queueName, request.clientParams);
+
+  return { return: true };
+}
+
+async function SendFollowUpCmd(message, context) {
+  context.log("Service bus queue function processed message:", message);
+
+  try {
+    // todo: change to insert / update / delete
+    // await insertFollowUpCmd(message["profile_id"], message);
+    const cmd = await Question.insertFollowUpCmd(message["profile_id"], message);
+    const filters = Question.insertFollowUpFilter(message);
+    const receiverIds = Question.getFollowUpReceiver(message);
+    const sharedQuestions = Question.shareQuestion(message["new_question_id"], message["profile_id"], await receiverIds);
+
+    const [resolvedFilters, resolvedSharedQuestions] = await Promise.all([filters, sharedQuestions]);
+
+    await Question.updateFollowUpCmdStatus(cmd["id"]);
+
+    context.log(`resolvedFilters`, resolvedFilters);
+    context.log(`resolvedSharedQuestions`, resolvedSharedQuestions);
+    context.log(`✅ Succeed:`, message);
+  } catch (error) {
+    context.log(`❌ Failed:`, error);
+    throw error;
+  }
+}
+
 async function ShareQuestionCmd(message, context) {
   context.log("Service bus queue function processed message:", message);
 
@@ -873,5 +885,6 @@ module.exports = {
   FollowUpOnQuestion,
   SendFollowUpCmd,
   ShareQuestionCmd,
-  SendQueue,
+  SendFollowUpCmdQueue,
+  SendShareQuestionCmdQueue,
 };
