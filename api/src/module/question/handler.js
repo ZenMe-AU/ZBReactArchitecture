@@ -873,4 +873,5 @@ module.exports = {
   FollowUpOnQuestion,
   SendFollowUpCmd,
   ShareQuestionCmd,
+  SendQueue,
 };

@@ -1,6 +1,6 @@
 // This file is auto-loaded by functions/routes.js
 const requestHandler = require("../shared/handler.js");
-const questionHandler = require("./questionHandler.js");
+const questionHandler = require("./handler.js");
 const schemas = require("../../schemas/index.js");
 
 module.exports = [
@@ -75,7 +75,7 @@ module.exports = [
     name: "SendFollowUpCmd",
     path: "sendFollowUpCmd",
     methods: ["POST"],
-    handler: requestHandler(questionHandler.SendQueue, {
+    handler: requestHandler(questionHandler.SendFollowUpCmdQueue, {
       schemas: [schemas.sendFollowUpCmdSchema],
       customParams: { queueName: "followUpCmd" },
     }),
@@ -84,7 +84,7 @@ module.exports = [
     name: "ShareQuestionCmd",
     path: "shareQuestionCmd",
     methods: ["POST"],
-    handler: requestHandler(questionHandler.SendQueue, {
+    handler: requestHandler(questionHandler.SendShareQuestionCmdQueue, {
       schemas: [schemas.shareQuestionCmdSchema],
       customParams: { queueName: "shareQuestionCmd" },
     }),
