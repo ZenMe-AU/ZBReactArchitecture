@@ -1,4 +1,4 @@
-const { getById } = require("./service/profileService");
+const { getById } = require("./service/function");
 const { generateToken, decode } = require("../shared/service/authUtils");
 
 /**

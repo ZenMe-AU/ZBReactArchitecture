@@ -1,4 +1,4 @@
-const Profiles = require("./service/profileService.js");
+const Profiles = require("./service/function.js");
 const Attributes = require("./service/attributeService.js");
 
 /**

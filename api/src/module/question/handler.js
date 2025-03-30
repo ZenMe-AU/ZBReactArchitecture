@@ -1,6 +1,6 @@
-const Question = require("./service/questionService.js");
+const Question = require("./service/function.js");
 const { decode } = require("../shared/service/authUtils.js");
-const { sendMessageToQueue } = require("../shared/sender.js");
+const { sendMessageToQueue } = require("../shared/service/function.js");
 
 /**
  * @swagger
