@@ -200,6 +200,7 @@ async function insertFollowUpCmd(senderId, cmdData) {
       senderProfileId: senderId,
       action: "create",
       data: cmdData,
+      correlationId: cmdData.correlationId || uuidv4(),
     });
   } catch (err) {
     console.log(err);
@@ -268,6 +269,7 @@ async function insertQuestionShareCmd(senderId, cmdData) {
       senderProfileId: senderId,
       action: "create",
       data: cmdData,
+      correlationId: cmdData.correlationId || uuidv4(),
     });
   } catch (err) {
     console.log(err);

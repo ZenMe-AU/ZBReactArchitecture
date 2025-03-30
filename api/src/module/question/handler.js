@@ -753,6 +753,12 @@ async function FollowUpOnQuestion(request, context) {
  *                 type: boolean
  *                 description: Indicates whether the follow-up should be saved.
  *                 example: true
+ *               correlationId:
+ *                 type: string
+ *                 format: uuid
+ *                 description: An optional correlation ID for tracking requests.
+ *                 example: "550e8400-e29b-41d4-a716-446655440000"
+ *                 required: false
  *     responses:
  *       200:
  *         description: Successfully created a follow-up action.
@@ -808,6 +814,12 @@ async function SendFollowUpCmdQueue(request, context) {
  *                   format: uuid
  *                 description: A list of UUIDs of the receivers.
  *                 example: ["76c527d3-9f37-4605-aac6-65527f7392da"]
+ *               correlationId:
+ *                 type: string
+ *                 format: uuid
+ *                 description: An optional correlation ID for tracking requests.
+ *                 example: "550e8400-e29b-41d4-a716-446655440000"
+ *                 required: false
  *     responses:
  *       200:
  *         description: Successfully shared the question.

@@ -14,6 +14,10 @@ module.exports = {
         allowNull: false,
         type: Sequelize.UUID,
       },
+      correlationId: {
+        allowNull: false,
+        type: Sequelize.UUID,
+      },
       action: {
         allowNull: false,
         type: Sequelize.STRING,

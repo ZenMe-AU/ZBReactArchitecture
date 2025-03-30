@@ -13,6 +13,7 @@ const sendFollowUpSchema = Joi.object({
     )
     .required(),
   save: Joi.boolean().required(),
+  correlationId: uuidSchema,
 });
 
 module.exports = sendFollowUpSchema;

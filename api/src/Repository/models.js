@@ -303,6 +303,10 @@ const FollowUpCmd = sequelize.define(
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
     },
+    correlationId: {
+      allowNull: false,
+      type: DataTypes.UUID,
+    },
     senderProfileId: {
       allowNull: false,
       type: DataTypes.UUID,
@@ -315,22 +319,6 @@ const FollowUpCmd = sequelize.define(
       allowNull: false,
       type: DataTypes.JSON,
     },
-    // refQuestionId: {
-    //   allowNull: false,
-    //   type: DataTypes.UUID,
-    // },
-    // refOption: {
-    //   allowNull: false,
-    //   type: DataTypes.JSON,
-    // },
-    // newQuestionId: {
-    //   allowNull: false,
-    //   type: DataTypes.UUID,
-    // },
-    // isSave: {
-    //   allowNull: false,
-    //   type: DataTypes.BOOLEAN,
-    // },
     status: {
       allowNull: false,
       type: DataTypes.SMALLINT,
@@ -399,6 +387,10 @@ const FollowUpEvent = sequelize.define(
       allowNull: false,
       type: DataTypes.UUID,
     },
+    correlationId: {
+      allowNull: false,
+      type: DataTypes.UUID,
+    },
     action: {
       allowNull: false,
       type: DataTypes.STRING,
@@ -427,38 +419,6 @@ const FollowUpEvent = sequelize.define(
   }
 );
 
-// const FollowUpShare = sequelize.define(
-//   "followUpShare",
-//   {
-//     id: {
-//       allowNull: false,
-//       primaryKey: true,
-//       type: DataTypes.UUID,
-//       defaultValue: DataTypes.UUIDV4,
-//     },
-//     refQuestionId: {
-//       allowNull: false,
-//       type: DataTypes.UUID,
-//     },
-//     newQuestionId: {
-//       allowNull: false,
-//       type: DataTypes.UUID,
-//     },
-//     senderProfileId: {
-//       allowNull: false,
-//       type: DataTypes.UUID,
-//     },
-//     receiverProfileId: {
-//       allowNull: false,
-//       type: DataTypes.UUID,
-//     },
-//   },
-//   {
-//     tableName: "followUpShare",
-//     updatedAt: false,
-//   }
-// );
-
 const QuestionShareCmd = sequelize.define(
   "questionShareCmd",
   {
@@ -469,6 +429,10 @@ const QuestionShareCmd = sequelize.define(
       defaultValue: DataTypes.UUIDV4,
     },
     senderProfileId: {
+      allowNull: false,
+      type: DataTypes.UUID,
+    },
+    correlationId: {
       allowNull: false,
       type: DataTypes.UUID,
     },
@@ -491,6 +455,7 @@ const QuestionShareCmd = sequelize.define(
     timestamps: true,
   }
 );
+
 const QuestionShareEvent = sequelize.define(
   "questionShareEvent",
   {
@@ -501,6 +466,10 @@ const QuestionShareEvent = sequelize.define(
       defaultValue: DataTypes.UUIDV4,
     },
     questionShareId: {
+      allowNull: false,
+      type: DataTypes.UUID,
+    },
+    correlationId: {
       allowNull: false,
       type: DataTypes.UUID,
     },
@@ -585,16 +554,39 @@ QuestionAction.addHook("afterSave", async (instance, options) => {
   }
 });
 
-QuestionShare.addHook("afterBulkCreate", async (instances, options) => {
+// QuestionShare.addHook("afterBulkCreate", async (instances, options) => {
+//   try {
+//     instances.map(async (instance) => {
+//       await QuestionShareEvent.create(
+//         {
+//           questionShareId: instance.id,
+//           // correlationId: instance.correlationId,
+//           action: "create",
+//           // todo: fix
+//           // senderProfileId: instance.senderProfileId,
+//           senderProfileId: instance.senderId,
+//           actionData: instance.dataValues,
+//           originalData: null,
+//         },
+//         {
+//           transaction: options.transaction,
+//         }
+//       );
+//     });
+//   } catch (error) {
+//     console.error("Error processing afterBulkCreate hook:", error);
+//   }
+// });
+
+QuestionShareCmd.addHook("afterUpdate", async (instance, options) => {
   try {
-    instances.map(async (instance) => {
+    if (instance.previousStatus !== 1 && instance.status === 1) {
       await QuestionShareEvent.create(
         {
           questionShareId: instance.id,
+          correlationId: instance.correlationId,
           action: "create",
-          // todo: fix
-          // senderProfileId: instance.senderProfileId,
-          senderProfileId: instance.senderId,
+          senderProfileId: instance.senderProfileId,
           actionData: instance.dataValues,
           originalData: null,
         },
@@ -602,9 +594,9 @@ QuestionShare.addHook("afterBulkCreate", async (instances, options) => {
           transaction: options.transaction,
         }
       );
-    });
+    }
   } catch (error) {
-    console.error("Error processing afterBulkCreate hook:", error);
+    console.error("Error processing afterUpdate hook:", error);
   }
 });
 
@@ -614,6 +606,7 @@ FollowUpCmd.addHook("afterUpdate", async (instance, options) => {
       await FollowUpEvent.create(
         {
           followUpId: instance.id,
+          correlationId: instance.correlationId,
           action: "create",
           senderProfileId: instance.senderProfileId,
           actionData: instance.dataValues,
