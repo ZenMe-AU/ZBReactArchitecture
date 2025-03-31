@@ -7,8 +7,11 @@ const {
   QuestionAction,
   FollowUpCmd,
   FollowUpFilter,
+  FollowUpEvent,
+  QuestionShareEvent,
 } = require("../../../Repository/models.js");
 const { v4: uuidv4 } = require("uuid");
+const { cmdName } = require("../enum.js");
 
 async function create(profileId, title = null, question = null, option = null) {
   try {
@@ -377,6 +380,30 @@ async function patchById(questionId, action, profileId) {
   }
 }
 
+async function getEventByCorrelationId(name, correlationId) {
+  var model;
+  switch (name) {
+    case cmdName.FollowUpCmd:
+      model = FollowUpEvent;
+      break;
+    case cmdName.QuestionShareCmd:
+      model = QuestionShareEvent;
+      break;
+    default:
+      throw new Error("unknown eventName");
+  }
+  try {
+    return await model.findAll({
+      where: {
+        correlationId,
+      },
+    });
+  } catch (err) {
+    console.log(err);
+    throw new Error("can't get event by correlationId");
+  }
+}
+
 module.exports = {
   create,
   updateById,
@@ -396,4 +423,5 @@ module.exports = {
   updateFollowUpCmdStatus,
   insertQuestionShareCmd,
   updateQuestionShareCmdStatus,
+  getEventByCorrelationId,
 };

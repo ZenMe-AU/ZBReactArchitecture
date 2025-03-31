@@ -90,6 +90,12 @@ module.exports = [
     }),
   },
   {
+    name: "getEventByCorrelationId",
+    path: "getEventByCorrelationId/{name}/{correlationId}",
+    methods: ["GET"],
+    handler: requestHandler(questionHandler.GetEventByCorrelationId),
+  },
+  {
     trigger: "serviceBus",
     name: "sendFollowUpCmdQueue",
     queueName: "followupcmd",

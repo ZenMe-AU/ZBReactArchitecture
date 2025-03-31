@@ -1,9 +1,10 @@
 const baseUrl = process.env.BASE_URL || "http://localhost:7071";
 const sendFollowUpCmdUrl = new URL("/api/sendFollowUpCmd", baseUrl);
 
-const createFollowUp = (profileIdLookup, questionIdLookup) => {
+const createFollowUp = (profileIdLookup, questionIdLookup, testCorrelationId) => {
   test.each(followUpData())("send follow-up question by user $user_id", async (followUp) => {
     const response = await fetch(sendFollowUpCmdUrl, {
+      headers: { "Content-Type": "application/json" },
       method: "POST",
       body: JSON.stringify({
         profile_id: profileIdLookup.getProfileId(followUp.user_id),
@@ -15,6 +16,7 @@ const createFollowUp = (profileIdLookup, questionIdLookup) => {
           },
         ],
         save: followUp.save,
+        correlationId: testCorrelationId,
       }),
     });
 

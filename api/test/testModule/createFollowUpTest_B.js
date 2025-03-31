@@ -1,13 +1,42 @@
 const baseUrl = process.env.BASE_URL || "http://localhost:7071";
 const profileUrl = new URL("/api/profile", baseUrl);
+const eventUrl = new URL("/api/getEventByCorrelationId", baseUrl);
+const followUpQuestionQty = 5;
 
-const checkShareQuestion = (profileIdLookup) => {
+const checkShareQuestion = (profileIdLookup, testCorrelationId) => {
   test.each(shareQuestionData())("check shared question by user $user_id", async (shared) => {
-    const response = await fetch(profileUrl + "/" + profileIdLookup.getProfileId(shared.user_id) + "/sharedQuestion", { method: "GET" });
+    let qty = 0;
+    for (let i = 0; i < 5; i++) {
+      const response = await fetch(profileUrl + "/" + profileIdLookup.getProfileId(shared.user_id) + "/sharedQuestion", { method: "GET" });
+      let resultData = await response.json();
+      qty = resultData.return.list.length;
+      if (qty === shared.count) {
+        break;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
 
-    let resultData = await response.json();
-    const qty = resultData.return.list.length;
     expect(qty).toBe(shared.count);
+  });
+};
+
+const checkFollowUpQty = (testCorrelationId) => {
+  test("check follow up question by Correlation Id:" + testCorrelationId, async () => {
+    let qty = 0;
+    for (let i = 0; i < 5; i++) {
+      const response = await fetch(eventUrl + "/FollowUpCmd/" + testCorrelationId, { method: "GET" });
+      if (!response.ok) {
+        console.error(`Error: ${response.status} - ${response.statusText}`);
+        break;
+      }
+      let resultData = await response.json();
+      qty = resultData.return.qty;
+      if (qty === followUpQuestionQty) {
+        break;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+    expect(qty).toBe(followUpQuestionQty);
   });
 };
 
@@ -35,4 +64,4 @@ function shareQuestionData() {
   ];
 }
 
-module.exports = { checkShareQuestion };
+module.exports = { checkShareQuestion, checkFollowUpQty };

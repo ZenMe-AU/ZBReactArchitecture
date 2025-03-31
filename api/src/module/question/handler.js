@@ -843,6 +843,58 @@ async function SendShareQuestionCmdQueue(request, context) {
   return { return: true };
 }
 
+/**
+ * @swagger
+ * /api/getEventByCorrelationId/{name}/{correlationId}:
+ *   get:
+ *     tags:
+ *       - Event
+ *     summary: Get event by correlation ID
+ *     description: Retrieve event details based on the event name and correlation ID.
+ *     parameters:
+ *       - name: name
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *           enum: [FollowUpCmd, ShareQuestionCmd]
+ *         description: The event name (must be one of the predefined command names).
+ *         example: "FollowUpCmd"
+ *       - name: correlationId
+ *         in: path
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: The UUID correlation ID of the event.
+ *         example: "550e8400-e29b-41d4-a716-446655440000"
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved event details.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: Indicates if the request was successful.
+ *                   example: true
+ *                 return:
+ *                   type: object
+ *                   properties:
+ *                     qty:
+ *                       type: integer
+ *                       description: The quantity of items.
+ *                       example: 5
+ */
+async function GetEventByCorrelationId(request, context) {
+  const { name, correlationId } = request.params;
+  const result = await Question.getEventByCorrelationId(name, correlationId);
+  console.log(`result`, result);
+  return { return: { qty: result.length } };
+}
+
 async function SendFollowUpCmd(message, context) {
   context.log("Service bus queue function processed message:", message);
 
@@ -899,4 +951,5 @@ module.exports = {
   ShareQuestionCmd,
   SendFollowUpCmdQueue,
   SendShareQuestionCmdQueue,
+  GetEventByCorrelationId,
 };

@@ -1,9 +1,15 @@
-// todo: rename to handler move into shared
 const requestHandler =
-  (fn, { schemas = [], customParams = {}, requireAuth = true }) =>
+  (fn, { schemas = [], customParams = {}, requireAuth = true } = {}) =>
   async (request, context) => {
     try {
-      if (!request.clientParams) request.clientParams = await request.json();
+      if (!request.clientParams) {
+        const contentType = request.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          request.clientParams = await request.json();
+        } else {
+          request.clientParams = {};
+        }
+      }
       // todo: exit if equal 0
       if (schemas.length > 0) await validate(request, schemas);
       request.customParams = customParams;
