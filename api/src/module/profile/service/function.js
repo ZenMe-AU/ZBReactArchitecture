@@ -25,7 +25,7 @@ async function create(name, tags = [], avatar = null) {
       }
     );
 
-    profile.device_id = profile.id;
+    profile.deviceId = profile.id;
     await profile.save();
     return profile;
   } catch (err) {
@@ -111,7 +111,7 @@ function getUsersProfile(coord, tFrom, tTo, distance, CountOnly, tags = null) {
         model: Attributes,
         attributes: [],
         where: { tag: { [Op.like]: { [Op.any]: tags } } },
-        group: ["profile_id"],
+        group: ["profileId"],
       });
     }
     if (CountOnly) {

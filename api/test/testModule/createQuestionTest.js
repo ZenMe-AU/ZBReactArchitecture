@@ -25,12 +25,11 @@ const createQuestion = (profileIdLookup) => {
 };
 
 const checkQuestion = (profileIdLookup) => {
-  test.each(questionTestResult())("There should be $count questions by user $user_id.", async (r) => {
-    const response = await fetch(profileUrl + "/" + profileIdLookup.getProfileId(r.user_id) + "/question", {
+  test.each(questionTestResult())("There should be $count questions by user $userId.", async (r) => {
+    const response = await fetch(profileUrl + "/" + profileIdLookup.getProfileId(r.userId) + "/question", {
       method: "GET",
       headers: {
         Accept: "application/json",
-        "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
       },
     });

@@ -10,7 +10,7 @@ module.exports = {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
       },
-      profile_id: {
+      profileId: {
         allowNull: false,
         type: Sequelize.UUID,
       },
@@ -25,12 +25,12 @@ module.exports = {
       },
     });
     // await queryInterface.sequelize.query(
-    //   "ALTER TABLE attributes ADD CONSTRAINT attributes_profile_id_fkey FOREIGN KEY (profile_id) REFERENCES profiles (id);"
+    //   "ALTER TABLE attributes ADD CONSTRAINT attributes_profileId_fkey FOREIGN KEY (profileId) REFERENCES profiles (id);"
     // );
     await queryInterface.addConstraint("attributes", {
-      fields: ["profile_id"],
+      fields: ["profileId"],
       type: "foreign key",
-      name: "attributes_profile_id_fkey",
+      name: "attributes_profileId_fkey",
       references: {
         table: "profiles",
         field: "id",
