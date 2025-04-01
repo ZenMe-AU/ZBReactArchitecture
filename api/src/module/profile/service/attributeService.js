@@ -11,7 +11,7 @@ async function getByUser(profileId) {
   try {
     const attrData = await Attributes.findAll({
       where: {
-        profile_id: profileId,
+        profileId: profileId,
       },
     });
 
@@ -33,7 +33,7 @@ async function update(profileId, tags) {
   try {
     const attrData = await Attributes.findAll({
       where: {
-        profile_id: profileId,
+        profileId: profileId,
       },
     });
     const originTags = attrData.map(({ tag }) => tag);
@@ -41,7 +41,7 @@ async function update(profileId, tags) {
       .filter((tag) => !originTags.includes(tag))
       .map(function (tag) {
         return {
-          profile_id: profileId,
+          profileId: profileId,
           tag: tag,
         };
       });

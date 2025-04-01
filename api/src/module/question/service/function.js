@@ -74,7 +74,7 @@ async function getCombinationListByUser(profileId) {
         [Op.or]: [
           { profileId: profileId },
           {
-            "$question_shares.receiverId$": profileId,
+            "$questionShares.receiverProfileId$": profileId,
           },
         ],
       },
@@ -82,7 +82,7 @@ async function getCombinationListByUser(profileId) {
         {
           model: QuestionShare,
           attributes: [],
-          group: ["questionId"],
+          group: ["newQuestionId"],
         },
       ],
     });
@@ -143,7 +143,7 @@ async function getAnswerListByQuestionId(questionId) {
             "answerText",
             "optionId",
             "duration"
-          FROM "question_answer"
+          FROM "questionAnswer"
           WHERE "questionId" = :questionId
           ORDER BY "profileId", "createdAt" DESC;
         `,
@@ -158,14 +158,14 @@ async function getAnswerListByQuestionId(questionId) {
   }
 }
 
-async function shareQuestion(questionId, senderId, receiverIds) {
+async function shareQuestion(newQuestionId, senderId, receiverIds) {
   try {
     console.log("shareQuestion data:", questionId, senderId, receiverIds);
     const addData = receiverIds.map(function (receiverId) {
       return {
-        questionId: questionId,
-        senderId: senderId,
-        receiverId: receiverId,
+        newQuestionId: newQuestionId,
+        senderProfileId: senderId,
+        receiverProfileId: receiverId,
       };
     });
     return await QuestionShare.bulkCreate(addData);
@@ -180,7 +180,7 @@ async function addFollowUpByQuestionId(newQuestionId, senderId, questionList, is
     const addData = questionList.map(function (question) {
       return {
         senderProfileId: senderId,
-        refQuestionId: question.question_id,
+        refQuestionId: question.questionId,
         refOption: question.option,
         newQuestionId: newQuestionId,
         isSave: isSave,
@@ -291,7 +291,7 @@ async function updateQuestionShareCmdStatus(id) {
 
 // async function insertFollowUpCmd(senderId, action, cmdData) {
 //   try {
-//     const newQuestionId = cmdData.new_question_id;
+//     const newQuestionId = cmdData.newQuestionId;
 //     const cmd = await FollowUpCmd.create({
 //       senderProfileId: senderId,
 //       action: action,
@@ -305,7 +305,7 @@ async function updateQuestionShareCmdStatus(id) {
 //           id: filterId,
 //           order: i + 1,
 //           senderProfileId: senderId,
-//           refQuestionId: filter.question_id,
+//           refQuestionId: filter.questionId,
 //           refOption: filter.option,
 //           newQuestionId: newQuestionId,
 //         };
@@ -315,7 +315,7 @@ async function updateQuestionShareCmdStatus(id) {
 //     // save to share
 //     const filterReceiverIdAry = await Promise.all(
 //       cmdData.question.map(async function (filter) {
-//         const ansList = await getAnswerListByQuestionId(filter.question_id);
+//         const ansList = await getAnswerListByQuestionId(filter.questionId);
 //         return ansList.reduce((acc, ans) => {
 //           if (ans.profileId !== senderId && filter.option.includes(ans.optionId)) {
 //             acc.push(ans.profileId);

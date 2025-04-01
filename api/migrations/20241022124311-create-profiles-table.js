@@ -10,7 +10,7 @@ module.exports = {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
       },
-      user_id: {
+      userId: {
         allowNull: true,
         type: Sequelize.UUID,
       },
@@ -22,16 +22,16 @@ module.exports = {
         allowNull: true,
         type: Sequelize.STRING,
       },
-      device_id: {
+      deviceId: {
         type: Sequelize.STRING,
       },
     });
-    // await queryInterface.sequelize.query("ALTER TABLE profiles ADD CONSTRAINT profile_user_id_fkey FOREIGN KEY (user_id) REFERENCES users (id);");
+    // await queryInterface.sequelize.query("ALTER TABLE profiles ADD CONSTRAINT profile_userId_fkey FOREIGN KEY (userId) REFERENCES users (id);");
 
     await queryInterface.addConstraint("profiles", {
-      fields: ["user_id"],
+      fields: ["userId"],
       type: "foreign key",
-      name: "profiles_user_id_fkey",
+      name: "profiles_userId_fkey",
       references: {
         table: "users",
         field: "id",

@@ -360,7 +360,7 @@ async function LocationWrite(request, context) {
  *                             example: "pic/avatar_3.jpg"
  */
 async function SearchUsersData(request, context) {
-  let device_id = request.query.get("device") || "l1";
+  let deviceId = request.query.get("device") || "l1";
   let request_time = new Date().toISOString().slice(0, 16);
   if (request.query.get("searchTime")) {
     request_time = new Date(request.query.get("searchTime")).toISOString().slice(0, 16);
@@ -371,13 +371,13 @@ async function SearchUsersData(request, context) {
   let limited = request.query.get("limited") || 100;
   let start_time = new Date(new Date(request_time + "Z").getTime() - interval * 60 * 1000).toISOString().slice(0, 16);
 
-  context.log("device_id" + device_id);
+  context.log("deviceId" + deviceId);
   context.log("interval" + interval);
   context.log("distance" + distance);
   context.log("limited" + limited);
   context.log("start_time" + start_time);
   context.log("request_time" + request_time);
-  let users = await Profiles.getUsersProfileNearby(device_id, start_time, request_time, distance, limited);
+  let users = await Profiles.getUsersProfileNearby(deviceId, start_time, request_time, distance, limited);
 
   return { return: { users: users } };
 }

@@ -40,7 +40,7 @@ function getUsers(coord, tFrom, tTo, distance, CountOnly, tags = null) {
         model: Attributes,
         attributes: [],
         where: { tag: { [Op.like]: { [Op.any]: tags } } },
-        group: ["user_id"],
+        group: ["userId"],
       });
     }
     if (CountOnly) {

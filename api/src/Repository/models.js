@@ -77,7 +77,7 @@ const Attributes = sequelize.define(
       primaryKey: true,
       defaultValue: DataTypes.UUIDV4,
     },
-    profile_id: {
+    profileId: {
       type: DataTypes.UUID,
       allowNull: false,
     },
@@ -100,7 +100,7 @@ const Profiles = sequelize.define(
       primaryKey: true,
       defaultValue: DataTypes.UUIDV4,
     },
-    user_id: {
+    userId: {
       type: DataTypes.UUID,
       allowNull: true,
     },
@@ -112,7 +112,7 @@ const Profiles = sequelize.define(
       type: DataTypes.CHAR,
       allowNull: true,
     },
-    device_id: {
+    deviceId: {
       type: DataTypes.CHAR,
     },
   },
@@ -159,7 +159,7 @@ const Question = sequelize.define(
 );
 
 const QuestionAnswer = sequelize.define(
-  "question_answer",
+  "questionAnswer",
   {
     id: {
       type: DataTypes.UUID,
@@ -189,13 +189,13 @@ const QuestionAnswer = sequelize.define(
     },
   },
   {
-    tableName: "question_answer",
+    tableName: "questionAnswer",
     updatedAt: false,
   }
 );
 
 const QuestionShare = sequelize.define(
-  "question_share",
+  "questionShare",
   {
     id: {
       type: DataTypes.UUID,
@@ -203,7 +203,7 @@ const QuestionShare = sequelize.define(
       primaryKey: true,
       defaultValue: DataTypes.UUIDV4,
     },
-    questionId: {
+    newQuestionId: {
       type: DataTypes.UUID,
       allowNull: false,
     },
@@ -221,13 +221,13 @@ const QuestionShare = sequelize.define(
     },
   },
   {
-    tableName: "question_share",
+    tableName: "questionShare",
     updatedAt: false,
   }
 );
 
 const QuestionLog = sequelize.define(
-  "log_question",
+  "logQuestion",
   {
     id: {
       type: DataTypes.UUID,
@@ -261,13 +261,13 @@ const QuestionLog = sequelize.define(
     },
   },
   {
-    tableName: "log_question",
+    tableName: "logQuestion",
     updatedAt: false,
   }
 );
 
 const QuestionAction = sequelize.define(
-  "question_action",
+  "questionAction",
   {
     id: {
       type: DataTypes.UUID,
@@ -289,7 +289,7 @@ const QuestionAction = sequelize.define(
     },
   },
   {
-    tableName: "question_action",
+    tableName: "questionAction",
     updatedAt: false,
   }
 );
@@ -497,16 +497,16 @@ const QuestionShareEvent = sequelize.define(
 );
 // Users.hasMany(Location, { foreignKey: "tid", sourceKey: "deviceId" });
 // Location.belongsTo(Users, { targetKey: "deviceId", foreignKey: "tid" });
-Location.belongsTo(Profiles, { targetKey: "device_id", foreignKey: "tid" });
-Attributes.belongsTo(Profiles, { targetKey: "id", foreignKey: "profile_id" });
-Profiles.hasMany(Attributes, { foreignKey: "profile_id", sourceKey: "id" });
-Profiles.hasMany(Location, { foreignKey: "tid", sourceKey: "device_id" });
+Location.belongsTo(Profiles, { targetKey: "deviceId", foreignKey: "tid" });
+Attributes.belongsTo(Profiles, { targetKey: "id", foreignKey: "profileId" });
+Profiles.hasMany(Attributes, { foreignKey: "profileId", sourceKey: "id" });
+Profiles.hasMany(Location, { foreignKey: "tid", sourceKey: "deviceId" });
 Profiles.hasMany(Question, { foreignKey: "profileId", sourceKey: "id" });
 Profiles.hasMany(QuestionAnswer, { foreignKey: "profileId", sourceKey: "id" });
 Question.hasMany(QuestionAnswer, { foreignKey: "questionId", sourceKey: "id" });
-Question.hasMany(QuestionShare, { foreignKey: "questionId", sourceKey: "id" });
+Question.hasMany(QuestionShare, { foreignKey: "newQuestionId", sourceKey: "id" });
 QuestionAnswer.belongsTo(Question, { targetKey: "id", foreignKey: "questionId" });
-QuestionShare.belongsTo(Question, { targetKey: "id", foreignKey: "questionId" });
+QuestionShare.belongsTo(Question, { targetKey: "id", foreignKey: "newQuestionId" });
 
 // hook
 Question.addHook("afterSave", async (instance, options) => {

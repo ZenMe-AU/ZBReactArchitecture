@@ -3,7 +3,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("question_action", {
+    await queryInterface.createTable("questionAction", {
       id: {
         allowNull: false,
         primaryKey: true,
@@ -29,12 +29,12 @@ module.exports = {
       },
     });
     await queryInterface.sequelize.query(
-      'ALTER TABLE question_action ADD CONSTRAINT question_action_questionId_fkey FOREIGN KEY ("questionId") REFERENCES question (id);',
-      'ALTER TABLE question_action ADD CONSTRAINT question_action_profileId_fkey FOREIGN KEY ("profileId") REFERENCES profiles (id);'
+      'ALTER TABLE "questionAction" ADD CONSTRAINT questionAction_questionId_fkey FOREIGN KEY ("questionId") REFERENCES question (id);',
+      'ALTER TABLE "questionAction" ADD CONSTRAINT questionAction_profileId_fkey FOREIGN KEY ("profileId") REFERENCES profiles (id);'
     );
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("question_action");
+    await queryInterface.dropTable("questionAction");
   },
 };
