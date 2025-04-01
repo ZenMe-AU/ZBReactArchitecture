@@ -30,9 +30,9 @@ export const createQuestion = async (title: string, questionText: string, option
     const response = await jwtFetch(`${apiDomain}/api/question`, {
       method: "POST",
       body: JSON.stringify({
-        profile_id: profileId,
+        profileId: profileId,
         title: title,
-        question: questionText,
+        questionText: questionText,
         option: option,
       }), // Send the request body as JSON
     });
@@ -75,7 +75,7 @@ export const updateQuestion = async (id: string, data: { title: string; question
       method: "PUT",
       body: JSON.stringify({
         title: data.title,
-        question: data.questionText,
+        questionText: data.questionText,
         option: data.option,
       }),
     });
@@ -105,9 +105,9 @@ export const shareQuestion = async (id: string, profileId: string, receiverIds: 
     const response = await jwtFetch(`${apiDomain}/api/shareQuestionCmd`, {
       method: "POST",
       body: JSON.stringify({
-        new_question_id: id,
-        profile_id: profileId,
-        receiver_ids: receiverIds,
+        newQuestionId: id,
+        profileId: profileId,
+        receiverIds: receiverIds,
       }),
     });
 
@@ -134,8 +134,8 @@ export const submitAnswer = async (
     const response = await jwtFetch(`${apiDomain}/api/question/${id}/answer`, {
       method: "POST",
       body: JSON.stringify({
-        profile_id: profileId,
-        question: questionText,
+        profileId: profileId,
+        questionText: questionText,
         option: answerPayload.option,
         answer: answerPayload.answerText,
         duration: answerPayload.answerDuration,
@@ -230,7 +230,7 @@ export const updateQuestionPatch = async (id: string, patches: PatchOperation[])
 
 export const sendFollowUpQuestion = async (
   questionId: string,
-  questionFilter: { option: string[]; question_id: string }[],
+  questionFilter: { option: string[]; questionId: string }[],
   followUpQuestionId: string,
   saveFilter: boolean
 ) => {
@@ -239,10 +239,10 @@ export const sendFollowUpQuestion = async (
     const response = await jwtFetch(`${apiDomain}/api/sendFollowUpCmd`, {
       method: "POST",
       body: JSON.stringify({
-        profile_id: profileId,
-        new_question_id: followUpQuestionId,
+        profileId: profileId,
+        newQuestionId: followUpQuestionId,
         question: questionFilter,
-        save: saveFilter,
+        isSave: saveFilter,
       }),
     });
 
