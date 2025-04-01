@@ -134,12 +134,12 @@ function FollowUpQuestion() {
     }
 
     const filterData = cards.map((cardId) => ({
-      question_id: selectedQuestions[cardId],
+      questionId: selectedQuestions[cardId],
       option: selectedOptions[cardId] || [],
     }));
 
     filterData.unshift({
-      question_id: question.id,
+      questionId: question.id,
       option: selectedInitOptions,
     });
     console.log("Follow-up Data:", filterData);
