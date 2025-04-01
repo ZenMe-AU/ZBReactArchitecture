@@ -17,6 +17,7 @@ fs.readdirSync(modulesDir).forEach((folder) => {
           app.http(route.name, {
             route: route.path || route.name,
             methods: route.methods,
+            extraOutputs: route.extraOutputs || [],
             authLevel: route.authLevel || "anonymous",
             handler: route.handler,
           });

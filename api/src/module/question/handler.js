@@ -1,6 +1,7 @@
 const Question = require("./service/function.js");
 const { decode } = require("../shared/service/authUtils.js");
-const { sendMessageToQueue } = require("../shared/service/function.js");
+// const { sendMessageToQueue } = require("../shared/service/function.js");
+const { followUpCmdQueue, shareQuestionCmdQueue } = require("../shared/service/serviceBus.js");
 
 /**
  * @swagger
@@ -674,8 +675,8 @@ async function PatchQuestionById(request, context) {
  *                   example: true
  */
 async function SendFollowUpCmdQueue(request, context) {
-  await sendMessageToQueue(request.customParams.queueName, request.clientParams);
-
+  // await sendMessageToQueue(request.customParams.queueName, request.clientParams);
+  context.extraOutputs.set(followUpCmdQueue, request.clientParams);
   return { return: true };
 }
 
@@ -735,7 +736,8 @@ async function SendFollowUpCmdQueue(request, context) {
  *                   example: true
  */
 async function SendShareQuestionCmdQueue(request, context) {
-  await sendMessageToQueue(request.customParams.queueName, request.clientParams);
+  // await sendMessageToQueue(request.customParams.queueName, request.clientParams);
+  context.extraOutputs.set(shareQuestionCmdQueue, request.clientParams);
 
   return { return: true };
 }
