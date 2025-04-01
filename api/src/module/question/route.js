@@ -2,6 +2,7 @@
 const requestHandler = require("../shared/handler.js");
 const questionHandler = require("./handler.js");
 const schemas = require("../../schemas/index.js");
+const { followUpCmdQueue, shareQuestionCmdQueue } = require("../shared/service/serviceBus.js");
 
 module.exports = [
   {
@@ -69,6 +70,7 @@ module.exports = [
     name: "SendFollowUpCmd",
     path: "sendFollowUpCmd",
     methods: ["POST"],
+    extraOutputs: [followUpCmdQueue],
     handler: requestHandler(questionHandler.SendFollowUpCmdQueue, {
       schemas: [schemas.sendFollowUpCmdSchema],
       customParams: { queueName: "followUpCmd" },
@@ -78,6 +80,7 @@ module.exports = [
     name: "ShareQuestionCmd",
     path: "shareQuestionCmd",
     methods: ["POST"],
+    extraOutputs: [shareQuestionCmdQueue],
     handler: requestHandler(questionHandler.SendShareQuestionCmdQueue, {
       schemas: [schemas.shareQuestionCmdSchema],
       customParams: { queueName: "shareQuestionCmd" },
