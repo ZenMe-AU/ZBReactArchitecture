@@ -30,7 +30,7 @@ export const authVerify = async () => {
     }
 
     const data = await response.json();
-    return data.detail;
+    return data.return.detail;
   } catch (err) {
     console.error("Verify API error:", err);
     throw err;
