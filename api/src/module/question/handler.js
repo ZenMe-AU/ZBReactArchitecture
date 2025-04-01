@@ -18,7 +18,7 @@ const { followUpCmdQueue, shareQuestionCmdQueue } = require("../shared/service/s
  *           schema:
  *             type: object
  *             properties:
- *               profile_id:
+ *               profileId:
  *                 type: integer
  *                 description: ID of the profile creating the questionnaire.
  *                 example: 1
@@ -26,7 +26,7 @@ const { followUpCmdQueue, shareQuestionCmdQueue } = require("../shared/service/s
  *                 type: string
  *                 description: Title of the questionnaire.
  *                 example: "Favorite Foods"
- *               question:
+ *               questionText:
  *                 type: string
  *                 description: The main question in the questionnaire.
  *                 example: "What is your favorite food?"
@@ -53,8 +53,8 @@ const { followUpCmdQueue, shareQuestionCmdQueue } = require("../shared/service/s
  *                       example: 123
  */
 async function CreateQuestion(request, context) {
-  const { profile_id: profileId, title = null, option = null, question } = request.clientParams;
-  const questionnaire = await Question.create(profileId, title, question, option);
+  const { profileId, title = null, option = null, questionText } = request.clientParams;
+  const questionnaire = await Question.create(profileId, title, questionText, option);
   return { return: { id: questionnaire.id } };
 }
 
@@ -86,7 +86,7 @@ async function CreateQuestion(request, context) {
  *                 nullable: true
  *                 description: The new title of the question (optional).
  *                 example: "Updated Favorite Foods"
- *               question:
+ *               questionText:
  *                 type: string
  *                 description: The updated question text.
  *                 example: "What is your updated favorite food?"
@@ -115,7 +115,7 @@ async function CreateQuestion(request, context) {
  */
 async function UpdateQuestionById(request, context) {
   const { id: questionId } = request.params;
-  const { title = null, option = null, question: questionText } = request.clientParams;
+  const { title = null, option = null, questionText } = request.clientParams;
   const question = await Question.updateById(questionId, title, questionText, option);
   return { return: { id: question.id } };
 }
@@ -178,7 +178,7 @@ async function GetQuestionById(request, context) {
  *           schema:
  *             type: object
  *             properties:
- *               profile_id:
+ *               profileId:
  *                 type: integer
  *                 description: ID of the profile submitting the answer.
  *                 example: 1
@@ -208,7 +208,7 @@ async function GetQuestionById(request, context) {
  */
 async function AddAnswer(request, context) {
   const { id: questionId } = request.params;
-  const { profile_id: profileId, answer = null, option = null, duration } = request.clientParams;
+  const { profileId, answer = null, option = null, duration } = request.clientParams;
   const questionnaire = await Question.addAnswerByQuestionId(questionId, profileId, duration, answer, option);
   return { return: { id: questionnaire.id } };
 }
@@ -434,11 +434,11 @@ async function GetAnswerListByQuestionId(request, context) {
  *           schema:
  *             type: object
  *             properties:
- *               profile_id:
+ *               profileId:
  *                 type: integer
  *                 description: The ID of the sender's profile.
  *                 example: 123
- *               receiver_ids:
+ *               receiverIds:
  *                 type: array
  *                 items:
  *                   type: integer
@@ -465,7 +465,7 @@ async function GetAnswerListByQuestionId(request, context) {
  */
 async function ShareQuestionById(request, context) {
   const { id: questionId } = request.params;
-  const { profile_id: senderId = null, receiver_ids: receiverIds = [] } = request.clientParams;
+  const { profileId: senderId = null, receiverIds = [] } = request.clientParams;
   const share = await Question.shareQuestion(questionId, senderId, receiverIds);
   return { return: { detail: share } };
 }
@@ -620,12 +620,12 @@ async function PatchQuestionById(request, context) {
  *           schema:
  *             type: object
  *             properties:
- *               profile_id:
+ *               profileId:
  *                 type: string
  *                 format: uuid
  *                 description: The UUID of the user's profile performing the follow-up.
  *                 example: "7a232055-5355-422a-9ca7-b7e567103fd4"
- *               new_question_id:
+ *               newQuestionId:
  *                 type: string
  *                 format: uuid
  *                 description: The UUID of the new question being followed up.
@@ -636,7 +636,7 @@ async function PatchQuestionById(request, context) {
  *                 items:
  *                   type: object
  *                   properties:
- *                     question_id:
+ *                     questionId:
  *                       type: string
  *                       format: uuid
  *                       description: The UUID of the question being followed up.
@@ -695,17 +695,17 @@ async function SendFollowUpCmdQueue(request, context) {
  *           schema:
  *             type: object
  *             properties:
- *               profile_id:
+ *               profileId:
  *                 type: string
  *                 format: uuid
  *                 description: The UUID of the sender's profile.
  *                 example: "7a232055-5355-422a-9ca7-b7e567103fd4"
- *               new_question_id:
+ *               newQuestionId:
  *                 type: string
  *                 format: uuid
  *                 description: The UUID of the question being shared.
  *                 example: "12c9a107-53c2-4b77-8cf7-d58856a582da"
- *               receiver_ids:
+ *               receiverIds:
  *                 type: array
  *                 items:
  *                   type: string
@@ -799,10 +799,10 @@ async function SendFollowUpCmd(message, context) {
   try {
     // todo: change to insert / update / delete
     // await insertFollowUpCmd(message["profile_id"], message);
-    const cmd = await Question.insertFollowUpCmd(message["profile_id"], message);
+    const cmd = await Question.insertFollowUpCmd(message["profileId"], message);
     const filters = Question.insertFollowUpFilter(message);
     const receiverIds = Question.getFollowUpReceiver(message);
-    const sharedQuestions = Question.shareQuestion(message["new_question_id"], message["profile_id"], await receiverIds);
+    const sharedQuestions = Question.shareQuestion(message["newQuestionId"], message["profileId"], await receiverIds);
 
     const [resolvedFilters, resolvedSharedQuestions] = await Promise.all([filters, sharedQuestions]);
 
@@ -821,8 +821,8 @@ async function ShareQuestionCmd(message, context) {
   context.log("Service bus queue function processed message:", message);
 
   try {
-    const cmd = await Question.insertQuestionShareCmd(message["profile_id"], message);
-    const sharedQuestions = await Question.shareQuestion(message["new_question_id"], message["profile_id"], message["receiver_ids"]);
+    const cmd = await Question.insertQuestionShareCmd(message["profileId"], message);
+    const sharedQuestions = await Question.shareQuestion(message["newQuestionId"], message["profileId"], message["receiverIds"]);
 
     await Question.updateQuestionShareCmdStatus(cmd["id"]);
     context.log(`sharedQuestions:`, sharedQuestions);

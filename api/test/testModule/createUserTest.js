@@ -2,12 +2,12 @@ const baseUrl = process.env.BASE_URL || "http://localhost:7071";
 const profileUrl = new URL("/api/profile", baseUrl);
 
 const createUser = () => {
-  test.each(createUserData())("create User $user_id", async (u) => {
+  test.each(createUserData())("create User $userId", async (u) => {
     const response = await fetch(profileUrl, {
       headers: { "Content-Type": "application/json" },
       method: "POST",
       body: JSON.stringify({
-        name: u.name ?? "user" + u.user_id,
+        name: u.name ?? "user" + u.userId,
         avatar: u.avatar,
         attributes: u.attributes,
       }),
@@ -15,7 +15,7 @@ const createUser = () => {
 
     let profile = await response.json();
     let profileId = profile.return.id;
-    profileIdLookup.add(u.user_id, profileId);
+    profileIdLookup.add(u.userId, profileId);
 
     expect(response.ok).toBeTruthy();
   });
@@ -38,102 +38,102 @@ const profileIdLookup = {
 function createUserData() {
   return [
     {
-      user_id: 1,
+      userId: 1,
       avatar: "pic/avatar_1.jpg",
       attributes: [],
     },
     {
-      user_id: 2,
+      userId: 2,
       avatar: "pic/avatar_2.jpg",
       attributes: [],
     },
     {
-      user_id: 3,
+      userId: 3,
       avatar: "pic/avatar_3.jpg",
       attributes: [],
     },
     {
-      user_id: 4,
+      userId: 4,
       avatar: "pic/avatar_4.jpg",
       attributes: [],
     },
     {
-      user_id: 5,
+      userId: 5,
       avatar: "pic/avatar_5.jpg",
       attributes: [],
     },
     {
-      user_id: 6,
+      userId: 6,
       avatar: "pic/avatar_6.jpg",
       attributes: [],
     },
     {
-      user_id: 7,
+      userId: 7,
       avatar: "pic/avatar_7.jpg",
       attributes: [],
     },
     {
-      user_id: 8,
+      userId: 8,
       avatar: "pic/avatar_8.jpg",
       attributes: [],
     },
     {
-      user_id: 9,
+      userId: 9,
       avatar: "pic/avatar_9.jpg",
       attributes: [],
     },
     {
-      user_id: 10,
+      userId: 10,
       avatar: "pic/avatar_10.jpg",
       attributes: [],
     },
     {
-      user_id: 11,
+      userId: 11,
       avatar: "pic/avatar_11.jpg",
       attributes: [],
     },
     {
-      user_id: 12,
+      userId: 12,
       avatar: "pic/avatar_12.jpg",
       attributes: [],
     },
     {
-      user_id: 13,
+      userId: 13,
       avatar: "pic/avatar_13.jpg",
       attributes: [],
     },
     {
-      user_id: 14,
+      userId: 14,
       avatar: "pic/avatar_14.jpg",
       attributes: [],
     },
     {
-      user_id: 15,
+      userId: 15,
       avatar: "pic/avatar_15.jpg",
       attributes: [],
     },
     {
-      user_id: 16,
+      userId: 16,
       avatar: "pic/avatar_16.jpg",
       attributes: [],
     },
     {
-      user_id: 17,
+      userId: 17,
       avatar: "pic/avatar_17.jpg",
       attributes: [],
     },
     {
-      user_id: 18,
+      userId: 18,
       avatar: "pic/avatar_18.jpg",
       attributes: [],
     },
     {
-      user_id: 19,
+      userId: 19,
       avatar: "pic/avatar_19.jpg",
       attributes: [],
     },
     {
-      user_id: 20,
+      userId: 20,
       avatar: "pic/avatar_20.jpg",
       attributes: [],
     },

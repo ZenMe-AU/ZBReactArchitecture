@@ -4,21 +4,21 @@ const profileUrl = new URL("/api/profile", baseUrl);
 const { questionData, questionTestResult } = require("./createQuestionTestData");
 
 const createQuestion = (profileIdLookup) => {
-  test.each(questionData())("create question $question_id", async (q) => {
+  test.each(questionData())("create question $questionId", async (q) => {
     const response = await fetch(questionUrl, {
       headers: { "Content-Type": "application/json" },
       method: "POST",
       body: JSON.stringify({
-        profile_id: profileIdLookup.getProfileId(q.user_id),
+        profileId: profileIdLookup.getProfileId(q.userId),
         title: q.title,
-        question: q.question,
+        questionText: q.question,
         option: q.option,
       }),
     });
 
     let question = await response.json();
     let questionId = question.return.id;
-    questionIdLookup.add(q.question_id, questionId);
+    questionIdLookup.add(q.questionId, questionId);
 
     expect(response.ok).toBeTruthy();
   });
