@@ -2,20 +2,20 @@ const baseUrl = process.env.BASE_URL || "http://localhost:7071";
 const sendFollowUpCmdUrl = new URL("/api/sendFollowUpCmd", baseUrl);
 
 const createFollowUp = (profileIdLookup, questionIdLookup, testCorrelationId) => {
-  test.each(followUpData())("send follow-up question by user $user_id", async (followUp) => {
+  test.each(followUpData())("send follow-up question by user $userId", async (followUp) => {
     const response = await fetch(sendFollowUpCmdUrl, {
       headers: { "Content-Type": "application/json" },
       method: "POST",
       body: JSON.stringify({
-        profile_id: profileIdLookup.getProfileId(followUp.user_id),
-        new_question_id: questionIdLookup.getQuestionId(followUp.new_question_id),
+        profileId: profileIdLookup.getProfileId(followUp.userId),
+        newQuestionId: questionIdLookup.getQuestionId(followUp.newQuestionId),
         question: [
           {
-            question_id: questionIdLookup.getQuestionId(followUp.question_id),
+            questionId: questionIdLookup.getQuestionId(followUp.questionId),
             option: [followUp.option],
           },
         ],
-        save: followUp.save,
+        isSave: followUp.isSave,
         correlationId: testCorrelationId,
       }),
     });
@@ -28,43 +28,43 @@ function followUpData() {
   return [
     // Question 1: Taiwan's Capital City
     {
-      user_id: 1,
-      new_question_id: 2,
-      question_id: 1,
+      userId: 1,
+      newQuestionId: 2,
+      questionId: 1,
       option: "Taipei",
-      save: true,
+      isSave: true,
     },
     // Question 2: Taiwan's Tallest Peak
     {
-      user_id: 1,
-      new_question_id: 3,
-      question_id: 2,
+      userId: 1,
+      newQuestionId: 3,
+      questionId: 2,
       option: "Yushan",
-      save: true,
+      isSave: true,
     },
     // Question 3: Sky Lantern Festival
     {
-      user_id: 1,
-      new_question_id: 4,
-      question_id: 3,
+      userId: 1,
+      newQuestionId: 4,
+      questionId: 3,
       option: "Pingxi",
-      save: true,
+      isSave: true,
     },
     // Question 4: Taiwan’s Indigenous Languages
     {
-      user_id: 1,
-      new_question_id: 5,
-      question_id: 4,
+      userId: 1,
+      newQuestionId: 5,
+      questionId: 4,
       option: "Austronesian",
-      save: true,
+      isSave: true,
     },
     // Question 5: Temple Culture in Taiwan
     {
-      user_id: 1,
-      new_question_id: 1,
-      question_id: 5,
+      userId: 1,
+      newQuestionId: 1,
+      questionId: 5,
       option: "Mazu",
-      save: true,
+      isSave: true,
     },
   ];
 }

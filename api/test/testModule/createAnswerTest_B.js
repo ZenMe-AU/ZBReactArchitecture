@@ -3,7 +3,7 @@ const questionUrl = new URL("/api/question", baseUrl);
 const loginUrl = new URL("/api/auth/login", baseUrl);
 
 const checkAnswer = (profileIdLookup, questionIdLookup) => {
-  test.each(getAnswerTestResult())("There should be $count answers for question $question_id.", async (r) => {
+  test.each(getAnswerTestResult())("There should be $count answers for question $questionId.", async (r) => {
     if (!tokenLookup.data) {
       const response = await fetch(loginUrl, {
         method: "POST",
@@ -20,7 +20,7 @@ const checkAnswer = (profileIdLookup, questionIdLookup) => {
       tokenLookup.add(resultData.return.token);
     }
     // console.log(tokenLookup.data);
-    const response = await fetch(questionUrl + "/" + questionIdLookup.getQuestionId(r.question_id) + "/answer", {
+    const response = await fetch(questionUrl + "/" + questionIdLookup.getQuestionId(r.questionId) + "/answer", {
       method: "GET",
       headers: {
         Accept: "application/json",
@@ -45,27 +45,27 @@ const tokenLookup = {
 function getAnswerTestResult() {
   return [
     {
-      question_id: 1,
+      questionId: 1,
       count: 20,
     },
     {
-      question_id: 2,
+      questionId: 2,
       count: 20,
     },
     {
-      question_id: 3,
+      questionId: 3,
       count: 20,
     },
     {
-      question_id: 4,
+      questionId: 4,
       count: 20,
     },
     {
-      question_id: 5,
+      questionId: 5,
       count: 20,
     },
     {
-      question_id: 6,
+      questionId: 6,
       count: 20,
     },
   ];

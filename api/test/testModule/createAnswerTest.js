@@ -2,12 +2,12 @@ const baseUrl = process.env.BASE_URL || "http://localhost:7071";
 const questionUrl = new URL("/api/question", baseUrl);
 
 const createAnswer = (profileIdLookup, questionIdLookup) => {
-  test.each(answerData())("answer question $question_id by user $user_id", async (a) => {
-    const response = await fetch(questionUrl + "/" + questionIdLookup.getQuestionId(a.question_id) + "/answer", {
+  test.each(answerData())("answer question $questionId by user $userId", async (a) => {
+    const response = await fetch(questionUrl + "/" + questionIdLookup.getQuestionId(a.questionId) + "/answer", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        profile_id: profileIdLookup.getProfileId(a.user_id),
+        profileId: profileIdLookup.getProfileId(a.userId),
         question: a.question,
         option: a.option,
         answer: a.answer,
@@ -26,160 +26,160 @@ function answerData() {
   return [
     // Question 1: Taiwan's Capital City
     {
-      user_id: 1,
-      question_id: 1,
+      userId: 1,
+      questionId: 1,
       question: "The capital city is situated in the north. What is it called?",
       option: "Taipei",
       answer: null,
       duration: 1120,
     },
     {
-      user_id: 2,
-      question_id: 1,
+      userId: 2,
+      questionId: 1,
       question: "The capital city is situated in the north. What is it called?",
       option: "Taichung",
       answer: null,
       duration: 1345,
     },
     {
-      user_id: 3,
-      question_id: 1,
+      userId: 3,
+      questionId: 1,
       question: "The capital city is situated in the north. What is it called?",
       option: "Taipei",
       answer: null,
       duration: 980,
     },
     {
-      user_id: 4,
-      question_id: 1,
+      userId: 4,
+      questionId: 1,
       question: "The capital city is situated in the north. What is it called?",
       option: "Tainan",
       answer: null,
       duration: 1530,
     },
     {
-      user_id: 5,
-      question_id: 1,
+      userId: 5,
+      questionId: 1,
       question: "The capital city is situated in the north. What is it called?",
       option: "Taichung",
       answer: null,
       duration: 1102,
     },
     {
-      user_id: 6,
-      question_id: 1,
+      userId: 6,
+      questionId: 1,
       question: "The capital city is situated in the north. What is it called?",
       option: "Taipei",
       answer: null,
       duration: 1423,
     },
     {
-      user_id: 7,
-      question_id: 1,
+      userId: 7,
+      questionId: 1,
       question: "The capital city is situated in the north. What is it called?",
       option: "Taidong",
       answer: null,
       duration: 1654,
     },
     {
-      user_id: 8,
-      question_id: 1,
+      userId: 8,
+      questionId: 1,
       question: "The capital city is situated in the north. What is it called?",
       option: "Tainan",
       answer: null,
       duration: 1280,
     },
     {
-      user_id: 9,
-      question_id: 1,
+      userId: 9,
+      questionId: 1,
       question: "The capital city is situated in the north. What is it called?",
       option: "Taipei",
       answer: null,
       duration: 1450,
     },
     {
-      user_id: 10,
-      question_id: 1,
+      userId: 10,
+      questionId: 1,
       question: "The capital city is situated in the north. What is it called?",
       option: "Taipei",
       answer: null,
       duration: 1720,
     },
     {
-      user_id: 11,
-      question_id: 1,
+      userId: 11,
+      questionId: 1,
       question: "The capital city is situated in the north. What is it called?",
       option: "Taichung",
       answer: null,
       duration: 1210,
     },
     {
-      user_id: 12,
-      question_id: 1,
+      userId: 12,
+      questionId: 1,
       question: "The capital city is situated in the north. What is it called?",
       option: "Taipei",
       answer: null,
       duration: 1300,
     },
     {
-      user_id: 13,
-      question_id: 1,
+      userId: 13,
+      questionId: 1,
       question: "The capital city is situated in the north. What is it called?",
       option: "Taidong",
       answer: null,
       duration: 1105,
     },
     {
-      user_id: 14,
-      question_id: 1,
+      userId: 14,
+      questionId: 1,
       question: "The capital city is situated in the north. What is it called?",
       option: "Tainan",
       answer: null,
       duration: 1430,
     },
     {
-      user_id: 15,
-      question_id: 1,
+      userId: 15,
+      questionId: 1,
       question: "The capital city is situated in the north. What is it called?",
       option: "Taichung",
       answer: null,
       duration: 1355,
     },
     {
-      user_id: 16,
-      question_id: 1,
+      userId: 16,
+      questionId: 1,
       question: "The capital city is situated in the north. What is it called?",
       option: "Taipei",
       answer: null,
       duration: 1275,
     },
     {
-      user_id: 17,
-      question_id: 1,
+      userId: 17,
+      questionId: 1,
       question: "The capital city is situated in the north. What is it called?",
       option: "Taipei",
       answer: null,
       duration: 1190,
     },
     {
-      user_id: 18,
-      question_id: 1,
+      userId: 18,
+      questionId: 1,
       question: "The capital city is situated in the north. What is it called?",
       option: "Taichung",
       answer: null,
       duration: 1405,
     },
     {
-      user_id: 19,
-      question_id: 1,
+      userId: 19,
+      questionId: 1,
       question: "The capital city is situated in the north. What is it called?",
       option: "Taidong",
       answer: null,
       duration: 1325,
     },
     {
-      user_id: 20,
-      question_id: 1,
+      userId: 20,
+      questionId: 1,
       question: "The capital city is situated in the north. What is it called?",
       option: "Taipei",
       answer: null,
@@ -188,8 +188,8 @@ function answerData() {
 
     // Question 2: Taiwan's Tallest Peak
     {
-      user_id: 1,
-      question_id: 2,
+      userId: 1,
+      questionId: 2,
       question:
         "Taiwan is the island with the highest mountain density in the world, with 268 peaks over 3,000 meters. What is the highest peak, meaning 'Jade Mountain,' in Taiwan at 3,952 meters?",
       option: "Yushan",
@@ -197,8 +197,8 @@ function answerData() {
       duration: 1105,
     },
     {
-      user_id: 2,
-      question_id: 2,
+      userId: 2,
+      questionId: 2,
       question:
         "Taiwan is the island with the highest mountain density in the world, with 268 peaks over 3,000 meters. What is the highest peak, meaning 'Jade Mountain,' in Taiwan at 3,952 meters?",
       option: "Alishan",
@@ -206,8 +206,8 @@ function answerData() {
       duration: 1225,
     },
     {
-      user_id: 3,
-      question_id: 2,
+      userId: 3,
+      questionId: 2,
       question:
         "Taiwan is the island with the highest mountain density in the world, with 268 peaks over 3,000 meters. What is the highest peak, meaning 'Jade Mountain,' in Taiwan at 3,952 meters?",
       option: "Yushan",
@@ -215,8 +215,8 @@ function answerData() {
       duration: 1040,
     },
     {
-      user_id: 4,
-      question_id: 2,
+      userId: 4,
+      questionId: 2,
       question:
         "Taiwan is the island with the highest mountain density in the world, with 268 peaks over 3,000 meters. What is the highest peak, meaning 'Jade Mountain,' in Taiwan at 3,952 meters?",
       option: "Yushan",
@@ -224,8 +224,8 @@ function answerData() {
       duration: 980,
     },
     {
-      user_id: 5,
-      question_id: 2,
+      userId: 5,
+      questionId: 2,
       question:
         "Taiwan is the island with the highest mountain density in the world, with 268 peaks over 3,000 meters. What is the highest peak, meaning 'Jade Mountain,' in Taiwan at 3,952 meters?",
       option: "Yushan",
@@ -233,8 +233,8 @@ function answerData() {
       duration: 1130,
     },
     {
-      user_id: 6,
-      question_id: 2,
+      userId: 6,
+      questionId: 2,
       question:
         "Taiwan is the island with the highest mountain density in the world, with 268 peaks over 3,000 meters. What is the highest peak, meaning 'Jade Mountain,' in Taiwan at 3,952 meters?",
       option: "Yushan",
@@ -242,8 +242,8 @@ function answerData() {
       duration: 1345,
     },
     {
-      user_id: 7,
-      question_id: 2,
+      userId: 7,
+      questionId: 2,
       question:
         "Taiwan is the island with the highest mountain density in the world, with 268 peaks over 3,000 meters. What is the highest peak, meaning 'Jade Mountain,' in Taiwan at 3,952 meters?",
       option: "Yushan",
@@ -251,8 +251,8 @@ function answerData() {
       duration: 1200,
     },
     {
-      user_id: 8,
-      question_id: 2,
+      userId: 8,
+      questionId: 2,
       question:
         "Taiwan is the island with the highest mountain density in the world, with 268 peaks over 3,000 meters. What is the highest peak, meaning 'Jade Mountain,' in Taiwan at 3,952 meters?",
       option: "Alishan",
@@ -260,8 +260,8 @@ function answerData() {
       duration: 1180,
     },
     {
-      user_id: 9,
-      question_id: 2,
+      userId: 9,
+      questionId: 2,
       question:
         "Taiwan is the island with the highest mountain density in the world, with 268 peaks over 3,000 meters. What is the highest peak, meaning 'Jade Mountain,' in Taiwan at 3,952 meters?",
       option: "Yushan",
@@ -269,8 +269,8 @@ function answerData() {
       duration: 1250,
     },
     {
-      user_id: 10,
-      question_id: 2,
+      userId: 10,
+      questionId: 2,
       question:
         "Taiwan is the island with the highest mountain density in the world, with 268 peaks over 3,000 meters. What is the highest peak, meaning 'Jade Mountain,' in Taiwan at 3,952 meters?",
       option: "Yushan",
@@ -278,8 +278,8 @@ function answerData() {
       duration: 1100,
     },
     {
-      user_id: 11,
-      question_id: 2,
+      userId: 11,
+      questionId: 2,
       question:
         "Taiwan is the island with the highest mountain density in the world, with 268 peaks over 3,000 meters. What is the highest peak, meaning 'Jade Mountain,' in Taiwan at 3,952 meters?",
       option: "Alishan",
@@ -287,8 +287,8 @@ function answerData() {
       duration: 1210,
     },
     {
-      user_id: 12,
-      question_id: 2,
+      userId: 12,
+      questionId: 2,
       question:
         "Taiwan is the island with the highest mountain density in the world, with 268 peaks over 3,000 meters. What is the highest peak, meaning 'Jade Mountain,' in Taiwan at 3,952 meters?",
       option: "Yushan",
@@ -296,8 +296,8 @@ function answerData() {
       duration: 1375,
     },
     {
-      user_id: 13,
-      question_id: 2,
+      userId: 13,
+      questionId: 2,
       question:
         "Taiwan is the island with the highest mountain density in the world, with 268 peaks over 3,000 meters. What is the highest peak, meaning 'Jade Mountain,' in Taiwan at 3,952 meters?",
       option: "Yushan",
@@ -305,8 +305,8 @@ function answerData() {
       duration: 1220,
     },
     {
-      user_id: 14,
-      question_id: 2,
+      userId: 14,
+      questionId: 2,
       question:
         "Taiwan is the island with the highest mountain density in the world, with 268 peaks over 3,000 meters. What is the highest peak, meaning 'Jade Mountain,' in Taiwan at 3,952 meters?",
       option: "Yushan",
@@ -314,8 +314,8 @@ function answerData() {
       duration: 1185,
     },
     {
-      user_id: 15,
-      question_id: 2,
+      userId: 15,
+      questionId: 2,
       question:
         "Taiwan is the island with the highest mountain density in the world, with 268 peaks over 3,000 meters. What is the highest peak, meaning 'Jade Mountain,' in Taiwan at 3,952 meters?",
       option: "Yushan",
@@ -323,8 +323,8 @@ function answerData() {
       duration: 1305,
     },
     {
-      user_id: 16,
-      question_id: 2,
+      userId: 16,
+      questionId: 2,
       question:
         "Taiwan is the island with the highest mountain density in the world, with 268 peaks over 3,000 meters. What is the highest peak, meaning 'Jade Mountain,' in Taiwan at 3,952 meters?",
       option: "Yushan",
@@ -332,8 +332,8 @@ function answerData() {
       duration: 1420,
     },
     {
-      user_id: 17,
-      question_id: 2,
+      userId: 17,
+      questionId: 2,
       question:
         "Taiwan is the island with the highest mountain density in the world, with 268 peaks over 3,000 meters. What is the highest peak, meaning 'Jade Mountain,' in Taiwan at 3,952 meters?",
       option: "Yushan",
@@ -341,8 +341,8 @@ function answerData() {
       duration: 1275,
     },
     {
-      user_id: 18,
-      question_id: 2,
+      userId: 18,
+      questionId: 2,
       question:
         "Taiwan is the island with the highest mountain density in the world, with 268 peaks over 3,000 meters. What is the highest peak, meaning 'Jade Mountain,' in Taiwan at 3,952 meters?",
       option: "Yushan",
@@ -350,8 +350,8 @@ function answerData() {
       duration: 1395,
     },
     {
-      user_id: 19,
-      question_id: 2,
+      userId: 19,
+      questionId: 2,
       question:
         "Taiwan is the island with the highest mountain density in the world, with 268 peaks over 3,000 meters. What is the highest peak, meaning 'Jade Mountain,' in Taiwan at 3,952 meters?",
       option: "Yushan",
@@ -359,8 +359,8 @@ function answerData() {
       duration: 1400,
     },
     {
-      user_id: 20,
-      question_id: 2,
+      userId: 20,
+      questionId: 2,
       question:
         "Taiwan is the island with the highest mountain density in the world, with 268 peaks over 3,000 meters. What is the highest peak, meaning 'Jade Mountain,' in Taiwan at 3,952 meters?",
       option: "Yushan",
@@ -370,8 +370,8 @@ function answerData() {
 
     // Question 3: Sky Lantern Festival
     {
-      user_id: 1,
-      question_id: 3,
+      userId: 1,
+      questionId: 3,
       question:
         "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Pingxi",
@@ -379,8 +379,8 @@ function answerData() {
       duration: 1150,
     },
     {
-      user_id: 2,
-      question_id: 3,
+      userId: 2,
+      questionId: 3,
       question:
         "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Kenting",
@@ -388,8 +388,8 @@ function answerData() {
       duration: 1325,
     },
     {
-      user_id: 3,
-      question_id: 3,
+      userId: 3,
+      questionId: 3,
       question:
         "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Pingxi",
@@ -397,8 +397,8 @@ function answerData() {
       duration: 1200,
     },
     {
-      user_id: 4,
-      question_id: 3,
+      userId: 4,
+      questionId: 3,
       question:
         "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Tamsui",
@@ -406,8 +406,8 @@ function answerData() {
       duration: 1270,
     },
     {
-      user_id: 5,
-      question_id: 3,
+      userId: 5,
+      questionId: 3,
       question:
         "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Pingxi",
@@ -415,8 +415,8 @@ function answerData() {
       duration: 1330,
     },
     {
-      user_id: 6,
-      question_id: 3,
+      userId: 6,
+      questionId: 3,
       question:
         "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Pingxi",
@@ -424,8 +424,8 @@ function answerData() {
       duration: 1250,
     },
     {
-      user_id: 7,
-      question_id: 3,
+      userId: 7,
+      questionId: 3,
       question:
         "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Pingxi",
@@ -433,8 +433,8 @@ function answerData() {
       duration: 1360,
     },
     {
-      user_id: 8,
-      question_id: 3,
+      userId: 8,
+      questionId: 3,
       question:
         "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Kenting",
@@ -442,8 +442,8 @@ function answerData() {
       duration: 1240,
     },
     {
-      user_id: 9,
-      question_id: 3,
+      userId: 9,
+      questionId: 3,
       question:
         "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Tamsui",
@@ -451,8 +451,8 @@ function answerData() {
       duration: 1305,
     },
     {
-      user_id: 10,
-      question_id: 3,
+      userId: 10,
+      questionId: 3,
       question:
         "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Pingxi",
@@ -460,8 +460,8 @@ function answerData() {
       duration: 1125,
     },
     {
-      user_id: 11,
-      question_id: 3,
+      userId: 11,
+      questionId: 3,
       question:
         "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Pingxi",
@@ -469,8 +469,8 @@ function answerData() {
       duration: 1260,
     },
     {
-      user_id: 12,
-      question_id: 3,
+      userId: 12,
+      questionId: 3,
       question:
         "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Pingxi",
@@ -478,8 +478,8 @@ function answerData() {
       duration: 1180,
     },
     {
-      user_id: 13,
-      question_id: 3,
+      userId: 13,
+      questionId: 3,
       question:
         "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Pingxi",
@@ -487,8 +487,8 @@ function answerData() {
       duration: 1375,
     },
     {
-      user_id: 14,
-      question_id: 3,
+      userId: 14,
+      questionId: 3,
       question:
         "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Tamsui",
@@ -496,8 +496,8 @@ function answerData() {
       duration: 1220,
     },
     {
-      user_id: 15,
-      question_id: 3,
+      userId: 15,
+      questionId: 3,
       question:
         "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Pingxi",
@@ -505,8 +505,8 @@ function answerData() {
       duration: 1165,
     },
     {
-      user_id: 16,
-      question_id: 3,
+      userId: 16,
+      questionId: 3,
       question:
         "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Pingxi",
@@ -514,8 +514,8 @@ function answerData() {
       duration: 1400,
     },
     {
-      user_id: 17,
-      question_id: 3,
+      userId: 17,
+      questionId: 3,
       question:
         "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Pingxi",
@@ -523,8 +523,8 @@ function answerData() {
       duration: 1185,
     },
     {
-      user_id: 18,
-      question_id: 3,
+      userId: 18,
+      questionId: 3,
       question:
         "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Pingxi",
@@ -532,8 +532,8 @@ function answerData() {
       duration: 1335,
     },
     {
-      user_id: 19,
-      question_id: 3,
+      userId: 19,
+      questionId: 3,
       question:
         "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Pingxi",
@@ -541,8 +541,8 @@ function answerData() {
       duration: 1205,
     },
     {
-      user_id: 20,
-      question_id: 3,
+      userId: 20,
+      questionId: 3,
       question:
         "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Kenting",
@@ -552,8 +552,8 @@ function answerData() {
 
     // Question 4: Taiwan’s Indigenous Languages
     {
-      user_id: 1,
-      question_id: 4,
+      userId: 1,
+      questionId: 4,
       question:
         "Taiwan is home to 16 officially recognized indigenous groups. But did you know that their languages belong to a single language family that stretches all the way from Taiwan to the Philippines, Hawaii, New Zealand, and even Madagascar? Which language family do Taiwan’s indigenous languages belong to?",
       option: "Austronesian",
@@ -561,8 +561,8 @@ function answerData() {
       duration: 1230,
     },
     {
-      user_id: 2,
-      question_id: 4,
+      userId: 2,
+      questionId: 4,
       question:
         "Taiwan is home to 16 officially recognized indigenous groups. But did you know that their languages belong to a single language family that stretches all the way from Taiwan to the Philippines, Hawaii, New Zealand, and even Madagascar? Which language family do Taiwan’s indigenous languages belong to?",
       option: "Austronesian",
@@ -570,8 +570,8 @@ function answerData() {
       duration: 1210,
     },
     {
-      user_id: 3,
-      question_id: 4,
+      userId: 3,
+      questionId: 4,
       question:
         "Taiwan is home to 16 officially recognized indigenous groups. But did you know that their languages belong to a single language family that stretches all the way from Taiwan to the Philippines, Hawaii, New Zealand, and even Madagascar? Which language family do Taiwan’s indigenous languages belong to?",
       option: "Austronesian",
@@ -579,8 +579,8 @@ function answerData() {
       duration: 1160,
     },
     {
-      user_id: 4,
-      question_id: 4,
+      userId: 4,
+      questionId: 4,
       question:
         "Taiwan is home to 16 officially recognized indigenous groups. But did you know that their languages belong to a single language family that stretches all the way from Taiwan to the Philippines, Hawaii, New Zealand, and even Madagascar? Which language family do Taiwan’s indigenous languages belong to?",
       option: "Austronesian",
@@ -588,8 +588,8 @@ function answerData() {
       duration: 1195,
     },
     {
-      user_id: 5,
-      question_id: 4,
+      userId: 5,
+      questionId: 4,
       question:
         "Taiwan is home to 16 officially recognized indigenous groups. But did you know that their languages belong to a single language family that stretches all the way from Taiwan to the Philippines, Hawaii, New Zealand, and even Madagascar? Which language family do Taiwan’s indigenous languages belong to?",
       option: "Austronesian",
@@ -597,8 +597,8 @@ function answerData() {
       duration: 1235,
     },
     {
-      user_id: 6,
-      question_id: 4,
+      userId: 6,
+      questionId: 4,
       question:
         "Taiwan is home to 16 officially recognized indigenous groups. But did you know that their languages belong to a single language family that stretches all the way from Taiwan to the Philippines, Hawaii, New Zealand, and even Madagascar? Which language family do Taiwan’s indigenous languages belong to?",
       option: "Austronesian",
@@ -606,8 +606,8 @@ function answerData() {
       duration: 1270,
     },
     {
-      user_id: 7,
-      question_id: 4,
+      userId: 7,
+      questionId: 4,
       question:
         "Taiwan is home to 16 officially recognized indigenous groups. But did you know that their languages belong to a single language family that stretches all the way from Taiwan to the Philippines, Hawaii, New Zealand, and even Madagascar? Which language family do Taiwan’s indigenous languages belong to?",
       option: "Austronesian",
@@ -615,8 +615,8 @@ function answerData() {
       duration: 1200,
     },
     {
-      user_id: 8,
-      question_id: 4,
+      userId: 8,
+      questionId: 4,
       question:
         "Taiwan is home to 16 officially recognized indigenous groups. But did you know that their languages belong to a single language family that stretches all the way from Taiwan to the Philippines, Hawaii, New Zealand, and even Madagascar? Which language family do Taiwan’s indigenous languages belong to?",
       option: "Austronesian",
@@ -624,8 +624,8 @@ function answerData() {
       duration: 1295,
     },
     {
-      user_id: 9,
-      question_id: 4,
+      userId: 9,
+      questionId: 4,
       question:
         "Taiwan is home to 16 officially recognized indigenous groups. But did you know that their languages belong to a single language family that stretches all the way from Taiwan to the Philippines, Hawaii, New Zealand, and even Madagascar? Which language family do Taiwan’s indigenous languages belong to?",
       option: "Austronesian",
@@ -633,8 +633,8 @@ function answerData() {
       duration: 1185,
     },
     {
-      user_id: 10,
-      question_id: 4,
+      userId: 10,
+      questionId: 4,
       question:
         "Taiwan is home to 16 officially recognized indigenous groups. But did you know that their languages belong to a single language family that stretches all the way from Taiwan to the Philippines, Hawaii, New Zealand, and even Madagascar? Which language family do Taiwan’s indigenous languages belong to?",
       option: "Austronesian",
@@ -642,8 +642,8 @@ function answerData() {
       duration: 1220,
     },
     {
-      user_id: 11,
-      question_id: 4,
+      userId: 11,
+      questionId: 4,
       question:
         "Taiwan is home to 16 officially recognized indigenous groups. But did you know that their languages belong to a single language family that stretches all the way from Taiwan to the Philippines, Hawaii, New Zealand, and even Madagascar? Which language family do Taiwan’s indigenous languages belong to?",
       option: "Austronesian",
@@ -651,8 +651,8 @@ function answerData() {
       duration: 845,
     },
     {
-      user_id: 12,
-      question_id: 4,
+      userId: 12,
+      questionId: 4,
       question:
         "Taiwan is home to 16 officially recognized indigenous groups. But did you know that their languages belong to a single language family that stretches all the way from Taiwan to the Philippines, Hawaii, New Zealand, and even Madagascar? Which language family do Taiwan’s indigenous languages belong to?",
       option: "Austro-Asiatic",
@@ -660,8 +660,8 @@ function answerData() {
       duration: 765,
     },
     {
-      user_id: 13,
-      question_id: 4,
+      userId: 13,
+      questionId: 4,
       question:
         "Taiwan is home to 16 officially recognized indigenous groups. But did you know that their languages belong to a single language family that stretches all the way from Taiwan to the Philippines, Hawaii, New Zealand, and even Madagascar? Which language family do Taiwan’s indigenous languages belong to?",
       option: "Sino-Tibetan",
@@ -669,8 +669,8 @@ function answerData() {
       duration: 812,
     },
     {
-      user_id: 14,
-      question_id: 4,
+      userId: 14,
+      questionId: 4,
       question:
         "Taiwan is home to 16 officially recognized indigenous groups. But did you know that their languages belong to a single language family that stretches all the way from Taiwan to the Philippines, Hawaii, New Zealand, and even Madagascar? Which language family do Taiwan’s indigenous languages belong to?",
       option: "Austronesian",
@@ -678,8 +678,8 @@ function answerData() {
       duration: 932,
     },
     {
-      user_id: 15,
-      question_id: 4,
+      userId: 15,
+      questionId: 4,
       question:
         "Taiwan is home to 16 officially recognized indigenous groups. But did you know that their languages belong to a single language family that stretches all the way from Taiwan to the Philippines, Hawaii, New Zealand, and even Madagascar? Which language family do Taiwan’s indigenous languages belong to?",
       option: "Austro-Asiatic",
@@ -687,8 +687,8 @@ function answerData() {
       duration: 984,
     },
     {
-      user_id: 16,
-      question_id: 4,
+      userId: 16,
+      questionId: 4,
       question:
         "Taiwan is home to 16 officially recognized indigenous groups. But did you know that their languages belong to a single language family that stretches all the way from Taiwan to the Philippines, Hawaii, New Zealand, and even Madagascar? Which language family do Taiwan’s indigenous languages belong to?",
       option: "Austronesian",
@@ -696,8 +696,8 @@ function answerData() {
       duration: 756,
     },
     {
-      user_id: 17,
-      question_id: 4,
+      userId: 17,
+      questionId: 4,
       question:
         "Taiwan is home to 16 officially recognized indigenous groups. But did you know that their languages belong to a single language family that stretches all the way from Taiwan to the Philippines, Hawaii, New Zealand, and even Madagascar? Which language family do Taiwan’s indigenous languages belong to?",
       option: "Sino-Tibetan",
@@ -705,8 +705,8 @@ function answerData() {
       duration: 821,
     },
     {
-      user_id: 18,
-      question_id: 4,
+      userId: 18,
+      questionId: 4,
       question:
         "Taiwan is home to 16 officially recognized indigenous groups. But did you know that their languages belong to a single language family that stretches all the way from Taiwan to the Philippines, Hawaii, New Zealand, and even Madagascar? Which language family do Taiwan’s indigenous languages belong to?",
       option: "Austronesian",
@@ -714,8 +714,8 @@ function answerData() {
       duration: 794,
     },
     {
-      user_id: 19,
-      question_id: 4,
+      userId: 19,
+      questionId: 4,
       question:
         "Taiwan is home to 16 officially recognized indigenous groups. But did you know that their languages belong to a single language family that stretches all the way from Taiwan to the Philippines, Hawaii, New Zealand, and even Madagascar? Which language family do Taiwan’s indigenous languages belong to?",
       option: "Min",
@@ -723,8 +723,8 @@ function answerData() {
       duration: 887,
     },
     {
-      user_id: 20,
-      question_id: 4,
+      userId: 20,
+      questionId: 4,
       question:
         "Taiwan is home to 16 officially recognized indigenous groups. But did you know that their languages belong to a single language family that stretches all the way from Taiwan to the Philippines, Hawaii, New Zealand, and even Madagascar? Which language family do Taiwan’s indigenous languages belong to?",
       option: "Austronesian",
@@ -734,160 +734,160 @@ function answerData() {
 
     // Question 5: Temple Culture in Taiwan
     {
-      user_id: 1,
-      question_id: 5,
+      userId: 1,
+      questionId: 5,
       question: "Which sea goddess is the most widely worshiped deity in Taiwan, with hundreds of temples dedicated to her?",
       option: "Mazu",
       answer: null,
       duration: 1145,
     },
     {
-      user_id: 2,
-      question_id: 5,
+      userId: 2,
+      questionId: 5,
       question: "Which sea goddess is the most widely worshiped deity in Taiwan, with hundreds of temples dedicated to her?",
       option: "Guanyin",
       answer: null,
       duration: 1250,
     },
     {
-      user_id: 3,
-      question_id: 5,
+      userId: 3,
+      questionId: 5,
       question: "Which sea goddess is the most widely worshiped deity in Taiwan, with hundreds of temples dedicated to her?",
       option: "Mazu",
       answer: null,
       duration: 1195,
     },
     {
-      user_id: 4,
-      question_id: 5,
+      userId: 4,
+      questionId: 5,
       question: "Which sea goddess is the most widely worshiped deity in Taiwan, with hundreds of temples dedicated to her?",
       option: "Mazu",
       answer: null,
       duration: 1220,
     },
     {
-      user_id: 5,
-      question_id: 5,
+      userId: 5,
+      questionId: 5,
       question: "Which sea goddess is the most widely worshiped deity in Taiwan, with hundreds of temples dedicated to her?",
       option: "Guanyin",
       answer: null,
       duration: 1160,
     },
     {
-      user_id: 6,
-      question_id: 5,
+      userId: 6,
+      questionId: 5,
       question: "Which sea goddess is the most widely worshiped deity in Taiwan, with hundreds of temples dedicated to her?",
       option: "Mazu",
       answer: null,
       duration: 1280,
     },
     {
-      user_id: 7,
-      question_id: 5,
+      userId: 7,
+      questionId: 5,
       question: "Which sea goddess is the most widely worshiped deity in Taiwan, with hundreds of temples dedicated to her?",
       option: "Mazu",
       answer: null,
       duration: 1310,
     },
     {
-      user_id: 8,
-      question_id: 5,
+      userId: 8,
+      questionId: 5,
       question: "Which sea goddess is the most widely worshiped deity in Taiwan, with hundreds of temples dedicated to her?",
       option: "Mazu",
       answer: null,
       duration: 1200,
     },
     {
-      user_id: 9,
-      question_id: 5,
+      userId: 9,
+      questionId: 5,
       question: "Which sea goddess is the most widely worshiped deity in Taiwan, with hundreds of temples dedicated to her?",
       option: "Mazu",
       answer: null,
       duration: 1265,
     },
     {
-      user_id: 10,
-      question_id: 5,
+      userId: 10,
+      questionId: 5,
       question: "Which sea goddess is the most widely worshiped deity in Taiwan, with hundreds of temples dedicated to her?",
       option: "Guanyin",
       answer: null,
       duration: 1180,
     },
     {
-      user_id: 11,
-      question_id: 5,
+      userId: 11,
+      questionId: 5,
       question: "Which sea goddess is the most widely worshiped deity in Taiwan, with hundreds of temples dedicated to her?",
       option: "Mazu",
       answer: null,
       duration: 1275,
     },
     {
-      user_id: 12,
-      question_id: 5,
+      userId: 12,
+      questionId: 5,
       question: "Which sea goddess is the most widely worshiped deity in Taiwan, with hundreds of temples dedicated to her?",
       option: "Mazu",
       answer: null,
       duration: 1290,
     },
     {
-      user_id: 13,
-      question_id: 5,
+      userId: 13,
+      questionId: 5,
       question: "Which sea goddess is the most widely worshiped deity in Taiwan, with hundreds of temples dedicated to her?",
       option: "Mazu",
       answer: null,
       duration: 1165,
     },
     {
-      user_id: 14,
-      question_id: 5,
+      userId: 14,
+      questionId: 5,
       question: "Which sea goddess is the most widely worshiped deity in Taiwan, with hundreds of temples dedicated to her?",
       option: "Guanyin",
       answer: null,
       duration: 1245,
     },
     {
-      user_id: 15,
-      question_id: 5,
+      userId: 15,
+      questionId: 5,
       question: "Which sea goddess is the most widely worshiped deity in Taiwan, with hundreds of temples dedicated to her?",
       option: "Mazu",
       answer: null,
       duration: 1215,
     },
     {
-      user_id: 16,
-      question_id: 5,
+      userId: 16,
+      questionId: 5,
       question: "Which sea goddess is the most widely worshiped deity in Taiwan, with hundreds of temples dedicated to her?",
       option: "Mazu",
       answer: null,
       duration: 1340,
     },
     {
-      user_id: 17,
-      question_id: 5,
+      userId: 17,
+      questionId: 5,
       question: "Which sea goddess is the most widely worshiped deity in Taiwan, with hundreds of temples dedicated to her?",
       option: "Mazu",
       answer: null,
       duration: 1280,
     },
     {
-      user_id: 18,
-      question_id: 5,
+      userId: 18,
+      questionId: 5,
       question: "Which sea goddess is the most widely worshiped deity in Taiwan, with hundreds of temples dedicated to her?",
       option: "Mazu",
       answer: null,
       duration: 1300,
     },
     {
-      user_id: 19,
-      question_id: 5,
+      userId: 19,
+      questionId: 5,
       question: "Which sea goddess is the most widely worshiped deity in Taiwan, with hundreds of temples dedicated to her?",
       option: "Mazu",
       answer: null,
       duration: 1190,
     },
     {
-      user_id: 20,
-      question_id: 5,
+      userId: 20,
+      questionId: 5,
       question: "Which sea goddess is the most widely worshiped deity in Taiwan, with hundreds of temples dedicated to her?",
       option: "Mazu",
       answer: null,
@@ -896,154 +896,154 @@ function answerData() {
 
     // Question 6: Language of Taiwan
 
-    { user_id: 1, question_id: 6, question: "What is the official language of Taiwan?", option: null, answer: "Mandarin Chinese", duration: 578 },
+    { userId: 1, questionId: 6, question: "What is the official language of Taiwan?", option: null, answer: "Mandarin Chinese", duration: 578 },
     {
-      user_id: 2,
-      question_id: 6,
+      userId: 2,
+      questionId: 6,
       question: "What is the official language of Taiwan?",
       option: null,
       answer: "Mandarin, but a lot of people also speak Taiwanese.",
       duration: 432,
     },
     {
-      user_id: 3,
-      question_id: 6,
+      userId: 3,
+      questionId: 6,
       question: "What is the official language of Taiwan?",
       option: null,
       answer: "I think it's Mandarin? Not sure if Taiwanese counts.",
       duration: 587,
     },
     {
-      user_id: 4,
-      question_id: 6,
+      userId: 4,
+      questionId: 6,
       question: "What is the official language of Taiwan?",
       option: null,
       answer: "Taiwanese? Or maybe Mandarin?",
       duration: 501,
     },
     {
-      user_id: 5,
-      question_id: 6,
+      userId: 5,
+      questionId: 6,
       question: "What is the official language of Taiwan?",
       option: null,
       answer: "Pretty sure it's Chinese, but which kind... Mandarin?",
       duration: 468,
     },
     {
-      user_id: 6,
-      question_id: 6,
+      userId: 6,
+      questionId: 6,
       question: "What is the official language of Taiwan?",
       option: null,
       answer: "Officially Mandarin, but people speak different languages.",
       duration: 512,
     },
     {
-      user_id: 7,
-      question_id: 6,
+      userId: 7,
+      questionId: 6,
       question: "What is the official language of Taiwan?",
       option: null,
       answer: "Isn't it Taiwanese? Or is that just a dialect?",
       duration: 462,
     },
     {
-      user_id: 8,
-      question_id: 6,
+      userId: 8,
+      questionId: 6,
       question: "What is the official language of Taiwan?",
       option: null,
       answer: "I thought it was Japanese a long time ago?",
       duration: 589,
     },
     {
-      user_id: 9,
-      question_id: 6,
+      userId: 9,
+      questionId: 6,
       question: "What is the official language of Taiwan?",
       option: null,
       answer: "Mandarin, but Hokkien and Hakka are also common.",
       duration: 537,
     },
     {
-      user_id: 10,
-      question_id: 6,
+      userId: 10,
+      questionId: 6,
       question: "What is the official language of Taiwan?",
       option: null,
       answer: "No idea, but people here seem to speak Mandarin.",
       duration: 560,
     },
     {
-      user_id: 11,
-      question_id: 6,
+      userId: 11,
+      questionId: 6,
       question: "What is the official language of Taiwan?",
       option: null,
       answer: "It should be Mandarin, right?",
       duration: 481,
     },
     {
-      user_id: 12,
-      question_id: 6,
+      userId: 12,
+      questionId: 6,
       question: "What is the official language of Taiwan?",
       option: null,
       answer: "Some kind of Chinese, but I’m not sure which one.",
       duration: 453,
     },
     {
-      user_id: 13,
-      question_id: 6,
+      userId: 13,
+      questionId: 6,
       question: "What is the official language of Taiwan?",
       option: null,
       answer: "I guess it’s Mandarin, but I hear people speaking other things too.",
       duration: 490,
     },
     {
-      user_id: 14,
-      question_id: 6,
+      userId: 14,
+      questionId: 6,
       question: "What is the official language of Taiwan?",
       option: null,
       answer: "Either Mandarin or Taiwanese… not sure which is official.",
       duration: 532,
     },
     {
-      user_id: 15,
-      question_id: 6,
+      userId: 15,
+      questionId: 6,
       question: "What is the official language of Taiwan?",
       option: null,
       answer: "Mandarin? But I heard older people speaking something else.",
       duration: 477,
     },
     {
-      user_id: 16,
-      question_id: 6,
+      userId: 16,
+      questionId: 6,
       question: "What is the official language of Taiwan?",
       option: null,
       answer: "I always thought it was Hokkien, but I could be wrong.",
       duration: 509,
     },
     {
-      user_id: 17,
-      question_id: 6,
+      userId: 17,
+      questionId: 6,
       question: "What is the official language of Taiwan?",
       option: null,
       answer: "Isn't it just Chinese? Wait, is Mandarin different from Chinese?",
       duration: 523,
     },
     {
-      user_id: 18,
-      question_id: 6,
+      userId: 18,
+      questionId: 6,
       question: "What is the official language of Taiwan?",
       option: null,
       answer: "I think it’s Mandarin, but does English count?",
       duration: 487,
     },
     {
-      user_id: 19,
-      question_id: 6,
+      userId: 19,
+      questionId: 6,
       question: "What is the official language of Taiwan?",
       option: null,
       answer: "Maybe it's a mix of Mandarin and other local languages?",
       duration: 472,
     },
     {
-      user_id: 20,
-      question_id: 6,
+      userId: 20,
+      questionId: 6,
       question: "What is the official language of Taiwan?",
       option: null,
       answer: "Not sure… Taiwanese sounds like a language, but Mandarin is spoken more.",
@@ -1057,160 +1057,160 @@ module.exports = { createAnswer };
 // Question 7: What is your favorite actor?
 
 // {
-//   "user_id": 1,
-//   "question_id": 7,
+//   "userId": 1,
+//   "questionId": 7,
 //   "question": "What is your favorite actor?",
 //   "option": null,
 //   "answer": "Brad Pitt",
 //   "duration": 432
 // },
 // {
-//   "user_id": 2,
-//   "question_id": 7,
+//   "userId": 2,
+//   "questionId": 7,
 //   "question": "What is your favorite actor?",
 //   "option": null,
 //   "answer": "Leonardo DiCaprio",
 //   "duration": 387
 // },
 // {
-//   "user_id": 3,
-//   "question_id": 7,
+//   "userId": 3,
+//   "questionId": 7,
 //   "question": "What is your favorite actor?",
 //   "option": null,
 //   "answer": "Tom Hanks",
 //   "duration": 400
 // },
 // {
-//   "user_id": 4,
-//   "question_id": 7,
+//   "userId": 4,
+//   "questionId": 7,
 //   "question": "What is your favorite actor?",
 //   "option": null,
 //   "answer": "Brad Pitt",
 //   "duration": 412
 // },
 // {
-//   "user_id": 5,
-//   "question_id": 7,
+//   "userId": 5,
+//   "questionId": 7,
 //   "question": "What is your favorite actor?",
 //   "option": null,
 //   "answer": "Meryl Streep",
 //   "duration": 450
 // },
 // {
-//   "user_id": 6,
-//   "question_id": 7,
+//   "userId": 6,
+//   "questionId": 7,
 //   "question": "What is your favorite actor?",
 //   "option": null,
 //   "answer": "Scarlett Johansson",
 //   "duration": 415
 // },
 // {
-//   "user_id": 7,
-//   "question_id": 7,
+//   "userId": 7,
+//   "questionId": 7,
 //   "question": "What is your favorite actor?",
 //   "option": null,
 //   "answer": "Johnny Depp",
 //   "duration": 475
 // },
 // {
-//   "user_id": 8,
-//   "question_id": 7,
+//   "userId": 8,
+//   "questionId": 7,
 //   "question": "What is your favorite actor?",
 //   "option": null,
 //   "answer": "Will Smith",
 //   "duration": 420
 // },
 // {
-//   "user_id": 9,
-//   "question_id": 7,
+//   "userId": 9,
+//   "questionId": 7,
 //   "question": "What is your favorite actor?",
 //   "option": null,
 //   "answer": "Brad Pitt",
 //   "duration": 430
 // },
 // {
-//   "user_id": 10,
-//   "question_id": 7,
+//   "userId": 10,
+//   "questionId": 7,
 //   "question": "What is your favorite actor?",
 //   "option": null,
 //   "answer": "Morgan Freeman",
 //   "duration": 460
 // },
 // {
-//   "user_id": 11,
-//   "question_id": 7,
+//   "userId": 11,
+//   "questionId": 7,
 //   "question": "What is your favorite actor?",
 //   "option": null,
 //   "answer": "Chris Hemsworth",
 //   "duration": 395
 // },
 // {
-//   "user_id": 12,
-//   "question_id": 7,
+//   "userId": 12,
+//   "questionId": 7,
 //   "question": "What is your favorite actor?",
 //   "option": null,
 //   "answer": "Brad Pitt",
 //   "duration": 440
 // },
 // {
-//   "user_id": 13,
-//   "question_id": 7,
+//   "userId": 13,
+//   "questionId": 7,
 //   "question": "What is your favorite actor?",
 //   "option": null,
 //   "answer": "Emma Stone",
 //   "duration": 455
 // },
 // {
-//   "user_id": 14,
-//   "question_id": 7,
+//   "userId": 14,
+//   "questionId": 7,
 //   "question": "What is your favorite actor?",
 //   "option": null,
 //   "answer": "Dwayne Johnson",
 //   "duration": 470
 // },
 // {
-//   "user_id": 15,
-//   "question_id": 7,
+//   "userId": 15,
+//   "questionId": 7,
 //   "question": "What is your favorite actor?",
 //   "option": null,
 //   "answer": "Cate Blanchett",
 //   "duration": 430
 // },
 // {
-//   "user_id": 16,
-//   "question_id": 7,
+//   "userId": 16,
+//   "questionId": 7,
 //   "question": "What is your favorite actor?",
 //   "option": null,
 //   "answer": "Ryan Reynolds",
 //   "duration": 460
 // },
 // {
-//   "user_id": 17,
-//   "question_id": 7,
+//   "userId": 17,
+//   "questionId": 7,
 //   "question": "What is your favorite actor?",
 //   "option": null,
 //   "answer": "Brad Pitt",
 //   "duration": 410
 // },
 // {
-//   "user_id": 18,
-//   "question_id": 7,
+//   "userId": 18,
+//   "questionId": 7,
 //   "question": "What is your favorite actor?",
 //   "option": null,
 //   "answer": "Keanu Reeves",
 //   "duration": 420
 // },
 // {
-//   "user_id": 19,
-//   "question_id": 7,
+//   "userId": 19,
+//   "questionId": 7,
 //   "question": "What is your favorite actor?",
 //   "option": null,
 //   "answer": "Brad Pitt",
 //   "duration": 450
 // },
 // {
-//   "user_id": 20,
-//   "question_id": 7,
+//   "userId": 20,
+//   "questionId": 7,
 //   "question": "What is your favorite actor?",
 //   "option": null,
 //   "answer": "Hugh Jackman",
@@ -1218,24 +1218,24 @@ module.exports = { createAnswer };
 // }
 
 // [
-//   { "user_id": 1, "ans": ["Taipei", "Yushan", "Pingxi", "Austronesian", "Mazu"] },
-//   { "user_id": 2, "ans": ["Taichung", "Alishan", "Kenting", "Austronesian", "Guanyin"] },
-//   { "user_id": 3, "ans": ["Taipei", "Yushan", "Pingxi", "Austronesian", "Mazu"] },
-//   { "user_id": 4, "ans": ["Tainan", "Yushan", "Tamsui", "Austronesian", "Mazu"] },
-//   { "user_id": 5, "ans": ["Taichung", "Yushan", "Pingxi", "Austronesian", "Guanyin"] },
-//   { "user_id": 6, "ans": ["Taipei", "Yushan", "Pingxi", "Austronesian", "Mazu"] },
-//   { "user_id": 7, "ans": ["Taidong", "Yushan", "Pingxi", "Austronesian", "Mazu"] },
-//   { "user_id": 8, "ans": ["Tainan", "Alishan", "Kenting", "Austronesian", "Mazu"] },
-//   { "user_id": 9, "ans": ["Taipei", "Yushan", "Tamsui", "Austronesian", "Mazu"] },
-//   { "user_id": 10, "ans": ["Taipei", "Yushan", "Pingxi", "Austronesian", "Guanyin"] },
-//   { "user_id": 11, "ans": ["Taichung", "Alishan", "Pingxi", "Austro-Asiatic", "Mazu"] },
-//   { "user_id": 12, "ans": ["Taipei", "Yushan", "Pingxi", "Austro-Asiatic", "Mazu"] },
-//   { "user_id": 13, "ans": ["Taidong", "Yushan", "Pingxi", "Sino-Tibetan", "Mazu"] },
-//   { "user_id": 14, "ans": ["Tainan", "Yushan", "Tamsui", "Austronesian", "Guanyin"] },
-//   { "user_id": 15, "ans": ["Taichung", "Yushan", "Pingxi", "Austro-Asiatic", "Mazu"] },
-//   { "user_id": 16, "ans": ["Taipei", "Yushan", "Pingxi", "Austronesian", "Mazu"] },
-//   { "user_id": 17, "ans": ["Taipei", "Yushan", "Pingxi", "Sino-Tibetan", "Mazu"] },
-//   { "user_id": 18, "ans": ["Taichung", "Yushan", "Pingxi", "Austronesian", "Mazu"] },
-//   { "user_id": 19, "ans": ["Taidong", "Yushan", "Pingxi", "Min", "Mazu"] },
-//   { "user_id": 20, "ans": ["Taipei", "Yushan", "Kenting", "Austronesian", "Mazu"] }
+//   { "userId": 1, "ans": ["Taipei", "Yushan", "Pingxi", "Austronesian", "Mazu"] },
+//   { "userId": 2, "ans": ["Taichung", "Alishan", "Kenting", "Austronesian", "Guanyin"] },
+//   { "userId": 3, "ans": ["Taipei", "Yushan", "Pingxi", "Austronesian", "Mazu"] },
+//   { "userId": 4, "ans": ["Tainan", "Yushan", "Tamsui", "Austronesian", "Mazu"] },
+//   { "userId": 5, "ans": ["Taichung", "Yushan", "Pingxi", "Austronesian", "Guanyin"] },
+//   { "userId": 6, "ans": ["Taipei", "Yushan", "Pingxi", "Austronesian", "Mazu"] },
+//   { "userId": 7, "ans": ["Taidong", "Yushan", "Pingxi", "Austronesian", "Mazu"] },
+//   { "userId": 8, "ans": ["Tainan", "Alishan", "Kenting", "Austronesian", "Mazu"] },
+//   { "userId": 9, "ans": ["Taipei", "Yushan", "Tamsui", "Austronesian", "Mazu"] },
+//   { "userId": 10, "ans": ["Taipei", "Yushan", "Pingxi", "Austronesian", "Guanyin"] },
+//   { "userId": 11, "ans": ["Taichung", "Alishan", "Pingxi", "Austro-Asiatic", "Mazu"] },
+//   { "userId": 12, "ans": ["Taipei", "Yushan", "Pingxi", "Austro-Asiatic", "Mazu"] },
+//   { "userId": 13, "ans": ["Taidong", "Yushan", "Pingxi", "Sino-Tibetan", "Mazu"] },
+//   { "userId": 14, "ans": ["Tainan", "Yushan", "Tamsui", "Austronesian", "Guanyin"] },
+//   { "userId": 15, "ans": ["Taichung", "Yushan", "Pingxi", "Austro-Asiatic", "Mazu"] },
+//   { "userId": 16, "ans": ["Taipei", "Yushan", "Pingxi", "Austronesian", "Mazu"] },
+//   { "userId": 17, "ans": ["Taipei", "Yushan", "Pingxi", "Sino-Tibetan", "Mazu"] },
+//   { "userId": 18, "ans": ["Taichung", "Yushan", "Pingxi", "Austronesian", "Mazu"] },
+//   { "userId": 19, "ans": ["Taidong", "Yushan", "Pingxi", "Min", "Mazu"] },
+//   { "userId": 20, "ans": ["Taipei", "Yushan", "Kenting", "Austronesian", "Mazu"] }
 // ]

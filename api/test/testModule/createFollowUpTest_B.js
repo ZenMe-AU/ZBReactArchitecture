@@ -4,10 +4,10 @@ const eventUrl = new URL("/api/getEventByCorrelationId", baseUrl);
 const followUpQuestionQty = 5;
 
 const checkShareQuestion = (profileIdLookup, testCorrelationId) => {
-  test.each(shareQuestionData())("check shared question by user $user_id", async (shared) => {
+  test.each(shareQuestionData())("check shared question by user $userId", async (shared) => {
     let qty = 0;
     for (let i = 0; i < 5; i++) {
-      const response = await fetch(profileUrl + "/" + profileIdLookup.getProfileId(shared.user_id) + "/sharedQuestion", { method: "GET" });
+      const response = await fetch(profileUrl + "/" + profileIdLookup.getProfileId(shared.userId) + "/sharedQuestion", { method: "GET" });
       let resultData = await response.json();
       qty = resultData.return.list.length;
       if (qty === shared.count) {
@@ -46,25 +46,25 @@ const checkFollowUpQty = (testCorrelationId) => {
 
 function shareQuestionData() {
   return [
-    { user_id: 2, count: 1 },
-    { user_id: 3, count: 5 },
-    { user_id: 4, count: 3 },
-    { user_id: 5, count: 3 },
-    { user_id: 6, count: 5 },
-    { user_id: 7, count: 4 },
-    { user_id: 8, count: 2 },
-    { user_id: 9, count: 4 },
-    { user_id: 10, count: 4 },
-    { user_id: 11, count: 3 },
-    { user_id: 12, count: 4 },
-    { user_id: 13, count: 3 },
-    { user_id: 14, count: 2 },
-    { user_id: 15, count: 3 },
-    { user_id: 16, count: 5 },
-    { user_id: 17, count: 4 },
-    { user_id: 18, count: 4 },
-    { user_id: 19, count: 3 },
-    { user_id: 20, count: 4 },
+    { userId: 2, count: 1 },
+    { userId: 3, count: 5 },
+    { userId: 4, count: 3 },
+    { userId: 5, count: 3 },
+    { userId: 6, count: 5 },
+    { userId: 7, count: 4 },
+    { userId: 8, count: 2 },
+    { userId: 9, count: 4 },
+    { userId: 10, count: 4 },
+    { userId: 11, count: 3 },
+    { userId: 12, count: 4 },
+    { userId: 13, count: 3 },
+    { userId: 14, count: 2 },
+    { userId: 15, count: 3 },
+    { userId: 16, count: 5 },
+    { userId: 17, count: 4 },
+    { userId: 18, count: 4 },
+    { userId: 19, count: 3 },
+    { userId: 20, count: 4 },
   ];
 }
 

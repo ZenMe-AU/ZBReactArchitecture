@@ -219,10 +219,10 @@ async function insertFollowUpFilter(cmdData) {
         return {
           id: filterId,
           order: i + 1,
-          senderProfileId: cmdData["profile_id"],
-          refQuestionId: filter.question_id,
+          senderProfileId: cmdData["profileId"],
+          refQuestionId: filter.questionId,
           refOption: filter.option,
-          newQuestionId: cmdData.new_question_id,
+          newQuestionId: cmdData.newQuestionId,
         };
       });
       return await FollowUpFilter.bulkCreate(filterDataAry);
@@ -237,9 +237,9 @@ async function getFollowUpReceiver(cmdData) {
   try {
     const filterReceiverIdAry = await Promise.all(
       cmdData.question.map(async function (filter) {
-        const ansList = await getAnswerListByQuestionId(filter.question_id);
+        const ansList = await getAnswerListByQuestionId(filter.questionId);
         return ansList.reduce((acc, ans) => {
-          if (ans.profileId !== cmdData["profile_id"] && filter.option.includes(ans.optionId)) {
+          if (ans.profileId !== cmdData["profileId"] && filter.option.includes(ans.optionId)) {
             acc.push(ans.profileId);
           }
           return acc;
