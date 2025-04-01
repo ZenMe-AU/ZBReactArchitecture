@@ -5,6 +5,7 @@ const createAnswer = (profileIdLookup, questionIdLookup) => {
   test.each(answerData())("answer question $question_id by user $user_id", async (a) => {
     const response = await fetch(questionUrl + "/" + questionIdLookup.getQuestionId(a.question_id) + "/answer", {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         profile_id: profileIdLookup.getProfileId(a.user_id),
         question: a.question,
@@ -1052,3 +1053,189 @@ function answerData() {
 }
 
 module.exports = { createAnswer };
+
+// Question 7: What is your favorite actor?
+
+// {
+//   "user_id": 1,
+//   "question_id": 7,
+//   "question": "What is your favorite actor?",
+//   "option": null,
+//   "answer": "Brad Pitt",
+//   "duration": 432
+// },
+// {
+//   "user_id": 2,
+//   "question_id": 7,
+//   "question": "What is your favorite actor?",
+//   "option": null,
+//   "answer": "Leonardo DiCaprio",
+//   "duration": 387
+// },
+// {
+//   "user_id": 3,
+//   "question_id": 7,
+//   "question": "What is your favorite actor?",
+//   "option": null,
+//   "answer": "Tom Hanks",
+//   "duration": 400
+// },
+// {
+//   "user_id": 4,
+//   "question_id": 7,
+//   "question": "What is your favorite actor?",
+//   "option": null,
+//   "answer": "Brad Pitt",
+//   "duration": 412
+// },
+// {
+//   "user_id": 5,
+//   "question_id": 7,
+//   "question": "What is your favorite actor?",
+//   "option": null,
+//   "answer": "Meryl Streep",
+//   "duration": 450
+// },
+// {
+//   "user_id": 6,
+//   "question_id": 7,
+//   "question": "What is your favorite actor?",
+//   "option": null,
+//   "answer": "Scarlett Johansson",
+//   "duration": 415
+// },
+// {
+//   "user_id": 7,
+//   "question_id": 7,
+//   "question": "What is your favorite actor?",
+//   "option": null,
+//   "answer": "Johnny Depp",
+//   "duration": 475
+// },
+// {
+//   "user_id": 8,
+//   "question_id": 7,
+//   "question": "What is your favorite actor?",
+//   "option": null,
+//   "answer": "Will Smith",
+//   "duration": 420
+// },
+// {
+//   "user_id": 9,
+//   "question_id": 7,
+//   "question": "What is your favorite actor?",
+//   "option": null,
+//   "answer": "Brad Pitt",
+//   "duration": 430
+// },
+// {
+//   "user_id": 10,
+//   "question_id": 7,
+//   "question": "What is your favorite actor?",
+//   "option": null,
+//   "answer": "Morgan Freeman",
+//   "duration": 460
+// },
+// {
+//   "user_id": 11,
+//   "question_id": 7,
+//   "question": "What is your favorite actor?",
+//   "option": null,
+//   "answer": "Chris Hemsworth",
+//   "duration": 395
+// },
+// {
+//   "user_id": 12,
+//   "question_id": 7,
+//   "question": "What is your favorite actor?",
+//   "option": null,
+//   "answer": "Brad Pitt",
+//   "duration": 440
+// },
+// {
+//   "user_id": 13,
+//   "question_id": 7,
+//   "question": "What is your favorite actor?",
+//   "option": null,
+//   "answer": "Emma Stone",
+//   "duration": 455
+// },
+// {
+//   "user_id": 14,
+//   "question_id": 7,
+//   "question": "What is your favorite actor?",
+//   "option": null,
+//   "answer": "Dwayne Johnson",
+//   "duration": 470
+// },
+// {
+//   "user_id": 15,
+//   "question_id": 7,
+//   "question": "What is your favorite actor?",
+//   "option": null,
+//   "answer": "Cate Blanchett",
+//   "duration": 430
+// },
+// {
+//   "user_id": 16,
+//   "question_id": 7,
+//   "question": "What is your favorite actor?",
+//   "option": null,
+//   "answer": "Ryan Reynolds",
+//   "duration": 460
+// },
+// {
+//   "user_id": 17,
+//   "question_id": 7,
+//   "question": "What is your favorite actor?",
+//   "option": null,
+//   "answer": "Brad Pitt",
+//   "duration": 410
+// },
+// {
+//   "user_id": 18,
+//   "question_id": 7,
+//   "question": "What is your favorite actor?",
+//   "option": null,
+//   "answer": "Keanu Reeves",
+//   "duration": 420
+// },
+// {
+//   "user_id": 19,
+//   "question_id": 7,
+//   "question": "What is your favorite actor?",
+//   "option": null,
+//   "answer": "Brad Pitt",
+//   "duration": 450
+// },
+// {
+//   "user_id": 20,
+//   "question_id": 7,
+//   "question": "What is your favorite actor?",
+//   "option": null,
+//   "answer": "Hugh Jackman",
+//   "duration": 430
+// }
+
+// [
+//   { "user_id": 1, "ans": ["Taipei", "Yushan", "Pingxi", "Austronesian", "Mazu"] },
+//   { "user_id": 2, "ans": ["Taichung", "Alishan", "Kenting", "Austronesian", "Guanyin"] },
+//   { "user_id": 3, "ans": ["Taipei", "Yushan", "Pingxi", "Austronesian", "Mazu"] },
+//   { "user_id": 4, "ans": ["Tainan", "Yushan", "Tamsui", "Austronesian", "Mazu"] },
+//   { "user_id": 5, "ans": ["Taichung", "Yushan", "Pingxi", "Austronesian", "Guanyin"] },
+//   { "user_id": 6, "ans": ["Taipei", "Yushan", "Pingxi", "Austronesian", "Mazu"] },
+//   { "user_id": 7, "ans": ["Taidong", "Yushan", "Pingxi", "Austronesian", "Mazu"] },
+//   { "user_id": 8, "ans": ["Tainan", "Alishan", "Kenting", "Austronesian", "Mazu"] },
+//   { "user_id": 9, "ans": ["Taipei", "Yushan", "Tamsui", "Austronesian", "Mazu"] },
+//   { "user_id": 10, "ans": ["Taipei", "Yushan", "Pingxi", "Austronesian", "Guanyin"] },
+//   { "user_id": 11, "ans": ["Taichung", "Alishan", "Pingxi", "Austro-Asiatic", "Mazu"] },
+//   { "user_id": 12, "ans": ["Taipei", "Yushan", "Pingxi", "Austro-Asiatic", "Mazu"] },
+//   { "user_id": 13, "ans": ["Taidong", "Yushan", "Pingxi", "Sino-Tibetan", "Mazu"] },
+//   { "user_id": 14, "ans": ["Tainan", "Yushan", "Tamsui", "Austronesian", "Guanyin"] },
+//   { "user_id": 15, "ans": ["Taichung", "Yushan", "Pingxi", "Austro-Asiatic", "Mazu"] },
+//   { "user_id": 16, "ans": ["Taipei", "Yushan", "Pingxi", "Austronesian", "Mazu"] },
+//   { "user_id": 17, "ans": ["Taipei", "Yushan", "Pingxi", "Sino-Tibetan", "Mazu"] },
+//   { "user_id": 18, "ans": ["Taichung", "Yushan", "Pingxi", "Austronesian", "Mazu"] },
+//   { "user_id": 19, "ans": ["Taidong", "Yushan", "Pingxi", "Min", "Mazu"] },
+//   { "user_id": 20, "ans": ["Taipei", "Yushan", "Kenting", "Austronesian", "Mazu"] }
+// ]

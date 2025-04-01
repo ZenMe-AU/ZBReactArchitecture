@@ -48,7 +48,7 @@ async function loginUser(request, context) {
   // Generate JWT
   const token = generateToken({ profileId: profile.id });
 
-  return { jsonBody: { return: { token } } };
+  return { return: { token } };
 }
 
 /**
@@ -116,7 +116,7 @@ async function verify(request, context) {
       // return request.status(404).json({ error: "User not found" });
     }
 
-    return { jsonBody: { detail: profile } };
+    return { return: { detail: profile } };
   } catch (error) {
     context.log("in");
     return { status: 401 };

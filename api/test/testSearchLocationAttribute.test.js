@@ -43,6 +43,7 @@ describe("test attribute data", () => {
       case "createUser":
         response = await fetch(profileUrl, {
           method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             name: "user" + t.user_id,
             avatar: t.avatar,
@@ -59,6 +60,7 @@ describe("test attribute data", () => {
         let nCoord = genRandomLocation(coord.lon, coord.lat, t.maxDistance, t.minDistance);
         response = await fetch(locationWriteUrl, {
           method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             topic: "owntracks/test/genbtn",
             _type: "location",
@@ -89,7 +91,6 @@ describe("test attribute data", () => {
         method: "GET",
         headers: {
           Accept: "application/json",
-          "Content-Type": "application/json",
           "Access-Control-Allow-Origin": "*",
         },
       });
@@ -110,7 +111,6 @@ async function checkUsersQty(url, urlParams) {
     method: "get",
     headers: {
       Accept: "application/json",
-      "Content-Type": "application/json",
       "Access-Control-Allow-Origin": "*",
     },
   });

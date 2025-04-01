@@ -52,14 +52,9 @@ const { sendMessageToQueue } = require("../shared/service/function.js");
  *                       example: 123
  */
 async function CreateQuestion(request, context) {
-  const bodyText = await request.text();
-  const bodyJson = JSON.parse(bodyText);
-  let profileId = bodyJson["profile_id"];
-  let title = bodyJson["title"] || null;
-  let option = bodyJson["option"] || null;
-  let question = bodyJson["question"];
-  let questionnaire = await Question.create(profileId, title, question, option);
-  return { jsonBody: { return: { id: questionnaire.id } } };
+  const { profile_id: profileId, title = null, option = null, question } = request.clientParams;
+  const questionnaire = await Question.create(profileId, title, question, option);
+  return { return: { id: questionnaire.id } };
 }
 
 /**
@@ -118,13 +113,10 @@ async function CreateQuestion(request, context) {
  *                       example: 1
  */
 async function UpdateQuestionById(request, context) {
-  const questionId = request.params.id;
-  const bodyJson = JSON.parse(await request.text());
-  let title = bodyJson["title"] || null;
-  let option = bodyJson["option"] || null;
-  let questionText = bodyJson["question"];
-  let question = await Question.updateById(questionId, title, questionText, option);
-  return { jsonBody: { return: { id: question.id } } };
+  const { id: questionId } = request.params;
+  const { title = null, option = null, question: questionText } = request.clientParams;
+  const question = await Question.updateById(questionId, title, questionText, option);
+  return { return: { id: question.id } };
 }
 
 /**
@@ -158,9 +150,9 @@ async function UpdateQuestionById(request, context) {
  *                       description: Details of the questionnaire.
  */
 async function GetQuestionById(request, context) {
-  const questionId = request.params.id;
-  let questionnaire = await Question.getById(questionId);
-  return { jsonBody: { return: { detail: questionnaire } } };
+  const { id: questionId } = request.params;
+  const questionnaire = await Question.getById(questionId);
+  return { return: { detail: questionnaire } };
 }
 
 /**
@@ -214,15 +206,10 @@ async function GetQuestionById(request, context) {
  *                       example: 456
  */
 async function AddAnswer(request, context) {
-  const questionId = request.params.id;
-  const bodyText = await request.text();
-  const bodyJson = JSON.parse(bodyText);
-  let profileId = bodyJson["profile_id"];
-  let answer = bodyJson["answer"] || null;
-  let option = bodyJson["option"] || null;
-  let duration = bodyJson["duration"];
-  let questionnaire = await Question.addAnswerByQuestionId(questionId, profileId, duration, answer, option);
-  return { jsonBody: { return: { id: questionnaire.id } } };
+  const { id: questionId } = request.params;
+  const { profile_id: profileId, answer = null, option = null, duration } = request.clientParams;
+  const questionnaire = await Question.addAnswerByQuestionId(questionId, profileId, duration, answer, option);
+  return { return: { id: questionnaire.id } };
 }
 
 /**
@@ -264,10 +251,9 @@ async function AddAnswer(request, context) {
  *                       description: Details of the answer.
  */
 async function GetAnswerById(request, context) {
-  const questionId = request.params.id;
-  const answerId = request.params.answerId;
-  let answer = await Question.getAnswerById(questionId, answerId);
-  return { jsonBody: { return: { detail: answer } } };
+  const { id: questionId, answerId } = request.params;
+  const answer = await Question.getAnswerById(questionId, answerId);
+  return { return: { detail: answer } };
 }
 
 /**
@@ -328,9 +314,9 @@ async function GetAnswerById(request, context) {
  *                             example: "2024-12-18T13:05:14.411Z"
  */
 async function GetQuestionListByUser(request, context) {
-  const profileId = request.params.profileId;
-  let question = await Question.getCombinationListByUser(profileId);
-  return { jsonBody: { return: { list: question } } };
+  const { profileId } = request.params;
+  const question = await Question.getCombinationListByUser(profileId);
+  return { return: { list: question } };
 }
 
 /**
@@ -407,12 +393,12 @@ async function GetQuestionListByUser(request, context) {
  *                             example: "2025-02-15T15:42:36.892Z"
  */
 async function GetAnswerListByQuestionId(request, context) {
-  const questionId = request.params.id;
+  const { id: questionId } = request.params;
   const authorization = request.headers.get("authorization");
   const token = authorization.split(" ")[1];
   const decoded = decode(token);
   const profileId = decoded.profileId;
-  let answers = await Question.getAnswerListByQuestionId(questionId);
+  const answers = await Question.getAnswerListByQuestionId(questionId);
   const processedAnswers = answers.map((ans) => {
     return {
       ...ans,
@@ -421,7 +407,7 @@ async function GetAnswerListByQuestionId(request, context) {
       answerCount: undefined,
     };
   });
-  return { jsonBody: { return: { list: processedAnswers } } };
+  return { return: { list: processedAnswers } };
 }
 
 /**
@@ -477,12 +463,10 @@ async function GetAnswerListByQuestionId(request, context) {
  *                         receivers: [456, 789]
  */
 async function ShareQuestionById(request, context) {
-  const questionId = request.params.id;
-  const bodyJson = JSON.parse(await request.text());
-  let senderId = bodyJson["profile_id"] ?? null;
-  let receiverIds = bodyJson["receiver_ids"] ?? [];
-  let share = await Question.shareQuestion(questionId, senderId, receiverIds);
-  return { jsonBody: { return: { detail: share } } };
+  const { id: questionId } = request.params;
+  const { profile_id: senderId = null, receiver_ids: receiverIds = [] } = request.clientParams;
+  const share = await Question.shareQuestion(questionId, senderId, receiverIds);
+  return { return: { detail: share } };
 }
 
 /**
@@ -546,9 +530,9 @@ async function ShareQuestionById(request, context) {
  *                             example: "2025-01-03T09:46:18.739Z"
  */
 async function GetSharedQuestionListByUser(request, context) {
-  const profileId = request.params.profileId;
-  let sharedQuestion = await Question.getSharedQuestionListByUser(profileId);
-  return { jsonBody: { return: { list: sharedQuestion } } };
+  const { profileId } = request.params;
+  const sharedQuestion = await Question.getSharedQuestionListByUser(profileId);
+  return { return: { list: sharedQuestion } };
 }
 
 /**
@@ -614,97 +598,10 @@ async function GetSharedQuestionListByUser(request, context) {
  *                       example: "b08992c2-7c89-43a6-a152-9d24a74349a7"
  */
 async function PatchQuestionById(request, context) {
-  const questionId = request.params.id;
+  const { id: questionId } = request.params;
   const profileId = request.headers.get("x-profile-id");
-  // const patches = request.body;
-  const bodyJson = JSON.parse(await request.text());
-  let questionAction = await Question.patchById(questionId, bodyJson, profileId);
-  return { jsonBody: { return: { id: questionAction.id } } };
-}
-
-/**
- * @swagger
- * /api/question/{id}/followUp:
- *   post:
- *     tags:
- *       - Question
- *     summary: Follow up on a question
- *     description: Create a follow-up action for a specific question.
- *     parameters:
- *       - name: id
- *         in: path
- *         required: true
- *         schema:
- *           type: string
- *           format: uuid
- *           example: "550e8400-e29b-41d4-a716-446655440000"
- *         description: The UUID of the question to follow up on.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               profile_id:
- *                 type: string
- *                 format: uuid
- *                 description: The UUID of the user's profile performing the follow-up.
- *                 example: "123e4567-e89b-12d3-a456-426614174000"
- *               question:
- *                 type: object
- *                 description: Question details.
- *                 properties:
- *                   option:
- *                     type: array
- *                     items:
- *                       type: string
- *                     description: List of options related to the question.
- *                     example: ["Option 1", "Option 2"]
- *                   question_id:
- *                     type: string
- *                     format: uuid
- *                     description: The UUID of the question being followed up.
- *                     example: "550e8400-e29b-41d4-a716-446655440111"
- *               save:
- *                 type: boolean
- *                 description: Indicates whether the follow-up should be saved.
- *                 example: true
- *     responses:
- *       200:
- *         description: Successfully created a follow-up action.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 return:
- *                   type: object
- *                   properties:
- *                     detail:
- *                       type: object
- *                       description: Details about the follow-up action.
- *                       example:
- *                         profile_id: "123e4567-e89b-12d3-a456-426614174000"
- *                         question:
- *                           option: ["Option 1", "Option 2"]
- *                           questionId: "550e8400-e29b-41d4-a716-446655440111"
- *                         save: true
- */
-async function FollowUpOnQuestion(request, context) {
-  const bodyJson = JSON.parse(await request.text());
-  // const refQuestionId = request.params.id;
-  // let profileId = bodyJson["profile_id"] ?? null;
-  // let question = bodyJson["question"] ?? {};
-  // let isSave = bodyJson["save"] ?? false;
-  // let newQuestionId = bodyJson["new_question_id"] ?? null;
-
-  await sendMessageToQueue("followUpCmd", bodyJson);
-
-  // let followUp = await Question.addFollowUpByQuestionId(newQuestionId, profileId, question, isSave);
-  // let followUp = await Question.addFollowUpCmd(profileId, "create", bodyJson);
-
-  return { jsonBody: { return: { status: true } }, return: "here!" };
+  const questionAction = await Question.patchById(questionId, request.clientParams, profileId);
+  return { return: { id: questionAction.id } };
 }
 
 /**
@@ -891,7 +788,6 @@ async function SendShareQuestionCmdQueue(request, context) {
 async function GetEventByCorrelationId(request, context) {
   const { name, correlationId } = request.params;
   const result = await Question.getEventByCorrelationId(name, correlationId);
-  console.log(`result`, result);
   return { return: { qty: result.length } };
 }
 
@@ -946,7 +842,6 @@ module.exports = {
   ShareQuestionById,
   GetSharedQuestionListByUser,
   PatchQuestionById,
-  FollowUpOnQuestion,
   SendFollowUpCmd,
   ShareQuestionCmd,
   SendFollowUpCmdQueue,

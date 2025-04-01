@@ -47,6 +47,7 @@ describe("Insert test data", () => {
     let nCoord = genRandomLocation(coord.lon, coord.lat, t.maxDistance, t.minDistance);
     const response = await fetch(locationWriteUrl, {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         topic: "owntracks/test/genbtn",
         _type: "location",
@@ -70,7 +71,6 @@ describe("Insert test data", () => {
       method: "get",
       headers: {
         Accept: "application/json",
-        "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
       },
     });
@@ -90,7 +90,6 @@ async function checkUsersQty(url, urlParams) {
     method: "get",
     headers: {
       Accept: "application/json",
-      "Content-Type": "application/json",
       "Access-Control-Allow-Origin": "*",
     },
   });

@@ -23,7 +23,6 @@ beforeAll(() => {
             method: "get",
             headers: {
               Accept: "application/json",
-              "Content-Type": "application/json",
               "Access-Control-Allow-Origin": "*",
             },
           }
@@ -45,6 +44,7 @@ describe("test profile attribute search", () => {
       var writeProfile = async function () {
         response = await fetch(profileUrl, {
           method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             name: t.id,
             avatar: t.avatar,
@@ -76,7 +76,6 @@ describe("test profile attribute search", () => {
         method: "get",
         headers: {
           Accept: "application/json",
-          "Content-Type": "application/json",
           "Access-Control-Allow-Origin": "*",
         },
       }

@@ -1,25 +1,26 @@
 // This file is auto-loaded by functions/routes.js
+const requestHandler = require("../shared/handler.js");
 const coordinateHandler = require("./handler.js");
 
 module.exports = [
   {
     name: "SearchAtLocationQty",
     methods: ["GET"],
-    handler: coordinateHandler.SearchAtLocationQty,
+    handler: requestHandler(coordinateHandler.SearchAtLocationQty),
   },
   {
     name: "GetUsersDataByCoord",
     methods: ["GET"],
-    handler: coordinateHandler.GetUsersDataByCoord,
+    handler: requestHandler(coordinateHandler.GetUsersDataByCoord),
   },
   {
     name: "LocationWrite",
     methods: ["POST"],
-    handler: coordinateHandler.LocationWrite,
+    handler: requestHandler(coordinateHandler.LocationWrite),
   },
   {
     name: "SearchUsersData",
     methods: ["GET"],
-    handler: coordinateHandler.SearchUsersData,
+    handler: requestHandler(coordinateHandler.SearchUsersData),
   },
 ];

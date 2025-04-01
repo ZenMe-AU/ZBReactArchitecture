@@ -106,7 +106,7 @@ async function SearchAtLocationQty(request, context) {
   context.log("start_time" + start_time);
   context.log("request_time" + request_time);
   let qty = await Profiles.getUsersProfile([lon, lat], start_time, request_time, distance, true, attributes);
-  return { jsonBody: { return: { qty: qty } } };
+  return { return: { qty: qty } };
 }
 
 /**
@@ -228,7 +228,7 @@ async function GetUsersDataByCoord(request, context) {
   context.log("start_time" + start_time);
   context.log("request_time" + request_time);
   let users = await Profiles.getUsersProfile([lon, lat], start_time, request_time, distance, false, attributes);
-  return { jsonBody: { return: { users: users } } };
+  return { return: { users: users } };
 }
 
 /**
@@ -281,19 +281,12 @@ async function GetUsersDataByCoord(request, context) {
  *                       example: 2197
  */
 async function LocationWrite(request, context) {
-  context.log(`Http function processed request for url "${request.url}"`);
-  const bodyText = await request.text();
-  const bodyJson = JSON.parse(bodyText);
-  context.log("BODY text:", bodyText);
-  context.log("BODY json:", bodyJson);
-  context.log(request.params);
-  let topic = bodyJson["topic"].split("/").pop();
-  let tid = bodyJson["tid"];
-  let lat = bodyJson["lat"];
-  let lon = bodyJson["lon"];
-  let location = await Location.create(lon, lat, tid, topic, bodyText);
+  const bodyText = JSON.stringify(request.clientParams);
+  const { topic: rawTopic, tid, lat, lon } = request.clientParams;
+  const topic = rawTopic?.split("/").pop();
 
-  return { jsonBody: { return: { id: location.id } } };
+  const location = await Location.create(lon, lat, tid, topic, bodyText);
+  return { return: { id: location.id } };
 }
 /**
  * @swagger
@@ -386,7 +379,7 @@ async function SearchUsersData(request, context) {
   context.log("request_time" + request_time);
   let users = await Profiles.getUsersProfileNearby(device_id, start_time, request_time, distance, limited);
 
-  return { jsonBody: { return: { users: users } } };
+  return { return: { users: users } };
 }
 
 module.exports = {

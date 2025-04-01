@@ -4,6 +4,7 @@ const profileUrl = new URL("/api/profile", baseUrl);
 const createUser = () => {
   test.each(createUserData())("create User $user_id", async (u) => {
     const response = await fetch(profileUrl, {
+      headers: { "Content-Type": "application/json" },
       method: "POST",
       body: JSON.stringify({
         name: u.name ?? "user" + u.user_id,

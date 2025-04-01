@@ -38,7 +38,7 @@ const Attributes = require("./service/attributeService.js");
 async function GetAttributes(request, context) {
   const userId = parseInt(request.params.userId);
   let attributes = await Attributes.getByUser(userId);
-  return { jsonBody: { return: { attributes: attributes } } };
+  return { return: { attributes: attributes } };
 }
 
 /**
@@ -90,11 +90,9 @@ async function GetAttributes(request, context) {
  */
 async function PutAttributes(request, context) {
   const userId = parseInt(request.params.userId);
-  const bodyText = await request.text();
-  const bodyJson = JSON.parse(bodyText);
-  let attributes = bodyJson["attributes"];
-  let attrData = await Attributes.update(userId, attributes);
-  return { jsonBody: { return: { attributes: attrData } } };
+  const { attributes } = request.clientParams;
+  const attrData = await Attributes.update(userId, attributes);
+  return { return: { attributes: attrData } };
 }
 
 /**
@@ -144,13 +142,9 @@ async function PutAttributes(request, context) {
  *                       example: "550e8400-e29b-41d4-a716-446655440000"
  */
 async function CreateProfile(request, context) {
-  const bodyText = await request.text();
-  const bodyJson = JSON.parse(bodyText);
-  let name = bodyJson["name"];
-  let avatar = bodyJson["avatar"] || null;
-  let attributes = bodyJson["attributes"] || [];
-  let profile = await Profiles.create(name, attributes, avatar);
-  return { jsonBody: { return: { id: profile.id } } };
+  const { name, avatar = null, attributes = [] } = request.clientParams;
+  const profile = await Profiles.create(name, attributes, avatar);
+  return { return: { id: profile.id } };
 }
 
 /**
@@ -221,7 +215,7 @@ async function SearchProfile(request, context) {
     }
   }
   let profile = await Profiles.getList(null, attributes);
-  return { jsonBody: { return: { profile: profile } } };
+  return { return: { profile: profile } };
 }
 
 module.exports = {

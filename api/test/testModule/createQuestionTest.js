@@ -6,6 +6,7 @@ const { questionData, questionTestResult } = require("./createQuestionTestData")
 const createQuestion = (profileIdLookup) => {
   test.each(questionData())("create question $question_id", async (q) => {
     const response = await fetch(questionUrl, {
+      headers: { "Content-Type": "application/json" },
       method: "POST",
       body: JSON.stringify({
         profile_id: profileIdLookup.getProfileId(q.user_id),

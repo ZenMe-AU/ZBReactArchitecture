@@ -21,23 +21,27 @@ const checkShareQuestion = (profileIdLookup, testCorrelationId) => {
 };
 
 const checkFollowUpQty = (testCorrelationId) => {
-  test("check follow up question by Correlation Id:" + testCorrelationId, async () => {
-    let qty = 0;
-    for (let i = 0; i < 5; i++) {
-      const response = await fetch(eventUrl + "/FollowUpCmd/" + testCorrelationId, { method: "GET" });
-      if (!response.ok) {
-        console.error(`Error: ${response.status} - ${response.statusText}`);
-        break;
+  test(
+    "check follow up question by Correlation Id:" + testCorrelationId,
+    async () => {
+      let qty = 0;
+      for (let i = 0; i < 5; i++) {
+        const response = await fetch(eventUrl + "/FollowUpCmd/" + testCorrelationId, { method: "GET" });
+        if (!response.ok) {
+          console.error(`Error: ${response.status} - ${response.statusText}`);
+          break;
+        }
+        let resultData = await response.json();
+        qty = resultData.return.qty;
+        if (qty === followUpQuestionQty) {
+          break;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 2000));
       }
-      let resultData = await response.json();
-      qty = resultData.return.qty;
-      if (qty === followUpQuestionQty) {
-        break;
-      }
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    }
-    expect(qty).toBe(followUpQuestionQty);
-  });
+      expect(qty).toBe(followUpQuestionQty);
+    },
+    100000
+  );
 };
 
 function shareQuestionData() {
