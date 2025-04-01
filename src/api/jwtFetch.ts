@@ -1,15 +1,18 @@
 export const jwtFetch = async (url: string, options: RequestInit = {}) => {
   const token = localStorage.getItem("token");
 
-  const headers = {
+  const headers = new Headers({
     Accept: "application/json",
-    "Content-Type": "application/json",
     "Access-Control-Allow-Origin": "*",
     ...options.headers,
-  };
+  });
+
+  if (options.body && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
 
   if (token) {
-    headers.Authorization = `Bearer ${token}`;
+    headers.set("Authorization", `Bearer ${token}`);
   }
 
   const response = await fetch(url, {
