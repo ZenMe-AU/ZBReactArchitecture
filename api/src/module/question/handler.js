@@ -293,7 +293,7 @@ async function GetAnswerById(request, context) {
  *                             type: string
  *                             format: uuid
  *                             example: "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
- *                           profile_id:
+ *                           profileId:
  *                             type: string
  *                             format: uuid
  *                             example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
@@ -459,8 +459,8 @@ async function GetAnswerListByQuestionId(request, context) {
  *                       type: object
  *                       description: Details about the share operation.
  *                       example:
- *                         question_id: 1
- *                         sender_id: 123
+ *                         questionId: 1
+ *                         senderId: 123
  *                         receivers: [456, 789]
  */
 async function ShareQuestionById(request, context) {
