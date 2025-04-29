@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet";
 import { compare } from "fast-json-patch";
 import { getQuestionById, updateQuestionPatch } from "../api/question";
 import { Container, Typography, Box, TextField, Button, List, ListItem, IconButton } from "@mui/material";
@@ -8,8 +9,10 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import { styled } from "@mui/material/styles";
+import { Question } from "../types/interfaces";
+import { logEvent } from "../telemetry";
 
-const ReadOnlyText = styled("div")(({ theme }) => ({
+const ReadOnlyText = styled("div")(() => ({
   display: "inline-block",
   padding: "8px 0",
   minHeight: "1.4375em",
@@ -19,10 +22,10 @@ const ReadOnlyText = styled("div")(({ theme }) => ({
 }));
 
 function QuestionDetail() {
-  const { id } = useParams();
-  const [questionData, setQuestionData] = useState(null); // Original question data
-  const [editedData, setEditedData] = useState(null); // Edited data
-  const [editingFields, setEditingFields] = useState({}); // Fields currently being edited
+  const { id } = useParams<{ id: string }>();
+  const [questionData, setQuestionData] = useState<Question | null>(null); // Original question data
+  const [editedData, setEditedData] = useState<Question | null>(null); // Edited data
+  const [editingFields, setEditingFields] = useState<{ [key: string]: boolean }>({}); // Fields currently being edited
   const [isEditing, setIsEditing] = useState(false); // Whether the update/cancel buttons are visible
   const navigate = useNavigate();
 
@@ -30,10 +33,10 @@ function QuestionDetail() {
   useEffect(() => {
     const fetchQuestion = async () => {
       try {
-        const data = await getQuestionById(id);
+        const data = await getQuestionById(id!);
         setQuestionData(data);
         setEditedData(data); // Initialize editing data
-        if (data.profileId != localStorage.getItem("profileId")) {
+        if (data.profileId !== localStorage.getItem("profileId")) {
           navigate(`/question/${id}/add`, { replace: true });
         }
       } catch (error) {
@@ -43,40 +46,54 @@ function QuestionDetail() {
     fetchQuestion();
   }, [id]);
 
+  const handleBackClick = () => {
+    logEvent("NavigateBack", {
+      parentId: "BackButton",
+    });
+
+    navigate(-1);
+  };
+
   // Toggle edit mode for a specific field
-  const toggleFieldEdit = (field) => {
+  const toggleFieldEdit = (field: keyof Question) => {
     setEditingFields((prev) => ({ ...prev, [field]: true }));
   };
 
   // Handle changes to a specific field
-  const handleFieldEdit = (field, value) => {
-    setEditedData((prev) => ({ ...prev, [field]: value }));
+  const handleFieldEdit = (field: keyof Question, value) => {
+    setEditedData((prev) => ({ ...prev, [field]: value } as Question));
     setIsEditing(true);
   };
 
   // Handle blur event for a specific field
-  const handleBlur = (field) => {
+  const handleBlur = (field: keyof Question) => {
     setEditingFields((prev) => ({ ...prev, [field]: false }));
   };
 
   // Update options list
-  const handleOptionsEdit = (options) => {
+  const handleOptionsEdit = (options: string[]) => {
     handleFieldEdit("option", options);
   };
 
   // Update the question data using a patch API
   const handleUpdate = async () => {
-    const patches = compare(questionData, editedData);
-    try {
-      setIsEditing(false);
-      const result = await updateQuestionPatch(id, patches);
-      console.log("Updated successfully!");
-    } catch (error) {
-      setIsEditing(true);
-      console.error("Error updating question:", error);
-    } finally {
-      setQuestionData(editedData);
-      setEditingFields({});
+    if (questionData && editedData) {
+      const patches = compare(questionData, editedData);
+      try {
+        setIsEditing(false);
+        await updateQuestionPatch(id!, patches);
+        console.log("Updated successfully!");
+        logEvent("SubmitUpdateQuestion", {
+          parentId: "SubmitButton",
+          questionId: id,
+        });
+      } catch (error) {
+        setIsEditing(true);
+        console.error("Error updating question:", error);
+      } finally {
+        setQuestionData(editedData);
+        setEditingFields({});
+      }
     }
   };
 
@@ -90,7 +107,7 @@ function QuestionDetail() {
   // Return loading indicator if data is not yet available
   if (!questionData) return <div>Loading...</div>;
 
-  const renderField = (label, fieldName) => (
+  const renderField = (label: string, fieldName: keyof Question) => (
     <Box mb={3}>
       <Typography variant="h6" gutterBottom>
         {label}
@@ -99,15 +116,14 @@ function QuestionDetail() {
         {editingFields[fieldName] ? (
           <TextField
             fullWidth
-            value={editedData[fieldName] || ""}
+            value={editedData ? editedData[fieldName] || "" : ""}
             onChange={(e) => handleFieldEdit(fieldName, e.target.value)}
             onBlur={() => handleBlur(fieldName)}
             autoFocus
           />
         ) : (
           <Box display="flex" alignItems="center" width="100%">
-            <ReadOnlyText onClick={() => toggleFieldEdit(fieldName)}>{editedData[fieldName]}</ReadOnlyText>
-            {/* <TextField value={editedData[fieldName] || ""} onClick={() => toggleFieldEdit(fieldName)} autoFocus /> */}
+            <ReadOnlyText onClick={() => toggleFieldEdit(fieldName)}>{editedData ? editedData[fieldName] : ""}</ReadOnlyText>
             <IconButton onClick={() => toggleFieldEdit(fieldName)} size="small" sx={{ ml: 1 }}>
               <EditIcon fontSize="small" />
             </IconButton>
@@ -136,7 +152,7 @@ function QuestionDetail() {
       </Typography>
       <List>
         {editingFields.option ? (
-          editedData.option?.map((option, index) => (
+          editedData?.option?.map((option, index) => (
             <ListItem key={index}>
               <TextField
                 fullWidth
@@ -160,7 +176,7 @@ function QuestionDetail() {
           ))
         ) : (
           <Box onClick={() => toggleFieldEdit("option")}>
-            {editedData.option?.map((option, index) => (
+            {editedData?.option?.map((option, index) => (
               <ListItem key={index}>
                 <ReadOnlyText>{option}</ReadOnlyText>
               </ListItem>
@@ -173,7 +189,7 @@ function QuestionDetail() {
           variant="outlined"
           startIcon={<AddIcon />}
           onClick={() => {
-            const updatedOptions = [...(editedData.option || []), ""];
+            const updatedOptions = [...(editedData?.option || []), ""];
             handleOptionsEdit(updatedOptions);
           }}
         >
@@ -185,8 +201,11 @@ function QuestionDetail() {
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Helmet>
+        <title>Question Detail</title>
+      </Helmet>
       <Box display="flex" alignItems="center" mb={2}>
-        <IconButton onClick={() => navigate(-1)}>
+        <IconButton onClick={handleBackClick}>
           <ArrowBackIcon />
         </IconButton>
         <Typography variant="h4">Question Detail</Typography>
@@ -211,7 +230,3 @@ function QuestionDetail() {
 }
 
 export default QuestionDetail;
-// <div>
-// <Link to="/question">[Back to Question List]</Link>
-// <Link to={`/question/${id}/share`}>[Share]</Link>
-// </div>

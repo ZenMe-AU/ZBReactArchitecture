@@ -11,7 +11,7 @@ module.exports = {
         defaultValue: Sequelize.UUIDV4,
       },
       correlationId: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.UUID,
       },
       senderProfileId: {

@@ -1,6 +1,7 @@
 // src/pages/EditQuestion.tsx
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { Helmet } from "react-helmet";
 import { getQuestionById, updateQuestion } from "../api/question";
 import { Question } from "../types/interfaces";
 
@@ -59,7 +60,8 @@ function EditQuestion() {
     try {
       setSubmitting(true);
       if (id) {
-        await updateQuestion(id, question);
+        console.log("Question question:", question);
+        // await updateQuestion(id, question);
       } else {
         console.error("Question ID is undefined");
       }
@@ -77,6 +79,9 @@ function EditQuestion() {
 
   return (
     <div>
+      <Helmet>
+        <title>Edit Question</title>
+      </Helmet>
       <h1>Edit Question</h1>
       <form onSubmit={handleSubmit}>
         <div>

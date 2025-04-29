@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet";
 import { getQuestionById, submitAnswer, getAnswerListByQuestionId } from "../api/question";
 import { Question, Answer } from "../types/interfaces";
 import {
@@ -19,9 +20,9 @@ import {
   ListItemText,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-
 import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
 import WordCloud from "react-d3-cloud";
+import { logEvent } from "../telemetry";
 
 function AnswerQuestion() {
   const profileId = localStorage.getItem("profileId");
@@ -53,6 +54,7 @@ function AnswerQuestion() {
       try {
         setLoading(true);
         const fetchedQuestion = await getQuestionById(id);
+        console.log(fetchedQuestion);
         if (fetchedQuestion.option === null) {
           setIsOption(false);
         }
@@ -147,7 +149,15 @@ function AnswerQuestion() {
       setPieChartData(chartData);
       setPieChartColors(generatedColors);
     }
-  }, [answerList, isOption]);
+  }, [answerList]);
+
+  const handleBackClick = () => {
+    logEvent("NavigateBack", {
+      parentId: "BackButton",
+    });
+
+    navigate(-1);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -199,9 +209,21 @@ function AnswerQuestion() {
       console.error("Error submitting answer:", err);
       alert("Failed to submit the answer.");
     } finally {
+      logEvent("AnswerQuestion", {
+        parentId: "SubmitButton",
+        questionId: id,
+        questionText: question.questionText,
+        ...answerPayload,
+      });
       setSubmitting(false);
       setStartTime(performance.now());
     }
+  };
+  const handleFollowUp = (questionId: string) => {
+    logEvent("FollowUpQuestion", {
+      parentId: "ActionButton",
+      questionId: questionId,
+    });
   };
 
   if (loading) return <p>Loading...</p>;
@@ -210,8 +232,11 @@ function AnswerQuestion() {
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Helmet>
+        <title>Answer Question</title>
+      </Helmet>
       <Box display="flex" alignItems="center" mb={2}>
-        <IconButton onClick={() => navigate(-1)}>
+        <IconButton onClick={handleBackClick}>
           <ArrowBackIcon />
         </IconButton>
         <Typography variant="h4">{question.title}</Typography>
@@ -251,7 +276,14 @@ function AnswerQuestion() {
             {submitting ? "Submitting..." : "Submit Answer"}
           </Button>
           {isOption && (
-            <Button type="button" variant="outlined" color="secondary" component={Link} to={`/question/${question.id}/followUp`}>
+            <Button
+              type="button"
+              variant="outlined"
+              color="secondary"
+              component={Link}
+              to={`/question/${question.id}/followUp`}
+              onClick={() => handleFollowUp(question.id)}
+            >
               Follow Up
             </Button>
           )}

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet";
 
 import { getQuestionById, getQuestionsByUser, getAnswerListByQuestionId, sendFollowUpQuestion } from "../api/question";
 import { Question, Answer } from "../types/interfaces";
@@ -22,6 +23,7 @@ import Divider from "@mui/material/Divider";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ClearIcon from "@mui/icons-material/Clear";
 import AddIcon from "@mui/icons-material/Add";
+import { logEvent } from "../telemetry";
 
 function FollowUpQuestion() {
   const profileId = localStorage.getItem("profileId");
@@ -45,6 +47,14 @@ function FollowUpQuestion() {
   const [cardErrors, setCardErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [submittingError, setSubmittingError] = useState(false);
+
+  const handleBackClick = () => {
+    logEvent("NavigateBack", {
+      parentId: "BackButton",
+    });
+
+    navigate(-1);
+  };
 
   const handleAddCard = () => {
     const newCardId = `card-${cards.length + 1}`;
@@ -153,9 +163,13 @@ function FollowUpQuestion() {
       console.error("Error send follow up question:", error); // Log error if any
     } finally {
       setSubmitting(false);
+      logEvent("SubmitFollowUpQuestion", {
+        parentId: "SubmitButton",
+        questionId: id,
+      });
     }
-    console.log("Follow-up Data:", JSON.stringify(followUpData, null, 2));
-    console.log("Follow-up Data:", followUpData);
+    // console.log("Follow-up Data:", JSON.stringify(followUpData, null, 2));
+    // console.log("Follow-up Data:", followUpData);
   };
 
   const fetchAnswers = async (questionId: string) => {
@@ -223,8 +237,11 @@ function FollowUpQuestion() {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
+      <Helmet>
+        <title>Follow Up Question</title>
+      </Helmet>
       <Box display="flex" alignItems="center" mb={2}>
-        <IconButton onClick={() => navigate(-1)}>
+        <IconButton onClick={handleBackClick}>
           <ArrowBackIcon />
         </IconButton>
         <Typography variant="h4">Send a follow-up Question</Typography>

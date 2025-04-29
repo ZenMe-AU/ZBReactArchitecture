@@ -37,7 +37,7 @@ describe("test attribute data", () => {
     expect(qty).toBe(0);
   });
 
-  test.each(getTestData())("$command  $user_id", async (t) => {
+  test.each(getTestData())("$command  $userId", async (t) => {
     var response;
     switch (t.command) {
       case "createUser":
@@ -45,7 +45,7 @@ describe("test attribute data", () => {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            name: "user" + t.user_id,
+            name: "user" + t.userId,
             avatar: t.avatar,
             attributes: t.attributes,
           }),
@@ -53,7 +53,7 @@ describe("test attribute data", () => {
 
         let profile = await response.json();
         let profileId = profile.return.id;
-        profileIdLookup.add(t.user_id, profileId);
+        profileIdLookup.add(t.userId, profileId);
         break;
       case "writeLocation":
         let coord = coordSet.getCoord();
@@ -66,7 +66,7 @@ describe("test attribute data", () => {
             _type: "location",
             lon: nCoord.lon,
             lat: nCoord.lat,
-            tid: profileIdLookup.getProfileId(t.user_id),
+            tid: profileIdLookup.getProfileId(t.userId),
           }),
         });
         break;
@@ -183,61 +183,61 @@ function getTestData() {
   return [
     {
       command: "createUser",
-      user_id: 1,
+      userId: 1,
       avatar: "pic/avatar_1.jpg",
       attributes: ["gray hair", "female", "lady", "woman", "brown eyes", "Caucasian"],
     },
     {
       command: "writeLocation",
-      user_id: 1,
+      userId: 1,
       minDistance: 0,
       maxDistance: 0,
     },
     {
       command: "createUser",
-      user_id: 2,
+      userId: 2,
       avatar: "pic/avatar_2.jpg",
       attributes: ["brown hair", "female", "lady", "woman", "brown eyes", "Caucasian"],
     },
     {
       command: "writeLocation",
-      user_id: 2,
+      userId: 2,
       minDistance: 1,
       maxDistance: 2,
     },
     {
       command: "createUser",
-      user_id: 3,
+      userId: 3,
       avatar: "pic/avatar_3.jpg",
       attributes: ["black hair", "curly hair", "bun hair", "female", "lady", "woman", "Black"],
     },
     {
       command: "writeLocation",
-      user_id: 3,
+      userId: 3,
       minDistance: 2,
       maxDistance: 5,
     },
     {
       command: "createUser",
-      user_id: 4,
+      userId: 4,
       avatar: "pic/avatar_4.jpg",
       attributes: ["black hair", "curly hair", "female", "lady", "woman", "Caucasian"],
     },
     {
       command: "writeLocation",
-      user_id: 4,
+      userId: 4,
       minDistance: 0,
       maxDistance: 1,
     },
     {
       command: "createUser",
-      user_id: 5,
+      userId: 5,
       avatar: "pic/avatar_5.jpg",
       attributes: ["black hair", "buzz cut", "male", "man", "beard", "brown eyes", "Black"],
     },
     {
       command: "writeLocation",
-      user_id: 5,
+      userId: 5,
       minDistance: 2,
       maxDistance: 5,
     },

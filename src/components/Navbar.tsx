@@ -1,8 +1,15 @@
 import { AppBar, Toolbar, Typography, Avatar, Button, Box } from "@mui/material";
 import { useAuth } from "../AuthContext";
+import { logEvent } from "../telemetry";
 
 const Navbar = ({ profile }) => {
   const { logout } = useAuth();
+  const hanedleLogout = () => {
+    logEvent("Logout", {
+      parentId: "Navbar",
+    });
+    logout();
+  };
 
   return (
     <AppBar position="static">
@@ -13,7 +20,7 @@ const Navbar = ({ profile }) => {
             {profile?.id} {profile?.name || "Unknown User"}
           </Typography>
         </Box>
-        <Button color="inherit" onClick={logout}>
+        <Button color="inherit" onClick={hanedleLogout}>
           Logout
         </Button>
       </Toolbar>

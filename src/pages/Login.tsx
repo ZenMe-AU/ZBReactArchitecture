@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { Helmet } from "react-helmet";
 import { useAuth } from "../AuthContext";
 import { getProfileList } from "../api/profile";
 import { login as authLogin } from "../api/auth";
 import { Profile } from "../types/interfaces";
 import { Box, Button, Typography, Select, MenuItem, FormControl, InputLabel, Alert, CircularProgress, Autocomplete, TextField } from "@mui/material";
+import { logEvent } from "../telemetry";
 
 function Login() {
   const { isAuthenticated, login, logout } = useAuth();
@@ -53,6 +55,10 @@ function Login() {
       const response = await authLogin(selectedUserId);
       login(response.token, selectedUserId);
       const from = location.state?.from?.pathname || "/";
+
+      logEvent("Login", {
+        parentId: "SubmitButton",
+      });
       navigate(from, { replace: true });
     } catch (err) {
       console.error("Login error:", err);
@@ -65,37 +71,41 @@ function Login() {
     }
   };
   return (
-    <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" bgcolor="#f5f5f5" padding={4}>
-      {isAuthenticated ? (
-        <Box display="flex" flexDirection="column" alignItems="center" bgcolor="white" p={4} borderRadius={2} boxShadow={3} maxWidth={400}>
-          <Typography variant="h5" gutterBottom>
-            You are logged in.
-          </Typography>
-          <Button variant="contained" color="error" onClick={logout} sx={{ mt: 2 }}>
-            Logout
-          </Button>
-        </Box>
-      ) : (
-        <Box
-          display="flex"
-          flexDirection="column"
-          alignItems="center"
-          bgcolor="white"
-          p={4}
-          borderRadius={2}
-          boxShadow={3}
-          maxWidth={400}
-          width="100%"
-        >
-          <Typography variant="h4" gutterBottom>
-            Login
-          </Typography>
-          {error && (
-            <Alert severity="error" sx={{ width: "100%", mb: 2 }}>
-              {error}
-            </Alert>
-          )}
-          {/* <FormControl fullWidth sx={{ mb: 2 }}>
+    <>
+      <Helmet>
+        <title>Login</title>
+      </Helmet>
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" bgcolor="#f5f5f5" padding={4}>
+        {isAuthenticated ? (
+          <Box display="flex" flexDirection="column" alignItems="center" bgcolor="white" p={4} borderRadius={2} boxShadow={3} maxWidth={400}>
+            <Typography variant="h5" gutterBottom>
+              You are logged in.
+            </Typography>
+            <Button variant="contained" color="error" onClick={logout} sx={{ mt: 2 }}>
+              Logout
+            </Button>
+          </Box>
+        ) : (
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            bgcolor="white"
+            p={4}
+            borderRadius={2}
+            boxShadow={3}
+            maxWidth={400}
+            width="100%"
+          >
+            <Typography variant="h4" gutterBottom>
+              Login
+            </Typography>
+            {error && (
+              <Alert severity="error" sx={{ width: "100%", mb: 2 }}>
+                {error}
+              </Alert>
+            )}
+            {/* <FormControl fullWidth sx={{ mb: 2 }}>
             <InputLabel id="user-select-label">Select a user</InputLabel>
             <Select
               labelId="user-select-label"
@@ -114,22 +124,23 @@ function Login() {
               ))}
             </Select>
           </FormControl> */}
-          <Autocomplete
-            disablePortal
-            onChange={(_, newValue) => {
-              setSelectedUserId(newValue?.id);
-            }}
-            getOptionLabel={(user) => `${user.id} - ${user.name}`}
-            options={userList}
-            sx={{ width: 300, mb: 2 }}
-            renderInput={(params) => <TextField {...params} label="Select a user" />}
-          />
-          <Button variant="contained" color="primary" onClick={handleLogin} disabled={loading} fullWidth>
-            {loading ? <CircularProgress size={24} color="inherit" /> : "Login"}
-          </Button>
-        </Box>
-      )}
-    </Box>
+            <Autocomplete
+              disablePortal
+              onChange={(_, newValue) => {
+                setSelectedUserId(newValue?.id);
+              }}
+              getOptionLabel={(user) => `${user.id} - ${user.name}`}
+              options={userList}
+              sx={{ width: 300, mb: 2 }}
+              renderInput={(params) => <TextField {...params} label="Select a user" />}
+            />
+            <Button variant="contained" color="primary" onClick={handleLogin} disabled={loading} fullWidth>
+              {loading ? <CircularProgress size={24} color="inherit" /> : "Login"}
+            </Button>
+          </Box>
+        )}
+      </Box>
+    </>
   );
 }
 

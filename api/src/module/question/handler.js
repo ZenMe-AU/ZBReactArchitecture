@@ -1,6 +1,6 @@
 const Question = require("./service/function.js");
 const { decode } = require("../shared/service/authUtils.js");
-// const { sendMessageToQueue } = require("../shared/service/function.js");
+const { sendMessageToQueue } = require("../shared/service/function.js");
 const { followUpCmdQueue, shareQuestionCmdQueue } = require("../shared/service/serviceBus.js");
 
 /**
@@ -647,7 +647,7 @@ async function PatchQuestionById(request, context) {
  *                         type: string
  *                       description: List of options related to the question.
  *                       example: ["Chushan"]
- *               save:
+ *               isSave:
  *                 type: boolean
  *                 description: Indicates whether the follow-up should be saved.
  *                 example: true
@@ -675,8 +675,11 @@ async function PatchQuestionById(request, context) {
  *                   example: true
  */
 async function SendFollowUpCmdQueue(request, context) {
-  // await sendMessageToQueue(request.customParams.queueName, request.clientParams);
-  context.extraOutputs.set(followUpCmdQueue, request.clientParams);
+  await sendMessageToQueue(request.customParams.queueName, request.clientParams, request.correlationId);
+  // console.log("invocationId:", context.invocationId);
+  // put correlationId into service bus from ui
+  // fix this: put correlationId
+  // context.extraOutputs.set(followUpCmdQueue, request.clientParams);
   return { return: true };
 }
 
@@ -736,8 +739,10 @@ async function SendFollowUpCmdQueue(request, context) {
  *                   example: true
  */
 async function SendShareQuestionCmdQueue(request, context) {
-  // await sendMessageToQueue(request.customParams.queueName, request.clientParams);
-  context.extraOutputs.set(shareQuestionCmdQueue, request.clientParams);
+  await sendMessageToQueue(request.customParams.queueName, request.clientParams, request.correlationId);
+  // fix this: put correlationId
+  // todo:correlationId allow nulll\
+  // context.extraOutputs.set(shareQuestionCmdQueue, request.clientParams);
 
   return { return: true };
 }
@@ -795,11 +800,16 @@ async function GetEventByCorrelationId(request, context) {
 
 async function SendFollowUpCmd(message, context) {
   context.log("Service bus queue function processed message:", message);
-
+  //get message id into db as followupcmd.id
+  // also get correlationId from service bus not from msg body
   try {
     // todo: change to insert / update / delete
-    // await insertFollowUpCmd(message["profile_id"], message);
-    const cmd = await Question.insertFollowUpCmd(message["profileId"], message);
+    // await insertFollowUpCmd(message["profileId"], message);
+    //
+    // const correlationId = context.triggerMetadata.correlationId;
+    // const messageId = context.triggerMetadata.messageId;
+    const { messageId, correlationId } = context.triggerMetadata;
+    const cmd = await Question.insertFollowUpCmd(messageId, message["profileId"], message, correlationId);
     const filters = Question.insertFollowUpFilter(message);
     const receiverIds = Question.getFollowUpReceiver(message);
     const sharedQuestions = Question.shareQuestion(message["newQuestionId"], message["profileId"], await receiverIds);
@@ -821,7 +831,8 @@ async function ShareQuestionCmd(message, context) {
   context.log("Service bus queue function processed message:", message);
 
   try {
-    const cmd = await Question.insertQuestionShareCmd(message["profileId"], message);
+    const { messageId, correlationId } = context.triggerMetadata;
+    const cmd = await Question.insertQuestionShareCmd(messageId, message["profileId"], message, correlationId);
     const sharedQuestions = await Question.shareQuestion(message["newQuestionId"], message["profileId"], message["receiverIds"]);
 
     await Question.updateQuestionShareCmdStatus(cmd["id"]);

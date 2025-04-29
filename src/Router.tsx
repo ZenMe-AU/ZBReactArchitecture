@@ -1,7 +1,9 @@
 // src/App.tsx
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { unstable_HistoryRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./AuthContext";
 import { ProtectedRoute } from "./ProtectedRoute";
+import { browserHistory } from "./applicationInsights";
+
 import Location from "./App";
 import HomePage from "./pages/HomePage";
 import QuestionCombinationList from "./pages/QuestionCombinationList";
@@ -33,8 +35,8 @@ const protectedRoutes = [
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
+    <Router history={browserHistory}>
+      <AuthProvider>
         <Routes>
           <Route path="/location" element={<Location />} />
           <Route path="/login" element={<Login />} />
@@ -49,8 +51,8 @@ function App() {
         <Route path="/question/:id/share" element={<ShareQuestion />} />
         <Route path="/sharedQuestion" element={<SharedQuestionList />} /> */}
         </Routes>
-      </Router>
-    </AuthProvider>
+      </AuthProvider>
+    </Router>
   );
 }
 

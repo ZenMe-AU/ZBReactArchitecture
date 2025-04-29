@@ -1,9 +1,11 @@
 export const jwtFetch = async (url: string, options: RequestInit = {}) => {
   const token = localStorage.getItem("token");
-
+  const correlationId = crypto.randomUUID();
+  console.log("Correlation ID:", correlationId);
   const headers = new Headers({
     Accept: "application/json",
     "Access-Control-Allow-Origin": "*",
+    "X-Correlation-Id": correlationId,
     ...options.headers,
   });
 

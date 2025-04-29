@@ -207,11 +207,11 @@ const QuestionShare = sequelize.define(
       type: DataTypes.UUID,
       allowNull: false,
     },
-    senderId: {
+    senderProfileId: {
       type: DataTypes.UUID,
       allowNull: false,
     },
-    receiverId: {
+    receiverProfileId: {
       type: DataTypes.UUID,
       allowNull: false,
     },
@@ -304,7 +304,7 @@ const FollowUpCmd = sequelize.define(
       defaultValue: DataTypes.UUIDV4,
     },
     correlationId: {
-      allowNull: false,
+      allowNull: true,
       type: DataTypes.UUID,
     },
     senderProfileId: {
@@ -388,7 +388,7 @@ const FollowUpEvent = sequelize.define(
       type: DataTypes.UUID,
     },
     correlationId: {
-      allowNull: false,
+      allowNull: true,
       type: DataTypes.UUID,
     },
     action: {
@@ -433,7 +433,7 @@ const QuestionShareCmd = sequelize.define(
       type: DataTypes.UUID,
     },
     correlationId: {
-      allowNull: false,
+      allowNull: true,
       type: DataTypes.UUID,
     },
     action: {
@@ -470,7 +470,7 @@ const QuestionShareEvent = sequelize.define(
       type: DataTypes.UUID,
     },
     correlationId: {
-      allowNull: false,
+      allowNull: true,
       type: DataTypes.UUID,
     },
     action: {

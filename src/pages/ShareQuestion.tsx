@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { Helmet } from "react-helmet";
 import { getQuestionById, shareQuestion } from "../api/question";
 import { getProfileList } from "../api/profile";
 import { Profile } from "../types/interfaces";
 import { Container, Typography, Box, Button, IconButton, Alert, TextField } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Autocomplete from "@mui/material/Autocomplete";
+import { logEvent } from "../telemetry";
 
 function ShareQuestion() {
   const { id } = useParams<{ id: string }>();
@@ -35,6 +37,14 @@ function ShareQuestion() {
     fetchFriends();
   }, [id]);
 
+  const handleBackClick = () => {
+    logEvent("NavigateBack", {
+      parentId: "BackButton",
+    });
+
+    navigate(-1);
+  };
+
   const handleShare = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!id || !profileId || selectedReceivers.length === 0) {
@@ -53,13 +63,16 @@ function ShareQuestion() {
         selectedReceivers.map(({ id }) => id)
       );
       alert("Question shared successfully!");
-
-      navigate(`/question/${id}/answer`); // Navigate back to the question detail
+      logEvent("SubmitShareQuestion", {
+        parentId: "SubmitButton",
+        questionId: id,
+      });
     } catch (err) {
       setError("Failed to share the question. Please try again.");
       console.error(err);
     } finally {
       setLoading(false);
+      navigate(`/question/${id}/answer`); // Navigate back to the question detail
     }
   };
 
@@ -67,8 +80,11 @@ function ShareQuestion() {
 
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
+      <Helmet>
+        <title>Shared Question</title>
+      </Helmet>
       <Box display="flex" alignItems="center" mb={2}>
-        <IconButton onClick={() => navigate(-1)}>
+        <IconButton onClick={handleBackClick}>
           <ArrowBackIcon />
         </IconButton>
         <Typography variant="h4">Share Question</Typography>

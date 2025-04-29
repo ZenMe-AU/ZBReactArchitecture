@@ -1,5 +1,5 @@
 // This file is auto-loaded by functions/routes.js
-const requestHandler = require("../shared/handler.js");
+const { requestHandler, serviceBusHandler } = require("../shared/handler.js");
 const questionHandler = require("./handler.js");
 const schemas = require("../../schemas/index.js");
 const { followUpCmdQueue, shareQuestionCmdQueue } = require("../shared/service/serviceBus.js");
@@ -96,12 +96,12 @@ module.exports = [
     trigger: "serviceBus",
     name: "sendFollowUpCmdQueue",
     queueName: "followupcmd",
-    handler: questionHandler.SendFollowUpCmd,
+    handler: serviceBusHandler(questionHandler.SendFollowUpCmd),
   },
   {
     trigger: "serviceBus",
     name: "shareQuestionCmdQueue",
     queueName: "ShareQuestionCmd",
-    handler: questionHandler.ShareQuestionCmd,
+    handler: serviceBusHandler(questionHandler.ShareQuestionCmd),
   },
 ];
