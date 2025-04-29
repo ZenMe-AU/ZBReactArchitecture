@@ -46,7 +46,7 @@ module.exports = {
     //   name: "location_tid_fkey",
     //   references: {
     //     table: "profiles",
-    //     field: "device_id",
+    //     field: "deviceId",
     //   },
     //   onDelete: "CASCADE",
     // });

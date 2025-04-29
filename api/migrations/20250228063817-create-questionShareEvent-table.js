@@ -15,7 +15,7 @@ module.exports = {
         type: Sequelize.UUID,
       },
       correlationId: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.UUID,
       },
       action: {
