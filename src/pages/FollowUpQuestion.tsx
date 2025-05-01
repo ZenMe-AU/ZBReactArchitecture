@@ -23,7 +23,7 @@ import Divider from "@mui/material/Divider";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ClearIcon from "@mui/icons-material/Clear";
 import AddIcon from "@mui/icons-material/Add";
-import { logEvent } from "../telemetry";
+import { logEvent, setOperationId } from "../telemetry";
 
 function FollowUpQuestion() {
   const profileId = localStorage.getItem("profileId");
@@ -49,6 +49,8 @@ function FollowUpQuestion() {
   const [submittingError, setSubmittingError] = useState(false);
 
   const handleBackClick = () => {
+    const correlationId = setOperationId();
+    console.log("Back Click Correlation ID:", correlationId);
     logEvent("NavigateBack", {
       parentId: "BackButton",
     });
@@ -116,6 +118,9 @@ function FollowUpQuestion() {
 
   const handleFollowUp = async () => {
     if (!id) return;
+    const correlationId = setOperationId();
+    console.log("FollowUp Correlation ID:", correlationId);
+
     let hasError = false;
     const newErrors = {};
 

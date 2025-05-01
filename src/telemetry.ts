@@ -1,12 +1,17 @@
 import { appInsights } from "./applicationInsights";
 
 export const logPageView = (name: string, properties?: Record<string, any>) => {
-  // console.log("Logging page view:", name, properties);
+  const operationId = appInsights.context.telemetryTrace.traceID;
+  const correlationId = operationId;
   name = document.title || "pageView:" + name;
   appInsights.trackPageView({
     name,
-    properties,
+    properties: {
+      correlationId: correlationId,
+      ...properties,
+    },
   });
+  console.log("Logging page view:", name, properties, operationId);
 };
 
 export const logEvent = (eventName: string, properties?: Record<string, any>) => {
@@ -16,6 +21,7 @@ export const logEvent = (eventName: string, properties?: Record<string, any>) =>
   const userId = appInsights.context.user.id || "anonymous";
   const operationId = appInsights.context.telemetryTrace.traceID;
   const sessionId = appInsights.context?.sessionManager?.automaticSession?.id;
+  const correlationId = operationId;
 
   appInsights.trackEvent({
     name: eventName,
@@ -26,6 +32,7 @@ export const logEvent = (eventName: string, properties?: Record<string, any>) =>
       user_Id: userId,
       session_Id: sessionId,
       operation_Id: operationId,
+      correlationId: correlationId,
       ...properties,
     },
   });
@@ -38,3 +45,14 @@ export const setUserContext = (userId: string) => {
 export const clearUserContext = () => {
   appInsights.clearAuthenticatedUserContext();
 };
+
+export function setOperationId(operationId?: string): string {
+  const traceId = operationId || crypto.randomUUID();
+
+  appInsights.context.telemetryTrace.traceID = traceId;
+  return traceId;
+}
+
+export function getOperationId(): string | undefined {
+  return appInsights.context.telemetryTrace?.traceID;
+}
