@@ -1,6 +1,8 @@
+import { getOperationId } from "../telemetry";
+
 export const jwtFetch = async (url: string, options: RequestInit = {}) => {
   const token = localStorage.getItem("token");
-  const correlationId = crypto.randomUUID();
+  const correlationId = getOperationId();
   console.log("Correlation ID:", correlationId);
   const headers = new Headers({
     Accept: "application/json",

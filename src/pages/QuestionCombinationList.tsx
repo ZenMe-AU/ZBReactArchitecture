@@ -14,7 +14,6 @@ function QuestionCombinationList() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log(profileId);
     const fetchQuestions = async () => {
       try {
         const data = await getQuestionsByUser();
