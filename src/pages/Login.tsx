@@ -6,7 +6,7 @@ import { getProfileList } from "../api/profile";
 import { login as authLogin } from "../api/auth";
 import { Profile } from "../types/interfaces";
 import { Box, Button, Typography, Select, MenuItem, FormControl, InputLabel, Alert, CircularProgress, Autocomplete, TextField } from "@mui/material";
-import { logEvent } from "../telemetry";
+import { logEvent, setOperationId } from "../telemetry";
 
 function Login() {
   const { isAuthenticated, login, logout } = useAuth();
@@ -56,7 +56,9 @@ function Login() {
       login(response.token, selectedUserId);
       const from = location.state?.from?.pathname || "/";
 
-      logEvent("Login", {
+      const correlationId = setOperationId();
+      console.log("Correlation ID:", correlationId);
+      logEvent("btnLoginClick", {
         parentId: "SubmitButton",
       });
       navigate(from, { replace: true });

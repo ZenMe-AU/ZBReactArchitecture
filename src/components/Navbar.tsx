@@ -5,7 +5,7 @@ import { logEvent } from "../telemetry";
 const Navbar = ({ profile }) => {
   const { logout } = useAuth();
   const hanedleLogout = () => {
-    logEvent("Logout", {
+    logEvent("btnLogoutClick", {
       parentId: "Navbar",
     });
     logout();

@@ -7,7 +7,7 @@ import { Profile } from "../types/interfaces";
 import { Container, Typography, Box, Button, IconButton, Alert, TextField } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Autocomplete from "@mui/material/Autocomplete";
-import { logEvent } from "../telemetry";
+import { logEvent, setOperationId } from "../telemetry";
 
 function ShareQuestion() {
   const { id } = useParams<{ id: string }>();
@@ -38,7 +38,9 @@ function ShareQuestion() {
   }, [id]);
 
   const handleBackClick = () => {
-    logEvent("NavigateBack", {
+    const correlationId = setOperationId();
+    console.log("Correlation ID:", correlationId);
+    logEvent("btnNavigateBackClick", {
       parentId: "BackButton",
     });
 
@@ -52,6 +54,8 @@ function ShareQuestion() {
       return;
     }
 
+    const correlationId = setOperationId();
+    console.log("Correlation ID:", correlationId);
     try {
       setLoading(true);
       setError(null);
@@ -63,7 +67,7 @@ function ShareQuestion() {
         selectedReceivers.map(({ id }) => id)
       );
       alert("Question shared successfully!");
-      logEvent("SubmitShareQuestion", {
+      logEvent("bntSendShareQuestionClick", {
         parentId: "SubmitButton",
         questionId: id,
       });

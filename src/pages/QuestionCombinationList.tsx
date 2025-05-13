@@ -6,7 +6,7 @@ import { Container, Typography, List, ListItem, ListItemButton, ListItemText, Bu
 import EditIcon from "@mui/icons-material/Edit";
 import ShareIcon from "@mui/icons-material/Share";
 import { Question } from "../types/interfaces";
-import { logEvent } from "../telemetry";
+import { logEvent, setOperationId } from "../telemetry";
 
 function QuestionCombinationList() {
   const profileId = localStorage.getItem("profileId");
@@ -28,7 +28,9 @@ function QuestionCombinationList() {
   }, [profileId]);
 
   const handleBackClick = () => {
-    logEvent("NavigateBack", {
+    const correlationId = setOperationId();
+    console.log("Correlation ID:", correlationId);
+    logEvent("btnNavigateBackClick", {
       parentId: "BackButton",
     });
 
@@ -36,27 +38,35 @@ function QuestionCombinationList() {
   };
 
   const handleOpenAnswer = (questionId: string) => {
-    logEvent("OpenAnswerDetail", {
+    const correlationId = setOperationId();
+    console.log("Correlation ID:", correlationId);
+    logEvent("btnAnswerDetailClick", {
       questionId,
       parentId: "QuestionList",
     });
   };
   const handleEditQuestion = (questionId: string, isNew: boolean) => (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
-    logEvent(isNew ? "AddQuestion" : "EditQuestion", {
+    const correlationId = setOperationId();
+    console.log("Correlation ID:", correlationId);
+    logEvent(isNew ? "bntAddQuestionClick" : "btnEditQuestionClick", {
       questionId,
       parentId: "QuestionList",
     });
   };
   const handleShareQuestion = (questionId: string) => (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
-    logEvent("ShareQuestion", {
+    const correlationId = setOperationId();
+    console.log("Correlation ID:", correlationId);
+    logEvent("btnShareQuestionClick", {
       questionId,
       parentId: "QuestionList",
     });
   };
   const handleAddQuestion = () => {
-    logEvent("AddQuestion", {
+    const correlationId = setOperationId();
+    console.log("Correlation ID:", correlationId);
+    logEvent("btnAddQuestionClick", {
       parentId: "ActionButton",
     });
   };

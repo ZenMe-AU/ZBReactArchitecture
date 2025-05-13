@@ -1,11 +1,12 @@
 import { appInsights } from "./applicationInsights";
+import _ from "lodash";
 
 export const logPageView = (name: string, properties?: Record<string, any>) => {
   const operationId = appInsights.context.telemetryTrace.traceID;
   const correlationId = operationId;
-  name = document.title || "pageView:" + name;
+  name = _.camelCase(document.title) || "pageView:" + name;
   appInsights.trackPageView({
-    name,
+    name: "page" + _.upperFirst(name) + "View",
     properties: {
       correlationId: correlationId,
       ...properties,
@@ -47,8 +48,7 @@ export const clearUserContext = () => {
 };
 
 export function setOperationId(operationId?: string): string {
-  const traceId = operationId || crypto.randomUUID();
-
+  const traceId = operationId || crypto.randomUUID().replace(/-/g, "");
   appInsights.context.telemetryTrace.traceID = traceId;
   return traceId;
 }
