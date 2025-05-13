@@ -22,7 +22,7 @@ import {
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
 import WordCloud from "react-d3-cloud";
-import { logEvent } from "../telemetry";
+import { logEvent, setOperationId } from "../telemetry";
 
 function AnswerQuestion() {
   const profileId = localStorage.getItem("profileId");
@@ -152,7 +152,9 @@ function AnswerQuestion() {
   }, [answerList]);
 
   const handleBackClick = () => {
-    logEvent("NavigateBack", {
+    const correlationId = setOperationId();
+    console.log("Correlation ID:", correlationId);
+    logEvent("btnNavigateBackClick", {
       parentId: "BackButton",
     });
 
@@ -162,6 +164,8 @@ function AnswerQuestion() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
+    const correlationId = setOperationId();
+    console.log("Correlation ID:", correlationId);
     if (!id || !question) {
       alert("Invalid question ID.");
       setSubmitting(false);
@@ -209,7 +213,7 @@ function AnswerQuestion() {
       console.error("Error submitting answer:", err);
       alert("Failed to submit the answer.");
     } finally {
-      logEvent("AnswerQuestion", {
+      logEvent("btnAnswerQuestionClick", {
         parentId: "SubmitButton",
         questionId: id,
         questionText: question.questionText,
@@ -220,7 +224,9 @@ function AnswerQuestion() {
     }
   };
   const handleFollowUp = (questionId: string) => {
-    logEvent("FollowUpQuestion", {
+    const correlationId = setOperationId();
+    console.log("Correlation ID:", correlationId);
+    logEvent("btnFollowUpQuestionClick", {
       parentId: "ActionButton",
       questionId: questionId,
     });

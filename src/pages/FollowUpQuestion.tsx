@@ -51,7 +51,7 @@ function FollowUpQuestion() {
   const handleBackClick = () => {
     const correlationId = setOperationId();
     console.log("Back Click Correlation ID:", correlationId);
-    logEvent("NavigateBack", {
+    logEvent("btnNavigateBackClick", {
       parentId: "BackButton",
     });
 
@@ -168,7 +168,7 @@ function FollowUpQuestion() {
       console.error("Error send follow up question:", error); // Log error if any
     } finally {
       setSubmitting(false);
-      logEvent("SubmitFollowUpQuestion", {
+      logEvent("btnSendFollowUpQuestionClick", {
         parentId: "SubmitButton",
         questionId: id,
       });

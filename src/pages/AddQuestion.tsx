@@ -5,7 +5,7 @@ import { createQuestion } from "../api/question";
 import { Container, Typography, Box, TextField, Button, List, ListItem, IconButton } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { logEvent } from "../telemetry";
+import { logEvent, setOperationId } from "../telemetry";
 
 function AddQuestion() {
   const [title, setTitle] = useState("");
@@ -16,7 +16,9 @@ function AddQuestion() {
   const navigate = useNavigate();
 
   const handleBackClick = () => {
-    logEvent("NavigateBack", {
+    const correlationId = setOperationId();
+    console.log("Correlation ID:", correlationId);
+    logEvent("btnNavigateBackClick", {
       parentId: "BackButton",
     });
 
@@ -37,6 +39,8 @@ function AddQuestion() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); // Prevent default form submission behavior
+    const correlationId = setOperationId();
+    console.log("Correlation ID:", correlationId);
     let id: string | null = null;
     try {
       setSubmitting(true);
@@ -46,7 +50,7 @@ function AddQuestion() {
     } finally {
       setSubmitting(false); // Reset submitting state
       if (id) {
-        logEvent("QuestionCreated", {
+        logEvent("btnQuestionCreatedClick", {
           parentId: "QuestionForm",
           questionId: id,
         });

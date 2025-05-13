@@ -10,7 +10,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import { styled } from "@mui/material/styles";
 import { Question } from "../types/interfaces";
-import { logEvent } from "../telemetry";
+import { logEvent, setOperationId } from "../telemetry";
 
 const ReadOnlyText = styled("div")(() => ({
   display: "inline-block",
@@ -48,7 +48,9 @@ function QuestionDetailAdd() {
   }, [id, navigate]);
 
   const handleBackClick = () => {
-    logEvent("NavigateBack", {
+    const correlationId = setOperationId();
+    console.log("Correlation ID:", correlationId);
+    logEvent("btnNavigateBackClick", {
       parentId: "BackButton",
     });
 
@@ -84,6 +86,8 @@ function QuestionDetailAdd() {
   // Update the question data using a patch API
   const handleUpdate = async () => {
     if (questionData && editedData) {
+      const correlationId = setOperationId();
+      console.log("Correlation ID:", correlationId);
       const patches = compare(questionData, editedData);
       if (patches.length > 0) {
         try {
@@ -96,7 +100,7 @@ function QuestionDetailAdd() {
         } finally {
           setQuestionData(editedData);
           setEditingFields({});
-          logEvent("SubmitAddQuestion", {
+          logEvent("btnSubmitAddQuestionClick", {
             parentId: "SubmitButton",
             questionId: id,
           });

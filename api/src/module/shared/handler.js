@@ -1,5 +1,6 @@
 // const appInsights = require("applicationinsights");
-const { trace } = require("@opentelemetry/api");
+const { trace, context: sContext, TraceFlags, SpanKind, SpanStatusCode } = require("@opentelemetry/api");
+const { randomBytes } = require("crypto");
 
 const requestHandler =
   (fn, { schemas = [], customParams = {}, requireAuth = true } = {}) =>
@@ -11,14 +12,22 @@ const requestHandler =
     const functionName = context.functionName || `${method} ${route}`;
     const correlationId = request.headers.get("X-Correlation-Id");
 
-    const span = tracer.startSpan(functionName, {
-      attributes: {
-        "http.method": method,
-        "http.route": route,
-        "app.invocation_id": invocationId,
-        "app.correlation_id": correlationId,
+    const parentCtx = trace.setSpanContext(sContext.active(), buildSpanContext(correlationId));
+    const span = tracer.startSpan(
+      "API-" + functionName,
+      {
+        // kind: SpanKind.SERVER,
+        attributes: {
+          "http.method": method,
+          "http.route": route,
+          "app.method": method,
+          "app.route": route,
+          "app.invocation_id": invocationId,
+          "app.correlation_id": correlationId,
+        },
       },
-    });
+      parentCtx
+    );
 
     try {
       request.correlationId = request.headers.get("X-Correlation-Id");
@@ -33,7 +42,8 @@ const requestHandler =
       // todo: exit if equal 0
       if (schemas.length > 0) await validate(request, schemas);
       request.customParams = customParams;
-      console.log("✨correlationId:", request.correlationId);
+      console.log("✨✨correlationId:", request.correlationId);
+      console.log("💁functionName:", functionName);
       console.log("context:", context);
       // const path = request.url;
       // appInsights.defaultClient.trackTrace({
@@ -43,8 +53,11 @@ const requestHandler =
       //     correlationId: request.correlationId,
       //   },
       // });
-      const result = await fn(request, context);
-      span.setStatus({ code: 1 });
+      let result;
+      await sContext.with(trace.setSpan(parentCtx, span), async () => {
+        result = await fn(request, context);
+        span.setStatus({ code: SpanStatusCode.OK });
+      });
       return {
         status: result?.status || 200,
         headers: { "X-Correlation-Id": request.correlationId },
@@ -61,7 +74,7 @@ const requestHandler =
       console.log("name:", error.name || "no");
       console.log("stack:", error.stack || "no");
       span.recordException(error);
-      span.setStatus({ code: 2, message: error.message || "error" });
+      span.setStatus({ code: SpanStatusCode.ERROR, message: error.message || "error" });
       // context.log.error(error);
       // appInsights.defaultClient.trackException({
       //   exception: error,
@@ -96,26 +109,35 @@ const serviceBusHandler = (fn) => async (message, context) => {
   const invocationId = context.invocationId || "unknown invocationId";
   const messageId = context.triggerMetadata.messageId || "unknown messageId";
   const correlationId = context.triggerMetadata.correlationId || "unknown correlationId";
-  const functionName = context.functionName || `${method} ${route}`;
-  console.log("✨correlationId:", correlationId);
+  const functionName = context.functionName || "unknown serviceBus";
+  console.log("✨✨correlationId:", correlationId);
+  console.log("💁functionName:", functionName);
 
-  const span = tracer.startSpan(functionName, {
-    attributes: {
-      "app.invocation_id": invocationId,
-      "app.message_id": messageId,
-      "app.correlation_id": correlationId,
-      "messaging.system": "azure.servicebus",
-      // "messaging.destination": metadata.entityName || options.queue || "unknown",
-      "messaging.operation": "process",
+  const parentCtx = trace.setSpanContext(sContext.active(), buildSpanContext(correlationId));
+  const span = tracer.startSpan(
+    "ServiceBus-" + functionName,
+    {
+      // kind: SpanKind.CONSUMER,
+      attributes: {
+        "app.invocation_id": invocationId,
+        "app.message_id": messageId,
+        "app.correlation_id": correlationId,
+        "messaging.system": "azure.servicebus",
+        // "messaging.destination": metadata.entityName || options.queue || "unknown",
+        "messaging.operation": "process",
+      },
     },
-  });
+    parentCtx
+  );
 
   try {
-    const result = await fn(message, context);
-    span.setStatus({ code: 1 });
+    await sContext.with(trace.setSpan(parentCtx, span), async () => {
+      const result = await fn(message, context);
+      span.setStatus({ code: SpanStatusCode.OK });
+    });
   } catch (error) {
     span.recordException(error);
-    span.setStatus({ code: 2, message: error.message || "error" });
+    span.setStatus({ code: SpanStatusCode.ERROR, message: error.message || "error" });
     throw error;
   } finally {
     span.end();
@@ -130,6 +152,15 @@ const validate = async (request, schemas) => {
     }
     return value;
   }
+};
+
+const buildSpanContext = (traceId) => {
+  return {
+    traceId,
+    spanId: randomBytes(8).toString("hex"),
+    traceFlags: TraceFlags.SAMPLED,
+    isRemote: true,
+  };
 };
 
 module.exports = {
