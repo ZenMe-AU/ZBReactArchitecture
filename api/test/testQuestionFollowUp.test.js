@@ -1,3 +1,5 @@
+//npm run test:local testQuestionFollowUp
+//npm run test:prod testQuestionFollowUp
 const { createUser, profileIdLookup } = require("./testModule/createUserTest");
 const { createQuestion, questionIdLookup } = require("./testModule/createQuestionTest");
 const { createAnswer } = require("./testModule/createAnswerTest");

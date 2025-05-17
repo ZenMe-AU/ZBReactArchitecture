@@ -29,7 +29,7 @@ function App() {
     attributes: "",
     fuzzySearch: true,
   });
-  const apiDomain = import.meta.env.VITE_API_DOMAIN || "https://local-chat.azurewebsites.net/";
+  const apiDomain = import.meta.env.VITE_API_DOMAIN || "https://local-chat.azurewebsites.net";
 
   useEffect(() => {
     fetchUsers();

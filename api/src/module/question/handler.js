@@ -153,6 +153,7 @@ async function UpdateQuestionById(request, context) {
 async function GetQuestionById(request, context) {
   const { id: questionId } = request.params;
   const questionnaire = await Question.getById(questionId);
+  // context.log("👀questionnaire:", questionnaire);
   return { return: { detail: questionnaire } };
 }
 
@@ -613,6 +614,14 @@ async function PatchQuestionById(request, context) {
  *       - Question
  *     summary: Follow up on a question
  *     description: Create a follow-up action for a specific question.
+ *     parameters:
+ *       - in: header
+ *         name: X-Correlation-Id
+ *         required: false
+ *         schema:
+ *           type: string
+ *           example: "123e4567-e89b-12d3-a456-000000000000"
+ *         description: Correlation ID for tracing requests
  *     requestBody:
  *       required: true
  *       content:
@@ -691,6 +700,14 @@ async function SendFollowUpCmdQueue(request, context) {
  *       - Question
  *     summary: Share a question
  *     description: Share a specific question with one or more users.
+ *     parameters:
+ *       - in: header
+ *         name: X-Correlation-Id
+ *         required: false
+ *         schema:
+ *           type: string
+ *           example: "123e4567-e89b-12d3-a456-000000000001"
+ *         description: Correlation ID for tracing requests
  *     requestBody:
  *       required: true
  *       content:
@@ -802,46 +819,53 @@ async function SendFollowUpCmd(message, context) {
   context.log("Service bus queue function processed message:", message);
   //get message id into db as followupcmd.id
   // also get correlationId from service bus not from msg body
-  try {
-    // todo: change to insert / update / delete
-    // await insertFollowUpCmd(message["profileId"], message);
-    //
-    // const correlationId = context.triggerMetadata.correlationId;
-    // const messageId = context.triggerMetadata.messageId;
-    const { messageId, correlationId } = context.triggerMetadata;
-    const cmd = await Question.insertFollowUpCmd(messageId, message["profileId"], message, correlationId);
-    const filters = Question.insertFollowUpFilter(message);
-    const receiverIds = Question.getFollowUpReceiver(message);
-    const sharedQuestions = Question.shareQuestion(message["newQuestionId"], message["profileId"], await receiverIds);
+  // try {
+  // todo: change to insert / update / delete
+  // await insertFollowUpCmd(message["profileId"], message);
+  //
+  // const correlationId = context.triggerMetadata.correlationId;
+  // const messageId = context.triggerMetadata.messageId;
+  const { messageId, correlationId } = context.triggerMetadata;
+  const cmd = await Question.insertFollowUpCmd(messageId, message["profileId"], message, correlationId);
+  const filters = Question.insertFollowUpFilter(message);
+  const receiverIds = Question.getFollowUpReceiver(message);
+  const sharedQuestions = Question.shareQuestion(message["newQuestionId"], message["profileId"], await receiverIds);
 
-    const [resolvedFilters, resolvedSharedQuestions] = await Promise.all([filters, sharedQuestions]);
+  const settled = await Promise.allSettled([filters, sharedQuestions]);
+  // const [resolvedFilters, resolvedSharedQuestions] = settled;
+  // const allDone = settled.every((result) => result.status === "fulfilled");
+  const errors = settled.filter((result) => result.status === "rejected").map((result) => result.reason);
 
-    await Question.updateFollowUpCmdStatus(cmd["id"]);
-
-    context.log(`resolvedFilters`, resolvedFilters);
-    context.log(`resolvedSharedQuestions`, resolvedSharedQuestions);
-    context.log(`✅ Succeed:`, message);
-  } catch (error) {
-    context.log(`❌ Failed:`, error);
-    throw error;
+  if (errors.length > 0) {
+    throw new Error("Operations failed: " + errors.map((e) => e.message || e).join("; "));
   }
+
+  await Question.updateFollowUpCmdStatus(cmd["id"]);
+
+  //   context.log(`resolvedFilters`, resolvedFilters);
+  //   context.log(`resolvedSharedQuestions`, resolvedSharedQuestions);
+  //   context.log(`✅ Succeed:`, message);
+  // } catch (error) {
+  //   context.log(`❌ Failed:`, error);
+  //   throw error;
+  // }
 }
 
 async function ShareQuestionCmd(message, context) {
-  context.log("Service bus queue function processed message:", message);
+  // context.log("Service bus queue function processed message:", message);
 
-  try {
-    const { messageId, correlationId } = context.triggerMetadata;
-    const cmd = await Question.insertQuestionShareCmd(messageId, message["profileId"], message, correlationId);
-    const sharedQuestions = await Question.shareQuestion(message["newQuestionId"], message["profileId"], message["receiverIds"]);
+  // try {
+  const { messageId, correlationId } = context.triggerMetadata;
+  const cmd = await Question.insertQuestionShareCmd(messageId, message["profileId"], message, correlationId);
+  const sharedQuestions = await Question.shareQuestion(message["newQuestionId"], message["profileId"], message["receiverIds"]);
 
-    await Question.updateQuestionShareCmdStatus(cmd["id"]);
-    context.log(`sharedQuestions:`, sharedQuestions);
-    context.log(`✅ Succeed:`, message);
-  } catch (error) {
-    context.log(`❌ Failed:`, error);
-    throw error;
-  }
+  await Question.updateQuestionShareCmdStatus(cmd["id"]);
+  //   context.log(`sharedQuestions:`, sharedQuestions);
+  //   context.log(`✅ Succeed:`, message);
+  // } catch (error) {
+  //   context.log(`❌ Failed:`, error);
+  //   throw error;
+  // }
 }
 
 module.exports = {

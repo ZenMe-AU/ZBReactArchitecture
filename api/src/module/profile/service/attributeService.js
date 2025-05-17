@@ -18,7 +18,7 @@ async function getByUser(profileId) {
     return attrData.map(({ tag }) => tag);
   } catch (err) {
     console.log(err);
-    return;
+    throw new Error(`Function failed: ${err.message}`, { cause: err });
   }
 }
 
@@ -56,7 +56,7 @@ async function update(profileId, tags) {
     return tags;
   } catch (err) {
     console.log(err);
-    return;
+    throw new Error(`Function failed: ${err.message}`, { cause: err });
   }
 }
 

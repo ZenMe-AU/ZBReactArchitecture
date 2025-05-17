@@ -1,5 +1,5 @@
 // const appInsights = require("applicationinsights");
-const { trace, context: sContext, TraceFlags, SpanKind, SpanStatusCode } = require("@opentelemetry/api");
+const { trace, context: sContext, propagation, TraceFlags, SpanKind, SpanStatusCode } = require("@opentelemetry/api");
 const { randomBytes } = require("crypto");
 
 const requestHandler =
@@ -11,6 +11,10 @@ const requestHandler =
     const invocationId = context.invocationId || "unknown invocationId";
     const functionName = context.functionName || `${method} ${route}`;
     const correlationId = request.headers.get("X-Correlation-Id");
+    const traceparent = request.headers.get("x-traceparent");
+    // const parentCtx = propagation.extract(sContext.active(), { traceparent });
+
+    // appInsights.defaultClient.context.tags[appInsights.defaultClient.context.keys.operationId] = correlationId;
 
     const parentCtx = trace.setSpanContext(sContext.active(), buildSpanContext(correlationId));
     const span = tracer.startSpan(
@@ -30,7 +34,7 @@ const requestHandler =
     );
 
     try {
-      request.correlationId = request.headers.get("X-Correlation-Id");
+      request.correlationId = correlationId;
       if (!request.clientParams) {
         const contentType = request.headers.get("content-type");
         if (contentType && contentType.includes("application/json")) {
@@ -42,9 +46,10 @@ const requestHandler =
       // todo: exit if equal 0
       if (schemas.length > 0) await validate(request, schemas);
       request.customParams = customParams;
-      console.log("✨✨correlationId:", request.correlationId);
-      console.log("💁functionName:", functionName);
-      console.log("context:", context);
+      context.log("✨✨correlationId:", request.correlationId);
+      context.log("🚧traceparent:", traceparent);
+      context.log("💁functionName:", functionName);
+      context.log("context:", context);
       // const path = request.url;
       // appInsights.defaultClient.trackTrace({
       //   message: `Function hit: ${path}`,
@@ -67,12 +72,12 @@ const requestHandler =
         },
       };
     } catch (error) {
-      console.log(error);
-      console.log("code:", error.code || "no");
-      console.log("statusCode:", error.statusCode || "no");
-      console.log("message:", error.message || "no"); // "Hello"
-      console.log("name:", error.name || "no");
-      console.log("stack:", error.stack || "no");
+      context.log(error);
+      context.log("code:", error.code || "no");
+      context.log("statusCode:", error.statusCode || "no");
+      context.log("message:", error.message || "no"); // "Hello"
+      context.log("name:", error.name || "no");
+      context.log("stack:", error.stack || "no");
       span.recordException(error);
       span.setStatus({ code: SpanStatusCode.ERROR, message: error.message || "error" });
       // context.log.error(error);
@@ -101,17 +106,19 @@ const requestHandler =
   };
 
 const serviceBusHandler = (fn) => async (message, context) => {
-  console.log("context:", context);
-  console.log("bindingData:", context.bindingData || "no bindingData");
-  console.log("message:", message);
+  context.log("context:", context);
+  context.log("bindingData:", context.bindingData || "no bindingData");
+  context.log("message:", message);
   const tracer = trace.getTracer("serviceBusTracer");
 
   const invocationId = context.invocationId || "unknown invocationId";
   const messageId = context.triggerMetadata.messageId || "unknown messageId";
-  const correlationId = context.triggerMetadata.correlationId || "unknown correlationId";
+  const correlationId = context.triggerMetadata.correlationId;
   const functionName = context.functionName || "unknown serviceBus";
-  console.log("✨✨correlationId:", correlationId);
-  console.log("💁functionName:", functionName);
+  context.log("✨✨correlationId:", correlationId);
+  context.log("💁functionName:", functionName);
+
+  // appInsights.defaultClient.context.tags[appInsights.defaultClient.context.keys.operationId] = correlationId;
 
   const parentCtx = trace.setSpanContext(sContext.active(), buildSpanContext(correlationId));
   const span = tracer.startSpan(
@@ -135,10 +142,12 @@ const serviceBusHandler = (fn) => async (message, context) => {
       const result = await fn(message, context);
       span.setStatus({ code: SpanStatusCode.OK });
     });
+    context.log(`✅ Succeed:`, message);
   } catch (error) {
     span.recordException(error);
     span.setStatus({ code: SpanStatusCode.ERROR, message: error.message || "error" });
-    throw error;
+    context.log(`❌ Failed:`, error);
+    // throw error;
   } finally {
     span.end();
   }

@@ -18,11 +18,17 @@ const appInsights = new ApplicationInsights({
     // connectionString: import.meta.env.VITE_APPINSIGHTS_CONNECTION_STRING,
     connectionString:
       "InstrumentationKey=c15a2189-babb-4591-ae95-8d3fc77edb6a;IngestionEndpoint=https://eastus-8.in.applicationinsights.azure.com/;LiveEndpoint=https://eastus.livediagnostics.monitor.azure.com/;ApplicationId=826f77d1-90d9-44e4-a93f-767d81985212",
-    enableAutoRouteTracking: true,
-    disableFetchTracking: false,
-    enableRequestHeaderTracking: true,
-    enableResponseHeaderTracking: true,
-    enableAjaxErrorStatusText: true,
+    // enableAutoRouteTracking: true,
+    // disableFetchTracking: false,
+    // enableRequestHeaderTracking: true,
+    // enableResponseHeaderTracking: true,
+    // enableAjaxErrorStatusText: true,
+    enableAutoRouteTracking: false,
+    disableFetchTracking: true,
+    enableRequestHeaderTracking: false,
+    enableResponseHeaderTracking: false,
+    enableAjaxErrorStatusText: false,
+    // enableCorsCorrelation: true,
     // *** If you're adding the Click Analytics plug-in, delete the next line. ***
     // extensions: [reactPlugin],
     // *** Add the Click Analytics plug-in. ***
@@ -33,6 +39,14 @@ const appInsights = new ApplicationInsights({
       [clickPluginInstance.identifier]: clickPluginConfig,
     },
   },
+});
+
+appInsights.addTelemetryInitializer((envelope) => {
+  envelope.tags["ai.cloud.role"] = "FrontendApp";
+  envelope.tags["ai.cloud.roleInstance"] = "UI1";
+
+  // envelope.data.baseData.target = "FunctionApp:LocalChat";
+  console.log(envelope);
 });
 
 appInsights.loadAppInsights();

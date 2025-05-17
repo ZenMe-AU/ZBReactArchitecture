@@ -1,13 +1,16 @@
-import { getOperationId } from "../telemetry";
+import { getOperationId, getTraceparent } from "../telemetry";
 
 export const jwtFetch = async (url: string, options: RequestInit = {}) => {
   const token = localStorage.getItem("token");
   const correlationId = getOperationId();
+  const traceparent = getTraceparent();
+
   console.log("Correlation ID:", correlationId);
   const headers = new Headers({
     Accept: "application/json",
     "Access-Control-Allow-Origin": "*",
     "X-Correlation-Id": correlationId,
+    "X-Traceparent": traceparent,
     ...options.headers,
   });
 

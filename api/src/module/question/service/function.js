@@ -23,7 +23,7 @@ async function create(profileId, title = null, question = null, option = null) {
     });
   } catch (err) {
     console.log(err);
-    return;
+    throw new Error(`Function failed: ${err.message}`, { cause: err });
   }
 }
 
@@ -44,7 +44,7 @@ async function updateById(questionId, title = null, questionText = null, option 
     );
   } catch (err) {
     console.log(err);
-    return;
+    throw new Error(`Function failed: ${err.message}`, { cause: err });
   }
 }
 
@@ -54,7 +54,7 @@ async function getById(questionId) {
     return await Question.findByPk(questionId);
   } catch (err) {
     console.log(err);
-    return;
+    throw new Error(`Function failed: ${err.message}`, { cause: err });
   }
 }
 
@@ -63,7 +63,7 @@ async function getListByUser(profileId) {
     return await Question.findAll({ where: { profileId: profileId } });
   } catch (err) {
     console.log(err);
-    return;
+    throw new Error(`Function failed: ${err.message}`, { cause: err });
   }
 }
 
@@ -88,7 +88,7 @@ async function getCombinationListByUser(profileId) {
     });
   } catch (err) {
     console.log(err);
-    return;
+    throw new Error(`Function failed: ${err.message}`, { cause: err });
   }
 }
 
@@ -103,7 +103,7 @@ async function addAnswerByQuestionId(questionId, profileId, duration, answer = n
     });
   } catch (err) {
     console.log(err);
-    return;
+    throw new Error(`Function failed: ${err.message}`, { cause: err });
   }
 }
 
@@ -112,7 +112,7 @@ async function getAnswerById(questionId, answerId) {
     return await QuestionAnswer.findOne({ where: { id: answerId, questionId: questionId } });
   } catch (err) {
     console.log(err);
-    return;
+    throw new Error(`Function failed: ${err.message}`, { cause: err });
   }
 }
 
@@ -154,7 +154,7 @@ async function getAnswerListByQuestionId(questionId) {
     );
   } catch (err) {
     console.log(err);
-    return;
+    throw new Error(`Function failed: ${err.message}`, { cause: err });
   }
 }
 
@@ -171,7 +171,7 @@ async function shareQuestion(newQuestionId, senderId, receiverIds) {
     return await QuestionShare.bulkCreate(addData);
   } catch (err) {
     console.log(err);
-    return;
+    throw new Error(`Function failed: ${err.message}`, { cause: err });
   }
 }
 
@@ -193,7 +193,7 @@ async function addFollowUpByQuestionId(newQuestionId, senderId, questionList, is
     return list;
   } catch (err) {
     console.log(err);
-    return;
+    throw new Error(`Function failed: ${err.message}`, { cause: err });
   }
 }
 
@@ -208,7 +208,7 @@ async function insertFollowUpCmd(cmdId, senderId, cmdData, correlationId) {
     });
   } catch (err) {
     console.log(err);
-    return;
+    throw new Error(`Function failed: ${err.message}`, { cause: err });
   }
 }
 
@@ -254,7 +254,7 @@ async function getFollowUpReceiver(cmdData) {
     });
   } catch (err) {
     console.log(err);
-    return;
+    throw new Error(`Function failed: ${err.message}`, { cause: err });
   }
 }
 
@@ -263,7 +263,7 @@ async function updateFollowUpCmdStatus(id) {
     return await FollowUpCmd.update({ status: 1 }, { where: { id: id }, individualHooks: true });
   } catch (err) {
     console.log(err);
-    return;
+    throw new Error(`Function failed: ${err.message}`, { cause: err });
   }
 }
 
@@ -278,7 +278,7 @@ async function insertQuestionShareCmd(cmdId, senderId, cmdData, correlationId) {
     });
   } catch (err) {
     console.log(err);
-    return;
+    throw new Error(`Function failed: ${err.message}`, { cause: err });
   }
 }
 
@@ -287,7 +287,7 @@ async function updateQuestionShareCmdStatus(id) {
     return await QuestionShareCmd.update({ status: 1 }, { where: { id: id }, individualHooks: true });
   } catch (err) {
     console.log(err);
-    return;
+    throw new Error(`Function failed: ${err.message}`, { cause: err });
   }
 }
 
@@ -369,7 +369,7 @@ async function getSharedQuestionListByUser(profileId) {
     });
   } catch (err) {
     console.log(err);
-    return;
+    throw new Error(`Function failed: ${err.message}`, { cause: err });
   }
 }
 
@@ -378,7 +378,7 @@ async function patchById(questionId, action, profileId) {
     return await QuestionAction.create({ questionId, profileId, action });
   } catch (err) {
     console.log(err);
-    return;
+    throw new Error(`Function failed: ${err.message}`, { cause: err });
   }
 }
 

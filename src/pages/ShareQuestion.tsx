@@ -85,13 +85,13 @@ function ShareQuestion() {
   return (
     <Container maxWidth="sm" sx={{ mt: 4 }}>
       <Helmet>
-        <title>Shared Question</title>
+        <title>Share Question</title>
       </Helmet>
       <Box display="flex" alignItems="center" mb={2}>
         <IconButton onClick={handleBackClick}>
           <ArrowBackIcon />
         </IconButton>
-        <Typography variant="h4">Share Question</Typography>
+        <Typography variant="h4">Share a question with friends</Typography>
       </Box>
 
       {error && (
