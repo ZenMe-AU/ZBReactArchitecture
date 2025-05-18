@@ -7,7 +7,10 @@ export const logPageView = (name: string, properties?: Record<string, any>) => {
   name = _.camelCase(document.title) || "pageView:" + name;
   appInsights.trackPageView({
     name: "page" + _.upperFirst(name) + "View",
+    uri: window.location.pathname,
+    uri: window.location.pathname,
     properties: {
+      appSource: "frontend",
       correlationId: correlationId,
       ...properties,
     },
@@ -34,6 +37,7 @@ export const logEvent = (eventName: string, properties?: Record<string, any>) =>
       session_Id: sessionId,
       operation_Id: operationId,
       correlationId: correlationId,
+      appSource: "frontend",
       ...properties,
     },
   });
@@ -50,6 +54,11 @@ export const clearUserContext = () => {
 export function setOperationId(operationId?: string): string {
   const traceId = operationId || crypto.randomUUID().replace(/-/g, "");
   appInsights.context.telemetryTrace.traceID = traceId;
+  appInsights.addTelemetryInitializer((envelope) => {
+    envelope.tags = envelope.tags || {};
+    envelope.tags["ai.operation.id"] = traceId;
+    envelope.tags["ai.operation.parentId"] = traceId;
+  });
   return traceId;
 }
 
