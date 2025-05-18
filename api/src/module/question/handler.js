@@ -613,6 +613,14 @@ async function PatchQuestionById(request, context) {
  *       - Question
  *     summary: Follow up on a question
  *     description: Create a follow-up action for a specific question.
+ *     parameters:
+ *       - in: header
+ *         name: X-Correlation-Id
+ *         required: false
+ *         schema:
+ *           type: string
+ *           example: "123e4567-e89b-12d3-a456-000000000000"
+ *         description: Correlation ID for tracing requests
  *     requestBody:
  *       required: true
  *       content:
@@ -691,6 +699,14 @@ async function SendFollowUpCmdQueue(request, context) {
  *       - Question
  *     summary: Share a question
  *     description: Share a specific question with one or more users.
+ *     parameters:
+ *       - in: header
+ *         name: X-Correlation-Id
+ *         required: false
+ *         schema:
+ *           type: string
+ *           example: "123e4567-e89b-12d3-a456-000000000001"
+ *         description: Correlation ID for tracing requests
  *     requestBody:
  *       required: true
  *       content:
