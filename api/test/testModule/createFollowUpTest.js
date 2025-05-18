@@ -4,7 +4,10 @@ const sendFollowUpCmdUrl = new URL("/api/sendFollowUpCmd", baseUrl);
 const createFollowUp = (profileIdLookup, questionIdLookup, testCorrelationId) => {
   test.each(followUpData())("send follow-up question by user $userId", async (followUp) => {
     const response = await fetch(sendFollowUpCmdUrl, {
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "x-correlation-id": testCorrelationId,
+      },
       method: "POST",
       body: JSON.stringify({
         profileId: profileIdLookup.getProfileId(followUp.userId),
@@ -16,7 +19,6 @@ const createFollowUp = (profileIdLookup, questionIdLookup, testCorrelationId) =>
           },
         ],
         isSave: followUp.isSave,
-        correlationId: testCorrelationId,
       }),
     });
 

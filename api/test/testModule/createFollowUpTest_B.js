@@ -33,9 +33,13 @@ const checkFollowUpQty = (testCorrelationId) => {
         }
         let resultData = await response.json();
         qty = resultData.return.qty;
+
         if (qty === followUpQuestionQty) {
           break;
+        } else {
+          console.log(`Retrying... expected qty: ${followUpQuestionQty}, current qty: ${qty}`);
         }
+
         await new Promise((resolve) => setTimeout(resolve, 2000));
       }
       expect(qty).toBe(followUpQuestionQty);
