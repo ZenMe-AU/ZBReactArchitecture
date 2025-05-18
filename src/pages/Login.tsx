@@ -66,6 +66,7 @@ function Login() {
   };
   return (
     <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh" bgcolor="#f5f5f5" padding={4}>
+      backend api: {import.meta.env.VITE_API_DOMAIN}
       {isAuthenticated ? (
         <Box display="flex" flexDirection="column" alignItems="center" bgcolor="white" p={4} borderRadius={2} boxShadow={3} maxWidth={400}>
           <Typography variant="h5" gutterBottom>
