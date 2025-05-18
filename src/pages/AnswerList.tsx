@@ -1,14 +1,24 @@
 import { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet";
 import { getAnswerListByQuestionId } from "../api/question";
 import { Container, Typography, List, ListItem, ListItemText, Box, Button, IconButton } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { logEvent } from "../telemetry";
 
 function AnswerList() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [answers, setAnswers] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const handleBackClick = () => {
+    logEvent("NavigateBack", {
+      parentId: "BackButton",
+    });
+
+    navigate(-1);
+  };
 
   useEffect(() => {
     const fetchAnswers = async () => {
@@ -28,8 +38,11 @@ function AnswerList() {
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Helmet>
+        <title>Answer List</title>
+      </Helmet>
       <Box display="flex" alignItems="center" mb={2}>
-        <IconButton onClick={() => navigate(-1)} sx={{ mr: 2 }}>
+        <IconButton onClick={handleBackClick} sx={{ mr: 2 }}>
           <ArrowBackIcon />
         </IconButton>
         <Typography variant="h4" gutterBottom>

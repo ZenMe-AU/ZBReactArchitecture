@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet";
 import { Link } from "react-router-dom";
 import { getQuestionsByUser } from "../api/question";
 import { Container, Typography, List, ListItem, ListItemButton, ListItemText, Button, Box, Divider } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import ShareIcon from "@mui/icons-material/Share";
 import { Question } from "../types/interfaces";
+import { logEvent } from "../telemetry";
 
 function QuestionCombinationList() {
   const profileId = localStorage.getItem("profileId");
@@ -26,10 +28,46 @@ function QuestionCombinationList() {
     fetchQuestions();
   }, [profileId]);
 
+  const handleBackClick = () => {
+    logEvent("NavigateBack", {
+      parentId: "BackButton",
+    });
+
+    navigate(-1);
+  };
+
+  const handleOpenAnswer = (questionId: string) => {
+    logEvent("OpenAnswerDetail", {
+      questionId,
+      parentId: "QuestionList",
+    });
+  };
+  const handleEditQuestion = (questionId: string, isNew: boolean) => (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    logEvent(isNew ? "AddQuestion" : "EditQuestion", {
+      questionId,
+      parentId: "QuestionList",
+    });
+  };
+  const handleShareQuestion = (questionId: string) => (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    logEvent("ShareQuestion", {
+      questionId,
+      parentId: "QuestionList",
+    });
+  };
+  const handleAddQuestion = () => {
+    logEvent("AddQuestion", {
+      parentId: "ActionButton",
+    });
+  };
   if (loading) return <Typography>Loading...</Typography>;
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Helmet>
+        <title>Question List</title>
+      </Helmet>
       <Typography variant="h4" gutterBottom>
         Question List
       </Typography>
@@ -37,7 +75,7 @@ function QuestionCombinationList() {
         {questions.map((q, index) => (
           <div key={q.id}>
             <ListItem disablePadding>
-              <ListItemButton component={Link} to={`/question/${q.id}/answer`}>
+              <ListItemButton component={Link} to={`/question/${q.id}/answer`} onClick={() => handleOpenAnswer(q.id)}>
                 <ListItemText primary={q.title} />
                 <Box display="flex" gap={1} ml={2}>
                   <Button
@@ -46,10 +84,18 @@ function QuestionCombinationList() {
                     startIcon={<EditIcon />}
                     component={Link}
                     to={`/question/${q.id}` + (q.profileId !== profileId ? "/add" : "")}
+                    onClick={() => handleEditQuestion(q.id, q.profileId !== profileId)}
                   >
                     Edit
                   </Button>
-                  <Button variant="outlined" size="small" startIcon={<ShareIcon />} component={Link} to={`/question/${q.id}/share`}>
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={<ShareIcon />}
+                    component={Link}
+                    to={`/question/${q.id}/share`}
+                    onClick={() => handleShareQuestion(q.id)}
+                  >
                     Share
                   </Button>
                 </Box>
@@ -60,7 +106,7 @@ function QuestionCombinationList() {
         ))}
       </List>
       <Box mt={4} display="flex" justifyContent="space-between">
-        <Button variant="contained" color="primary" component={Link} to="/question/add">
+        <Button variant="contained" color="primary" component={Link} to="/question/add" onClick={() => handleAddQuestion}>
           + Add Question
         </Button>
       </Box>

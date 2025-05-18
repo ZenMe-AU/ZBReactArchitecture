@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Helmet } from "react-helmet";
 import { createQuestion } from "../api/question";
 import { Container, Typography, Box, TextField, Button, List, ListItem, IconButton } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { logEvent } from "../telemetry";
 
 function AddQuestion() {
   const [title, setTitle] = useState("");
@@ -13,6 +15,13 @@ function AddQuestion() {
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
 
+  const handleBackClick = () => {
+    logEvent("NavigateBack", {
+      parentId: "BackButton",
+    });
+
+    navigate(-1);
+  };
   // Function to add a new option to the list
   const handleAddOption = () => {
     if (newOption.trim() !== "") {
@@ -28,12 +37,21 @@ function AddQuestion() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); // Prevent default form submission behavior
+    let id: string | null = null;
     try {
       setSubmitting(true);
-      const id = await createQuestion(title, questionText, options);
-      navigate(`/question/${id}`); // Redirect to the question detail page after successful submission
+      id = await createQuestion(title, questionText, options.length === 0 ? null : options); // Create a new question
     } catch (error) {
       console.error("Error creating question:", error); // Log error if any
+    } finally {
+      setSubmitting(false); // Reset submitting state
+      if (id) {
+        logEvent("QuestionCreated", {
+          parentId: "QuestionForm",
+          questionId: id,
+        });
+        navigate(`/question/${id}`, { replace: true }); // Redirect to the question detail page after successful submission
+      }
     }
   };
 
@@ -41,8 +59,11 @@ function AddQuestion() {
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
+      <Helmet>
+        <title>Add Question</title>
+      </Helmet>
       <Box display="flex" alignItems="center" mb={2}>
-        <IconButton onClick={() => navigate(-1)}>
+        <IconButton onClick={handleBackClick}>
           <ArrowBackIcon />
         </IconButton>
         <Typography variant="h4">Add Question</Typography>

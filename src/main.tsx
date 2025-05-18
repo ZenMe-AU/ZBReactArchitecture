@@ -1,11 +1,14 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
+import React from "react";
+import ReactDOM from "react-dom/client";
 // import App from './App.tsx'
-import App from './Router.tsx'
-import 'bootstrap/dist/css/bootstrap.css'
+import App from "./Router.tsx";
+import "bootstrap/dist/css/bootstrap.css";
+import { appInsights } from "./applicationInsights";
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+appInsights.trackPageView();
+
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>,
-)
+  </React.StrictMode>
+);

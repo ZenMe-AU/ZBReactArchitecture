@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet";
 import { getSharedQuestionList } from "../api/question";
 
 function SharedQuestions() {
@@ -29,14 +30,17 @@ function SharedQuestions() {
 
   return (
     <div>
+      <Helmet>
+        <title>Shared Question List</title>
+      </Helmet>
       <h1>Shared Questions</h1>
       {sharedQuestions.length > 0 ? (
         <ul>
           {sharedQuestions.map((shared) => (
-            <li key={shared.questionId}>
+            <li key={shared.newQuestionId}>
               <h2>{shared.question.title}</h2>
               <p>{shared.question.questionText}</p>
-              <Link to={`/question/${shared.questionId}/answer`}>Answer this question</Link>
+              <Link to={`/question/${shared.newQuestionId}/answer`}>Answer this question</Link>
             </li>
           ))}
         </ul>
