@@ -2,6 +2,7 @@ const requestHandler =
   (fn, { schemas = [], customParams = {}, requireAuth = true } = {}) =>
   async (request, context) => {
     try {
+      request.correlationId = request.headers.get("X-Correlation-Id");
       if (!request.clientParams) {
         const contentType = request.headers.get("content-type");
         if (contentType && contentType.includes("application/json")) {
@@ -16,6 +17,7 @@ const requestHandler =
       const result = await fn(request, context);
       return {
         status: result?.status || 200,
+        headers: { "X-Correlation-Id": request.correlationId },
         jsonBody: {
           success: true,
           return: result.return,
@@ -28,9 +30,10 @@ const requestHandler =
       console.log("message:", error.message || "no"); // "Hello"
       console.log("name:", error.name || "no");
       console.log("stack:", error.stack || "no");
-      // context.log.error(error);
+
       return {
         status: error.status || 500,
+        headers: { "X-Correlation-Id": request.correlationId },
         jsonBody: {
           success: false,
           message: error.message || "Internal Server Error",
@@ -38,6 +41,18 @@ const requestHandler =
       };
     }
   };
+
+const serviceBusHandler = (fn) => async (message, context) => {
+  console.log("context:", context);
+  console.log("bindingData:", context.bindingData || "no bindingData");
+  console.log("message:", message);
+
+  try {
+    const result = await fn(message, context);
+  } catch (error) {
+    throw error;
+  }
+};
 
 const validate = async (request, schemas) => {
   for (const schema of schemas) {
@@ -49,4 +64,7 @@ const validate = async (request, schemas) => {
   }
 };
 
-module.exports = requestHandler;
+module.exports = {
+  requestHandler,
+  serviceBusHandler,
+};

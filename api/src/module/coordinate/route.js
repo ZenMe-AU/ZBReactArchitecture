@@ -1,5 +1,5 @@
 // This file is auto-loaded by functions/routes.js
-const requestHandler = require("../shared/handler.js");
+const { requestHandler } = require("../shared/handler.js");
 const coordinateHandler = require("./handler.js");
 
 module.exports = [
