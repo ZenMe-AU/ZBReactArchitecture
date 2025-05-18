@@ -160,7 +160,7 @@ async function getAnswerListByQuestionId(questionId) {
 
 async function shareQuestion(newQuestionId, senderId, receiverIds) {
   try {
-    console.log("shareQuestion data:", questionId, senderId, receiverIds);
+    console.log("shareQuestion data:", newQuestionId, senderId, receiverIds);
     const addData = receiverIds.map(function (receiverId) {
       return {
         newQuestionId: newQuestionId,
@@ -197,13 +197,14 @@ async function addFollowUpByQuestionId(newQuestionId, senderId, questionList, is
   }
 }
 
-async function insertFollowUpCmd(senderId, cmdData) {
+async function insertFollowUpCmd(cmdId, senderId, cmdData, correlationId) {
   try {
     return await FollowUpCmd.create({
+      id: cmdId,
       senderProfileId: senderId,
       action: "create",
       data: cmdData,
-      correlationId: cmdData.correlationId || uuidv4(),
+      correlationId: correlationId,
     });
   } catch (err) {
     console.log(err);
@@ -266,13 +267,14 @@ async function updateFollowUpCmdStatus(id) {
   }
 }
 
-async function insertQuestionShareCmd(senderId, cmdData) {
+async function insertQuestionShareCmd(cmdId, senderId, cmdData, correlationId) {
   try {
     return await QuestionShareCmd.create({
+      id: cmdId,
       senderProfileId: senderId,
       action: "create",
       data: cmdData,
-      correlationId: cmdData.correlationId || uuidv4(),
+      correlationId: correlationId,
     });
   } catch (err) {
     console.log(err);
