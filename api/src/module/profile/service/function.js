@@ -30,7 +30,7 @@ async function create(name, tags = [], avatar = null) {
     return profile;
   } catch (err) {
     console.log(err);
-    return;
+    throw new Error(`Function failed: ${err.message}`, { cause: err });
   }
 }
 
@@ -45,7 +45,7 @@ async function getById(profileId) {
     return await Profiles.findByPk(profileId);
   } catch (err) {
     console.log(err);
-    return;
+    throw new Error(`Function failed: ${err.message}`, { cause: err });
   }
 }
 
@@ -70,7 +70,7 @@ function getList(name, tags) {
     return Profiles.findAll(queryObj);
   } catch (err) {
     console.log(err);
-    return;
+    throw new Error(`Function failed: ${err.message}`, { cause: err });
   }
 }
 

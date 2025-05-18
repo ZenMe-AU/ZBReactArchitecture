@@ -800,48 +800,28 @@ async function GetEventByCorrelationId(request, context) {
 
 async function SendFollowUpCmd(message, context) {
   context.log("Service bus queue function processed message:", message);
-  //get message id into db as followupcmd.id
-  // also get correlationId from service bus not from msg body
-  try {
-    // todo: change to insert / update / delete
-    // await insertFollowUpCmd(message["profileId"], message);
-    //
-    // const correlationId = context.triggerMetadata.correlationId;
-    // const messageId = context.triggerMetadata.messageId;
     const { messageId, correlationId } = context.triggerMetadata;
     const cmd = await Question.insertFollowUpCmd(messageId, message["profileId"], message, correlationId);
     const filters = Question.insertFollowUpFilter(message);
     const receiverIds = Question.getFollowUpReceiver(message);
     const sharedQuestions = Question.shareQuestion(message["newQuestionId"], message["profileId"], await receiverIds);
 
-    const [resolvedFilters, resolvedSharedQuestions] = await Promise.all([filters, sharedQuestions]);
+  const settled = await Promise.allSettled([filters, sharedQuestions]);
+  const errors = settled.filter((result) => result.status === "rejected").map((result) => result.reason);
 
-    await Question.updateFollowUpCmdStatus(cmd["id"]);
-
-    context.log(`resolvedFilters`, resolvedFilters);
-    context.log(`resolvedSharedQuestions`, resolvedSharedQuestions);
-    context.log(`✅ Succeed:`, message);
-  } catch (error) {
-    context.log(`❌ Failed:`, error);
-    throw error;
+  if (errors.length > 0) {
+    throw new Error("Operations failed: " + errors.map((e) => e.message || e).join("; "));
   }
+
+  await Question.updateFollowUpCmdStatus(cmd["id"]);
 }
 
 async function ShareQuestionCmd(message, context) {
-  context.log("Service bus queue function processed message:", message);
-
-  try {
     const { messageId, correlationId } = context.triggerMetadata;
     const cmd = await Question.insertQuestionShareCmd(messageId, message["profileId"], message, correlationId);
     const sharedQuestions = await Question.shareQuestion(message["newQuestionId"], message["profileId"], message["receiverIds"]);
 
     await Question.updateQuestionShareCmdStatus(cmd["id"]);
-    context.log(`sharedQuestions:`, sharedQuestions);
-    context.log(`✅ Succeed:`, message);
-  } catch (error) {
-    context.log(`❌ Failed:`, error);
-    throw error;
-  }
 }
 
 module.exports = {

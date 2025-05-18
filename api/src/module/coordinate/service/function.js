@@ -25,7 +25,7 @@ function create(lon, lat, deviceId, topic, data) {
     return Location.create(dataDict);
   } catch (err) {
     console.log(err);
-    return;
+    throw new Error(`Function failed: ${err.message}`, { cause: err });
   }
 }
 
