@@ -1,6 +1,6 @@
 import { jwtFetch } from "./jwtFetch";
 
-const apiDomain = import.meta.env.VITE_API_DOMAIN;
+const apiDomain = import.meta.env.VITE_API_DOMAIN || "https://local-chat.azurewebsites.net";
 
 export const login = async (userId: string) => {
   try {
