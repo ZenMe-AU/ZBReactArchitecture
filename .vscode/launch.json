@@ -3,7 +3,7 @@
   "compounds": [
     {
       "name": "Start Full Stack App",
-      "configurations": ["Attach to Node Functions", "Launch Frontend"]
+      "configurations": ["Launch Frontend", "Attach to Node Functions"]
     }
   ],
   "configurations": [
@@ -17,7 +17,7 @@
     },
     {
       "name": "Launch Frontend",
-      "type": "pwa-chrome",
+      "type": "chrome",
       "request": "launch",
       "url": "http://localhost:5173",
       "webRoot": "${workspaceFolder}",
