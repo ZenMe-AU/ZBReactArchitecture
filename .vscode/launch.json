@@ -1,5 +1,11 @@
 {
   "version": "0.2.0",
+  "compounds": [
+    {
+      "name": "Start Full Stack App",
+      "configurations": ["Attach to Node Functions", "Launch Frontend"]
+    }
+  ],
   "configurations": [
     {
       "name": "Attach to Node Functions",
@@ -8,6 +14,14 @@
       "restart": true,
       "port": 9229,
       "preLaunchTask": "func: host start"
+    },
+    {
+      "name": "Launch Frontend",
+      "type": "pwa-chrome",
+      "request": "launch",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}",
+      "preLaunchTask": "start-frontend"
     }
   ]
 }
