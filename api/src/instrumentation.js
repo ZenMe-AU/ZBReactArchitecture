@@ -7,7 +7,6 @@ const { SimpleSpanProcessor } = require("@opentelemetry/sdk-trace-node");
 // const { ErrorOrSampleProcessor } = require("./errorOrSampleProcessor");
 const { HttpInstrumentation } = require("@opentelemetry/instrumentation-http");
 const { PgInstrumentation } = require("@opentelemetry/instrumentation-pg");
-require("dotenv").config();
 
 const exporter = new AzureMonitorTraceExporter({
   connectionString: process.env.APPLICATIONINSIGHTS_CONNECTION_STRING,

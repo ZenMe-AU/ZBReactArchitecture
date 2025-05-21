@@ -30,6 +30,9 @@
     "postgrejs": "^2.15.4",
     "sequelize": "^6.37.3",
     "sequelize-cli": "^6.6.2",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-dist": "^5.17.14",
+    "swagger-ui-express": "^5.0.1",
     "uuid": "^11.1.0"
   },
   "main": "src/{index.js,functions/*.js}",
