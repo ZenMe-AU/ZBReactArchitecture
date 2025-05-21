@@ -10,7 +10,8 @@
     "WEBSITE_CONTENTSHARE": "local-chatba88",
     "WEBSITE_RUN_FROM_PACKAGE": "https://eventgrid28a16.blob.core.windows.net/function-releases/20240818233511-07c7f3e8dca2db102ba3ce70b27aafdc.zip?sv=2024-05-04&st=2024-08-18T23%3A30%3A28Z&se=2034-08-18T23%3A35%3A28Z&sr=b&sp=r&sig=4rfgf9d6gMYkVxJ3BykX8F4mtppCW4zR1%2FtifI58ZsE%3D",
     "AzureWebJobs.httpTrigger1.Disabled": "0",
-    "Zmchat_SERVICEBUS": "Endpoint=sb://zmchat.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=Tttu7WszRbesr1m0eZsxZlzTvfSxAbNYz+ASbIAFcIs="
+    "Zmchat_SERVICEBUS": "Endpoint=sb://zmchat.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=Tttu7WszRbesr1m0eZsxZlzTvfSxAbNYz+ASbIAFcIs=",
+    "SERVER_OTEL_SERVICE_NAME": "FunctionApp:LocalChat"
   },
   "Host": {
     "CORS": "*"
