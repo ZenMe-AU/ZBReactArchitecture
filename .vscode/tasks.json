@@ -3,18 +3,18 @@
   "tasks": [
     {
       "type": "func",
-      "label": "func: host start",
+      "label": "backend: start-functions-host",
       "command": "host start",
       "problemMatcher": "$func-node-watch",
       "isBackground": true,
-      "dependsOn": "npm install (functions)",
+      "dependsOn": "backend: install-functions-deps",
       "options": {
         "cwd": "${workspaceFolder}/api"
       }
     },
     {
       "type": "shell",
-      "label": "npm install (functions)",
+      "label": "backend: install-functions-deps",
       "command": "npm install",
       "options": {
         "cwd": "${workspaceFolder}/api"
@@ -22,7 +22,7 @@
     },
     {
       "type": "shell",
-      "label": "npm prune (functions)",
+      "label": "backend: prune-functions-deps",
       "command": "npm prune --production",
       "problemMatcher": [],
       "options": {
@@ -31,7 +31,7 @@
     },
     {
       "type": "shell",
-      "label": "start-frontend",
+      "label": "frontend: start-dev-server",
       "command": "npm run dev",
       "isBackground": true,
       "options": {
@@ -52,6 +52,20 @@
           "endsPattern": "ready in .*ms"
         }
       }
+    },
+    {
+      "type": "shell",
+      "label": "backend: build-functions",
+      "command": "npm run build",
+      "options": {
+        "cwd": "${workspaceFolder}/api"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "backend: predeploy-compound",
+      "dependsOn": ["backend: build-functions", "backend: install-functions-deps", "backend: prune-functions-deps"],
+      "dependsOrder": "sequence"
     }
   ]
 }
