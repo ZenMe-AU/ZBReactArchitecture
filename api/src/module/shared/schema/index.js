@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const basePath = path.join(__dirname, "../module");
+const basePath = path.join(__dirname, "../../");
 const schemas = {};
 
 fs.readdirSync(basePath).forEach((moduleName) => {

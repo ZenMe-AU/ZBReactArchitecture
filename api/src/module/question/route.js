@@ -1,7 +1,7 @@
 const { app } = require("@azure/functions");
 const { requestHandler, serviceBusHandler } = require("../shared/handler.js");
 const questionHandler = require("./handler.js");
-const schemas = require("../../schemas/index.js");
+const schemas = require("../shared/schema/index.js");
 const { followUpCmdQueue, shareQuestionCmdQueue } = require("../shared/service/serviceBus.js");
 
 app.http("CreateQuestion", {
