@@ -1,5 +1,5 @@
 const { Op, Sequelize } = require("sequelize");
-const { Location } = require("../../../Repository/models.js");
+const { Location } = require("../../shared/db/model/index.js");
 
 /**
  * write location into database

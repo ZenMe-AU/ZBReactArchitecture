@@ -1,7 +1,7 @@
 const { app } = require("@azure/functions");
-const { sequelize } = require("../../src/Repository/db.js");
+const { sequelize } = require("../../../src/module/shared/db/index.js");
 const { QueryTypes } = require("sequelize");
-const { Users } = require("../../src/Repository/models.js");
+const { Users } = require("../../../src/module/shared/db/model/index.js");
 
 //Search the database for users who were near the device at the given time.
 //parameters: device, datetime, interval, distance, limited
@@ -12,19 +12,13 @@ app.http("SearchNearMe", {
     let device_id = request.query.get("device") || "l1";
     let request_time = new Date().toISOString().slice(0, 16);
     if (request.query.get("datetime")) {
-      request_time = new Date(request.query.get("datetime"))
-        .toISOString()
-        .slice(0, 16);
+      request_time = new Date(request.query.get("datetime")).toISOString().slice(0, 16);
     }
     request_time += ":59";
     let interval = request.query.get("interval") || 60;
     let distance = request.query.get("distance") || 10;
     let limited = request.query.get("limited") || 100;
-    let start_time = new Date(
-      new Date(request_time + "Z").getTime() - interval * 60 * 1000
-    )
-      .toISOString()
-      .slice(0, 16);
+    let start_time = new Date(new Date(request_time + "Z").getTime() - interval * 60 * 1000).toISOString().slice(0, 16);
 
     context.log("device_id" + device_id);
     context.log("interval" + interval);
@@ -32,13 +26,7 @@ app.http("SearchNearMe", {
     context.log("limited" + limited);
     context.log("start_time" + start_time);
     context.log("request_time" + request_time);
-    let users = await getUsers(
-      device_id,
-      start_time,
-      request_time,
-      distance,
-      limited
-    );
+    let users = await getUsers(device_id, start_time, request_time, distance, limited);
 
     return {
       body: JSON.stringify({ return: { users: users } }),

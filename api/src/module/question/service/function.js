@@ -9,7 +9,7 @@ const {
   FollowUpFilter,
   FollowUpEvent,
   QuestionShareEvent,
-} = require("../../../Repository/models.js");
+} = require("../../shared/db/model/index.js");
 const { v4: uuidv4 } = require("uuid");
 const { cmdName } = require("../enum.js");
 

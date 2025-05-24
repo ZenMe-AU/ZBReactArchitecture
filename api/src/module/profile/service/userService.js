@@ -1,6 +1,6 @@
 const { Op, Sequelize, QueryTypes } = require("sequelize");
 // const { sequelize } = require("../Repository/db.js");
-const { Users, Location, Attributes } = require("../../../Repository/models.js");
+const { Users, Location, Attributes } = require("../../shared/db/model/index.js");
 const { sequelize } = require("../../../../models/index");
 
 /**

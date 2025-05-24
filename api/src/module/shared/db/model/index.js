@@ -1,6 +1,6 @@
 const { DataTypes } = require("sequelize");
 // const { sequelize } = require("./db.js");
-const { sequelize } = require("../../models/index");
+const { sequelize } = require("../index");
 const { applyPatch } = require("fast-json-patch");
 
 const Users = sequelize.define(

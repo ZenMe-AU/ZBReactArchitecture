@@ -1,6 +1,6 @@
 const { app } = require("@azure/functions");
 const { Op, Sequelize } = require("sequelize");
-const { Users, Location } = require("../../../src/Repository/models.js");
+const { Users, Location } = require("../../../src/module/shared/db/model/index.js");
 
 app.http("SearchNearMe2", {
   methods: ["GET", "POST"],

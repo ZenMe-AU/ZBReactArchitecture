@@ -1,5 +1,5 @@
 const { app } = require("@azure/functions");
-const { Location } = require("../../src/Repository/models.js");
+const { Location } = require("../../../src/module/shared/db/model/index.js");
 
 //This function writes the data as provided to the database.
 // {
@@ -58,22 +58,12 @@ app.http("LocationWriteAndGenFake", {
         let fakeDataParam = "fakeData" in bodyJson ? bodyJson.fakeData : {};
         let fakeInputData = [];
         let fakeDeviceAry =
-          "id" in fakeDataParam
-            ? Array.isArray(fakeDataParam.id)
-              ? new Set(fakeDataParam.id)
-              : new Set([fakeDataParam.id])
-            : new Set();
+          "id" in fakeDataParam ? (Array.isArray(fakeDataParam.id) ? new Set(fakeDataParam.id) : new Set([fakeDataParam.id])) : new Set();
         let fakeDeviceLimit = 100;
-        let maxDistance =
-          "maxDistance" in fakeDataParam ? fakeDataParam.maxDistance : 10;
-        let minDistance =
-          "minDistance" in fakeDataParam ? fakeDataParam.minDistance : 0;
+        let maxDistance = "maxDistance" in fakeDataParam ? fakeDataParam.maxDistance : 10;
+        let minDistance = "minDistance" in fakeDataParam ? fakeDataParam.minDistance : 0;
         let amount =
-          "id" in fakeDataParam
-            ? fakeDeviceAry.size
-            : "amount" in fakeDataParam
-            ? fakeDataParam.amount
-            : Math.floor(Math.random() * fakeDeviceLimit);
+          "id" in fakeDataParam ? fakeDeviceAry.size : "amount" in fakeDataParam ? fakeDataParam.amount : Math.floor(Math.random() * fakeDeviceLimit);
         if (amount >= fakeDeviceLimit) {
           amount = fakeDeviceLimit - 1;
         }
@@ -141,8 +131,7 @@ function generateLocation(longitude, latitude, max, min = 0) {
   const dx = r * Math.cos(theta);
 
   let newLatitude = latitude + dy / DEGREE;
-  let newLongitude =
-    longitude + dx / (DEGREE * Math.cos(latitude * (Math.PI / 180)));
+  let newLongitude = longitude + dx / (DEGREE * Math.cos(latitude * (Math.PI / 180)));
 
   return [newLongitude, newLatitude];
 }
