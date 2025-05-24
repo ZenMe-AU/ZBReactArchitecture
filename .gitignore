@@ -21,3 +21,5 @@ dist-ssr
 *.sln
 *.sw?
 package-lock.json
+
+api/src/module/shared/db/migration

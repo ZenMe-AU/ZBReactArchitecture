@@ -5,6 +5,7 @@
   "scripts": {
     "start": "func start",
     "build": "esbuild src/index.js --bundle --minify --outdir=dist",
+    "postinstall": "node script/cleanBrokenLinks.js || true && node script/linkMigrations.js",
     "test:local": "env-cmd -f local.env jest",
     "test:prod": "env-cmd -f .env jest",
     "migrate:up": "npx sequelize-cli db:migrate",
