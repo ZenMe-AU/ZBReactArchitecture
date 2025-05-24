@@ -35,7 +35,7 @@
     "swagger-ui-express": "^5.0.1",
     "uuid": "^11.1.0"
   },
-  "main": "src/{index.js,functions/*.js}",
+  "main": "src/{index.js,module/*/route.js}",
   "devDependencies": {
     "cross-env": "^7.0.3",
     "dotenv": "^16.4.5",

@@ -1,43 +1,46 @@
-// This file is auto-loaded by functions/routes.js
+const { app } = require("@azure/functions");
 const { requestHandler } = require("../shared/handler.js");
 const authHandler = require("./authHandler.js");
 const profileHandler = require("./handler.js");
 
-module.exports = [
-  {
-    name: "Login",
-    path: "auth/login",
-    methods: ["POST"],
-    handler: requestHandler(authHandler.loginUser),
-  },
-  {
-    name: "Verify",
-    path: "auth/verify",
-    methods: ["GET"],
-    handler: requestHandler(authHandler.verify),
-  },
-  {
-    name: "GetAttributes",
-    path: "attributes/{userId}",
-    methods: ["GET"],
-    handler: requestHandler(profileHandler.GetAttributes),
-  },
-  {
-    name: "PutAttributes",
-    path: "attributes/{userId}",
-    methods: ["PUT"],
-    handler: requestHandler(profileHandler.PutAttributes),
-  },
-  {
-    name: "CreateProfile",
-    path: "profile",
-    methods: ["POST"],
-    handler: requestHandler(profileHandler.CreateProfile),
-  },
-  {
-    name: "SearchProfile",
-    path: "profile",
-    methods: ["GET"],
-    handler: requestHandler(profileHandler.SearchProfile),
-  },
-];
+app.http("Login", {
+  route: "auth/login",
+  methods: ["POST"],
+  authLevel: "anonymous",
+  handler: requestHandler(authHandler.loginUser),
+});
+
+app.http("Verify", {
+  route: "auth/verify",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: requestHandler(authHandler.verify),
+});
+
+app.http("GetAttributes", {
+  route: "attributes/{userId}",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: requestHandler(profileHandler.GetAttributes),
+});
+
+app.http("PutAttributes", {
+  route: "attributes/{userId}",
+  methods: ["PUT"],
+  authLevel: "anonymous",
+  handler: requestHandler(profileHandler.PutAttributes),
+});
+
+app.http("CreateProfile", {
+  route: "profile",
+  methods: ["POST"],
+  authLevel: "anonymous",
+  handler: requestHandler(profileHandler.CreateProfile),
+});
+
+app.http("SearchProfile", {
+  route: "profile",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: requestHandler(profileHandler.SearchProfile),
+});

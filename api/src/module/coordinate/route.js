@@ -1,26 +1,31 @@
-// This file is auto-loaded by functions/routes.js
+const { app } = require("@azure/functions");
 const { requestHandler } = require("../shared/handler.js");
 const coordinateHandler = require("./handler.js");
 
-module.exports = [
-  {
-    name: "SearchAtLocationQty",
-    methods: ["GET"],
-    handler: requestHandler(coordinateHandler.SearchAtLocationQty),
-  },
-  {
-    name: "GetUsersDataByCoord",
-    methods: ["GET"],
-    handler: requestHandler(coordinateHandler.GetUsersDataByCoord),
-  },
-  {
-    name: "LocationWrite",
-    methods: ["POST"],
-    handler: requestHandler(coordinateHandler.LocationWrite),
-  },
-  {
-    name: "SearchUsersData",
-    methods: ["GET"],
-    handler: requestHandler(coordinateHandler.SearchUsersData),
-  },
-];
+app.http("SearchAtLocationQty", {
+  route: "SearchAtLocationQty",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: requestHandler(coordinateHandler.SearchAtLocationQty),
+});
+
+app.http("GetUsersDataByCoord", {
+  route: "GetUsersDataByCoord",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: requestHandler(coordinateHandler.GetUsersDataByCoord),
+});
+
+app.http("LocationWrite", {
+  route: "LocationWrite",
+  methods: ["POST"],
+  authLevel: "anonymous",
+  handler: requestHandler(coordinateHandler.LocationWrite),
+});
+
+app.http("SearchUsersData", {
+  route: "SearchUsersData",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: requestHandler(coordinateHandler.SearchUsersData),
+});
