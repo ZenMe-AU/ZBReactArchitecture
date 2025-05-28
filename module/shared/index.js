@@ -1,5 +1,5 @@
 // require("./otel-setup");
-require("./module/shared/monitoring/instrumentation");
+require("./monitoring/instrumentation");
 const { app } = require("@azure/functions");
 app.setup({
   enableHttpStream: true,
