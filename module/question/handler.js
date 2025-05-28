@@ -1,7 +1,7 @@
 const Question = require("./service/function.js");
-const { decode } = require("../shared/service/authUtils.js");
-const { sendMessageToQueue } = require("../shared/service/function.js");
-const { followUpCmdQueue, shareQuestionCmdQueue } = require("../shared/service/serviceBus.js");
+const { decode } = require("@zenmechat/shared/service/authUtils.js");
+const { sendMessageToQueue } = require("@zenmechat/shared/service/function.js");
+const { followUpCmdQueue, shareQuestionCmdQueue } = require("@zenmechat/shared/service/serviceBus.js");
 
 /**
  * @swagger
@@ -816,11 +816,11 @@ async function GetEventByCorrelationId(request, context) {
 
 async function SendFollowUpCmd(message, context) {
   context.log("Service bus queue function processed message:", message);
-    const { messageId, correlationId } = context.triggerMetadata;
-    const cmd = await Question.insertFollowUpCmd(messageId, message["profileId"], message, correlationId);
-    const filters = Question.insertFollowUpFilter(message);
-    const receiverIds = Question.getFollowUpReceiver(message);
-    const sharedQuestions = Question.shareQuestion(message["newQuestionId"], message["profileId"], await receiverIds);
+  const { messageId, correlationId } = context.triggerMetadata;
+  const cmd = await Question.insertFollowUpCmd(messageId, message["profileId"], message, correlationId);
+  const filters = Question.insertFollowUpFilter(message);
+  const receiverIds = Question.getFollowUpReceiver(message);
+  const sharedQuestions = Question.shareQuestion(message["newQuestionId"], message["profileId"], await receiverIds);
 
   const settled = await Promise.allSettled([filters, sharedQuestions]);
   const errors = settled.filter((result) => result.status === "rejected").map((result) => result.reason);
@@ -833,11 +833,11 @@ async function SendFollowUpCmd(message, context) {
 }
 
 async function ShareQuestionCmd(message, context) {
-    const { messageId, correlationId } = context.triggerMetadata;
-    const cmd = await Question.insertQuestionShareCmd(messageId, message["profileId"], message, correlationId);
-    const sharedQuestions = await Question.shareQuestion(message["newQuestionId"], message["profileId"], message["receiverIds"]);
+  const { messageId, correlationId } = context.triggerMetadata;
+  const cmd = await Question.insertQuestionShareCmd(messageId, message["profileId"], message, correlationId);
+  const sharedQuestions = await Question.shareQuestion(message["newQuestionId"], message["profileId"], message["receiverIds"]);
 
-    await Question.updateQuestionShareCmdStatus(cmd["id"]);
+  await Question.updateQuestionShareCmdStatus(cmd["id"]);
 }
 
 module.exports = {

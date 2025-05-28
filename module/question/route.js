@@ -1,8 +1,10 @@
+require("@zenmechat/shared");
 const { app } = require("@azure/functions");
-const { requestHandler, serviceBusHandler } = require("../shared/handler.js");
+const { requestHandler, serviceBusHandler } = require("@zenmechat/shared/handler");
 const questionHandler = require("./handler.js");
-const schemas = require("../shared/schema/index.js");
-const { followUpCmdQueue, shareQuestionCmdQueue } = require("../shared/service/serviceBus.js");
+const sendFollowUpCmdSchema = require("./schema/sendFollowUpCmdSchema");
+const shareQuestionCmdSchema = require("./schema/shareQuestionCmdSchema");
+const { followUpCmdQueue, shareQuestionCmdQueue } = require("@zenmechat/shared/service/serviceBus.js");
 
 app.http("CreateQuestion", {
   route: "question",
@@ -80,7 +82,7 @@ app.http("SendFollowUpCmd", {
   extraOutputs: [followUpCmdQueue],
   authLevel: "anonymous",
   handler: requestHandler(questionHandler.SendFollowUpCmdQueue, {
-    schemas: [schemas.sendFollowUpCmdSchema],
+    schemas: [sendFollowUpCmdSchema],
     customParams: { queueName: "followUpCmd" },
   }),
 });
@@ -91,7 +93,7 @@ app.http("ShareQuestionCmd", {
   extraOutputs: [shareQuestionCmdQueue],
   authLevel: "anonymous",
   handler: requestHandler(questionHandler.SendShareQuestionCmdQueue, {
-    schemas: [schemas.shareQuestionCmdSchema],
+    schemas: [shareQuestionCmdSchema],
     customParams: { queueName: "shareQuestionCmd" },
   }),
 });

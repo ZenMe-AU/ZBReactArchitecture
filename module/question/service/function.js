@@ -1,4 +1,6 @@
 const { Op, Sequelize } = require("sequelize");
+// const { Op } = require("@zenmechat/shared/db").sequelize;
+
 const {
   Question,
   QuestionAnswer,
@@ -9,7 +11,7 @@ const {
   FollowUpFilter,
   FollowUpEvent,
   QuestionShareEvent,
-} = require("../../shared/db/model/index.js");
+} = require("@zenmechat/shared/db/model");
 const { v4: uuidv4 } = require("uuid");
 const { cmdName } = require("../enum.js");
 
