@@ -1,5 +1,6 @@
+require("@zenmechat/shared");
 const { app } = require("@azure/functions");
-const { requestHandler } = require("../shared/handler.js");
+const { requestHandler } = require("@zenmechat/shared/handler");
 const authHandler = require("./authHandler.js");
 const profileHandler = require("./handler.js");
 

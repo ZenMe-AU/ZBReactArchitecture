@@ -1,7 +1,7 @@
 const { Op, Sequelize, QueryTypes } = require("sequelize");
 // const { sequelize } = require("../Repository/db.js");
-const { Users, Location, Attributes } = require("../../shared/db/model/index.js");
-const { sequelize } = require("../../../../models/index");
+const { Users, Location, Attributes } = require("@zenmechat/shared/db/model");
+const { sequelize } = require("@zenmechat/shared/db");
 
 /**
  * A coordinate array
