@@ -8,7 +8,6 @@ export const logPageView = (name: string, properties?: Record<string, any>) => {
   appInsights.trackPageView({
     name: "page" + _.upperFirst(name) + "View",
     uri: window.location.pathname,
-    uri: window.location.pathname,
     properties: {
       appSource: "frontend",
       correlationId: correlationId,
