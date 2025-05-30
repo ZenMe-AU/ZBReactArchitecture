@@ -1,5 +1,5 @@
 const { getById } = require("./service/function");
-const { generateToken, decode } = require("../shared/service/authUtils");
+const { generateToken, decode } = require("@zenmechat/shared/service/authUtils");
 
 /**
  * @swagger
@@ -34,15 +34,19 @@ const { generateToken, decode } = require("../shared/service/authUtils");
  *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
  */
 async function loginUser(request, context) {
-  const { userId } = request.params;
+  const { userId } = request.clientParams;
   if (!userId) {
-    return res.status(400).json({ error: "User ID is required" });
+    const err = new Error("User ID is required");
+    err.statusCode = 400;
+    throw err;
   }
 
   const profile = await getById(userId);
 
   if (!profile) {
-    return res.status(404).json({ error: "User not found" });
+    const err = new Error("User not found");
+    err.statusCode = 404;
+    throw err;
   }
 
   // Generate JWT
@@ -96,24 +100,24 @@ async function verify(request, context) {
   try {
     const authorization = request.headers.get("authorization");
     if (!authorization || !authorization.startsWith("Bearer ")) {
-      context.log("Unauthorized");
-      return { status: 401 };
-      // return request.status(401).json({ error: "Unauthorized" });
+      const err = new Error("Unauthorized");
+      err.statusCode = 401;
+      throw err;
     }
     const token = authorization.split(" ")[1];
     const decoded = decode(token);
 
     if (!decoded.profileId) {
-      context.log("User ID is required");
-      return { status: 400 };
-      // return request.status(400).json({ error: "User ID is required" });
+      const err = new Error("User ID is required");
+      err.statusCode = 400;
+      throw err;
     }
 
     const profile = await getById(decoded.profileId);
     if (!profile) {
-      context.log("User not found");
-      return { status: 404 };
-      // return request.status(404).json({ error: "User not found" });
+      const err = new Error("User not found");
+      err.statusCode = 404;
+      throw err;
     }
 
     return { return: { detail: profile } };
