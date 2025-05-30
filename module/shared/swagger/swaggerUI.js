@@ -7,7 +7,7 @@ module.exports = async function swaggerUI(context, req) {
 
   let swaggerHtml = fs.readFileSync(swaggerFilePath, "utf-8");
 
-  swaggerHtml = swaggerHtml.replace("https://petstore.swagger.io/v2/swagger.json", "/api/swagger.json");
+  swaggerHtml = swaggerHtml.replace("https://petstore.swagger.io/v2/swagger.json", "./swagger.json");
 
   swaggerHtml = swaggerHtml.replace('href="./swagger-ui.css"', 'href="./swagger/swagger-ui.css"');
 

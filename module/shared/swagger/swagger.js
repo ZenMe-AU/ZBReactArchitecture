@@ -1,4 +1,5 @@
 const swaggerJsDoc = require("swagger-jsdoc");
+const path = require("path");
 
 const swaggerOptions = {
   swaggerDefinition: {
@@ -14,7 +15,7 @@ const swaggerOptions = {
     //   },
     // ],
   },
-  apis: ["./src/functions/**/*.js", "./src/handler/**/*.js", "./src/module/**/*.js"], // Point to your function files
+  apis: [path.join(process.cwd(), "./handler.js")], // Point to your function files
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
