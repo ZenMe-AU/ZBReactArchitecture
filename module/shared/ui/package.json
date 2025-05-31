@@ -1,7 +1,8 @@
 {
-  "name": "zenmechatpoc1",
+  "name": "@zenmechat/shared-ui",
   "version": "1.0.0",
   "type": "module",
+  "private": true,
   "description": "Chat app for people in the same location",
   "scripts": {
     "api": "func start --prefix api",
