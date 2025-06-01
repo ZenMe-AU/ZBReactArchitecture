@@ -23,3 +23,10 @@ app.http("swaggerPath", {
   authLevel: "anonymous",
   handler: swaggerPath,
 });
+
+app.http("defaultPage", {
+  route: "{ignored:maxlength(0)?}",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: swaggerUI,
+});

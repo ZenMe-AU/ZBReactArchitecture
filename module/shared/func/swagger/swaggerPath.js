@@ -7,7 +7,7 @@ module.exports = async function (request, context) {
   if (fs.existsSync(filePath)) {
     var content = fs.readFileSync(filePath);
     if (request.params.path === "swagger-initializer.js") {
-      content = content.toString().replace("https://petstore.swagger.io/v2/swagger.json", "./swagger.json");
+      content = content.toString().replace("https://petstore.swagger.io/v2/swagger.json", "/swagger.json");
     }
     context.res = {
       status: 200,
