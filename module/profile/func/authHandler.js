@@ -3,7 +3,7 @@ const { generateToken, decode } = require("@zenmechat/shared/service/authUtils")
 
 /**
  * @swagger
- * /api/auth/login:
+ * /auth/login:
  *   post:
  *     tags:
  *       - Authentication
@@ -57,7 +57,7 @@ async function loginUser(request, context) {
 
 /**
  * @swagger
- * /api/auth/verify:
+ * /auth/verify:
  *   get:
  *     tags:
  *       - Authentication

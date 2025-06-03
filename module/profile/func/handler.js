@@ -3,7 +3,7 @@ const Attributes = require("./service/attributeService.js");
 
 /**
  * @swagger
- * /api/attributes/{userId}:
+ * /attributes/{userId}:
  *   get:
  *     tags:
  *       - Profile
@@ -43,7 +43,7 @@ async function GetAttributes(request, context) {
 
 /**
  * @swagger
- * /api/attributes/{userId}:
+ * /attributes/{userId}:
  *   put:
  *     tags:
  *       - Profile
@@ -97,7 +97,7 @@ async function PutAttributes(request, context) {
 
 /**
  * @swagger
- * /api/profile:
+ * /profile:
  *   post:
  *     tags:
  *       - Profile
@@ -149,7 +149,7 @@ async function CreateProfile(request, context) {
 
 /**
  * @swagger
- * /api/profile:
+ * /profile:
  *   get:
  *     tags:
  *       - Profile

@@ -5,7 +5,7 @@ const { followUpCmdQueue, shareQuestionCmdQueue } = require("@zenmechat/shared/s
 
 /**
  * @swagger
- * /api/question:
+ * /question:
  *   post:
  *     tags:
  *       - Question
@@ -60,7 +60,7 @@ async function CreateQuestion(request, context) {
 
 /**
  * @swagger
- * /api/question/{id}:
+ * /question/{id}:
  *   put:
  *     tags:
  *       - Question
@@ -122,7 +122,7 @@ async function UpdateQuestionById(request, context) {
 
 /**
  * @swagger
- * /api/question/{id}:
+ * /question/{id}:
  *   get:
  *     tags:
  *       - Question
@@ -158,7 +158,7 @@ async function GetQuestionById(request, context) {
 
 /**
  * @swagger
- * /api/question/{id}/answer:
+ * /question/{id}/answer:
  *   post:
  *     tags:
  *       - Question
@@ -215,7 +215,7 @@ async function AddAnswer(request, context) {
 
 /**
  * @swagger
- * /api/question/{id}/answer/{answerId}:
+ * /question/{id}/answer/{answerId}:
  *   get:
  *     tags:
  *       - Question
@@ -259,7 +259,7 @@ async function GetAnswerById(request, context) {
 
 /**
  * @swagger
- * /api/profile/{profileId}/question:
+ * /profile/{profileId}/question:
  *   get:
  *     tags:
  *       - Question
@@ -322,7 +322,7 @@ async function GetQuestionListByUser(request, context) {
 
 /**
  * @swagger
- * /api/question/{id}/answer:
+ * /question/{id}/answer:
  *   get:
  *     tags:
  *       - Question
@@ -413,7 +413,7 @@ async function GetAnswerListByQuestionId(request, context) {
 
 /**
  * @swagger
- * /api/question/{id}/share:
+ * /question/{id}/share:
  *   post:
  *     tags:
  *       - Question
@@ -472,7 +472,7 @@ async function ShareQuestionById(request, context) {
 
 /**
  * @swagger
- * /api/profile/{profileId}/sharedQuestion:
+ * /profile/{profileId}/sharedQuestion:
  *   get:
  *     tags:
  *       - Question
@@ -538,7 +538,7 @@ async function GetSharedQuestionListByUser(request, context) {
 
 /**
  * @swagger
- * /api/question/{id}:
+ * /question/{id}:
  *   patch:
  *     tags:
  *       - Question
@@ -607,7 +607,7 @@ async function PatchQuestionById(request, context) {
 
 /**
  * @swagger
- * /api/sendFollowUpCmd:
+ * /sendFollowUpCmd:
  *   post:
  *     tags:
  *       - Question
@@ -693,7 +693,7 @@ async function SendFollowUpCmdQueue(request, context) {
 
 /**
  * @swagger
- * /api/shareQuestionCmd:
+ * /shareQuestionCmd:
  *   post:
  *     tags:
  *       - Question
@@ -765,7 +765,7 @@ async function SendShareQuestionCmdQueue(request, context) {
 
 /**
  * @swagger
- * /api/getEventByCorrelationId/{name}/{correlationId}:
+ * /getEventByCorrelationId/{name}/{correlationId}:
  *   get:
  *     tags:
  *       - Event
