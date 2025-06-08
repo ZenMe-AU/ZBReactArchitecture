@@ -1,8 +1,10 @@
 const path = require("path");
 
 module.exports = {
-  config: path.resolve("src", "module", "shared", "db", "config.json"),
+  config: path.resolve("db", "config.json"),
   //   "models-path": path.resolve("db", "models"),
   //   "seeders-path": path.resolve("db", "seeders"),
-  "migrations-path": path.resolve("src", "module", "shared", "db", "migration"),
+  "migrations-path": path.resolve("db", "migration"),
 };
+
+//TODO: Add config.json to environment variables
