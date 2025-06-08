@@ -1,4 +1,4 @@
-import { getOperationId } from "../telemetry";
+import { getOperationId } from "../monitor/telemetry";
 
 export const jwtFetch = async (url: string, options: RequestInit = {}) => {
   const token = localStorage.getItem("token");

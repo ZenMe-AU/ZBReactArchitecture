@@ -4,7 +4,7 @@ const apiDomain = import.meta.env.VITE_PROFILE_DOMAIN || "https://local-chat.azu
 
 export async function getProfileList(): Promise<any> {
   try {
-    const response = await jwtFetch(`${apiDomain}/api/profile`, {
+    const response = await jwtFetch(`${apiDomain}/profile`, {
       method: "GET",
     });
 

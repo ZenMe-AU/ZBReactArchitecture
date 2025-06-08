@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet";
 import { getAnswerListByQuestionId } from "../api/question";
 import { Container, Typography, List, ListItem, ListItemText, Box, Button, IconButton } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { logEvent, setOperationId } from "../telemetry";
+import { logEvent, setOperationId } from "@zenmechat/shared-ui/monitor/telemetry.ts";
 
 function AnswerList() {
   const { id } = useParams();

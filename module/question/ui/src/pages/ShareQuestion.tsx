@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { getQuestionById, shareQuestion } from "../api/question";
-import { getProfileList } from "../api/profile";
+import { getProfileList } from "@zenmechat/shared-ui/api/profile.ts";
 import { Profile } from "../types/interfaces";
 import { Container, Typography, Box, Button, IconButton, Alert, TextField } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Autocomplete from "@mui/material/Autocomplete";
-import { logEvent, setOperationId } from "../telemetry";
+import { logEvent, setOperationId } from "@zenmechat/shared-ui/monitor/telemetry.ts";
 
 function ShareQuestion() {
   const { id } = useParams<{ id: string }>();

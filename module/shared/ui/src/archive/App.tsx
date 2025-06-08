@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 // import reactLogo from './assets/react.svg'
 // import viteLogo from '/vite.svg'
 // import './App.css'
-import UserList from "./components/UserList";
-import UserFilter from "./components/UserFilter";
+import UserList from "./UserList";
+import UserFilter from "./UserFilter";
 import { Blocks } from "react-loader-spinner";
 
 function App() {

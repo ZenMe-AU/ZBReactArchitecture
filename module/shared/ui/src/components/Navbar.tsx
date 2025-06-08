@@ -1,6 +1,6 @@
 import { AppBar, Toolbar, Typography, Avatar, Button, Box } from "@mui/material";
-import { useAuth } from "../AuthContext";
-import { logEvent } from "../telemetry";
+import { useAuth } from "../provider/AuthContext";
+import { logEvent } from "../monitor/telemetry";
 
 const Navbar = ({ profile }) => {
   const { logout } = useAuth();

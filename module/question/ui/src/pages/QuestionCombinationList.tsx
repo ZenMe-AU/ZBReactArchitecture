@@ -6,7 +6,7 @@ import { Container, Typography, List, ListItem, ListItemButton, ListItemText, Bu
 import EditIcon from "@mui/icons-material/Edit";
 import ShareIcon from "@mui/icons-material/Share";
 import { Question } from "../types/interfaces";
-import { logEvent, setOperationId } from "../telemetry";
+import { logEvent, setOperationId } from "@zenmechat/shared-ui/monitor/telemetry.ts";
 
 function QuestionCombinationList() {
   const profileId = localStorage.getItem("profileId");

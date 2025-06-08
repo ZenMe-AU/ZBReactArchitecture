@@ -1,13 +1,8 @@
-import { useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-
 export default function HomePage() {
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  useEffect(() => {
-    navigate("/question", { state: { from: location }, replace: true });
-  }, [navigate, location]);
-
-  return null;
+  return (
+    <div style={{ textAlign: "center", marginTop: "5rem" }}>
+      <h1>Welcome to the Portal</h1>
+      <p>This is the main entry of the application.</p>
+    </div>
+  );
 }

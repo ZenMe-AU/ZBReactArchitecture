@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet";
-import { useAuth } from "../AuthContext";
+import { useAuth } from "../provider/AuthContext";
 import { getProfileList } from "../api/profile";
 import { login as authLogin } from "../api/auth";
 import { Profile } from "../types/interfaces";
 import { Box, Button, Typography, Select, MenuItem, FormControl, InputLabel, Alert, CircularProgress, Autocomplete, TextField } from "@mui/material";
-import { logEvent, setOperationId } from "../telemetry";
+import { logEvent, setOperationId } from "../monitor/telemetry";
 
 function Login() {
   const { isAuthenticated, login, logout } = useAuth();

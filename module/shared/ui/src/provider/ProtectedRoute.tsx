@@ -1,8 +1,8 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { AuthContext } from "./AuthContext";
-import Navbar from "./components/Navbar";
-import { authVerify } from "./api/auth";
+import Navbar from "../components/Navbar";
+import { authVerify } from "../api/auth";
 
 const ProtectedRoute = ({ element }) => {
   const { isAuthenticated } = useContext(AuthContext);

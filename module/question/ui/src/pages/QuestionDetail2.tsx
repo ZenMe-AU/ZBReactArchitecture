@@ -10,7 +10,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import { styled } from "@mui/material/styles";
 import { Question } from "../types/interfaces";
-import { logEvent, setOperationId } from "../telemetry";
+import { logEvent, setOperationId } from "@zenmechat/shared-ui/monitor/telemetry.ts";
 
 const ReadOnlyText = styled("div")(() => ({
   display: "inline-block",

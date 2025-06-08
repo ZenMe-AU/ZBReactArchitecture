@@ -4,7 +4,7 @@ const apiDomain = import.meta.env.VITE_PROFILE_DOMAIN || "https://local-chat.azu
 
 export const login = async (userId: string) => {
   try {
-    const response = await jwtFetch(`${apiDomain}/api/auth/login`, {
+    const response = await jwtFetch(`${apiDomain}/auth/login`, {
       method: "POST",
       body: JSON.stringify({ userId }),
     });
@@ -21,7 +21,7 @@ export const login = async (userId: string) => {
 
 export const authVerify = async () => {
   try {
-    const response = await jwtFetch(`${apiDomain}/api/auth/verify`, {
+    const response = await jwtFetch(`${apiDomain}/auth/verify`, {
       method: "GET",
     });
 

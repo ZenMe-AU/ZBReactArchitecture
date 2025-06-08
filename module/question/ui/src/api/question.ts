@@ -1,11 +1,11 @@
-import { jwtFetch } from "./jwtFetch";
+import { jwtFetch } from "@zenmechat/shared-ui/api/jwtFetch.ts";
 
 const apiDomain = import.meta.env.VITE_QUESTION_DOMAIN || "https://local-chat.azurewebsites.net";
 // Fetch list of questions for a specific user
 export const getQuestionsByUser = async () => {
   const profileId = localStorage.getItem("profileId");
   try {
-    const response = await jwtFetch(`${apiDomain}/api/profile/${profileId}/question`, {
+    const response = await jwtFetch(`${apiDomain}/profile/${profileId}/question`, {
       method: "GET",
     });
 
@@ -27,7 +27,7 @@ export const getQuestionsByUser = async () => {
 export const createQuestion = async (title: string, questionText: string, option: string[] | null) => {
   const profileId = localStorage.getItem("profileId");
   try {
-    const response = await jwtFetch(`${apiDomain}/api/question`, {
+    const response = await jwtFetch(`${apiDomain}/question`, {
       method: "POST",
       body: JSON.stringify({
         profileId: profileId,
@@ -52,7 +52,7 @@ export const createQuestion = async (title: string, questionText: string, option
 // Get question detail
 export const getQuestionById = async (id: string) => {
   try {
-    const response = await jwtFetch(`${apiDomain}/api/question/${id}`, {
+    const response = await jwtFetch(`${apiDomain}/question/${id}`, {
       method: "GET",
     });
 
@@ -71,7 +71,7 @@ export const getQuestionById = async (id: string) => {
 // Update an existing question
 export const updateQuestion = async (id: string, data: { title: string; questionText: string; option: string[] | null }) => {
   try {
-    const response = await jwtFetch(`${apiDomain}/api/question/${id}`, {
+    const response = await jwtFetch(`${apiDomain}/question/${id}`, {
       method: "PUT",
       body: JSON.stringify({
         title: data.title,
@@ -95,14 +95,14 @@ export const updateQuestion = async (id: string, data: { title: string; question
 // Share a question
 export const shareQuestion = async (id: string, profileId: string, receiverIds: string[]) => {
   try {
-    // const response = await jwtFetch(`${apiDomain}/api/question/${id}/share`, {
+    // const response = await jwtFetch(`${apiDomain}/question/${id}/share`, {
     //   method: "POST",
     //   body: JSON.stringify({
     //     profile_id: profileId,
     //     receiver_ids: receiverIds,
     //   }),
     // });
-    const response = await jwtFetch(`${apiDomain}/api/shareQuestionCmd`, {
+    const response = await jwtFetch(`${apiDomain}/shareQuestionCmd`, {
       method: "POST",
       body: JSON.stringify({
         newQuestionId: id,
@@ -131,7 +131,7 @@ export const submitAnswer = async (
 ) => {
   const profileId = localStorage.getItem("profileId");
   try {
-    const response = await jwtFetch(`${apiDomain}/api/question/${id}/answer`, {
+    const response = await jwtFetch(`${apiDomain}/question/${id}/answer`, {
       method: "POST",
       body: JSON.stringify({
         profileId: profileId,
@@ -157,7 +157,7 @@ export const submitAnswer = async (
 
 export const getAnswerListByQuestionId = async (id: string) => {
   try {
-    const response = await jwtFetch(`${apiDomain}/api/question/${id}/answer`, {
+    const response = await jwtFetch(`${apiDomain}/question/${id}/answer`, {
       method: "GET",
     });
 
@@ -176,7 +176,7 @@ export const getAnswerListByQuestionId = async (id: string) => {
 export const getSharedQuestionList = async () => {
   const profileId = localStorage.getItem("profileId");
   try {
-    const response = await jwtFetch(`${apiDomain}/api/profile/${profileId}/sharedQuestion`, {
+    const response = await jwtFetch(`${apiDomain}/profile/${profileId}/sharedQuestion`, {
       method: "GET",
     });
 
@@ -201,7 +201,7 @@ type PatchOperation = {
 export const updateQuestionPatch = async (id: string, patches: PatchOperation[]) => {
   const profileId = localStorage.getItem("profileId");
   try {
-    const response = await jwtFetch(`${apiDomain}/api/question/${id}`, {
+    const response = await jwtFetch(`${apiDomain}/question/${id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json-patch+json",
@@ -236,7 +236,7 @@ export const sendFollowUpQuestion = async (
 ) => {
   const profileId = localStorage.getItem("profileId");
   try {
-    const response = await jwtFetch(`${apiDomain}/api/sendFollowUpCmd`, {
+    const response = await jwtFetch(`${apiDomain}/sendFollowUpCmd`, {
       method: "POST",
       body: JSON.stringify({
         profileId: profileId,

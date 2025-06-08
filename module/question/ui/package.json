@@ -1,17 +1,6 @@
 {
-  "name": "@zenmechat/shared-ui",
-  "version": "1.0.0",
-  "type": "module",
-  "private": true,
-  "description": "Chat app for people in the same location",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    },
-    "./*": "./src/*"
-  },
-  "scripts": {
+  "name": "question-ui",
+   "scripts": {
     "api": "func start --prefix api",
     "dev:local-api": "VITE_API_DOMAIN=http://localhost:7071 vite",
     "dev": "vite",
@@ -20,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@zenmechat/shared-ui": "workspace:*",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@microsoft/applicationinsights-clickanalytics-js": "^3.3.6",

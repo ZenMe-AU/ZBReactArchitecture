@@ -5,7 +5,7 @@ import { createQuestion } from "../api/question";
 import { Container, Typography, Box, TextField, Button, List, ListItem, IconButton } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { logEvent, setOperationId } from "../telemetry";
+import { logEvent, setOperationId } from "@zenmechat/shared-ui/monitor/telemetry.ts";
 
 function AddQuestion() {
   const [title, setTitle] = useState("");

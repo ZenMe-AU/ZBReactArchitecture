@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { logPageView, setUserContext, clearUserContext } from "./telemetry";
+import { logPageView, setUserContext, clearUserContext } from "../monitor/telemetry";
 
 const AuthContext = createContext(null);
 
