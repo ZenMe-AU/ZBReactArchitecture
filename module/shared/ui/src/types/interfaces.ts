@@ -19,3 +19,18 @@ export interface Answer {
   optionId: string | null;
   answerText: string | null;
 }
+
+export type Route = {
+  publicRoutes: Array<RouteItem>;
+  protectedRoutes: Array<RouteItem>;
+};
+
+export type RouteItem = {
+  path: string;
+  element: React.ReactNode;
+};
+
+export type AppRouterProps = {
+  publicRoutes: RouteItem[];
+  protectedRoutes: RouteItem[];
+};
