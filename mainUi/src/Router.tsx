@@ -1,4 +1,4 @@
-const modulesRoutes = import.meta.glob("../../../module/*/ui/src/Router.tsx", { eager: true });
+const modulesRoutes = import.meta.glob("../../module/*/ui/src/Router.tsx", { eager: true });
 console.log("Modules Routes:", modulesRoutes);
 let publicRoutes = [];
 let protectedRoutes = [];
