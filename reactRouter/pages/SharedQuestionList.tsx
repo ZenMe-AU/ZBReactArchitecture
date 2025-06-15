@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { Helmet } from "react-helmet";
 import { getSharedQuestionList } from "../api/question";
 

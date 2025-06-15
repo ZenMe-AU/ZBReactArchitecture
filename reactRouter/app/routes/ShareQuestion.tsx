@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router";
 import { Helmet } from "react-helmet";
 import { getQuestionById, shareQuestion } from "../../api/question";
 import { getProfileList } from "../../api/profile";

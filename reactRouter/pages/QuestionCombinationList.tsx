@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { getQuestionsByUser } from "../api/question";
 import { Container, Typography, List, ListItem, ListItemButton, ListItemText, Button, Box, Divider } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";

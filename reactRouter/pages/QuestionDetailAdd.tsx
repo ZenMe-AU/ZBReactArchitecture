@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router";
 import { Helmet } from "react-helmet";
-import { compare } from "fast-json-patch";
+// import { compare } from "fast-json-patch";
 import { getQuestionById, createQuestion } from "../api/question";
 import { Container, Typography, Box, TextField, Button, List, ListItem, IconButton } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
@@ -11,7 +11,9 @@ import AddIcon from "@mui/icons-material/Add";
 import { styled } from "@mui/material/styles";
 import { Question } from "../types/interfaces";
 import { logEvent, setOperationId } from "../monitor/telemetry";
+import pkg from "fast-json-patch";
 
+const { compare } = pkg;
 const ReadOnlyText = styled("div")(() => ({
   display: "inline-block",
   padding: "8px 0",

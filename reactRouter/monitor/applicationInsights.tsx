@@ -12,7 +12,8 @@ var clickPluginConfig = {
 };
 const appInsights = new ApplicationInsights({
   config: {
-    connectionString: import.meta.env.VITE_APPINSIGHTS_CONNECTION_STRING,
+    instrumentationKey: "YOUR_INSTRUMENTATION_KEY",
+    connectionString: import.meta.env.VITE_APPINSIGHTS_CONNECTION_STRING ?? "",
     // enableAutoRouteTracking: true,
     // disableFetchTracking: false,
     // enableRequestHeaderTracking: true,

@@ -1,6 +1,6 @@
 // src/pages/EditQuestion.tsx
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router";
 import { Helmet } from "react-helmet";
 import { getQuestionById, updateQuestion } from "../api/question";
 import { Question } from "../types/interfaces";

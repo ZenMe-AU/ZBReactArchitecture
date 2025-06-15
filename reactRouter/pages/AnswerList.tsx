@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router";
 import { Helmet } from "react-helmet";
 import { getAnswerListByQuestionId } from "../api/question";
 import { Container, Typography, List, ListItem, ListItemText, Box, Button, IconButton } from "@mui/material";

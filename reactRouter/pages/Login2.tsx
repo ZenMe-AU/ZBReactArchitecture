@@ -1,6 +1,6 @@
 import { Helmet } from "react-helmet";
 import { Box, Button, Typography, Alert, CircularProgress, Autocomplete, TextField } from "@mui/material";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router";
 import { useState } from "react";
 import { loader as loginLoader, action as loginAction } from "../app/routes/login.loader";
 // import type { Route } from "../+types/root";

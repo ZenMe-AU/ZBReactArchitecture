@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router";
 import { Helmet } from "react-helmet";
 import { getProfileList } from "../api/profile";
 import { login as authLogin } from "../api/auth";

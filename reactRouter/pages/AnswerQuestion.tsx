@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router";
 import { Helmet } from "react-helmet";
 import { getQuestionById, submitAnswer, getAnswerListByQuestionId } from "../api/question";
 import type { Question, Answer } from "../types/interfaces";
