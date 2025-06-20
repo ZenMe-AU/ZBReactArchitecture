@@ -2,15 +2,15 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import { Helmet } from "react-helmet";
 // import { compare } from "fast-json-patch";
-import { getQuestionById, createQuestion } from "../api/question";
+import { getQuestionById, createQuestion } from "../../api/question";
 import { Container, Typography, Box, TextField, Button, List, ListItem, IconButton } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import { styled } from "@mui/material/styles";
-import { Question } from "../types/interfaces";
-import { logEvent, setOperationId } from "../monitor/telemetry";
+import type { Question } from "../../types/interfaces";
+import { logEvent, setOperationId } from "../../monitor/telemetry";
 import pkg from "fast-json-patch";
 
 const { compare } = pkg;
@@ -217,13 +217,13 @@ function QuestionDetailAdd() {
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
       <Helmet>
-        <title>Question Detail</title>
+        <title>Copy Question</title>
       </Helmet>
       <Box display="flex" alignItems="center" mb={2}>
         <IconButton onClick={handleBackClick}>
           <ArrowBackIcon />
         </IconButton>
-        <Typography variant="h4">Question Detail</Typography>
+        <Typography variant="h4">Add Question</Typography>
       </Box>
       <Box>
         {renderField("Title", "title")}

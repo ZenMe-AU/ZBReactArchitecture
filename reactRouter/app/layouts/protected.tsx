@@ -13,7 +13,9 @@ export async function clientLoader() {
     return { profile };
   } catch (error) {
     console.error("Auth verify failed:", error);
-    return redirect("/logout");
+    localStorage.removeItem("token");
+    localStorage.removeItem("profileId");
+    return redirect("/login");
   }
 }
 

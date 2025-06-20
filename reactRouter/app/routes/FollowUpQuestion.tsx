@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { Link, useParams, useNavigate } from "react-router";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
 
-import { getQuestionById, getQuestionsByUser, getAnswerListByQuestionId, sendFollowUpQuestion } from "../api/question";
-import type { Question, Answer } from "../types/interfaces";
+import { getQuestionById, getQuestionsByUser, getAnswerListByQuestionId, sendFollowUpQuestion } from "../../api/question";
+import type { Question, Answer } from "../../types/interfaces";
 import {
   Container,
   Box,
@@ -23,28 +23,30 @@ import Divider from "@mui/material/Divider";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ClearIcon from "@mui/icons-material/Clear";
 import AddIcon from "@mui/icons-material/Add";
-import { logEvent, setOperationId } from "../monitor/telemetry";
+import { logEvent, setOperationId } from "../../monitor/telemetry";
+
+type CardErrors = Record<string, { question?: boolean; option?: boolean }>;
 
 function FollowUpQuestion() {
   const profileId = localStorage.getItem("profileId");
   const { id } = useParams<{ id: string }>();
   const [question, setQuestion] = useState<Question | null>(null);
   const [questionList, setQuestionList] = useState<Question[]>([]);
-  const [answerCount, setAnswerCount] = useState<Record<string, number>[]>([]);
+  const [answerCount, setAnswerCount] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
-  const [optionList, setOptionList] = useState([]);
+  const [optionList, setOptionList] = useState<string[]>([]);
 
   const [saveFilter, setSaveFilter] = useState<boolean>(false);
-  const [cards, setCards] = useState([]);
-  const [selectedQuestions, setSelectedQuestions] = useState({});
-  const [selectedOptions, setSelectedOptions] = useState({});
-  const [selectedInitOptions, setSelectedInitOptions] = useState([]);
+  const [cards, setCards] = useState<string[]>([]);
+  const [selectedQuestions, setSelectedQuestions] = useState<Record<string, string>>({});
+  const [selectedOptions, setSelectedOptions] = useState<Record<string, string[]>>({});
+  const [selectedInitOptions, setSelectedInitOptions] = useState<string[]>([]);
 
   const [followUpQuestionId, setFollowUpQuestionId] = useState<string | null>(null);
 
-  const [cardErrors, setCardErrors] = useState({});
+  const [cardErrors, setCardErrors] = useState<CardErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const [submittingError, setSubmittingError] = useState(false);
 
@@ -66,7 +68,7 @@ function FollowUpQuestion() {
     console.log("cards", cards);
   };
 
-  const handleRemoveCard = (cardId) => {
+  const handleRemoveCard = (cardId: string) => {
     setCards(cards.filter((id) => id !== cardId));
     const updatedQuestions = { ...selectedQuestions };
     const updatedOptions = { ...selectedOptions };
@@ -76,7 +78,7 @@ function FollowUpQuestion() {
     setSelectedOptions(updatedOptions);
   };
 
-  const handleQuestionChange = (cardId, questionId) => {
+  const handleQuestionChange = (cardId: string, questionId: string) => {
     setSelectedQuestions((prev) => ({ ...prev, [cardId]: questionId }));
     if (questionId === followUpQuestionId) {
       setFollowUpQuestionId(null);
@@ -84,15 +86,17 @@ function FollowUpQuestion() {
     if (cardId in cardErrors && questionId) {
       setCardErrors((prev) => {
         const updatedErrors = { ...prev };
-        updatedErrors[cardId].question = false;
-        !Object.values(updatedErrors[cardId]).includes(true) && delete updatedErrors[cardId];
+        if (updatedErrors[cardId]) {
+          updatedErrors[cardId].question = false;
+          !Object.values(updatedErrors[cardId]).includes(true) && delete updatedErrors[cardId];
+        }
         return updatedErrors;
       });
     }
     console.log("Selected Question:", selectedQuestions);
   };
 
-  const handleOptionChange = (cardId, option) => {
+  const handleOptionChange = (cardId: string, option: string) => {
     setSelectedOptions((prev) => {
       const cardOptions = prev[cardId] || [];
       const updatedOptions = cardOptions.includes(option) ? cardOptions.filter((item) => item !== option) : [...cardOptions, option];
@@ -100,8 +104,10 @@ function FollowUpQuestion() {
       if (cardId in cardErrors && cardErrors[cardId]?.option && updatedOptions.length > 0) {
         setCardErrors((prev) => {
           const updatedErrors = { ...prev };
-          updatedErrors[cardId].option = false;
-          !Object.values(updatedErrors[cardId]).includes(true) && delete updatedErrors[cardId];
+          if (updatedErrors[cardId]) {
+            updatedErrors[cardId].option = false;
+            !Object.values(updatedErrors[cardId]).includes(true) && delete updatedErrors[cardId];
+          }
           return updatedErrors;
         });
       }
@@ -110,7 +116,7 @@ function FollowUpQuestion() {
     });
   };
 
-  const handleInitOptionChange = (option) => {
+  const handleInitOptionChange = (option: string) => {
     setSelectedInitOptions((prev) => {
       return prev.includes(option) ? prev.filter((item) => item !== option) : [...prev, option];
     });
@@ -122,7 +128,7 @@ function FollowUpQuestion() {
     console.log("FollowUp Correlation ID:", correlationId);
 
     let hasError = false;
-    const newErrors = {};
+    const newErrors: CardErrors = {};
 
     for (const cardId of cards) {
       const questionId = selectedQuestions[cardId];
@@ -154,14 +160,14 @@ function FollowUpQuestion() {
     }));
 
     filterData.unshift({
-      questionId: question.id,
+      questionId: question?.id ?? "",
       option: selectedInitOptions,
     });
     console.log("Follow-up Data:", filterData);
     // return;
     try {
       setSubmitting(true);
-      const response = await sendFollowUpQuestion(id, filterData, followUpQuestionId, saveFilter);
+      const response = await sendFollowUpQuestion(id, filterData, followUpQuestionId ?? "", saveFilter);
       console.log("Response:", response);
       // navigate(`/question/${id}`, { replace: true });
     } catch (error) {
@@ -267,7 +273,7 @@ function FollowUpQuestion() {
               value={question?.title || ""}
               variant="outlined"
               fullWidth
-              readOnly={true}
+              InputProps={{ readOnly: true }}
               sx={{
                 mb: 2,
                 color: "text.primary",
@@ -279,7 +285,7 @@ function FollowUpQuestion() {
             />
 
             <FormGroup>
-              {question?.option.map((option, index) => (
+              {question?.option?.map((option, index) => (
                 <FormControlLabel
                   key={index}
                   control={<Checkbox checked={selectedInitOptions?.includes(option) || false} onChange={() => handleInitOptionChange(option)} />}
@@ -327,7 +333,7 @@ function FollowUpQuestion() {
 
                 <Select
                   value={selectedQuestions[cardId] || ""}
-                  onChange={(e) => handleQuestionChange(cardId, e.target.value)}
+                  onChange={(e) => handleQuestionChange(cardId, e.target.value as string)}
                   displayEmpty
                   fullWidth
                   sx={{ mb: 2, border: cardErrors[cardId]?.question ? "2px solid red" : "none" }}
@@ -396,7 +402,7 @@ function FollowUpQuestion() {
               sx={{ mx: 1 }}
               displayEmpty
               value={followUpQuestionId || ""}
-              onChange={(e) => setFollowUpQuestionId(e.target.value)}
+              onChange={(e) => setFollowUpQuestionId(e.target.value as string)}
               error={submittingError && !followUpQuestionId}
               fullWidth
             >

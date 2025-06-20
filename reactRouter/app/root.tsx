@@ -1,6 +1,7 @@
 import { useEffect } from "react";
-import { Form, Scripts, ScrollRestoration, isRouteErrorResponse, Outlet, useLocation } from "react-router";
+import { Form, Scripts, ScrollRestoration, isRouteErrorResponse, Outlet, useLocation, useMatches } from "react-router";
 import type { LoaderFunctionArgs } from "react-router";
+import { Helmet } from "react-helmet";
 import { logPageView } from "../monitor/telemetry";
 import type { Route } from "./+types/root";
 import appStylesHref from "./app.css?url";
@@ -27,15 +28,19 @@ export default function App() {
 // It acts as your document's "app shell" for all route components, HydrateFallback, and ErrorBoundary
 // For more information, see https://reactrouter.com/explanation/special-files#layout-export
 export function Layout({ children }: { children: React.ReactNode }) {
-  // const location = useLocation();
+  const location = useLocation();
+  const matches = useMatches();
+  // const handle = [...matches].reverse().find((match) => match.handle)?.handle;
 
-  // useEffect(() => {
-  //   console.log("location:", location);
-  //   console.log("document.title:", document);
-  //   console.log("document.title:", document.title);
+  useEffect(() => {
+    console.log("location:", location);
+    console.log("matches:", matches);
+    // console.log("handle:", handle);
+    console.log("document.title:", document);
+    console.log("document.title:", document.title);
 
-  //   // logPageView(location.pathname);
-  // }, [location]);
+    logPageView(location.pathname);
+  }, [location]);
 
   return (
     <html lang="en">

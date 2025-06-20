@@ -1,5 +1,8 @@
 import { Form, useActionData, useNavigation } from "react-router";
+import { useState } from "react";
 import { Helmet } from "react-helmet";
+import { Box, Button, Typography, Alert, CircularProgress, Autocomplete, TextField } from "@mui/material";
+
 import { redirect } from "react-router";
 // import type { Route } from "../+types/root";
 import { getProfileList } from "../../api/profile";
@@ -30,39 +33,51 @@ export const clientAction = action;
 //     return { error: "Login failed." };
 //   }
 // };
+export const handle = {
+  title: "Login Page",
+  requiresAuth: true,
+};
 
 export default function Login({ loaderData }: { loaderData: { userList: Array<{ id: string; name: string }>; error?: string } }) {
   const { userList } = loaderData;
-  const actionData = useActionData() as { error?: string; success?: boolean; redirectTo?: string };
+  const actionData = useActionData() as { error?: string; success?: boolean };
   console.log("Login loaderData:", loaderData);
   console.log("Login actionData:", actionData);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+
+  const navigation = useNavigation();
+  const isSubmitting = navigation.state === "submitting";
   // const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   return (
     <>
-      <main style={{ textAlign: "center", marginTop: "5rem", width: "100vw" }}>
+      <main style={{ textAlign: "center", width: "100vw" }}>
         <Helmet>
           <title>Login</title>
         </Helmet>
-        <h1>Login</h1>
-        {actionData?.error && <p style={{ color: "red" }}>{actionData.error}</p>}
         <Form method="post" replace>
-          <select name="userId" defaultValue="" style={{ padding: "0.5rem", marginBottom: "1rem" }}>
-            <option value="" disabled>
-              -- Select User --
-            </option>
-            {userList.map((user) => (
-              <option key={user.id} value={user.id}>
-                {user.id} - {user.name}
-              </option>
-            ))}
-          </select>
-          <br />
-          <button type="submit">login</button>
+          <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+            <Box bgcolor="white" p={4} borderRadius={2} boxShadow={3} maxWidth={400} width="100%">
+              <Typography variant="h4" gutterBottom>
+                Login
+              </Typography>
+              {actionData?.error && <Alert severity="error">{actionData.error}</Alert>}
+              <Autocomplete
+                disablePortal
+                onChange={(_, newValue) => setSelectedUserId(newValue?.id ?? null)}
+                getOptionLabel={(user) => `${user.id} - ${user.name}`}
+                options={userList}
+                sx={{ width: 300, mb: 2 }}
+                renderInput={(params) => <TextField {...params} label="Select a user" />}
+              />
+              <input type="hidden" name="userId" value={selectedUserId ?? ""} />
+              <Button fullWidth variant="contained" disabled={isSubmitting} type="submit">
+                {isSubmitting ? <CircularProgress size={24} /> : "Login"}
+              </Button>
+            </Box>
+          </Box>
         </Form>
       </main>
     </>
   );
 }
-
-// existing code

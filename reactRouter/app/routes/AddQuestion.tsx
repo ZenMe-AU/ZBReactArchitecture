@@ -1,11 +1,32 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { Helmet } from "react-helmet";
-import { createQuestion } from "../api/question";
+import { createQuestion } from "../../api/question";
 import { Container, Typography, Box, TextField, Button, List, ListItem, IconButton } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { logEvent, setOperationId } from "../monitor/telemetry";
+import { logEvent, setOperationId } from "../../monitor/telemetry";
+
+// export async function clientAction({ request }: { request: Request }) {
+//   const navigate = useNavigate();
+//   const formData = await request.formData();
+//   const title = formData.get("title") as string;
+//   const questionText = formData.get("questionText") as string;
+//   const options = formData.getAll("options") as string[];
+
+//   if (!title || !questionText) {
+//     throw new Error("Title and question text are required.");
+//   }
+
+//   try {
+//     const id = await createQuestion(title, questionText, options.length === 0 ? null : options);
+//     // return { id };
+//     navigate(`/question/${id}`, { replace: true });
+//   } catch (error) {
+//     console.error("Error creating question:", error);
+//     throw error;
+//   }
+// }
 
 function AddQuestion() {
   const [title, setTitle] = useState("");

@@ -2,15 +2,15 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import { Helmet } from "react-helmet";
 // import { compare } from "fast-json-patch";
-import { getQuestionById, updateQuestionPatch } from "../api/question";
+import { getQuestionById, updateQuestionPatch } from "../../api/question";
 import { Container, Typography, Box, TextField, Button, List, ListItem, IconButton } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import { styled } from "@mui/material/styles";
-import type { Question } from "../types/interfaces";
-import { logEvent, setOperationId } from "../monitor/telemetry";
+import type { Question } from "../../types/interfaces";
+import { logEvent, setOperationId } from "../../monitor/telemetry";
 import pkg from "fast-json-patch";
 
 const { compare } = pkg;
@@ -64,7 +64,7 @@ function QuestionDetail() {
   };
 
   // Handle changes to a specific field
-  const handleFieldEdit = (field: keyof Question, value) => {
+  const handleFieldEdit = (field: keyof Question, value: any) => {
     setEditedData((prev) => ({ ...prev, [field]: value } as Question));
     setIsEditing(true);
   };
@@ -84,7 +84,7 @@ function QuestionDetail() {
     if (questionData && editedData) {
       const correlationId = setOperationId();
       console.log("Correlation ID:", correlationId);
-      const patches = compare(questionData, editedData);
+      const patches: any = compare(questionData, editedData);
       try {
         setIsEditing(false);
         await updateQuestionPatch(id!, patches);
