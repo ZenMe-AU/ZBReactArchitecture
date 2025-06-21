@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router";
+import { useParams, useNavigate, redirect } from "react-router";
 import { Helmet } from "react-helmet";
 // import { compare } from "fast-json-patch";
 import { getQuestionById, createQuestion } from "../../api/question";
@@ -23,31 +23,46 @@ const ReadOnlyText = styled("div")(() => ({
   },
 }));
 
-function QuestionDetailAdd() {
+export async function clientLoader({ params }: { params: { id: string } }) {
+  const { id } = params;
+  if (!id) {
+    throw new Error("Missing question ID.");
+  }
+
+  const question = await getQuestionById(id);
+  if (question.profileId === localStorage.getItem("profileId")) {
+    return redirect(`/question/${id}`);
+  }
+
+  return { question };
+}
+
+function QuestionDetailAdd({ loaderData }: { loaderData: { question: Question } }) {
+  const { question } = loaderData;
   const { id } = useParams<{ id: string }>();
-  const [questionData, setQuestionData] = useState<Question | null>(null); // Original question data
-  const [editedData, setEditedData] = useState<Question | null>(null); // Edited data
+  const [questionData, setQuestionData] = useState<Question | null>(question); // Original question data
+  const [editedData, setEditedData] = useState<Question | null>(question); // Edited data
   const [editingFields, setEditingFields] = useState<{ [key: string]: boolean }>({}); // Fields currently being edited
   const [isEditing, setIsEditing] = useState(false); // Whether the update/cancel buttons are visible
   const navigate = useNavigate();
 
   // Fetch question data by ID when component mounts
-  useEffect(() => {
-    const fetchQuestion = async () => {
-      try {
-        if (!id) return;
-        const data = await getQuestionById(id);
-        setQuestionData(data);
-        setEditedData(data); // Initialize editing data
-        if (data.profileId == localStorage.getItem("profileId")) {
-          navigate(`/question/${id}`, { replace: true });
-        }
-      } catch (error) {
-        console.error("Error fetching question:", error);
-      }
-    };
-    fetchQuestion();
-  }, [id, navigate]);
+  // useEffect(() => {
+  //   const fetchQuestion = async () => {
+  //     try {
+  //       if (!id) return;
+  //       const data = await getQuestionById(id);
+  //       setQuestionData(data);
+  //       setEditedData(data); // Initialize editing data
+  //       if (data.profileId == localStorage.getItem("profileId")) {
+  //         navigate(`/question/${id}`, { replace: true });
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching question:", error);
+  //     }
+  //   };
+  //   fetchQuestion();
+  // }, [id, navigate]);
 
   const handleBackClick = () => {
     const correlationId = setOperationId();
