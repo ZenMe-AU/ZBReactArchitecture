@@ -1,11 +1,11 @@
 import { Helmet } from "react-helmet";
 import { Link } from "react-router";
-import { getQuestionsByUser } from "../../api/question";
+import { getQuestionsByUser } from "../api/question";
 import { Container, Typography, List, ListItem, ListItemButton, ListItemText, Button, Box, Divider } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import ShareIcon from "@mui/icons-material/Share";
-import type { Question } from "../../types/interfaces";
-import { logEvent, setOperationId } from "../../monitor/telemetry";
+import type { Question } from "../types/interfaces";
+import { logEvent, setOperationId } from "@zenmechat/shared-ui/monitor/telemetry";
 
 export async function clientLoader() {
   const profileId = localStorage.getItem("profileId");

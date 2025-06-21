@@ -1,16 +1,16 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate, redirect } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import { Helmet } from "react-helmet";
 // import { compare } from "fast-json-patch";
-import { getQuestionById, createQuestion } from "../../api/question";
+import { getQuestionById, updateQuestionPatch } from "../api/question";
 import { Container, Typography, Box, TextField, Button, List, ListItem, IconButton } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import { styled } from "@mui/material/styles";
-import type { Question } from "../../types/interfaces";
-import { logEvent, setOperationId } from "../../monitor/telemetry";
+import type { Question } from "../types/interfaces";
+import { logEvent, setOperationId } from "@zenmechat/shared-ui/monitor/telemetry";
 import pkg from "fast-json-patch";
 
 const { compare } = pkg;
@@ -23,46 +23,30 @@ const ReadOnlyText = styled("div")(() => ({
   },
 }));
 
-export async function clientLoader({ params }: { params: { id: string } }) {
-  const { id } = params;
-  if (!id) {
-    throw new Error("Missing question ID.");
-  }
-
-  const question = await getQuestionById(id);
-  if (question.profileId === localStorage.getItem("profileId")) {
-    return redirect(`/question/${id}`);
-  }
-
-  return { question };
-}
-
-function QuestionDetailAdd({ loaderData }: { loaderData: { question: Question } }) {
-  const { question } = loaderData;
+function QuestionDetail() {
   const { id } = useParams<{ id: string }>();
-  const [questionData, setQuestionData] = useState<Question | null>(question); // Original question data
-  const [editedData, setEditedData] = useState<Question | null>(question); // Edited data
+  const [questionData, setQuestionData] = useState<Question | null>(null); // Original question data
+  const [editedData, setEditedData] = useState<Question | null>(null); // Edited data
   const [editingFields, setEditingFields] = useState<{ [key: string]: boolean }>({}); // Fields currently being edited
   const [isEditing, setIsEditing] = useState(false); // Whether the update/cancel buttons are visible
   const navigate = useNavigate();
 
   // Fetch question data by ID when component mounts
-  // useEffect(() => {
-  //   const fetchQuestion = async () => {
-  //     try {
-  //       if (!id) return;
-  //       const data = await getQuestionById(id);
-  //       setQuestionData(data);
-  //       setEditedData(data); // Initialize editing data
-  //       if (data.profileId == localStorage.getItem("profileId")) {
-  //         navigate(`/question/${id}`, { replace: true });
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching question:", error);
-  //     }
-  //   };
-  //   fetchQuestion();
-  // }, [id, navigate]);
+  useEffect(() => {
+    const fetchQuestion = async () => {
+      try {
+        const data = await getQuestionById(id!);
+        setQuestionData(data);
+        setEditedData(data); // Initialize editing data
+        if (data.profileId !== localStorage.getItem("profileId")) {
+          navigate(`/question/${id}/add`, { replace: true });
+        }
+      } catch (error) {
+        console.error("Error fetching question:", error);
+      }
+    };
+    fetchQuestion();
+  }, [id]);
 
   const handleBackClick = () => {
     const correlationId = setOperationId();
@@ -75,29 +59,24 @@ function QuestionDetailAdd({ loaderData }: { loaderData: { question: Question } 
   };
 
   // Toggle edit mode for a specific field
-  const toggleFieldEdit = (field: string) => {
+  const toggleFieldEdit = (field: keyof Question) => {
     setEditingFields((prev) => ({ ...prev, [field]: true }));
   };
 
   // Handle changes to a specific field
-  const handleFieldEdit = (field: string, value: string) => {
-    if (editedData) {
-      setEditedData((prev) => ({ ...prev, [field]: value } as Question));
-      setIsEditing(true);
-    }
+  const handleFieldEdit = (field: keyof Question, value: any) => {
+    setEditedData((prev) => ({ ...prev, [field]: value } as Question));
+    setIsEditing(true);
   };
 
   // Handle blur event for a specific field
-  const handleBlur = (field: string) => {
+  const handleBlur = (field: keyof Question) => {
     setEditingFields((prev) => ({ ...prev, [field]: false }));
   };
 
   // Update options list
   const handleOptionsEdit = (options: string[]) => {
-    if (editedData) {
-      setEditedData((prev) => ({ ...prev, option: options } as Question));
-      setIsEditing(true);
-    }
+    handleFieldEdit("option", options);
   };
 
   // Update the question data using a patch API
@@ -105,24 +84,21 @@ function QuestionDetailAdd({ loaderData }: { loaderData: { question: Question } 
     if (questionData && editedData) {
       const correlationId = setOperationId();
       console.log("Correlation ID:", correlationId);
-      const patches = compare(questionData, editedData);
-      if (patches.length > 0) {
-        try {
-          setIsEditing(false);
-          await createQuestion(editedData.title, editedData.questionText, editedData.option || []);
-          console.log("ADD!!!!");
-        } catch (error) {
-          setIsEditing(true);
-          console.error("Error editing question:", error);
-        } finally {
-          setQuestionData(editedData);
-          setEditingFields({});
-          logEvent("btnSubmitAddQuestionClick", {
-            parentId: "SubmitButton",
-            questionId: id,
-          });
-          navigate(`/question`, { replace: true });
-        }
+      const patches: any = compare(questionData, editedData);
+      try {
+        setIsEditing(false);
+        await updateQuestionPatch(id!, patches);
+        console.log("Updated successfully!");
+        logEvent("btnSubmitUpdateQuestionClick", {
+          parentId: "SubmitButton",
+          questionId: id,
+        });
+      } catch (error) {
+        setIsEditing(true);
+        console.error("Error updating question:", error);
+      } finally {
+        setQuestionData(editedData);
+        setEditingFields({});
       }
     }
   };
@@ -232,13 +208,13 @@ function QuestionDetailAdd({ loaderData }: { loaderData: { question: Question } 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
       <Helmet>
-        <title>Copy Question</title>
+        <title>Question Detail</title>
       </Helmet>
       <Box display="flex" alignItems="center" mb={2}>
         <IconButton onClick={handleBackClick}>
           <ArrowBackIcon />
         </IconButton>
-        <Typography variant="h4">Add Question</Typography>
+        <Typography variant="h4">Question Detail</Typography>
       </Box>
       <Box>
         {renderField("Title", "title")}
@@ -247,7 +223,7 @@ function QuestionDetailAdd({ loaderData }: { loaderData: { question: Question } 
         {isEditing && (
           <Box display="flex" justifyContent="flex-end" gap={2} mb={3}>
             <Button variant="contained" color="primary" onClick={handleUpdate}>
-              Create
+              Update
             </Button>
             <Button variant="outlined" onClick={handleCancel}>
               Cancel
@@ -259,4 +235,4 @@ function QuestionDetailAdd({ loaderData }: { loaderData: { question: Question } 
   );
 }
 
-export default QuestionDetailAdd;
+export default QuestionDetail;

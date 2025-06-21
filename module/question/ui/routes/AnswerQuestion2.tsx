@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLoaderData, useNavigate, Form, redirect, useNavigation } from "react-router";
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "react-router";
-import { getQuestionById, getAnswerListByQuestionId, submitAnswer } from "../../api/question";
+import { getQuestionById, getAnswerListByQuestionId, submitAnswer } from "../api/question";
 import {
   Container,
   Typography,
@@ -21,7 +21,7 @@ import {
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
 import WordCloud from "react-d3-cloud";
-import { logEvent, setOperationId } from "../../monitor/telemetry";
+import { logEvent, setOperationId } from "@zenmechat/shared-ui/monitor/telemetry";
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { id } = params;

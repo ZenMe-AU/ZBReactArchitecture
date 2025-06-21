@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
 
-import { getQuestionById, getQuestionsByUser, getAnswerListByQuestionId, sendFollowUpQuestion } from "../../api/question";
-import type { Question, Answer } from "../../types/interfaces";
+import { getQuestionById, getQuestionsByUser, getAnswerListByQuestionId, sendFollowUpQuestion } from "../api/question";
+import type { Question, Answer } from "../types/interfaces";
 import {
   Container,
   Box,
@@ -23,7 +23,7 @@ import Divider from "@mui/material/Divider";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ClearIcon from "@mui/icons-material/Clear";
 import AddIcon from "@mui/icons-material/Add";
-import { logEvent, setOperationId } from "../../monitor/telemetry";
+import { logEvent, setOperationId } from "../monitor/telemetry";
 
 type CardErrors = Record<string, { question?: boolean; option?: boolean }>;
 

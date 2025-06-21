@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router";
 import { Helmet } from "react-helmet";
-import { getQuestionById, submitAnswer, getAnswerListByQuestionId } from "../../api/question";
-import type { Question, Answer } from "../../types/interfaces";
+import { getQuestionById, submitAnswer, getAnswerListByQuestionId } from "../api/question";
+import type { Question, Answer } from "../types/interfaces";
 import {
   Container,
   Typography,
@@ -22,7 +22,68 @@ import {
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
 import WordCloud from "react-d3-cloud";
-import { logEvent, setOperationId } from "../../monitor/telemetry";
+import { logEvent, setOperationId } from "../monitor/telemetry";
+
+export async function clientLoader({ params }: { params: { id: string } }) {
+  const profileId = localStorage.getItem("profileId");
+  const { id } = params;
+  let isOption = true;
+  let startTime = performance.now();
+  let answerList: Answer[] = [];
+  let answer: Answer[] = [];
+  let question: Question | null = null;
+  let prevAns: Answer | null = null;
+  let selectedOption: string | null = null;
+  let textAnswer: string | null = null;
+
+  if (!id) {
+    throw new Error("Question ID is required.");
+  }
+
+  try {
+    const question = await getQuestionById(id);
+    if (question.option === null) {
+      isOption = false;
+    }
+  } catch (err) {
+    console.error("Error fetching question:", err);
+    throw new Error("Failed to fetch question.");
+  }
+
+  try {
+    const answer = await getAnswerListByQuestionId(id);
+    console.log(answer);
+    const answerList = answer.reduce(
+      (acc: { self: Answer[]; others: Answer[] }, q: Answer) => {
+        if (q.profileId === profileId) {
+          acc.self.push(q);
+        } else {
+          acc.others.push(q);
+        }
+        return acc;
+      },
+      { self: [], others: [] }
+    );
+    console.log("Answer List:", answerList);
+
+    // if (answerList.self.length > 0) {
+    //   setPrevAns(answerList.self[0]);
+    //   setSelectedOption(answerList.self[0].optionId);
+    //   setTextAnswer(answerList.self[0].answerText);
+    // }
+  } catch (error) {
+    console.error("Error fetching answers:", error);
+  }
+  return {
+    isOption,
+    answerList: answerList.others,
+    question,
+    startTime,
+    prevAns: answerList.self[0] ?? null,
+    selectedOption: answerList.self[0].optionId ?? null,
+    textAnswer: answerList.self[0].answerText ?? null,
+  };
+}
 
 function AnswerQuestion() {
   const profileId = localStorage.getItem("profileId");
@@ -46,65 +107,6 @@ function AnswerQuestion() {
   const [wordCloudData, setWordCloudData] = useState<{ text: string; value: number }[]>([]);
   const [isOption, setIsOption] = useState<boolean>(true);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!id) return;
-
-    const fetchQuestion = async () => {
-      try {
-        setLoading(true);
-        const fetchedQuestion = await getQuestionById(id);
-        console.log(fetchedQuestion);
-        if (fetchedQuestion.option === null) {
-          setIsOption(false);
-        }
-        setQuestion(fetchedQuestion);
-        setStartTime(performance.now());
-      } catch (err) {
-        console.error("Error fetching question:", err);
-        setError("Failed to load the question.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchQuestion();
-
-    const fetchAnswers = async () => {
-      try {
-        const data = await getAnswerListByQuestionId(id);
-        console.log(data);
-        const answerList = data.reduce(
-          (acc: { self: Answer[]; others: Answer[] }, q: Answer) => {
-            if (q.profileId === profileId) {
-              acc.self.push(q);
-            } else {
-              acc.others.push(q);
-            }
-            return acc;
-          },
-          { self: [], others: [] }
-        );
-        console.log("Answer List:", answerList);
-
-        setAnswerList(answerList.others);
-        if (answerList.self.length > 0) {
-          setPrevAns(answerList.self[0]);
-          setSelectedOption(answerList.self[0].optionId);
-          setTextAnswer(answerList.self[0].answerText);
-        }
-      } catch (error) {
-        console.error("Error fetching answers:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchAnswers();
-    console.log(answerList);
-    console.log(prevAns);
-
-    console.log(isOption);
-  }, [id]);
 
   useEffect(() => {
     if (!answerList.length) return;

@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { Helmet } from "react-helmet";
-import { createQuestion } from "../../api/question";
+import { createQuestion } from "../api/question";
 import { Container, Typography, Box, TextField, Button, List, ListItem, IconButton } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { logEvent, setOperationId } from "../../monitor/telemetry";
+import { logEvent, setOperationId } from "@zenmechat/shared-ui/monitor/telemetry";
 
 // export async function clientAction({ request }: { request: Request }) {
 //   const navigate = useNavigate();

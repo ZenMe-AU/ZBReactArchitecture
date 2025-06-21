@@ -2,8 +2,8 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { Helmet } from "react-helmet";
-import { getQuestionById, updateQuestion } from "../../api/question";
-import type { Question } from "../../types/interfaces";
+import { getQuestionById, updateQuestion } from "../api/question";
+import type { Question } from "../types/interfaces";
 
 function EditQuestion() {
   const { id } = useParams<{ id: string }>(); // Retrieve question ID from the URL
