@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { Helmet } from "react-helmet";
 import { getQuestionById, shareQuestion } from "../api/question";
-import { getProfileList } from "../api/profile";
+import { getProfileList } from "@zenmechat/shared-ui/api/profile";
 import type { Profile } from "../types/interfaces";
 import { Container, Typography, Box, Button, IconButton, Alert, TextField } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
