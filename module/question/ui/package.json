@@ -1,5 +1,5 @@
 {
-  "name": "@zenmechat/question-ui",
+  "name": "question-ui",
   "private": true,
   "type": "module",
   "scripts": {
@@ -9,7 +9,7 @@
     "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
-    "@zenmechat/shared-ui":"file:../../../ui",
+    "@zenmechat/shared-ui": "file:../../../ui",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@microsoft/applicationinsights-clickanalytics-js": "^3.3.8",
