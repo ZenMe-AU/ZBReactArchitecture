@@ -1,6 +1,6 @@
-const baseUrl = process.env.BASE_URL || "http://localhost:7071";
-const questionUrl = new URL("/api/question", baseUrl);
-const profileUrl = new URL("/api/profile", baseUrl);
+const baseUrl = process.env.QUESTION_URL || "http://localhost:7071";
+const questionUrl = new URL("/question", baseUrl);
+const questionProfileUrl = new URL("/profile", baseUrl);
 const { questionData, questionTestResult } = require("./createQuestionTestData");
 
 const createQuestion = (profileIdLookup) => {
@@ -26,7 +26,7 @@ const createQuestion = (profileIdLookup) => {
 
 const checkQuestion = (profileIdLookup) => {
   test.each(questionTestResult())("There should be $count questions by user $userId.", async (r) => {
-    const response = await fetch(profileUrl + "/" + profileIdLookup.getProfileId(r.userId) + "/question", {
+    const response = await fetch(questionProfileUrl + "/" + profileIdLookup.getProfileId(r.userId) + "/question", {
       method: "GET",
       headers: {
         Accept: "application/json",

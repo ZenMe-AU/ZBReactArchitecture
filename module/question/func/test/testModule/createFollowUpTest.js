@@ -1,5 +1,6 @@
-const baseUrl = process.env.BASE_URL || "http://localhost:7071";
-const sendFollowUpCmdUrl = new URL("/api/sendFollowUpCmd", baseUrl);
+const baseUrl = process.env.QUESTION_URL || "http://localhost:7071";
+const profileBaseUrl = process.env.PROFILE_URL || "http://localhost:7072";
+const sendFollowUpCmdUrl = new URL("/sendFollowUpCmd", baseUrl);
 
 const createFollowUp = (profileIdLookup, questionIdLookup, testCorrelationId) => {
   test.each(followUpData())("send follow-up question by user $userId", async (followUp) => {

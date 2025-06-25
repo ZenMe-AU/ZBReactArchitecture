@@ -408,6 +408,7 @@ async function GetAnswerListByQuestionId(request, context) {
       answerCount: undefined,
     };
   });
+  console.log("processedAnswers:", processedAnswers);
   return { return: { list: processedAnswers } };
 }
 

@@ -1,5 +1,5 @@
 const { Op, Sequelize } = require("sequelize");
-const { Location } = require("../../shared/db/model/index.js");
+const { Location } = require("@zenmechat/shared/db/model/index.js");
 
 /**
  * write location into database

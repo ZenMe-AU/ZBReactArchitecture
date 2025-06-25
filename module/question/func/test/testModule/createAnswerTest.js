@@ -1,5 +1,6 @@
-const baseUrl = process.env.BASE_URL || "http://localhost:7071";
-const questionUrl = new URL("/api/question", baseUrl);
+const baseUrl = process.env.QUESTION_URL || "http://localhost:7071";
+const profileBaseUrl = process.env.PROFILE_URL || "http://localhost:7072";
+const questionUrl = new URL("/question", baseUrl);
 
 const createAnswer = (profileIdLookup, questionIdLookup) => {
   test.each(answerData())("answer question $questionId by user $userId", async (a) => {

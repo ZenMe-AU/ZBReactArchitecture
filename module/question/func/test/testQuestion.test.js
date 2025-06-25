@@ -4,9 +4,11 @@ require("dotenv").config(); // Load environment variables
 //npm run test:prod testUserSearch2
 
 // test.todo("Testing User Search with BASE_URL=" + process.env.BASE_URL);
-const baseUrl = process.env.BASE_URL || "http://localhost:7071";
-const questionUrl = new URL("/api/question", baseUrl);
-const profileUrl = new URL("/api/profile", baseUrl);
+const baseUrl = process.env.QUESTION_URL || "http://localhost:7071";
+const profileBaseUrl = process.env.PROFILE_URL || "http://localhost:7072";
+const questionUrl = new URL("/question", baseUrl);
+const profileUrl = new URL("/profile", profileBaseUrl);
+const loginUrl = new URL("/auth/login", profileBaseUrl);
 
 // beforeAll(async () => {
 //   }, 60000);
@@ -15,6 +17,7 @@ describe("test question data", () => {
   test.each(createUserData())("create User $userId", async (u) => {
     const response = await fetch(profileUrl, {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: "user" + u.userId,
         avatar: u.avatar,
@@ -31,10 +34,11 @@ describe("test question data", () => {
   test.each(questionData())("create question $questionId", async (q) => {
     const response = await fetch(questionUrl, {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         profileId: profileIdLookup.getProfileId(q.userId),
         title: q.title,
-        question: q.question,
+        questionText: q.question,
         option: q.option,
       }),
     });
@@ -49,6 +53,7 @@ describe("test question data", () => {
   test.each(answerData())("answer question $questionId by user $userId", async (a) => {
     const response = await fetch(questionUrl + "/" + questionIdLookup.getQuestionId(a.questionId) + "/answer", {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         profileId: profileIdLookup.getProfileId(a.userId),
         question: a.question,
@@ -65,11 +70,10 @@ describe("test question data", () => {
   });
 
   test.each(getQuestionTestResult())("There should be $count questions by user $userId.", async (r) => {
-    const response = await fetch(profileUrl + "/" + profileIdLookup.getProfileId(r.userId) + "/question", {
+    const response = await fetch(baseUrl + "/profile/" + profileIdLookup.getProfileId(r.userId) + "/question", {
       method: "GET",
       headers: {
         Accept: "application/json",
-        "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
       },
     });
@@ -79,11 +83,26 @@ describe("test question data", () => {
   });
 
   test.each(getAnswerTestResult())("There should be $count answers for question $questionId.", async (r) => {
+    if (!tokenLookup.getToken(r.userId)) {
+      const response = await fetch(loginUrl, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify({
+          userId: profileIdLookup.getProfileId(r.userId),
+        }),
+      });
+      const resultData = await response.json();
+      tokenLookup.add(r.userId, resultData.return.token);
+    }
     const response = await fetch(questionUrl + "/" + questionIdLookup.getQuestionId(r.questionId) + "/answer", {
       method: "GET",
       headers: {
         Accept: "application/json",
-        "Content-Type": "application/json",
+        Authorization: "Bearer " + tokenLookup.getToken(r.userId),
         "Access-Control-Allow-Origin": "*",
       },
     });
@@ -1289,31 +1308,51 @@ function getQuestionTestResult() {
 function getAnswerTestResult() {
   return [
     {
+      userId: 1,
       questionId: 1,
       count: 20,
     },
     {
+      userId: 1,
       questionId: 2,
       count: 20,
     },
     {
+      userId: 1,
       questionId: 3,
       count: 20,
     },
     {
+      userId: 1,
       questionId: 4,
       count: 20,
     },
     {
+      userId: 1,
       questionId: 5,
       count: 20,
     },
     {
+      userId: 1,
       questionId: 6,
       count: 20,
     },
   ];
 }
+
+const tokenLookup = {
+  data: [],
+  add: function (testId, token) {
+    this.data.push({
+      testId: testId,
+      token: token,
+    });
+  },
+  getToken: function (id) {
+    let obj = this.data.filter(({ testId }) => testId == id).pop();
+    return obj ? obj.token : null;
+  },
+};
 
 const profileIdLookup = {
   data: [],

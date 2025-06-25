@@ -1,17 +1,17 @@
-const { Op, Sequelize, QueryTypes } = require("sequelize");
+const { Op, Sequelize, QueryTypes, literal } = require("sequelize");
 const { Profiles, Location, Attributes } = require("@zenmechat/shared/db/model");
 const { sequelize } = require("@zenmechat/shared/db");
 
 async function create(name, tags = [], avatar = null) {
   try {
     //TODO: For testing, wait 1s if name is user3, to be removed for production.
-    if (name == "delaythisuser") {
-      await new Promise((resolve) => setTimeout(resolve, 10000));
-    }
-    console.log({
-      name: name,
-      avatar: avatar,
-    });
+    // if (name == "delaythisuser") {
+    //   await new Promise((resolve) => setTimeout(resolve, 10000));
+    // }
+    // console.log({
+    //   name: name,
+    //   avatar: avatar,
+    // });
     let profile = await Profiles.create(
       {
         name: name,
@@ -55,16 +55,33 @@ function getList(name, tags) {
       attributes: ["id", "name", "avatar"],
     };
     if (tags != null) {
-      queryObj.include = [
-        {
-          model: Attributes,
-          attributes: [],
-          where: { tag: { [Op.like]: { [Op.any]: tags } } },
+      // queryObj.include = [
+      //   {
+      //     model: Attributes,
+      //     attributes: [],
+      //     where: { tag: { [Op.like]: { [Op.any]: tags } } },
+      //   },
+      // ];
+      // queryObj.group = ["profiles.id"];
+      // queryObj.having = Sequelize.where(Sequelize.fn("COUNT", Sequelize.col("attributes.id")), {
+      //   [Op.gte]: tags.length,
+      // });
+      // queryObj.having = Sequelize.literal(`COUNT(attributes.id) >= ${tags.length}`);
+      const tagCount = tags.length;
+      const query = `
+  SELECT p.*
+  FROM profiles p
+  JOIN attributes a ON a."profileId" = p.id
+  WHERE a.tag LIKE ANY(ARRAY[:tags])
+  GROUP BY p.id
+  HAVING COUNT(a.id) >= :tagCount;
+`;
+      return sequelize.query(query, {
+        replacements: {
+          tags,
+          tagCount,
         },
-      ];
-      queryObj.group = ["profiles.id"];
-      queryObj.having = Sequelize.where(Sequelize.fn("COUNT", Sequelize.col("attributes.id")), {
-        [Op.gte]: tags.length,
+        type: sequelize.QueryTypes.SELECT,
       });
     }
     return Profiles.findAll(queryObj);

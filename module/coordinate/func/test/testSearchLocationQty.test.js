@@ -11,9 +11,9 @@ This test writes test data and then compare it with expected results.
 */
 
 console.log("Testing User Search with BASE_URL=" + process.env.BASE_URL);
-const baseUrl = process.env.BASE_URL || "http://localhost:7071";
-const locationWriteUrl = new URL("/api/LocationWrite", baseUrl);
-const getUsersQtyUrl = new URL("/api/SearchAtLocationQty", baseUrl);
+const baseUrl = process.env.BASE_URL || "http://localhost:7073";
+const locationWriteUrl = new URL("/LocationWrite", baseUrl);
+const getUsersQtyUrl = new URL("/SearchAtLocationQty", baseUrl);
 
 const initCoord = {
   lon: getRandomInRange(-180, 180, 15),

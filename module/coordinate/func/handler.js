@@ -1,5 +1,5 @@
 const Location = require("./service/function.js");
-const Profiles = require("../profile/service/function.js");
+const Profiles = require("@zenmechat/profile/service/function.js");
 
 /**
  * @swagger

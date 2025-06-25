@@ -1,6 +1,7 @@
-const baseUrl = process.env.BASE_URL || "http://localhost:7071";
-const profileUrl = new URL("/api/profile", baseUrl);
-const eventUrl = new URL("/api/getEventByCorrelationId", baseUrl);
+const baseUrl = process.env.QUESTION_URL || "http://localhost:7071";
+const profileBaseUrl = process.env.PROFILE_URL || "http://localhost:7072";
+const profileUrl = new URL("/profile", profileBaseUrl);
+const eventUrl = new URL("/getEventByCorrelationId", baseUrl);
 const followUpQuestionQty = 5;
 
 const checkShareQuestion = (profileIdLookup, testCorrelationId) => {

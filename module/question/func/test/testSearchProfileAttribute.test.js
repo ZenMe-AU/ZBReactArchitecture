@@ -3,8 +3,8 @@ require("dotenv").config(); // Load environment variables
 //npm run test:local testSearchProfileAttribute
 //npm run test:prod testSearchProfileAttribute
 
-const baseUrl = process.env.BASE_URL || "http://localhost:7071";
-const profileUrl = new URL("/api/profile", baseUrl);
+const baseUrl = process.env.PROFILE_URL || "http://localhost:7072";
+const profileUrl = new URL("/profile", baseUrl);
 let testResult = getTestResult();
 const writeLogs = false;
 
@@ -34,7 +34,7 @@ beforeAll(() => {
     );
     resolve();
   });
-});
+}, 60000);
 
 describe("test profile attribute search", () => {
   test.each(getTestData())(

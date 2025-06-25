@@ -1,6 +1,7 @@
-const baseUrl = process.env.BASE_URL || "http://localhost:7071";
-const questionUrl = new URL("/api/question", baseUrl);
-const loginUrl = new URL("/api/auth/login", baseUrl);
+const baseUrl = process.env.QUESTION_URL || "http://localhost:7071";
+const profileBaseUrl = process.env.PROFILE_URL || "http://localhost:7072";
+const questionUrl = new URL("/question", baseUrl);
+const loginUrl = new URL("/auth/login", profileBaseUrl);
 
 const checkAnswer = (profileIdLookup, questionIdLookup) => {
   test.each(getAnswerTestResult())("There should be $count answers for question $questionId.", async (r) => {
