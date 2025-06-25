@@ -38,72 +38,72 @@ describe("test attribute data", () => {
     expect(qty).toBe(0);
   });
 
-  // test.each(getTestData())("$command  $userId", async (t) => {
-  //   var response;
-  //   switch (t.command) {
-  //     case "createUser":
-  //       response = await fetch(profileUrl, {
-  //         method: "POST",
-  //         headers: {
-  //           Accept: "application/json",
-  //         },
-  //         body: JSON.stringify({
-  //           name: "user" + t.userId,
-  //           avatar: t.avatar,
-  //           attributes: t.attributes,
-  //         }),
-  //       });
+  test.each(getTestData())("$command  $userId", async (t) => {
+    var response;
+    switch (t.command) {
+      case "createUser":
+        response = await fetch(profileUrl, {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            name: "user" + t.userId,
+            avatar: t.avatar,
+            attributes: t.attributes,
+          }),
+        });
 
-  //       let profile = await response.json();
-  //       let profileId = profile.return.id;
-  //       profileIdLookup.add(t.userId, profileId);
-  //       break;
-  //     case "writeLocation":
-  //       let coord = coordSet.getCoord();
-  //       let nCoord = genRandomLocation(coord.lon, coord.lat, t.maxDistance, t.minDistance);
-  //       response = await fetch(locationWriteUrl, {
-  //         method: "POST",
-  //         headers: {
-  //           Accept: "application/json",
-  //         },
-  //         body: JSON.stringify({
-  //           topic: "owntracks/test/genbtn",
-  //           _type: "location",
-  //           lon: nCoord.lon,
-  //           lat: nCoord.lat,
-  //           tid: profileIdLookup.getProfileId(t.userId),
-  //         }),
-  //       });
-  //       break;
-  //   }
+        let profile = await response.json();
+        let profileId = profile.return.id;
+        profileIdLookup.add(t.userId, profileId);
+        break;
+      case "writeLocation":
+        let coord = coordSet.getCoord();
+        let nCoord = genRandomLocation(coord.lon, coord.lat, t.maxDistance, t.minDistance);
+        response = await fetch(locationWriteUrl, {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+          },
+          body: JSON.stringify({
+            topic: "owntracks/test/genbtn",
+            _type: "location",
+            lon: nCoord.lon,
+            lat: nCoord.lat,
+            tid: profileIdLookup.getProfileId(t.userId),
+          }),
+        });
+        break;
+    }
 
-  //   expect(response.ok).toBeTruthy();
-  // });
+    expect(response.ok).toBeTruthy();
+  });
 
-  // test.each(getTestResult())(
-  //   "There should be $count users at a distance of $distance meters with search attributes: $searchAttributes.",
-  //   async (r) => {
-  //     let coord = coordSet.getCoord();
-  //     let urlParams = {
-  //       lon: coord.lon,
-  //       lat: coord.lat,
-  //       interval: timeInterval,
-  //       distance: r.distance,
-  //       attributes: r.searchAttributes.join(","),
-  //       fuzzySearch: !r.exactMatch,
-  //     };
-  //     const response = await fetch(getUsersQtyUrl + "?" + new URLSearchParams(urlParams).toString(), {
-  //       method: "GET",
-  //       headers: {
-  //         Accept: "application/json",
-  //         "Access-Control-Allow-Origin": "*",
-  //       },
-  //     });
-  //     const resultData = await response.json();
-  //     const qty = resultData.return.qty;
-  //     expect(qty).toBe(r.count);
-  //   }
-  // );
+  test.each(getTestResult())(
+    "There should be $count users at a distance of $distance meters with search attributes: $searchAttributes.",
+    async (r) => {
+      let coord = coordSet.getCoord();
+      let urlParams = {
+        lon: coord.lon,
+        lat: coord.lat,
+        interval: timeInterval,
+        distance: r.distance,
+        attributes: r.searchAttributes.join(","),
+        fuzzySearch: !r.exactMatch,
+      };
+      const response = await fetch(getUsersQtyUrl + "?" + new URLSearchParams(urlParams).toString(), {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
+      });
+      const resultData = await response.json();
+      const qty = resultData.return.qty;
+      expect(qty).toBe(r.count);
+    }
+  );
 });
 
 // Get the random integer
