@@ -12,6 +12,8 @@ This test writes test data and then compare it with expected results.
 
 console.log("Testing User Search with BASE_URL=" + process.env.BASE_URL);
 const baseUrl = process.env.BASE_URL || "http://localhost:7073";
+const profileBaseUrl = process.env.PROFILE_URL || "http://localhost:7072";
+const profileUrl = new URL("/profile", profileBaseUrl);
 const locationWriteUrl = new URL("/LocationWrite", baseUrl);
 const getUsersQtyUrl = new URL("/SearchAtLocationQty", baseUrl);
 
@@ -31,6 +33,23 @@ beforeAll(async () => {
 }, 60000);
 
 describe("Insert test data", () => {
+  test.each(createUserData())("create User $userId", async (u) => {
+    const response = await fetch(profileUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: u.name ?? "user" + u.userId,
+        avatar: u.avatar,
+        attributes: u.attributes,
+      }),
+    });
+
+    let profile = await response.json();
+    let profileId = profile.return.id;
+    profileIdLookup.add(u.userId, profileId);
+
+    expect(response.ok).toBeTruthy();
+  });
   test("Verify there are no users at the starting location", async () => {
     let coord = coordSet.getCoord();
     let qty = await checkUsersQty(getUsersQtyUrl, {
@@ -53,7 +72,7 @@ describe("Insert test data", () => {
         _type: "location",
         lon: nCoord.lon,
         lat: nCoord.lat,
-        tid: t.id,
+        tid: profileIdLookup.getProfileId(t.id),
       }),
     });
     expect(response.ok).toBeTruthy();
@@ -212,3 +231,52 @@ function getTestResult() {
     },
   ];
 }
+
+function createUserData() {
+  return [
+    {
+      userId: 1,
+      avatar: "avatar_1.jpg",
+      attributes: [],
+    },
+    {
+      userId: 2,
+      avatar: "avatar_2.jpg",
+      attributes: [],
+    },
+    {
+      userId: 3,
+      avatar: "avatar_3.jpg",
+      attributes: [],
+    },
+    {
+      userId: 4,
+      avatar: "avatar_4.jpg",
+      attributes: [],
+    },
+    {
+      userId: 5,
+      avatar: "avatar_5.jpg",
+      attributes: [],
+    },
+    {
+      userId: 6,
+      avatar: "avatar_6.jpg",
+      attributes: [],
+    },
+  ];
+}
+
+const profileIdLookup = {
+  data: [],
+  add: function (testId, profileId) {
+    this.data.push({
+      testId: testId,
+      profileId: profileId,
+    });
+  },
+  getProfileId: function (id) {
+    let obj = this.data.filter(({ testId }) => testId == id).pop();
+    return obj ? obj.profileId : null;
+  },
+};

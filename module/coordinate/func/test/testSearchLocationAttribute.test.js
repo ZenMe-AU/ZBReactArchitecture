@@ -1,7 +1,7 @@
 require("dotenv").config(); // Load environment variables
 
 //npm run test:local testSearchLocationAttribute
-//npm run test:prod testUserSearch2
+//npm run test:prod testSearchLocationAttribute
 
 // test.todo("Testing User Search with BASE_URL=" + process.env.BASE_URL);
 const baseUrl = process.env.BASE_URL || "http://localhost:7073";
@@ -45,7 +45,7 @@ describe("test attribute data", () => {
         response = await fetch(profileUrl, {
           method: "POST",
           headers: {
-            Accept: "application/json",
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             name: "user" + t.userId,
@@ -64,7 +64,7 @@ describe("test attribute data", () => {
         response = await fetch(locationWriteUrl, {
           method: "POST",
           headers: {
-            Accept: "application/json",
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             topic: "owntracks/test/genbtn",
