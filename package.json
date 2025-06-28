@@ -8,10 +8,10 @@
     "module/shared/ui",
     "module/question/ui",
     "module/profile/ui",
-    "module/coordinate/func",
     "module/shared/func",
+    "module/profile/func",
     "module/question/func",
-    "module/profile/func"
+    "module/coordinate/func"
   ],
   "scripts": {
   },
