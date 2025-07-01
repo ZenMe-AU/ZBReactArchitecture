@@ -7,11 +7,7 @@
   "workspaces": [
     "module/shared/ui",
     "module/question/ui",
-    "module/profile/ui",
-    "module/shared/func",
-    "module/profile/func",
-    "module/question/func",
-    "module/coordinate/func"
+    "module/profile/ui"
   ],
   "scripts": {
   },

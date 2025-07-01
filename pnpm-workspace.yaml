@@ -1,4 +1,3 @@
 packages:
   - ui
   - module/*/ui
-  - module/*/func
