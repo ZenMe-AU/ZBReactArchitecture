@@ -11,7 +11,7 @@ const {
   FollowUpFilter,
   FollowUpEvent,
   QuestionShareEvent,
-} = require("@zenmechat/shared/db/model");
+} = require("../db/model");
 const { v4: uuidv4 } = require("uuid");
 const { cmdName } = require("../enum.js");
 

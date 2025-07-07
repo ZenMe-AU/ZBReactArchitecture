@@ -2,7 +2,7 @@
   "development": {
     "username": "zmpostressadmin",
     "password": "2024 Zenme Postgress admin",
-    "database": "postgres",
+    "database": "coordinate",
     "host": "postgress1.postgres.database.azure.com",
     "port": 5432,
     "dialect": "postgres",
@@ -16,4 +16,3 @@
   }
 }
 
-//TODO: Add to environment variables

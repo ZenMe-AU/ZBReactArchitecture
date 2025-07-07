@@ -28,16 +28,16 @@ module.exports = {
     });
     // await queryInterface.sequelize.query("ALTER TABLE profiles ADD CONSTRAINT profile_userId_fkey FOREIGN KEY (userId) REFERENCES users (id);");
 
-    await queryInterface.addConstraint("profiles", {
-      fields: ["userId"],
-      type: "foreign key",
-      name: "profiles_userId_fkey",
-      references: {
-        table: "users",
-        field: "id",
-      },
-      onDelete: "CASCADE",
-    });
+    // await queryInterface.addConstraint("profiles", {
+    //   fields: ["userId"],
+    //   type: "foreign key",
+    //   name: "profiles_userId_fkey",
+    //   references: {
+    //     table: "users",
+    //     field: "id",
+    //   },
+    //   onDelete: "CASCADE",
+    // });
   },
 
   async down(queryInterface, Sequelize) {

@@ -1,5 +1,5 @@
 const { Op, Sequelize } = require("sequelize");
-const { Attributes } = require("@zenmechat/shared/db/model");
+const { Attributes } = require("../db/model");
 
 /**
  * get user's attributes

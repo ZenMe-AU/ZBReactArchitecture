@@ -1,6 +1,7 @@
 const { Op, Sequelize, QueryTypes, literal } = require("sequelize");
-const { Profiles, Location, Attributes } = require("@zenmechat/shared/db/model");
-const { sequelize } = require("@zenmechat/shared/db");
+const { Profiles, Attributes } = require("../db/model");
+const { Location } = require("@zenmechat/shared/db/model");
+const { sequelize } = require("../db");
 
 async function create(name, tags = [], avatar = null) {
   try {
@@ -55,34 +56,34 @@ function getList(name, tags) {
       attributes: ["id", "name", "avatar"],
     };
     if (tags != null) {
-      // queryObj.include = [
-      //   {
-      //     model: Attributes,
-      //     attributes: [],
-      //     where: { tag: { [Op.like]: { [Op.any]: tags } } },
-      //   },
-      // ];
-      // queryObj.group = ["profiles.id"];
-      // queryObj.having = Sequelize.where(Sequelize.fn("COUNT", Sequelize.col("attributes.id")), {
-      //   [Op.gte]: tags.length,
-      // });
-      // queryObj.having = Sequelize.literal(`COUNT(attributes.id) >= ${tags.length}`);
-      const tagCount = tags.length;
-      const query = `
-  SELECT p.*
-  FROM profiles p
-  JOIN attributes a ON a."profileId" = p.id
-  WHERE a.tag LIKE ANY(ARRAY[:tags])
-  GROUP BY p.id
-  HAVING COUNT(a.id) >= :tagCount;
-`;
-      return sequelize.query(query, {
-        replacements: {
-          tags,
-          tagCount,
+      queryObj.include = [
+        {
+          model: Attributes,
+          attributes: [],
+          where: { tag: { [Op.like]: { [Op.any]: tags } } },
         },
-        type: sequelize.QueryTypes.SELECT,
+      ];
+      queryObj.group = ["profiles.id"];
+      queryObj.having = Sequelize.where(Sequelize.fn("COUNT", Sequelize.col("attributes.id")), {
+        [Op.gte]: tags.length,
       });
+      queryObj.having = Sequelize.literal(`COUNT(attributes.id) >= ${tags.length}`);
+      //       const tagCount = tags.length;
+      //       const query = `
+      //   SELECT p.*
+      //   FROM profiles p
+      //   JOIN attributes a ON a."profileId" = p.id
+      //   WHERE a.tag LIKE ANY(ARRAY[:tags])
+      //   GROUP BY p.id
+      //   HAVING COUNT(a.id) >= :tagCount;
+      // `;
+      //       return sequelize.query(query, {
+      //         replacements: {
+      //           tags,
+      //           tagCount,
+      //         },
+      //         type: sequelize.QueryTypes.SELECT,
+      //       });
     }
     return Profiles.findAll(queryObj);
   } catch (err) {
