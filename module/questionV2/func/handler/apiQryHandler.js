@@ -43,7 +43,7 @@ async function GetQuestionById(request, context) {
  * /questionQry/getAnswer/{answerId}:
  *   get:
  *     tags:
- *       - Question
+ *       - QuestionQuery
  *     summary: Get answer by UUID
  *     description: Retrieve a specific answer by its UUID.
  *     parameters:
@@ -79,7 +79,7 @@ async function GetAnswerById(request, context) {
  * /questionQry/getQuestions/{profileId}:
  *   get:
  *     tags:
- *       - Question
+ *       - QuestionQuery
  *     summary: Get list of questions by user
  *     description: Retrieve all questions created by a specific user profile.
  *     parameters:
@@ -136,7 +136,7 @@ async function GetQuestionListByUser(request, context) {
  * /questionQry/getAnswers/{questionId}:
  *   get:
  *     tags:
- *       - Question
+ *       - QuestionQuery
  *     summary: Get list of answers for a questionnaire
  *     description: Retrieve all answers for a specific questionnaire.
  *     parameters:
@@ -216,7 +216,7 @@ async function GetAnswerListByQuestionId(request, context) {
  * /questionQry/getSharedQuestions/{profileId}:
  *   get:
  *     tags:
- *       - Question
+ *       - QuestionQuery
  *     summary: Get shared questions for a user
  *     description: Retrieve all questions shared with a specific user.
  *     parameters:
