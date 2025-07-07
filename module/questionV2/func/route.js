@@ -1,118 +1,136 @@
 require("@zenmechat/shared");
 const { app } = require("@azure/functions");
 const { requestHandler, serviceBusHandler } = require("@zenmechat/shared/handler");
-const questionHandler = require("./handler.js");
+const cmdHandler = require("./handler/apiCmdHandler.js");
+const qryHandler = require("./handler/apiQryHandler.js");
+const queueHandler = require("./handler/queueCmdHandler.js");
 const sendFollowUpCmdSchema = require("./schema/sendFollowUpCmdSchema");
 const shareQuestionCmdSchema = require("./schema/shareQuestionCmdSchema");
-const { followUpCmdQueue, shareQuestionCmdQueue } = require("@zenmechat/shared/service/serviceBus.js");
+const { sendFollowUp, shareQuestion, createQuestion, updateQuestion, createAnswer } = require("./service/serviceBus");
+
+app.http("GetQuestion", {
+  route: "questionQry/getQuestion/{questionId}",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: requestHandler(qryHandler.GetQuestionById),
+});
+
+app.http("GetAnswer", {
+  route: "questionQry/getAnswer/{answerId}",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: requestHandler(qryHandler.GetAnswerById),
+});
+
+app.http("GetQuestionList", {
+  route: "questionQry/getQuestions/{profileId}",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: requestHandler(qryHandler.GetQuestionListByUser),
+});
+
+app.http("GetAnswerList", {
+  route: "questionQry/getAnswers/{questionId}",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: requestHandler(qryHandler.GetAnswerListByQuestionId),
+});
+
+app.http("GetSharedQuestionList", {
+  route: "questionQry/getSharedQuestions/{profileId}",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: requestHandler(qryHandler.GetSharedQuestionListByUser),
+});
+
+app.http("getQuestionShareEventList", {
+  route: "questionQry/getQuestionShareEvents/{correlationId}",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: requestHandler(qryHandler.GetEventByCorrelationId, {
+    customParams: { tableName: "QuestionShareEvent" },
+  }),
+});
+
+app.http("getFollowUpEventList", {
+  route: "questionQry/getFollowUpEvents/{correlationId}",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: requestHandler(qryHandler.GetEventByCorrelationId, {
+    customParams: { tableName: "followUpEvent" },
+  }),
+});
 
 app.http("CreateQuestion", {
-  route: "question",
+  route: "questionCmd/createQuestion",
   methods: ["POST"],
+  extraOutputs: [createQuestion],
   authLevel: "anonymous",
-  handler: requestHandler(questionHandler.CreateQuestion),
+  handler: requestHandler(cmdHandler.CreateQuestion),
 });
 
-app.http("GetQuestionById", {
-  route: "question/{id}",
-  methods: ["GET"],
-  authLevel: "anonymous",
-  handler: requestHandler(questionHandler.GetQuestionById),
-});
-
-app.http("UpdateQuestionById", {
-  route: "question/{id}",
-  methods: ["PUT"],
-  authLevel: "anonymous",
-  handler: requestHandler(questionHandler.UpdateQuestionById),
-});
-
-app.http("PatchQuestionById", {
-  route: "question/{id}",
-  methods: ["PATCH"],
-  authLevel: "anonymous",
-  handler: requestHandler(questionHandler.PatchQuestionById),
-});
-
-app.http("AddAnswer", {
-  route: "question/{id}/answer",
+app.http("UpdateQuestion", {
+  route: "questionCmd/updateQuestion/{questionId}",
   methods: ["POST"],
+  extraOutputs: [updateQuestion],
   authLevel: "anonymous",
-  handler: requestHandler(questionHandler.AddAnswer),
+  handler: requestHandler(cmdHandler.UpdateQuestion),
 });
 
-app.http("GetAnswerById", {
-  route: "question/{id:int}/answer/{answerId:int}",
-  methods: ["GET"],
+app.http("CreateAnswer", {
+  route: "questionCmd/createAnswer/{questionId}",
+  methods: ["POST"],
+  extraOutputs: [createAnswer],
   authLevel: "anonymous",
-  handler: requestHandler(questionHandler.GetAnswerById),
+  handler: requestHandler(cmdHandler.CreateAnswer),
 });
 
-app.http("GetQuestionListByUser", {
-  route: "profile/{profileId}/question",
-  methods: ["GET"],
+app.http("SendFollowUp", {
+  route: "questionCmd/sendFollowUp",
+  methods: ["POST"],
+  extraOutputs: [sendFollowUp],
   authLevel: "anonymous",
-  handler: requestHandler(questionHandler.GetQuestionListByUser),
-});
-
-app.http("GetAnswerListByQuestionId", {
-  route: "question/{id}/answer",
-  methods: ["GET"],
-  authLevel: "anonymous",
-  handler: requestHandler(questionHandler.GetAnswerListByQuestionId),
+  handler: requestHandler(cmdHandler.SendFollowUp, {
+    schemas: [sendFollowUpCmdSchema],
+  }),
 });
 
 app.http("ShareQuestion", {
-  route: "question/{id}/share",
+  route: "questionCmd/shareQuestion",
   methods: ["POST"],
+  extraOutputs: [shareQuestion],
   authLevel: "anonymous",
-  handler: requestHandler(questionHandler.ShareQuestionById),
-});
-
-app.http("GetSharedQuestionListByUser", {
-  route: "profile/{profileId}/sharedQuestion",
-  methods: ["GET"],
-  authLevel: "anonymous",
-  handler: requestHandler(questionHandler.GetSharedQuestionListByUser),
-});
-
-app.http("SendFollowUpCmd", {
-  route: "sendFollowUpCmd",
-  methods: ["POST"],
-  extraOutputs: [followUpCmdQueue],
-  authLevel: "anonymous",
-  handler: requestHandler(questionHandler.SendFollowUpCmdQueue, {
-    schemas: [sendFollowUpCmdSchema],
-    customParams: { queueName: "followUpCmd" },
-  }),
-});
-
-app.http("ShareQuestionCmd", {
-  route: "shareQuestionCmd",
-  methods: ["POST"],
-  extraOutputs: [shareQuestionCmdQueue],
-  authLevel: "anonymous",
-  handler: requestHandler(questionHandler.SendShareQuestionCmdQueue, {
+  handler: requestHandler(cmdHandler.ShareQuestion, {
     schemas: [shareQuestionCmdSchema],
-    customParams: { queueName: "shareQuestionCmd" },
   }),
 });
 
-app.http("getEventByCorrelationId", {
-  route: "getEventByCorrelationId/{name}/{correlationId}",
-  methods: ["GET"],
-  authLevel: "anonymous",
-  handler: requestHandler(questionHandler.GetEventByCorrelationId),
+app.serviceBusQueue("sendFollowUpQueue", {
+  connection: "Zmchat_SERVICEBUS",
+  queueName: "sendFollowUp",
+  handler: serviceBusHandler(queueHandler.SendFollowUp),
 });
 
-app.serviceBusQueue("sendFollowUpCmdQueue", {
+app.serviceBusQueue("shareQuestionQueue", {
   connection: "Zmchat_SERVICEBUS",
-  queueName: "followupcmd",
-  handler: serviceBusHandler(questionHandler.SendFollowUpCmd),
+  queueName: "shareQuestion",
+  handler: serviceBusHandler(queueHandler.ShareQuestion),
 });
 
-app.serviceBusQueue("shareQuestionCmdQueue", {
+app.serviceBusQueue("CreateQuestionQueue", {
   connection: "Zmchat_SERVICEBUS",
-  queueName: "ShareQuestionCmd",
-  handler: serviceBusHandler(questionHandler.ShareQuestionCmd),
+  queueName: "createQuestion",
+  handler: serviceBusHandler(queueHandler.CreateQuestion),
+});
+
+app.serviceBusQueue("UpdateQuestionQueue", {
+  connection: "Zmchat_SERVICEBUS",
+  queueName: "updateQuestion",
+  handler: serviceBusHandler(queueHandler.UpdateQuestion),
+});
+
+app.serviceBusQueue("CreateAnswerQueue", {
+  connection: "Zmchat_SERVICEBUS",
+  queueName: "createAnswer",
+  handler: serviceBusHandler(queueHandler.CreateAnswer),
 });
