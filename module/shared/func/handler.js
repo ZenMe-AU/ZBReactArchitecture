@@ -106,10 +106,15 @@ const serviceBusHandler = (fn) => async (message, context) => {
   console.log("message:", message);
   const tracer = trace.getTracer("serviceBusTracer");
 
-  const invocationId = context.invocationId || "unknown invocationId";
-  const messageId = context.triggerMetadata.messageId || "unknown messageId";
-  const correlationId = context.triggerMetadata.correlationId;
-  const functionName = context.functionName || "unknown serviceBus";
+  // const invocationId = context.invocationId;
+  // const messageId = context.triggerMetadata.messageId;
+  // const correlationId = context.triggerMetadata.correlationId;
+  // const functionName = context.functionName || "unknown serviceBus";
+  // const { messageId, correlationId } = context.triggerMetadata;
+  // const { invocationId, functionName = "unknown serviceBus" } = context;
+  const { invocationId, functionName = "unknown serviceBus", triggerMetadata = {} } = context;
+  const { messageId } = triggerMetadata;
+  const { correlationId } = message;
   console.log("✨✨correlationId:", correlationId);
   console.log("💁functionName:", functionName);
 
@@ -119,8 +124,8 @@ const serviceBusHandler = (fn) => async (message, context) => {
     {
       // kind: SpanKind.CONSUMER,
       attributes: {
-        "app.invocation_id": invocationId,
-        "app.message_id": messageId,
+        "app.invocation_id": invocationId || "unknown invocationId",
+        "app.message_id": messageId || "unknown messageId",
         "app.correlation_id": correlationId,
         "messaging.system": "azure.servicebus",
         // "messaging.destination": metadata.entityName || options.queue || "unknown",
@@ -132,7 +137,11 @@ const serviceBusHandler = (fn) => async (message, context) => {
 
   try {
     await sContext.with(trace.setSpan(parentCtx, span), async () => {
-      const result = await fn(message, context);
+      const messageBody = {
+        ...message,
+        messageId,
+      };
+      const result = await fn(messageBody, context);
       span.setStatus({ code: SpanStatusCode.OK });
     });
   } catch (error) {
