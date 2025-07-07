@@ -14,7 +14,7 @@ const requestHandler =
 
     const parentCtx = trace.setSpanContext(sContext.active(), buildSpanContext(correlationId));
     const span = tracer.startSpan(
-      "API-" + functionName,
+      functionName + "-API",
       {
         // kind: SpanKind.SERVER,
         attributes: {
@@ -115,7 +115,7 @@ const serviceBusHandler = (fn) => async (message, context) => {
 
   const parentCtx = trace.setSpanContext(sContext.active(), buildSpanContext(correlationId));
   const span = tracer.startSpan(
-    "ServiceBus-" + functionName,
+    functionName + "-ServiceBus",
     {
       // kind: SpanKind.CONSUMER,
       attributes: {
