@@ -1,6 +1,6 @@
 const cmdName = Object.freeze({
-  FollowUpCmd: "FollowUpCmd",
-  ShareQuestionCmd: "ShareQuestionCmd",
+  FollowUpEvent: "FollowUpEvent",
+  ShareQuestionEvent: "ShareQuestionEvent",
 });
 
 module.exports = {

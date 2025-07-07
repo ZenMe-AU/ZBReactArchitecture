@@ -2,7 +2,7 @@
   "development": {
     "username": "zmpostressadmin",
     "password": "2024 Zenme Postgress admin",
-    "database": "question",
+    "database": "questionV2",
     "host": "postgress1.postgres.database.azure.com",
     "port": 5432,
     "dialect": "postgres",

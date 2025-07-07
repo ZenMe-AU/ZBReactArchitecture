@@ -11,6 +11,10 @@ const {
   FollowUpFilter,
   FollowUpEvent,
   QuestionShareEvent,
+  QuestionCmd,
+  QuestionEvent,
+  QuestionAnswerCmd,
+  QuestionAnswerEvent,
 } = require("../db/model");
 const { v4: uuidv4 } = require("uuid");
 const { cmdName } = require("../enum.js");
@@ -109,9 +113,14 @@ async function addAnswerByQuestionId(questionId, profileId, duration, answer = n
   }
 }
 
-async function getAnswerById(questionId, answerId) {
+async function getAnswerById(answerId) {
   try {
-    return await QuestionAnswer.findOne({ where: { id: answerId, questionId: questionId } });
+    return await QuestionAnswer.findOne({
+      where: {
+        id: answerId,
+        // questionId: questionId
+      },
+    });
   } catch (err) {
     console.log(err);
     throw new Error(`Function failed: ${err.message}`, { cause: err });
@@ -387,10 +396,10 @@ async function patchById(questionId, action, profileId) {
 async function getEventByCorrelationId(name, correlationId) {
   var model;
   switch (name) {
-    case cmdName.FollowUpCmd:
+    case cmdName.FollowUpEvent:
       model = FollowUpEvent;
       break;
-    case cmdName.QuestionShareCmd:
+    case cmdName.QuestionShareEvent:
       model = QuestionShareEvent;
       break;
     default:
@@ -405,6 +414,54 @@ async function getEventByCorrelationId(name, correlationId) {
   } catch (err) {
     console.log(err);
     throw new Error("can't get event by correlationId");
+  }
+}
+
+async function insertQuestionCmd(cmdId, senderId, cmdData, correlationId, action = "create") {
+  try {
+    return await QuestionCmd.create({
+      id: cmdId,
+      senderProfileId: senderId,
+      action,
+      data: cmdData,
+      correlationId: correlationId,
+    });
+  } catch (err) {
+    console.log(err);
+    throw new Error(`Function failed: ${err.message}`, { cause: err });
+  }
+}
+
+async function updateQuestionCmdStatus(id) {
+  try {
+    return await QuestionCmd.update({ status: 1 }, { where: { id: id }, individualHooks: true });
+  } catch (err) {
+    console.log(err);
+    throw new Error(`Function failed: ${err.message}`, { cause: err });
+  }
+}
+
+async function insertQuestionAnswerCmd(cmdId, senderId, cmdData, correlationId, action = "create") {
+  try {
+    return await QuestionAnswerCmd.create({
+      id: cmdId,
+      senderProfileId: senderId,
+      action,
+      data: cmdData,
+      correlationId: correlationId,
+    });
+  } catch (err) {
+    console.log(err);
+    throw new Error(`Function failed: ${err.message}`, { cause: err });
+  }
+}
+
+async function updateQuestionAnswerCmdStatus(id) {
+  try {
+    return await QuestionAnswerCmd.update({ status: 1 }, { where: { id: id }, individualHooks: true });
+  } catch (err) {
+    console.log(err);
+    throw new Error(`Function failed: ${err.message}`, { cause: err });
   }
 }
 
@@ -428,4 +485,8 @@ module.exports = {
   insertQuestionShareCmd,
   updateQuestionShareCmdStatus,
   getEventByCorrelationId,
+  insertQuestionCmd,
+  updateQuestionCmdStatus,
+  insertQuestionAnswerCmd,
+  updateQuestionAnswerCmdStatus,
 };

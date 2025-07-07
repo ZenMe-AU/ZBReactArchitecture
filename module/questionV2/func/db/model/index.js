@@ -376,6 +376,161 @@ const QuestionShareEvent = sequelize.define(
     updatedAt: false,
   }
 );
+
+const QuestionCmd = sequelize.define(
+  "questionCmd",
+  {
+    id: {
+      allowNull: false,
+      primaryKey: true,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+    },
+    senderProfileId: {
+      allowNull: false,
+      type: DataTypes.UUID,
+    },
+    correlationId: {
+      allowNull: true,
+      type: DataTypes.UUID,
+    },
+    action: {
+      allowNull: false,
+      type: DataTypes.STRING,
+    },
+    data: {
+      allowNull: false,
+      type: DataTypes.JSON,
+    },
+    status: {
+      allowNull: false,
+      type: DataTypes.SMALLINT,
+      defaultValue: 0,
+    },
+  },
+  {
+    tableName: "questionCmd",
+    timestamps: true,
+  }
+);
+
+const QuestionEvent = sequelize.define(
+  "questionEvent",
+  {
+    id: {
+      allowNull: false,
+      primaryKey: true,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+    },
+    questionId: {
+      allowNull: false,
+      type: DataTypes.UUID,
+    },
+    correlationId: {
+      allowNull: true,
+      type: DataTypes.UUID,
+    },
+    action: {
+      allowNull: false,
+      type: DataTypes.STRING,
+    },
+    senderProfileId: {
+      allowNull: false,
+      type: DataTypes.UUID,
+    },
+    originalData: {
+      allowNull: true,
+      type: DataTypes.JSON,
+    },
+    actionData: {
+      allowNull: false,
+      type: DataTypes.JSON,
+    },
+  },
+  {
+    tableName: "questionEvent",
+    updatedAt: false,
+  }
+);
+
+const QuestionAnswerCmd = sequelize.define(
+  "questionAnswerCmd",
+  {
+    id: {
+      allowNull: false,
+      primaryKey: true,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+    },
+    senderProfileId: {
+      allowNull: false,
+      type: DataTypes.UUID,
+    },
+    correlationId: {
+      allowNull: true,
+      type: DataTypes.UUID,
+    },
+    action: {
+      allowNull: false,
+      type: DataTypes.STRING,
+    },
+    data: {
+      allowNull: false,
+      type: DataTypes.JSON,
+    },
+    status: {
+      allowNull: false,
+      type: DataTypes.SMALLINT,
+      defaultValue: 0,
+    },
+  },
+  {
+    tableName: "questionAnswerCmd",
+    timestamps: true,
+  }
+);
+
+const QuestionAnswerEvent = sequelize.define(
+  "questionAnswerEvent",
+  {
+    id: {
+      allowNull: false,
+      primaryKey: true,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+    },
+    questionAnswerId: {
+      allowNull: false,
+      type: DataTypes.UUID,
+    },
+    correlationId: {
+      allowNull: true,
+      type: DataTypes.UUID,
+    },
+    action: {
+      allowNull: false,
+      type: DataTypes.STRING,
+    },
+    senderProfileId: {
+      allowNull: false,
+      type: DataTypes.UUID,
+    },
+    originalData: {
+      allowNull: true,
+      type: DataTypes.JSON,
+    },
+    actionData: {
+      allowNull: false,
+      type: DataTypes.JSON,
+    },
+  },
+  {
+    tableName: "questionAnswerEvent",
+    updatedAt: false,
+  }
+);
+
 Question.hasMany(QuestionAnswer, { foreignKey: "questionId", sourceKey: "id" });
 Question.hasMany(QuestionShare, { foreignKey: "newQuestionId", sourceKey: "id" });
 QuestionAnswer.belongsTo(Question, { targetKey: "id", foreignKey: "questionId" });
@@ -495,6 +650,31 @@ FollowUpCmd.addHook("afterUpdate", async (instance, options) => {
   }
 });
 
+QuestionCmd.addHook("afterUpdate", async (instance, options) => {
+  try {
+    if (instance.previousStatus !== 1 && instance.status === 1) {
+      console.log("QuestionCmd afterUpdate hook triggered:", instance);
+      console.log("_previousDataValues", instance._previousDataValues);
+      let isCreate = instance.action === "create";
+      await QuestionEvent.create(
+        {
+          questionId: instance.id,
+          correlationId: instance.correlationId,
+          action: instance.action,
+          senderProfileId: instance.senderProfileId,
+          actionData: instance.dataValues,
+          originalData: isCreate ? null : instance._previousDataValues ?? null,
+        },
+        {
+          transaction: options.transaction,
+        }
+      );
+    }
+  } catch (error) {
+    console.error("Error processing afterUpdate hook:", error);
+  }
+});
+
 module.exports = {
   Question,
   QuestionAnswer,
@@ -507,4 +687,8 @@ module.exports = {
   // FollowUpShare,
   QuestionShareCmd,
   QuestionShareEvent,
+  QuestionCmd,
+  QuestionEvent,
+  QuestionAnswerCmd,
+  QuestionAnswerEvent,
 };
