@@ -1,10 +1,12 @@
 const baseUrl = process.env.QUESTION_URL || "http://localhost:7071";
 const profileBaseUrl = process.env.PROFILE_URL || "http://localhost:7072";
 const sendFollowUpCmdUrl = new URL("/sendFollowUpCmd", baseUrl);
+const qryUrl = new URL("/questionQry", baseUrl);
+const cmdUrl = new URL("/questionCmd", baseUrl);
 
 const createFollowUp = (profileIdLookup, questionIdLookup, testCorrelationId) => {
   test.each(followUpData())("send follow-up question by user $userId", async (followUp) => {
-    const response = await fetch(sendFollowUpCmdUrl, {
+    const response = await fetch(cmdUrl + "/sendFollowUp", {
       headers: {
         "Content-Type": "application/json",
         "x-correlation-id": testCorrelationId,

@@ -9,8 +9,8 @@ const testCorrelationId = uuidv4();
 
 describe("test question data", () => {
   createUser();
-  createQuestion(profileIdLookup);
-  createAnswer(profileIdLookup, questionIdLookup);
+  createQuestion(profileIdLookup, testCorrelationId);
+  createAnswer(profileIdLookup, questionIdLookup, testCorrelationId);
   createFollowUp(profileIdLookup, questionIdLookup, testCorrelationId);
   // checkShareQuestion(profileIdLookup, testCorrelationId);
   checkFollowUpQty(testCorrelationId);

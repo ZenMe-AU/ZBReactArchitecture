@@ -2,6 +2,8 @@ const baseUrl = process.env.QUESTION_URL || "http://localhost:7071";
 const profileBaseUrl = process.env.PROFILE_URL || "http://localhost:7072";
 const questionUrl = new URL("/question", baseUrl);
 const loginUrl = new URL("/auth/login", profileBaseUrl);
+const qryUrl = new URL("/questionQry", baseUrl);
+const cmdUrl = new URL("/questionCmd", baseUrl);
 
 const checkAnswer = (profileIdLookup, questionIdLookup) => {
   test.each(getAnswerTestResult())("There should be $count answers for question $questionId.", async (r) => {
@@ -21,7 +23,7 @@ const checkAnswer = (profileIdLookup, questionIdLookup) => {
       tokenLookup.add(resultData.return.token);
     }
     // console.log(tokenLookup.data);
-    const response = await fetch(questionUrl + "/" + questionIdLookup.getQuestionId(r.questionId) + "/answer", {
+    const response = await fetch(qryUrl + "/getAnswers/" + questionIdLookup.getQuestionId(r.questionId), {
       method: "GET",
       headers: {
         Accept: "application/json",

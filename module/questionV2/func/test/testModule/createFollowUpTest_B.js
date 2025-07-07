@@ -2,13 +2,15 @@ const baseUrl = process.env.QUESTION_URL || "http://localhost:7071";
 const profileBaseUrl = process.env.PROFILE_URL || "http://localhost:7072";
 const profileUrl = new URL("/profile", profileBaseUrl);
 const eventUrl = new URL("/getEventByCorrelationId", baseUrl);
+const qryUrl = new URL("/questionQry", baseUrl);
+const cmdUrl = new URL("/questionCmd", baseUrl);
 const followUpQuestionQty = 5;
 
 const checkShareQuestion = (profileIdLookup, testCorrelationId) => {
   test.each(shareQuestionData())("check shared question by user $userId", async (shared) => {
     let qty = 0;
     for (let i = 0; i < 5; i++) {
-      const response = await fetch(profileUrl + "/" + profileIdLookup.getProfileId(shared.userId) + "/sharedQuestion", { method: "GET" });
+      const response = await fetch(qryUrl + "/getSharedQuestions/" + profileIdLookup.getProfileId(shared.userId), { method: "GET" });
       let resultData = await response.json();
       qty = resultData.return.list.length;
       if (qty === shared.count) {
@@ -27,7 +29,7 @@ const checkFollowUpQty = (testCorrelationId) => {
     async () => {
       let qty = 0;
       for (let i = 0; i < 5; i++) {
-        const response = await fetch(eventUrl + "/FollowUpCmd/" + testCorrelationId, { method: "GET" });
+        const response = await fetch(qryUrl + "/getFollowUpEvents/" + testCorrelationId, { method: "GET" });
         if (!response.ok) {
           console.error(`Error: ${response.status} - ${response.statusText}`);
           break;

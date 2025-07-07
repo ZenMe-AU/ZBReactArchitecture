@@ -1,12 +1,14 @@
 const baseUrl = process.env.QUESTION_URL || "http://localhost:7071";
 const profileBaseUrl = process.env.PROFILE_URL || "http://localhost:7072";
 const questionUrl = new URL("/question", baseUrl);
+const qryUrl = new URL("/questionQry", baseUrl);
+const cmdUrl = new URL("/questionCmd", baseUrl);
 
-const createAnswer = (profileIdLookup, questionIdLookup) => {
+const createAnswer = (profileIdLookup, questionIdLookup, testCorrelationId) => {
   test.each(answerData())("answer question $questionId by user $userId", async (a) => {
-    const response = await fetch(questionUrl + "/" + questionIdLookup.getQuestionId(a.questionId) + "/answer", {
+    const response = await fetch(cmdUrl + "/createAnswer/" + questionIdLookup.getQuestionId(a.questionId), {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "x-correlation-id": testCorrelationId },
       body: JSON.stringify({
         profileId: profileIdLookup.getProfileId(a.userId),
         question: a.question,
