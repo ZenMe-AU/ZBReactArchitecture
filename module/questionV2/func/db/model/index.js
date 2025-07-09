@@ -1,7 +1,8 @@
 const { DataTypes } = require("sequelize");
 // const { sequelize } = require("./db.js");
 const { sequelize } = require("../index");
-const { applyPatch } = require("fast-json-patch");
+// const { applyPatch } = require("fast-json-patch");
+const { AGGREGATE_TYPE, ACTION_TYPE, STATUS } = require("../../enum");
 
 const Question = sequelize.define(
   "question",
@@ -107,45 +108,45 @@ const QuestionShare = sequelize.define(
   }
 );
 
-const QuestionLog = sequelize.define(
-  "logQuestion",
-  {
-    id: {
-      type: DataTypes.UUID,
-      allowNull: false,
-      primaryKey: true,
-      defaultValue: DataTypes.UUIDV4,
-    },
-    questionId: {
-      type: DataTypes.UUID,
-      allowNull: false,
-    },
-    action: {
-      type: DataTypes.CHAR,
-      allowNull: false,
-    },
-    profileId: {
-      type: DataTypes.UUID,
-      allowNull: false,
-    },
-    originalData: {
-      type: DataTypes.JSON,
-      allowNull: true,
-    },
-    actionData: {
-      type: DataTypes.JSON,
-      allowNull: false,
-    },
-    lastEventId: {
-      type: DataTypes.UUID,
-      allowNull: true,
-    },
-  },
-  {
-    tableName: "logQuestion",
-    updatedAt: false,
-  }
-);
+// const QuestionLog = sequelize.define(
+//   "logQuestion",
+//   {
+//     id: {
+//       type: DataTypes.UUID,
+//       allowNull: false,
+//       primaryKey: true,
+//       defaultValue: DataTypes.UUIDV4,
+//     },
+//     questionId: {
+//       type: DataTypes.UUID,
+//       allowNull: false,
+//     },
+//     action: {
+//       type: DataTypes.CHAR,
+//       allowNull: false,
+//     },
+//     profileId: {
+//       type: DataTypes.UUID,
+//       allowNull: false,
+//     },
+//     originalData: {
+//       type: DataTypes.JSON,
+//       allowNull: true,
+//     },
+//     actionData: {
+//       type: DataTypes.JSON,
+//       allowNull: false,
+//     },
+//     lastEventId: {
+//       type: DataTypes.UUID,
+//       allowNull: true,
+//     },
+//   },
+//   {
+//     tableName: "logQuestion",
+//     updatedAt: false,
+//   }
+// );
 
 const QuestionAction = sequelize.define(
   "questionAction",
@@ -531,164 +532,131 @@ const QuestionAnswerEvent = sequelize.define(
   }
 );
 
+const Cmd = sequelize.define(
+  "cmd",
+  {
+    id: {
+      allowNull: false,
+      primaryKey: true,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+    },
+    aggregateType: {
+      allowNull: false,
+      type: DataTypes.STRING,
+      validate: {
+        isIn: [Object.values(AGGREGATE_TYPE)],
+      },
+    },
+    eventId: {
+      allowNull: true,
+      type: DataTypes.UUID,
+    },
+    correlationId: {
+      allowNull: true,
+      type: DataTypes.UUID,
+    },
+    senderProfileId: {
+      allowNull: false,
+      type: DataTypes.UUID,
+    },
+    action: {
+      allowNull: false,
+      type: DataTypes.STRING,
+    },
+    data: {
+      allowNull: false,
+      type: DataTypes.JSON,
+    },
+    status: {
+      allowNull: false,
+      type: DataTypes.SMALLINT,
+      validate: {
+        isIn: [Object.values(STATUS)],
+      },
+      defaultValue: STATUS.PENDING,
+    },
+  },
+  {
+    tableName: "cmd",
+    timestamps: true,
+  }
+);
+
+const Event = sequelize.define(
+  "event",
+  {
+    id: {
+      allowNull: false,
+      primaryKey: true,
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+    },
+    aggregateId: {
+      allowNull: true,
+      type: DataTypes.UUID,
+    },
+    aggregateType: {
+      allowNull: false,
+      type: DataTypes.STRING,
+      validate: {
+        isIn: [Object.values(AGGREGATE_TYPE)],
+      },
+    },
+    causationId: {
+      allowNull: true,
+      type: DataTypes.UUID,
+    },
+    correlationId: {
+      allowNull: true,
+      type: DataTypes.UUID,
+    },
+    senderProfileId: {
+      allowNull: false,
+      type: DataTypes.UUID,
+    },
+    eventType: {
+      allowNull: false,
+      type: DataTypes.STRING,
+      validate: {
+        isIn: [Object.values(ACTION_TYPE)],
+      },
+    },
+    eventData: {
+      allowNull: false,
+      type: DataTypes.JSON,
+    },
+    originalData: {
+      allowNull: true,
+      type: DataTypes.JSON,
+    },
+  },
+  {
+    tableName: "event",
+    updatedAt: false,
+  }
+);
 Question.hasMany(QuestionAnswer, { foreignKey: "questionId", sourceKey: "id" });
 Question.hasMany(QuestionShare, { foreignKey: "newQuestionId", sourceKey: "id" });
 QuestionAnswer.belongsTo(Question, { targetKey: "id", foreignKey: "questionId" });
 QuestionShare.belongsTo(Question, { targetKey: "id", foreignKey: "newQuestionId" });
 
-// hook
-Question.addHook("afterSave", async (instance, options) => {
-  if (!instance.changed("eventId")) {
-    const isCreate = instance._options.isNewRecord;
-    const log = await QuestionLog.create(
-      {
-        questionId: instance.id,
-        profileId: instance.profileId,
-        actionData: instance.dataValues,
-        action: isCreate ? "create" : "update",
-        originalData: isCreate ? null : instance._previousDataValues,
-        lastEventId: isCreate ? null : instance._previousDataValues.eventId,
-      },
-      {
-        transaction: options.transaction,
-      }
-    );
-    // instance.eventId = log.id;
-    // await instance.save();
-    await instance.update({ eventId: log.id });
-    // } else {
-    //   console.log(instance);
-  }
-});
-
-QuestionAction.addHook("afterSave", async (instance, options) => {
-  try {
-    const { questionId, action } = instance;
-    const question = await Question.findByPk(questionId);
-    if (!question) {
-      console.error(`Question with ID ${questionId} not found.`);
-      return;
-    }
-    // Apply patches to the question
-    const updatedData = applyPatch(question.toJSON(), action).newDocument;
-    await question.update({
-      title: updatedData.title ?? null,
-      questionText: updatedData.questionText ?? null,
-      option: updatedData.option ?? null,
-    });
-    console.log(`Question with ID ${questionId} updated successfully.`);
-  } catch (error) {
-    console.error("Error processing afterSave hook:", error);
-  }
-});
-
-// QuestionShare.addHook("afterBulkCreate", async (instances, options) => {
-//   try {
-//     instances.map(async (instance) => {
-//       await QuestionShareEvent.create(
-//         {
-//           questionShareId: instance.id,
-//           // correlationId: instance.correlationId,
-//           action: "create",
-//           // todo: fix
-//           // senderProfileId: instance.senderProfileId,
-//           senderProfileId: instance.senderId,
-//           actionData: instance.dataValues,
-//           originalData: null,
-//         },
-//         {
-//           transaction: options.transaction,
-//         }
-//       );
-//     });
-//   } catch (error) {
-//     console.error("Error processing afterBulkCreate hook:", error);
-//   }
-// });
-
-QuestionShareCmd.addHook("afterUpdate", async (instance, options) => {
-  try {
-    if (instance.previousStatus !== 1 && instance.status === 1) {
-      await QuestionShareEvent.create(
-        {
-          questionShareId: instance.id,
-          correlationId: instance.correlationId,
-          action: "create",
-          senderProfileId: instance.senderProfileId,
-          actionData: instance.dataValues,
-          originalData: null,
-        },
-        {
-          transaction: options.transaction,
-        }
-      );
-    }
-  } catch (error) {
-    console.error("Error processing afterUpdate hook:", error);
-  }
-});
-
-FollowUpCmd.addHook("afterUpdate", async (instance, options) => {
-  try {
-    if (instance.previousStatus !== 1 && instance.status === 1) {
-      await FollowUpEvent.create(
-        {
-          followUpId: instance.id,
-          correlationId: instance.correlationId,
-          action: "create",
-          senderProfileId: instance.senderProfileId,
-          actionData: instance.dataValues,
-          originalData: null,
-        },
-        {
-          transaction: options.transaction,
-        }
-      );
-    }
-  } catch (error) {
-    console.error("Error processing afterUpdate hook:", error);
-  }
-});
-
-QuestionCmd.addHook("afterUpdate", async (instance, options) => {
-  try {
-    if (instance.previousStatus !== 1 && instance.status === 1) {
-      console.log("QuestionCmd afterUpdate hook triggered:", instance);
-      console.log("_previousDataValues", instance._previousDataValues);
-      let isCreate = instance.action === "create";
-      await QuestionEvent.create(
-        {
-          questionId: instance.id,
-          correlationId: instance.correlationId,
-          action: instance.action,
-          senderProfileId: instance.senderProfileId,
-          actionData: instance.dataValues,
-          originalData: isCreate ? null : instance._previousDataValues ?? null,
-        },
-        {
-          transaction: options.transaction,
-        }
-      );
-    }
-  } catch (error) {
-    console.error("Error processing afterUpdate hook:", error);
-  }
-});
-
 module.exports = {
   Question,
   QuestionAnswer,
   QuestionShare,
-  QuestionLog,
-  QuestionAction,
-  FollowUpCmd,
+  // QuestionLog,
+  // QuestionAction,
+  // FollowUpCmd,
   FollowUpFilter,
-  FollowUpEvent,
+  // FollowUpEvent,
   // FollowUpShare,
-  QuestionShareCmd,
-  QuestionShareEvent,
-  QuestionCmd,
-  QuestionEvent,
-  QuestionAnswerCmd,
-  QuestionAnswerEvent,
+  // QuestionShareCmd,
+  // QuestionShareEvent,
+  // QuestionCmd,
+  // QuestionEvent,
+  // QuestionAnswerCmd,
+  // QuestionAnswerEvent,
+  Cmd,
+  Event,
 };

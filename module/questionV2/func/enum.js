@@ -1,8 +1,22 @@
-const cmdName = Object.freeze({
-  FollowUpEvent: "FollowUpEvent",
-  ShareQuestionEvent: "ShareQuestionEvent",
+const AGGREGATE_TYPE = Object.freeze({
+  FOLLOW_UP: "followUp",
+  QUESTION: "question",
+  QUESTION_ANSWER: "questionAnswer",
+  QUESTION_SHARE: "questionShare",
+});
+
+const ACTION_TYPE = Object.freeze({
+  CREATE: "create",
+  UPDATE: "update",
+});
+
+const STATUS = Object.freeze({
+  PENDING: 0,
+  SUCCESS: 1,
 });
 
 module.exports = {
-  cmdName,
+  AGGREGATE_TYPE,
+  ACTION_TYPE,
+  STATUS,
 };
