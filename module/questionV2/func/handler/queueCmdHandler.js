@@ -7,9 +7,9 @@ const { AGGREGATE_TYPE, ACTION_TYPE, STATUS } = require("../enum");
 async function CreateQuestion(message, context) {
   const { messageId, correlationId, body } = message;
   const { title, questionText, option, profileId } = body;
-  // const question = await QuestionCmd.createQuestion(messageId, body["profileId"], body, correlationId);
+  // const question = await QuestionCmd.insertQuestion(messageId, body["profileId"], body, correlationId);
   const question = await withTransaction(sequelize, async ({ transaction }) => {
-    const cmd = await QuestionCmd.createCmd({
+    const cmd = await QuestionCmd.insertCmd({
       aggregateType: AGGREGATE_TYPE.QUESTION,
       cmdId: messageId,
       senderId: profileId,
@@ -17,14 +17,14 @@ async function CreateQuestion(message, context) {
       correlationId,
       transaction,
     });
-    const question = await QuestionCmd.createQuestion({
+    const question = await QuestionCmd.insertQuestion({
       profileId,
       title,
       questionText,
       option,
       transaction,
     });
-    const event = await QuestionCmd.createEvent({
+    const event = await QuestionCmd.insertEvent({
       aggregateType: AGGREGATE_TYPE.QUESTION,
       aggregateId: question.id,
       causationId: messageId,
@@ -56,7 +56,7 @@ async function UpdateQuestion(message, context) {
   //TODO: put in transaction for the question id & cmd id
   // const question = await QuestionCmd.patchQuestionById(questionId, messageId, profileId, patchData, correlationId);
   const question = await withTransaction(sequelize, async ({ transaction }) => {
-    const cmd = await QuestionCmd.createCmd({
+    const cmd = await QuestionCmd.insertCmd({
       aggregateType: AGGREGATE_TYPE.QUESTION,
       action: ACTION_TYPE.UPDATE,
       cmdId: messageId,
@@ -66,7 +66,7 @@ async function UpdateQuestion(message, context) {
       transaction,
     });
     const question = await QuestionCmd.patchQuestionById({ questionId, patchData, transaction });
-    const event = await QuestionCmd.createEvent({
+    const event = await QuestionCmd.insertEvent({
       aggregateType: AGGREGATE_TYPE.QUESTION,
       aggregateId: questionId,
       eventType: ACTION_TYPE.UPDATE,
@@ -95,9 +95,9 @@ async function UpdateQuestion(message, context) {
 async function CreateAnswer(message, context) {
   const { messageId, correlationId, body } = message;
   const { questionId, profileId, answer: answerText = null, option = null, duration } = body;
-  // const answer = await QuestionCmd.createAnswerByQuestionId(questionId, messageId, profileId, body, correlationId);
+  // const answer = await QuestionCmd.insertAnswerByQuestionId(questionId, messageId, profileId, body, correlationId);
   const answer = await withTransaction(sequelize, async ({ transaction }) => {
-    const cmd = await QuestionCmd.createCmd({
+    const cmd = await QuestionCmd.insertCmd({
       aggregateType: AGGREGATE_TYPE.QUESTION_ANSWER,
       cmdId: messageId,
       senderId: profileId,
@@ -105,13 +105,13 @@ async function CreateAnswer(message, context) {
       correlationId,
       transaction,
     });
-    const answer = await QuestionCmd.createAnswerByQuestionId({
+    const answer = await QuestionCmd.insertAnswerByQuestionId({
       questionId,
       profileId,
       ansData: body,
       transaction,
     });
-    const event = await QuestionCmd.createEvent({
+    const event = await QuestionCmd.insertEvent({
       aggregateType: AGGREGATE_TYPE.QUESTION_ANSWER,
       aggregateId: answer.id,
       causationId: messageId,
@@ -135,7 +135,7 @@ async function SendFollowUp(message, context) {
   const { messageId, correlationId, body } = message;
   const { newQuestionId, profileId, question: filterData } = body;
   const sharedQuestions = await withTransaction(sequelize, async ({ transaction }) => {
-    const cmd = await QuestionCmd.createCmd({
+    const cmd = await QuestionCmd.insertCmd({
       aggregateType: AGGREGATE_TYPE.FOLLOW_UP,
       cmdId: messageId,
       senderId: profileId,
@@ -143,20 +143,20 @@ async function SendFollowUp(message, context) {
       correlationId,
       transaction,
     });
-    const filters = await QuestionCmd.createFollowUpFilter({
+    const filters = await QuestionCmd.insertFollowUpFilter({
       senderId: profileId,
       newQuestionId,
       filterData,
       transaction,
     });
     const receiverIds = await Question.getFollowUpReceiver(body);
-    const sharedQuestions = await QuestionCmd.createQuestionShare({
+    const sharedQuestions = await QuestionCmd.insertQuestionShare({
       questionId: newQuestionId,
       senderId: profileId,
       receiverIds,
       transaction,
     });
-    const event = await QuestionCmd.createEvent({
+    const event = await QuestionCmd.insertEvent({
       aggregateType: AGGREGATE_TYPE.FOLLOW_UP,
       aggregateId: null,
       causationId: messageId,
@@ -180,7 +180,7 @@ async function ShareQuestion(message, context) {
   const { messageId, correlationId, body } = message;
   const { newQuestionId, profileId, receiverIds } = body;
   const sharedQuestions = await withTransaction(sequelize, async ({ transaction }) => {
-    const cmd = await QuestionCmd.createCmd({
+    const cmd = await QuestionCmd.insertCmd({
       aggregateType: AGGREGATE_TYPE.QUESTION_SHARE,
       cmdId: messageId,
       senderId: profileId,
@@ -188,14 +188,14 @@ async function ShareQuestion(message, context) {
       correlationId,
       transaction,
     });
-    const sharedQuestions = await QuestionCmd.createQuestionShare({
+    const sharedQuestions = await QuestionCmd.insertQuestionShare({
       questionId: newQuestionId,
       senderId: profileId,
       receiverIds,
       transaction,
     });
     // sharedQuestions.map(async (sharedQuestion) => {
-    //   await Cmd.createEvent({
+    //   await Cmd.insertEvent({
     //     aggregateType: AGGREGATE_TYPE.QUESTION_SHARE,
     //     aggregateId: sharedQuestion.id,
     //     causationId: messageId,
@@ -209,7 +209,7 @@ async function ShareQuestion(message, context) {
     //     transaction,
     //   });
     // });
-    const event = await QuestionCmd.createEvent({
+    const event = await QuestionCmd.insertEvent({
       aggregateType: AGGREGATE_TYPE.QUESTION_SHARE,
       aggregateId: null,
       causationId: messageId,

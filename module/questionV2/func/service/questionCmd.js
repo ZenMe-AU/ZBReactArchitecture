@@ -3,7 +3,7 @@ const { AGGREGATE_TYPE, ACTION_TYPE, STATUS } = require("../enum");
 const { v4: uuidv4 } = require("uuid");
 const { applyPatch } = require("fast-json-patch");
 
-async function createQuestion({ profileId, title = null, questionText, option = null, transaction = null }) {
+async function insertQuestion({ profileId, title = null, questionText, option = null, transaction = null }) {
   const options = transaction ? { transaction } : {};
   return await Question.create(
     {
@@ -40,7 +40,7 @@ async function patchQuestionById({ questionId, patchData, transaction = null }) 
   });
 }
 
-async function createAnswerByQuestionId({ questionId, profileId, ansData, transaction = null }) {
+async function insertAnswerByQuestionId({ questionId, profileId, ansData, transaction = null }) {
   const question = await Question.findOne({ where: { id: questionId } });
   if (!question) {
     throw new Error(`Question with ID ${questionId} not found`);
@@ -59,7 +59,7 @@ async function createAnswerByQuestionId({ questionId, profileId, ansData, transa
   );
 }
 
-async function createFollowUpFilter({ senderId, newQuestionId, filterData, transaction = null }) {
+async function insertFollowUpFilter({ senderId, newQuestionId, filterData, transaction = null }) {
   const options = transaction ? { transaction } : {};
   const filterId = uuidv4();
   const filterDataAry = filterData.map(function (filter, i) {
@@ -75,7 +75,7 @@ async function createFollowUpFilter({ senderId, newQuestionId, filterData, trans
   return await FollowUpFilter.bulkCreate(filterDataAry, options);
 }
 
-async function createQuestionShare({ questionId, senderId, receiverIds, transaction = null }) {
+async function insertQuestionShare({ questionId, senderId, receiverIds, transaction = null }) {
   const options = transaction ? { transaction } : {};
   const addData = receiverIds.map(function (receiverId) {
     return {
@@ -87,7 +87,7 @@ async function createQuestionShare({ questionId, senderId, receiverIds, transact
   return await QuestionShare.bulkCreate(addData, options);
 }
 
-async function createCmd({ aggregateType, action = ACTION_TYPE.CREATE, cmdId, senderId, cmdData, correlationId, transaction = null }) {
+async function insertCmd({ aggregateType, action = ACTION_TYPE.CREATE, cmdId, senderId, cmdData, correlationId, transaction = null }) {
   const options = transaction ? { transaction } : {};
   return Cmd.create(
     {
@@ -102,7 +102,7 @@ async function createCmd({ aggregateType, action = ACTION_TYPE.CREATE, cmdId, se
   );
 }
 
-async function createEvent({
+async function insertEvent({
   aggregateType,
   aggregateId,
   eventType = ACTION_TYPE.CREATE,
@@ -151,13 +151,13 @@ async function updateCmd({ cmdId, status, eventId = null, transaction = null }) 
 }
 
 module.exports = {
-  createQuestion,
+  insertQuestion,
   updateEventIdOfQuestion,
   patchQuestionById,
-  createAnswerByQuestionId,
-  createFollowUpFilter,
-  createQuestionShare,
-  createCmd,
-  createEvent,
+  insertAnswerByQuestionId,
+  insertFollowUpFilter,
+  insertQuestionShare,
+  insertCmd,
+  insertEvent,
   updateCmd,
 };
