@@ -25,6 +25,10 @@ export default function HomePage({ loaderData }: { loaderData: { isAuthenticated
             <Link to="/questionV2">
               <button>Go to QuestionV2</button>
             </Link>
+
+            <Link to="/questionV3">
+              <button>Go to QuestionV3</button>
+            </Link>
           </>
         )}
       </div>

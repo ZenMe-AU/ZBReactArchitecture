@@ -8,6 +8,7 @@
     "module/shared/ui",
     "module/question/ui",
     "module/questionV2/ui",
+    "module/questionV3/ui",
     "module/profile/ui"
   ],
   "scripts": {
