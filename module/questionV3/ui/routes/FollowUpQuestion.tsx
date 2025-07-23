@@ -71,6 +71,7 @@ function FollowUpQuestion() {
 
   const [followUpQuestionId, setFollowUpQuestionId] = useState<string | null>(null);
   const [followUpUserCount, setFollowUpUserCount] = useState<numberl>(0);
+  const [followUpQuestions, setFollowUpQuestions] = useState<string[]>([""]);
 
   const [cardErrors, setCardErrors] = useState<CardErrors>({});
   const [submitting, setSubmitting] = useState(false);
@@ -106,9 +107,9 @@ function FollowUpQuestion() {
 
   const handleQuestionChange = (cardId: string, questionId: string) => {
     setSelectedQuestions((prev) => ({ ...prev, [cardId]: questionId }));
-    if (questionId === followUpQuestionId) {
-      setFollowUpQuestionId(null);
-    }
+    // if (questionId === followUpQuestionId) {
+    //   setFollowUpQuestionId(null);
+    // }
     console.log("Selected Question ID:", questionId);
     console.log("Selected Questions:", answerCountList[questionId] ?? []);
     if (!answerCountList[questionId]) {
@@ -173,7 +174,7 @@ function FollowUpQuestion() {
         hasError = true;
       }
     }
-    if (!followUpQuestionId || selectedInitOptions.length === 0) {
+    if (followUpQuestions.length === 0 || followUpQuestions.some((q) => !q.trim()) || selectedInitOptions.length === 0) {
       hasError = true;
     }
 
@@ -195,10 +196,11 @@ function FollowUpQuestion() {
       option: selectedInitOptions,
     });
     console.log("Follow-up Data:", filterData);
+    console.log("Follow-up Questions:", followUpQuestions);
     // return;
     try {
       setSubmitting(true);
-      const response = await sendFollowUpQuestion(id, filterData, followUpQuestionId ?? "", saveFilter);
+      const response = await sendFollowUpQuestion(id, filterData, followUpQuestions, saveFilter);
       console.log("Response:", response);
       // navigate(`/questionV3/${id}`, { replace: true });
     } catch (error) {
@@ -256,6 +258,20 @@ function FollowUpQuestion() {
     }
   };
 
+  const handleAddFollowUp = () => {
+    if (followUpQuestions.length < 4) {
+      setFollowUpQuestions([...followUpQuestions, ""]);
+    }
+  };
+
+  const handleFollowUpChange = (index: number, value: string) => {
+    setFollowUpQuestions((prev) => prev.map((q, i) => (i === index ? value : q)));
+  };
+
+  const handleRemoveFollowUp = (index: number) => {
+    setFollowUpQuestions((prev) => prev.filter((_, i) => i !== index));
+  };
+
   useEffect(() => {
     if (!id) return;
 
@@ -303,6 +319,7 @@ function FollowUpQuestion() {
       <Helmet>
         <title>Follow Up Question</title>
       </Helmet>
+
       <Box display="flex" alignItems="center" mb={2}>
         <IconButton onClick={handleBackClick}>
           <ArrowBackIcon />
@@ -310,31 +327,32 @@ function FollowUpQuestion() {
         <Typography variant="h4">Send a follow-up Question</Typography>
       </Box>
       <Container sx={{ width: "80%", maxWidth: "lg" }}>
-        <Typography>Select for which answers you want to send a follow up question.</Typography>
-
         <Card
           key="card-initial"
           sx={{
             mx: "auto",
             border: "none",
             boxShadow: "none",
+            p: 2,
           }}
         >
           <CardContent>
-            <TextField
-              value={question?.title || ""}
-              variant="outlined"
-              fullWidth
-              InputProps={{ readOnly: true }}
+            <Typography variant="h1" gutterBottom sx={{ color: "text.primary" }}>
+              {question?.title || "Untitled Question"}
+            </Typography>
+            <Typography
+              variant="body1"
               sx={{
-                mb: 2,
-                color: "text.primary",
-                "& .MuiInputBase-input": {
-                  color: "#000",
-                  cursor: "default",
-                },
+                mt: 1,
+                mb: 3,
+                fontSize: "1.125rem",
+                color: "black",
+                whiteSpace: "pre-wrap",
               }}
-            />
+            >
+              {question?.questionText || ""}
+            </Typography>
+            <Typography>Select for which answers you want to send a follow up question.</Typography>
 
             <FormGroup>
               {question?.optionList?.map((option, index) => (
@@ -364,10 +382,10 @@ function FollowUpQuestion() {
             )}
           </CardContent>
         </Card>
+        <Typography sx={{ flexGrow: 1 }}>You can add more questions to filter the follow up audience.</Typography>
 
         {cards.map((cardId) => (
           <>
-            <Divider sx={{ borderBottom: "2px dashed #757575", my: 1 }} />
             <Card
               key={cardId}
               sx={{
@@ -377,30 +395,43 @@ function FollowUpQuestion() {
               }}
             >
               <CardContent sx={{ py: 0 }}>
-                <Box display="flex" alignItems="center">
-                  <Typography sx={{ flexGrow: 1 }}>Select for which answers you want to send a follow up question.</Typography>
-                  <IconButton onClick={() => handleRemoveCard(cardId)} color="error">
-                    <ClearIcon />
-                  </IconButton>
-                </Box>
+                <Box display="flex" alignItems="center" mb={2}>
+                  <Box flexGrow={1}>
+                    <Select
+                      size="small"
+                      value={selectedQuestions[cardId] || ""}
+                      onChange={(e) => handleQuestionChange(cardId, e.target.value as string)}
+                      displayEmpty
+                      fullWidth
+                      error={cardErrors[cardId]?.question}
+                      sx={{
+                        height: 40,
+                        border: cardErrors[cardId]?.question ? "2px solid red" : "none",
+                        display: "flex",
+                        alignItems: "center",
+                        "& .MuiSelect-select": {
+                          display: "flex",
+                          alignItems: "center",
+                        },
+                      }}
+                    >
+                      <MenuItem value="" disabled>
+                        Select a question
+                      </MenuItem>
+                      {questionList.map((question, index) => (
+                        <MenuItem key={index} value={question.id} disabled={Object.values(selectedQuestions).includes(question.id)}>
+                          {question.title}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </Box>
 
-                <Select
-                  value={selectedQuestions[cardId] || ""}
-                  onChange={(e) => handleQuestionChange(cardId, e.target.value as string)}
-                  displayEmpty
-                  fullWidth
-                  sx={{ mb: 2, border: cardErrors[cardId]?.question ? "2px solid red" : "none" }}
-                  error={cardErrors[cardId]?.question}
-                >
-                  <MenuItem value="" disabled>
-                    Select a question
-                  </MenuItem>
-                  {questionList.map((question, index) => (
-                    <MenuItem key={index} value={question.id} disabled={Object.values(selectedQuestions).includes(question.id)}>
-                      {question.title}
-                    </MenuItem>
-                  ))}
-                </Select>
+                  <Box ml={1} display="flex" alignItems="center" height={40}>
+                    <IconButton onClick={() => handleRemoveCard(cardId)} color="error" size="small">
+                      <ClearIcon />
+                    </IconButton>
+                  </Box>
+                </Box>
 
                 <FormGroup>
                   {(questionList.find((q) => q.id === selectedQuestions[cardId])?.optionList || []).map((option, index) => (
@@ -435,17 +466,16 @@ function FollowUpQuestion() {
           </>
         ))}
 
-        {questionList.length - cards.length > 0 && cards.length <= 4 && (
-          <Box display="flex" justifyContent="right" my={-2}>
-            <Button variant="text" color="primary" onClick={handleAddCard}>
-              <AddIcon /> Add
-            </Button>
-          </Box>
-        )}
+        <Box display="flex" justifyContent="right" my={-2}>
+          <Button variant="text" color="primary" onClick={handleAddCard} disabled={questionList.length - cards.length <= 0}>
+            <AddIcon /> Add filter question
+          </Button>
+        </Box>
 
         <Divider sx={{ backgroundColor: "#000000", my: 2, height: 2 }} />
-        <Card
-          key="card-initial"
+        <Typography sx={{ flexGrow: 1 }}>Select up to 4 questions to send to the {followUpUserCount} receivers.</Typography>
+        {/* <Card
+          key="card2-initial"
           sx={{
             mx: "auto",
             border: "none",
@@ -473,11 +503,50 @@ function FollowUpQuestion() {
           </CardContent>
         </Card>
 
-        {followUpQuestionId && (
-          <Typography display="flex" justifyContent="center" variant="body2">
-            Your follow up question may be sent to {followUpUserCount} people.
-          </Typography>
-        )}
+        <Box display="flex" justifyContent="right" my={-2}>
+          <Button variant="text" color="primary" onClick disabled={cards.length >= 4}>
+            <AddIcon /> Add follow-up question
+          </Button>
+        </Box> */}
+        {followUpQuestions.map((selectedId, index) => (
+          <Card key={`follow-up-${index}`} sx={{ mx: "auto", border: "none", boxShadow: "none", my: 0, py: 0 }}>
+            <CardContent sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Select
+                required
+                size="small"
+                displayEmpty
+                fullWidth
+                value={selectedId}
+                onChange={(e) => handleFollowUpChange(index, e.target.value as string)}
+                error={submittingError && (!selectedId || selectedId === "")}
+              >
+                <MenuItem value="" disabled>
+                  Select a follow-up question
+                </MenuItem>
+                {questionList.map((question) => (
+                  <MenuItem key={question.id} value={question.id}>
+                    {question.title}
+                  </MenuItem>
+                ))}
+              </Select>
+
+              <IconButton onClick={() => handleRemoveFollowUp(index)} color="error" disabled={followUpQuestions.length <= 1}>
+                <ClearIcon />
+              </IconButton>
+            </CardContent>
+          </Card>
+        ))}
+        <Box display="flex" justifyContent="flex-end" mt={1}>
+          <Button
+            variant="text"
+            color="primary"
+            onClick={handleAddFollowUp}
+            disabled={followUpQuestions.length >= 4 || questionList.length - followUpQuestions.length <= 0}
+            startIcon={<AddIcon />}
+          >
+            Add follow-up question
+          </Button>
+        </Box>
 
         <Box display="flex" justifyContent="center" my={2}>
           <Button variant="contained" onClick={handleFollowUp} sx={{ mx: 1 }} disabled={submitting}>

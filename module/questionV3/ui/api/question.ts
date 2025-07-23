@@ -234,7 +234,7 @@ export const updateQuestionPatch = async (id: string, patches: PatchOperation[])
 export const sendFollowUpQuestion = async (
   questionId: string,
   questionFilter: { option: string[]; questionId: string }[],
-  followUpQuestionId: string,
+  followUpQuestionIds: string[],
   saveFilter: boolean
 ) => {
   const profileId = localStorage.getItem("profileId");
@@ -243,7 +243,7 @@ export const sendFollowUpQuestion = async (
       method: "POST",
       body: JSON.stringify({
         profileId: profileId,
-        newQuestionId: followUpQuestionId,
+        questionIdList: followUpQuestionIds,
         question: questionFilter,
         isSave: saveFilter,
       }),
