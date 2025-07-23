@@ -22,15 +22,16 @@ import {
   MenuItem,
   Checkbox,
   FormGroup,
+  InputAdornment,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import CloseIcon from "@mui/icons-material/Close";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
 import WordCloud from "react-d3-cloud";
 import { logEvent, setOperationId } from "@zenmechat/shared-ui/monitor/telemetry.ts";
 import _ from "lodash";
-
 // import { useFetcher, useLoaderData, useParams } from "react-router-dom";
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "react-router";
 // import { Checkbox, FormControlLabel, TextField, Button, FormControl, FormLabel, FormGroup, Select, MenuItem, Box } from "@mui/material";
@@ -161,9 +162,16 @@ export default function AnswerQuestion({ loaderData }: { loaderData: any }) {
 
   const [whenList, setWhenList] = useState<string[]>(["Weekends", "Next weekend", "Daily", "Weekly"]);
 
-  const predefinedOptions = question?.optionList || [];
+  // const predefinedOptions = question?.optionList || [];
   const [customOptions, setCustomOptions] = useState<{ text: string; editing: boolean; checked: boolean; hover: boolean }[]>(() => {
-    const newOptions = (answer?.optionAnswerList || [])
+    const originalOptions = (question?.optionList || []).map((text: string) => ({
+      text,
+      editing: false,
+      checked: (answer?.optionAnswerList || []).includes(text), // 有被選的就勾選
+      hover: false,
+    }));
+
+    const extraOptions = (answer?.optionAnswerList || [])
       .filter((text: string) => !question?.optionList?.includes(text))
       .map((text: string) => ({
         text,
@@ -171,7 +179,7 @@ export default function AnswerQuestion({ loaderData }: { loaderData: any }) {
         checked: true,
         hover: false,
       }));
-    return Array.from(new Set([...newOptions, { text: "", editing: false, checked: false, hover: false }]));
+    return Array.from(new Set([...originalOptions, ...extraOptions, { text: "", editing: false, checked: false, hover: false }]));
   });
 
   // const [answerList, setAnswerList] = useState<Answer[]>([]);
@@ -215,7 +223,7 @@ export default function AnswerQuestion({ loaderData }: { loaderData: any }) {
 
     const answerPayload = {
       option: (() => {
-        const selected = (selectedOptions ?? []).concat(customOptions.filter(({ checked }) => checked).map(({ text }) => text));
+        const selected = customOptions.filter(({ checked }) => checked).map(({ text }) => text);
         const unique = Array.from(new Set(selected));
         return unique.length > 0 ? unique : null;
       })(),
@@ -236,6 +244,8 @@ export default function AnswerQuestion({ loaderData }: { loaderData: any }) {
       answerPayload.when === prevAns?.when
     ) {
       console.log("nothing changed!");
+      console.log("Answer Payload:", answerPayload);
+      console.log("prevAns:", prevAns);
       setSubmitting(false);
       return;
     }
@@ -396,13 +406,13 @@ export default function AnswerQuestion({ loaderData }: { loaderData: any }) {
         <FormControl component="fieldset" sx={{ mb: 2 }}>
           <FormLabel component="legend">Select your answers</FormLabel>
           <FormGroup>
-            {predefinedOptions.map((option, idx) => (
+            {/* {predefinedOptions.map((option, idx) => (
               <FormControlLabel
                 key={idx}
                 control={<Checkbox checked={selectedOptions.includes(option)} onChange={() => handleCheckboxChange(option)} />}
                 label={option}
               />
-            ))}
+            ))} */}
 
             {customOptions.map((option, idx) => (
               <FormControlLabel
@@ -410,29 +420,72 @@ export default function AnswerQuestion({ loaderData }: { loaderData: any }) {
                 control={<Checkbox checked={option.checked} onChange={(e) => toggleCustomOptionCheck(idx, e.target.checked)} />}
                 label={
                   option.editing ? (
-                    <input
-                      type="text"
-                      autoFocus={option.editing}
-                      value={option.text}
-                      onChange={(e) => updateCustomOptionText(idx, e.target.value)}
-                      onBlur={() => finishEditOption(idx)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          finishEditOption(idx);
+                    // <TextField
+                    //   value={option.text}
+                    //   autoFocus={option.editing}
+                    //   onChange={(e) => updateCustomOptionText(idx, e.target.value)}
+                    //   onBlur={() => finishEditOption(idx)}
+                    //   onKeyDown={(e) => {
+                    //     if (e.key === "Enter") {
+                    //       e.preventDefault();
+                    //       finishEditOption(idx);
+                    //     }
+                    //   }}
+                    //   variant="standard"
+                    //   InputProps={{
+                    //     endAdornment: (
+                    //       <InputAdornment position="end">
+                    //         <IconButton
+                    //           sx={{ cursor: "pointer" }}
+                    //           size="small"
+                    //           onClick={(e) => {
+                    //             e.preventDefault();
+                    //             finishEditOption(idx);
+                    //           }}
+                    //         >
+                    //           <CheckCircleOutlineIcon fontSize="small" />
+                    //         </IconButton>
+                    //       </InputAdornment>
+                    //     ),
+                    //     disableUnderline: false,
+                    //   }}
+                    //   sx={{
+                    //     fontSize: "14px",
+                    //     minWidth: `${option.text.length < 10 ? 10 : option.text.length + 1}ch`,
+                    //     input: {
+                    //       padding: "6px 8px",
+                    //       color: "#000",
+                    //     },
+                    //   }}
+                    // />
+                    <Box key={idx} display="inline-flex" alignItems="center" sx={{ mb: 1 }} width={"100%"}>
+                      <AutoWidthTextField
+                        value={option.text}
+                        onChange={(e) => updateCustomOptionText(idx, e.target.value)}
+                        onBlur={() => finishEditOption(idx)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            finishEditOption(idx);
+                          }
+                        }}
+                        autoFocus={option.editing}
+                        endAdornment={
+                          <InputAdornment position="end">
+                            <IconButton
+                              sx={{ cursor: "pointer" }}
+                              size="small"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                finishEditOption(idx);
+                              }}
+                            >
+                              <CheckCircleOutlineIcon fontSize="small" />
+                            </IconButton>
+                          </InputAdornment>
                         }
-                      }}
-                      style={{
-                        padding: "6px 8px",
-                        border: "none",
-                        borderBottom: "1px solid #ccc",
-                        outline: "none",
-                        fontSize: "14px",
-                        boxSizing: "border-box",
-                        transition: "border-color 0.2s",
-                        width: `${option.text.length < 10 ? 10 : option.text.length + 1}ch`,
-                      }}
-                    />
+                      />
+                    </Box>
                   ) : (
                     <Box
                       sx={{
@@ -465,7 +518,7 @@ export default function AnswerQuestion({ loaderData }: { loaderData: any }) {
                               >
                                 <EditIcon fontSize="small" />
                               </IconButton>
-                              <IconButton
+                              {/* <IconButton
                                 size="small"
                                 onClick={(e) => {
                                   e.preventDefault();
@@ -473,7 +526,7 @@ export default function AnswerQuestion({ loaderData }: { loaderData: any }) {
                                 }}
                               >
                                 <CloseIcon fontSize="small" />
-                              </IconButton>
+                              </IconButton> */}
                             </>
                           )}
                         </>
@@ -567,3 +620,61 @@ export default function AnswerQuestion({ loaderData }: { loaderData: any }) {
     </Container>
   );
 }
+
+const AutoWidthTextField = ({ value, onChange, onBlur, onKeyDown, autoFocus, endAdornment, disableUnderline = false }) => {
+  const spanRef = useRef<HTMLSpanElement>(null);
+  const [width, setWidth] = useState("10ch");
+
+  // useEffect(() => {
+  //   if (spanRef.current) {
+  //     const newWidth = spanRef.current.offsetWidth + 50;
+
+  //     setWidth(`${newWidth}px`);
+  //   }
+  // }, [value]);
+
+  useEffect(() => {
+    if (spanRef.current) {
+      const bufferGap = 50; // Buffer gap to prevent text overflow
+      const newWidth = spanRef.current.offsetWidth + bufferGap;
+      const parentWidth = spanRef.current.parentElement?.offsetWidth || newWidth;
+      const maxWidth = parentWidth - bufferGap > newWidth ? parentWidth - bufferGap : newWidth;
+      console.log("newWidth:", newWidth, "maxWidth:", maxWidth, "parentWidth:", parentWidth, spanRef.current.parentElement?.offsetWidth);
+      setWidth(`${Math.min(newWidth, maxWidth)}px`);
+    }
+  }, [value]);
+  return (
+    <>
+      <TextField
+        autoFocus={autoFocus}
+        value={value}
+        onChange={onChange}
+        onBlur={onBlur}
+        onKeyDown={onKeyDown}
+        variant="standard"
+        InputProps={{
+          disableUnderline,
+          style: {
+            fontSize: "14px",
+            width,
+            padding: "6px 8px",
+          },
+          endAdornment,
+        }}
+      />
+      <span
+        ref={spanRef}
+        style={{
+          position: "absolute",
+          visibility: "hidden",
+          whiteSpace: "pre",
+          fontSize: "14px",
+          fontFamily: "inherit",
+          padding: "6px 8px",
+        }}
+      >
+        {value || ""}
+      </span>
+    </>
+  );
+};
