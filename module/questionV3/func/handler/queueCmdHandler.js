@@ -133,7 +133,7 @@ async function CreateAnswer(message, context) {
 
 async function SendFollowUp(message, context) {
   const { messageId, correlationId, body } = message;
-  const { newQuestionId, profileId, question: filterData } = body;
+  const { questionIdList, profileId, question: filterData } = body;
   const sharedQuestions = await withTransaction(sequelize, async ({ transaction }) => {
     const cmd = await QuestionCmd.insertCmd({
       aggregateType: AGGREGATE_TYPE.FOLLOW_UP,
@@ -145,16 +145,18 @@ async function SendFollowUp(message, context) {
     });
     const filters = await QuestionCmd.insertFollowUpFilter({
       senderId: profileId,
-      newQuestionId,
+      questionIdList,
       filterData,
       transaction,
     });
     const receiverIds = await Question.getFollowUpReceiver(body);
-    const sharedQuestions = await QuestionCmd.insertQuestionShare({
-      questionId: newQuestionId,
-      senderId: profileId,
-      receiverIds,
-      transaction,
+    const sharedQuestions = questionIdList.map(async (questionId) => {
+      return await QuestionCmd.insertQuestionShare({
+        questionId,
+        senderId: profileId,
+        receiverIds,
+        transaction,
+      });
     });
     const event = await QuestionCmd.insertEvent({
       aggregateType: AGGREGATE_TYPE.FOLLOW_UP,

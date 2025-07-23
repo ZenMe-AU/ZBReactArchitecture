@@ -29,9 +29,9 @@ module.exports = {
           allowNull: false,
           type: Sequelize.JSON,
         },
-        newQuestionId: {
+        questionIdList: {
           allowNull: false,
-          type: Sequelize.UUID,
+          type: Sequelize.JSON,
         },
         createdAt: {
           allowNull: false,

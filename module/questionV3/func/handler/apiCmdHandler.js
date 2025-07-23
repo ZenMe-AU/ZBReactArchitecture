@@ -259,7 +259,7 @@ async function CreateAnswer(request, context) {
  *                 format: uuid
  *                 description: The UUID of the user's profile performing the follow-up.
  *                 example: "7a232055-5355-422a-9ca7-b7e567103fd4"
- *               newQuestionId:
+ *               questionIdList:
  *                 type: string
  *                 format: uuid
  *                 description: The UUID of the new question being followed up.
@@ -341,7 +341,7 @@ async function SendFollowUp(request, context) {
  *                 format: uuid
  *                 description: The UUID of the sender's profile.
  *                 example: "7a232055-5355-422a-9ca7-b7e567103fd4"
- *               newQuestionId:
+ *               questionId:
  *                 type: string
  *                 format: uuid
  *                 description: The UUID of the question being shared.

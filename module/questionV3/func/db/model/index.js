@@ -88,7 +88,7 @@ const QuestionShare = sequelize.define(
       primaryKey: true,
       defaultValue: DataTypes.UUIDV4,
     },
-    newQuestionId: {
+    questionId: {
       type: DataTypes.UUID,
       allowNull: false,
     },
@@ -137,9 +137,9 @@ const FollowUpFilter = sequelize.define(
       allowNull: false,
       type: DataTypes.JSON,
     },
-    newQuestionId: {
+    questionIdList: {
       allowNull: false,
-      type: DataTypes.UUID,
+      type: DataTypes.JSON,
     },
     createdAt: {
       allowNull: false,
@@ -259,9 +259,9 @@ const Event = sequelize.define(
   }
 );
 Question.hasMany(QuestionAnswer, { foreignKey: "questionId", sourceKey: "id" });
-Question.hasMany(QuestionShare, { foreignKey: "newQuestionId", sourceKey: "id" });
+Question.hasMany(QuestionShare, { foreignKey: "questionId", sourceKey: "id" });
 QuestionAnswer.belongsTo(Question, { targetKey: "id", foreignKey: "questionId" });
-QuestionShare.belongsTo(Question, { targetKey: "id", foreignKey: "newQuestionId" });
+QuestionShare.belongsTo(Question, { targetKey: "id", foreignKey: "questionId" });
 
 module.exports = {
   Question,

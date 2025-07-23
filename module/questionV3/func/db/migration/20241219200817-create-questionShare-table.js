@@ -46,7 +46,7 @@ module.exports = {
     // );
 
     await queryInterface.addConstraint("questionShare", {
-      fields: ["newQuestionId"],
+      fields: ["questionId"],
       type: "foreign key",
       name: "share_questionId_fkey",
       references: {

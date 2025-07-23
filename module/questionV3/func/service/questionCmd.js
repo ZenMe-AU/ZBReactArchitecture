@@ -83,7 +83,7 @@ async function upsertAnswerByQuestionId({ questionId, profileId, ansData, transa
   );
 }
 
-async function insertFollowUpFilter({ senderId, newQuestionId, filterData, transaction = null }) {
+async function insertFollowUpFilter({ senderId, questionIdList, filterData, transaction = null }) {
   const options = transaction ? { transaction } : {};
   const filterId = uuidv4();
   const filterDataAry = filterData.map(function (filter, i) {
@@ -93,7 +93,7 @@ async function insertFollowUpFilter({ senderId, newQuestionId, filterData, trans
       senderProfileId: senderId,
       refQuestionId: filter.questionId,
       refOption: filter.option,
-      newQuestionId: newQuestionId,
+      questionIdList,
     };
   });
   return await FollowUpFilter.bulkCreate(filterDataAry, options);
@@ -103,7 +103,7 @@ async function insertQuestionShare({ questionId, senderId, receiverIds, transact
   const options = transaction ? { transaction } : {};
   const addData = receiverIds.map(function (receiverId) {
     return {
-      newQuestionId: questionId,
+      questionId,
       senderProfileId: senderId,
       receiverProfileId: receiverId,
     };

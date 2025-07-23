@@ -3,7 +3,7 @@ const { uuidSchema } = require("@zenmechat/shared/schema/commonSchema");
 
 const sendFollowUpSchema = Joi.object({
   profileId: uuidSchema.required(),
-  newQuestionId: uuidSchema.required(),
+  questionIdList: Joi.array().items(uuidSchema.required()).min(1).required(),
   question: Joi.array()
     .items(
       Joi.object({
