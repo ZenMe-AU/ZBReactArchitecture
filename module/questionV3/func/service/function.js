@@ -27,7 +27,7 @@ async function getCombinationListByUser(profileId) {
         {
           model: QuestionShare,
           attributes: [],
-          group: ["newQuestionId"],
+          group: ["questionId"],
         },
       ],
     });
@@ -96,26 +96,40 @@ async function getAnswerListByQuestionId(questionId) {
 
 async function getFollowUpReceiver(cmdData) {
   try {
-    const { question: questionFilter } = cmdData;
-    const receiverIdSet = new Set();
-
-    await Promise.all(
+    const { question: questionFilter, profileId: senderProfileId } = cmdData;
+    const profileIdSets = await Promise.all(
       questionFilter.map(async ({ questionId, option }) => {
         const ansList = await getAnswerListByQuestionId(questionId);
         const filterOptionSet = new Set(option);
+        const matchedProfileIdSet = new Set();
 
         for (const { profileId, optionAnswerList } of ansList) {
-          const isSelf = profileId === cmdData.profileId;
+          if (profileId === senderProfileId) continue;
+
           const hasMatchedOption = (optionAnswerList ?? []).some((opt) => filterOptionSet.has(opt));
 
-          if (!isSelf && hasMatchedOption) {
-            receiverIdSet.add(profileId);
+          if (hasMatchedOption) {
+            matchedProfileIdSet.add(profileId);
           }
         }
+
+        return matchedProfileIdSet;
       })
     );
 
-    return [...receiverIdSet];
+    let intersectionSet = null;
+
+    for (const profileIdSet of profileIdSets) {
+      if (intersectionSet === null) {
+        intersectionSet = profileIdSet;
+      } else {
+        intersectionSet = new Set([...intersectionSet].filter((id) => profileIdSet.has(id)));
+      }
+
+      if (intersectionSet.size === 0) break;
+    }
+
+    return [...(intersectionSet ?? [])];
   } catch (err) {
     console.log(err);
     throw new Error(`Function failed: ${err.message}`, { cause: err });

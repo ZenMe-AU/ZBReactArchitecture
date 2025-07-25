@@ -1,233 +1,57 @@
-const Question = require("../service/function.js");
-const QuestionCmd = require("../service/questionCmd");
-const { withTransaction } = require("@zenmechat/shared/service/dbUtils");
-const { sequelize } = require("../db/index");
-const { AGGREGATE_TYPE, ACTION_TYPE, STATUS } = require("../enum");
+const QuestionService = require("../service/questionService");
 
+/**
+ * ServiceBus calls CreateQuestion to create a new question.
+ * It processes the question creation, updates the command status, and returns the created question.
+ */
 async function CreateQuestion(message, context) {
   const { messageId, correlationId, body } = message;
   const { title, questionText, option, profileId } = body;
-  // const question = await QuestionCmd.insertQuestion(messageId, body["profileId"], body, correlationId);
-  const question = await withTransaction(sequelize, async ({ transaction }) => {
-    const cmd = await QuestionCmd.insertCmd({
-      aggregateType: AGGREGATE_TYPE.QUESTION,
-      cmdId: messageId,
-      senderId: profileId,
-      cmdData: body,
-      correlationId,
-      transaction,
-    });
-    const question = await QuestionCmd.insertQuestion({
-      profileId,
-      title,
-      questionText,
-      optionList: option,
-      transaction,
-    });
-    const event = await QuestionCmd.insertEvent({
-      aggregateType: AGGREGATE_TYPE.QUESTION,
-      aggregateId: question.id,
-      causationId: messageId,
-      senderId: body.profileId,
-      // TODO: confirm - should this be body or question.toJSON()?
-      eventData: body,
-      correlationId,
-      transaction,
-    });
-    await QuestionCmd.updateCmd({
-      cmdId: cmd.id,
-      status: STATUS.SUCCESS,
-      eventId: event.id,
-      transaction,
-    });
 
-    // TODO:?? is this needed?
-    // await QuestionCmd.updateEventIdOfQuestion(question.id, event.id, transaction);
-    return question;
-  });
-  console.log("🥳CreateQuestion: ", question);
-  //TODO: write cmd status event to service bus, status=successful, cmd["id"], metaData=question["id"]
-  // catch errors write cmd status event to service bus, status=error, cmd["id"], metaData={error: error.message}
+  await QuestionService.createQuestion(messageId, profileId, body, correlationId, title, questionText, option);
 }
 
+/**
+ * ServiceBus calls UpdateQuestion to update an existing question.
+ * It processes the question update, applies the patch data, and updates the command status.
+ */
 async function UpdateQuestion(message, context) {
   const { messageId, correlationId, body } = message;
   const { patchData, questionId, profileId } = body;
-  //TODO: put in transaction for the question id & cmd id
-  // const question = await QuestionCmd.patchQuestionById(questionId, messageId, profileId, patchData, correlationId);
-  const question = await withTransaction(sequelize, async ({ transaction }) => {
-    const cmd = await QuestionCmd.insertCmd({
-      aggregateType: AGGREGATE_TYPE.QUESTION,
-      action: ACTION_TYPE.UPDATE,
-      cmdId: messageId,
-      senderId: profileId,
-      cmdData: body,
-      correlationId,
-      transaction,
-    });
-    const question = await QuestionCmd.patchQuestionById({ questionId, patchData, transaction });
-    const event = await QuestionCmd.insertEvent({
-      aggregateType: AGGREGATE_TYPE.QUESTION,
-      aggregateId: questionId,
-      eventType: ACTION_TYPE.UPDATE,
-      causationId: messageId,
-      senderId: profileId,
-      eventData: patchData,
-      originalData: question._previousDataValues,
-      correlationId,
-      transaction,
-    });
-    await QuestionCmd.updateCmd({
-      cmdId: cmd.id,
-      status: STATUS.SUCCESS,
-      eventId: event.id,
-      transaction,
-    });
-    return question;
-  });
+  const question = await QuestionService.updateQuestion(messageId, profileId, body, correlationId, questionId, patchData);
   console.log("🥳UpdateQuestion: ", question);
-  //TODO: write event for cmd
-  // Id, AggregateId(=questionId), AggregateType(=question), EventType(update), EventData(actionData), CausationId=cmdId
-  //end transaction
-  //TODO: write cmd status event to service bus
 }
 
+/**
+ * ServiceBus calls CreateAnswer to create an answer for a question.
+ * It processes the answer creation, updates the command status, and returns the created answer.
+ */
 async function CreateAnswer(message, context) {
   const { messageId, correlationId, body } = message;
   const { questionId, profileId, answer: answerText = null, option = null, duration } = body;
-  // const answer = await QuestionCmd.insertAnswerByQuestionId(questionId, messageId, profileId, body, correlationId);
-  const answer = await withTransaction(sequelize, async ({ transaction }) => {
-    const cmd = await QuestionCmd.insertCmd({
-      aggregateType: AGGREGATE_TYPE.QUESTION_ANSWER,
-      cmdId: messageId,
-      senderId: profileId,
-      cmdData: body,
-      correlationId,
-      transaction,
-    });
-    const answer = await QuestionCmd.upsertAnswerByQuestionId({
-      questionId,
-      profileId,
-      ansData: body,
-      transaction,
-    });
-    const event = await QuestionCmd.insertEvent({
-      aggregateType: AGGREGATE_TYPE.QUESTION_ANSWER,
-      aggregateId: answer.id,
-      causationId: messageId,
-      senderId: body.profileId,
-      eventData: body,
-      correlationId,
-      transaction,
-    });
-    await QuestionCmd.updateCmd({
-      cmdId: cmd.id,
-      status: STATUS.SUCCESS,
-      eventId: event.id,
-      transaction,
-    });
-    return answer;
-  });
+  const answer = await QuestionService.createAnswer(messageId, profileId, body, correlationId, questionId);
   console.log("🥳CreateAnswer: ", answer);
 }
 
+/**
+ * ServiceBus calls SendFollowUp to send the follow-up questions based on the answers given by the users.
+ * It processes the follow-up questions, shares them with the appropriate users, and updates the command status.
+ */
 async function SendFollowUp(message, context) {
   const { messageId, correlationId, body } = message;
   const { questionIdList, profileId, question: filterData } = body;
-  const sharedQuestions = await withTransaction(sequelize, async ({ transaction }) => {
-    const cmd = await QuestionCmd.insertCmd({
-      aggregateType: AGGREGATE_TYPE.FOLLOW_UP,
-      cmdId: messageId,
-      senderId: profileId,
-      cmdData: body,
-      correlationId,
-      transaction,
-    });
-    const filters = await QuestionCmd.insertFollowUpFilter({
-      senderId: profileId,
-      questionIdList,
-      filterData,
-      transaction,
-    });
-    const receiverIds = await Question.getFollowUpReceiver(body);
-    const sharedQuestions = questionIdList.map(async (questionId) => {
-      return await QuestionCmd.insertQuestionShare({
-        questionId,
-        senderId: profileId,
-        receiverIds,
-        transaction,
-      });
-    });
-    const event = await QuestionCmd.insertEvent({
-      aggregateType: AGGREGATE_TYPE.FOLLOW_UP,
-      aggregateId: null,
-      causationId: messageId,
-      senderId: profileId,
-      eventData: body,
-      correlationId,
-      transaction,
-    });
-    await QuestionCmd.updateCmd({
-      cmdId: messageId,
-      status: STATUS.SUCCESS,
-      eventId: event.id,
-      transaction,
-    });
-    return sharedQuestions;
-  });
+  const sharedQuestions = await QuestionService.sendFollowUp(messageId, profileId, body, correlationId, questionIdList);
   console.log("🥳SendFollowUp: ", sharedQuestions);
 }
 
+/**
+ * ServiceBus calls ShareQuestion to share a question with other users.
+ * It processes the sharing of the question and updates the command status.
+ */
 async function ShareQuestion(message, context) {
   const { messageId, correlationId, body } = message;
   const { newQuestionId, profileId, receiverIds } = body;
-  const sharedQuestions = await withTransaction(sequelize, async ({ transaction }) => {
-    const cmd = await QuestionCmd.insertCmd({
-      aggregateType: AGGREGATE_TYPE.QUESTION_SHARE,
-      cmdId: messageId,
-      senderId: profileId,
-      cmdData: body,
-      correlationId,
-      transaction,
-    });
-    const sharedQuestions = await QuestionCmd.insertQuestionShare({
-      questionId: newQuestionId,
-      senderId: profileId,
-      receiverIds,
-      transaction,
-    });
-    // sharedQuestions.map(async (sharedQuestion) => {
-    //   await Cmd.insertEvent({
-    //     aggregateType: AGGREGATE_TYPE.QUESTION_SHARE,
-    //     aggregateId: sharedQuestion.id,
-    //     causationId: messageId,
-    //     senderId: profileId,
-    //     eventData: {
-    //       newQuestionId,
-    //       senderProfileId: profileId,
-    //       receiverProfileId: receiverId,
-    //     },
-    //     correlationId,
-    //     transaction,
-    //   });
-    // });
-    const event = await QuestionCmd.insertEvent({
-      aggregateType: AGGREGATE_TYPE.QUESTION_SHARE,
-      aggregateId: null,
-      causationId: messageId,
-      senderId: profileId,
-      eventData: body,
-      correlationId,
-      transaction,
-    });
-    await QuestionCmd.updateCmd({
-      cmdId: cmd.id,
-      status: STATUS.SUCCESS,
-      eventId: event.id,
-      transaction,
-    });
-    return sharedQuestions;
-  });
+  const sharedQuestions = await QuestionService.shareQuestion(messageId, profileId, body, correlationId, newQuestionId, receiverIds);
   console.log("🥳ShareQuestion: ", sharedQuestions);
 }
 
