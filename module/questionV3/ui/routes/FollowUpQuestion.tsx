@@ -364,11 +364,11 @@ function FollowUpQuestion() {
                       <Typography variant="body1" sx={{ mr: 1 }}>
                         {option}
                       </Typography>
-                      {(answerCountList[question?.id]?.[option] ?? 0) > 0 && (
-                        <Typography variant="body2" sx={{ color: "#455a64", fontWeight: "bold" }}>
-                          ({answerCountList[question?.id]?.[option] ?? 0} response)
-                        </Typography>
-                      )}
+
+                      <Typography variant="body2" sx={{ color: "#455a64", fontWeight: "bold" }}>
+                        ({answerCountList[question?.id]?.[option] ?? 0} response)
+                      </Typography>
+                      {/* {(answerCountList[question?.id]?.[option] ?? 0) > 0 && ()} */}
                     </Box>
                   }
                 />
@@ -445,11 +445,11 @@ function FollowUpQuestion() {
                           <Typography variant="body1" sx={{ mr: 1 }}>
                             {option}
                           </Typography>
-                          {(answerCountList[selectedQuestions[cardId]]?.[option] ?? 0) > 0 && (
-                            <Typography variant="body2" sx={{ color: "#455a64", fontWeight: "bold" }}>
-                              ({answerCountList[selectedQuestions[cardId]]?.[option] ?? 0} response)
-                            </Typography>
-                          )}
+
+                          <Typography variant="body2" sx={{ color: "#455a64", fontWeight: "bold" }}>
+                            ({answerCountList[selectedQuestions[cardId]]?.[option] ?? 0} response)
+                          </Typography>
+                          {/* {(answerCountList[selectedQuestions[cardId]]?.[option] ?? 0) > 0 && ()} */}
                         </Box>
                       }
                     />
@@ -524,7 +524,7 @@ function FollowUpQuestion() {
                   Select a follow-up question
                 </MenuItem>
                 {questionList.map((question) => (
-                  <MenuItem key={question.id} value={question.id}>
+                  <MenuItem key={question.id} value={question.id} disabled={followUpQuestions.includes(question.id)}>
                     {question.title}
                   </MenuItem>
                 ))}
@@ -552,11 +552,11 @@ function FollowUpQuestion() {
           <Button variant="contained" onClick={handleFollowUp} sx={{ mx: 1 }} disabled={submitting}>
             send
           </Button>
-          <FormControlLabel
+          {/* <FormControlLabel
             sx={{ mx: 1 }}
             control={<Checkbox checked={saveFilter} onChange={(e) => setSaveFilter(e.target.checked)} />}
             label="Save Filter"
-          />
+          /> */}
         </Box>
       </Container>
     </Container>
