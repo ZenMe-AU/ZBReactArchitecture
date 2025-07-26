@@ -1,5 +1,20 @@
 {
   "development": {
+    "username": "root",
+    "password": "DatabasePassword123!",
+    "database": "profile",
+    "host": "localhost",
+    "port": 5432,
+    "dialect": "postgres",
+    "dialectOptions": {
+      "ssl": false
+    },
+    "redis": {
+      "host": "localhost",
+      "port": 6379
+    }
+  },
+  "production": {
     "username": "zmpostressadmin",
     "password": "2024 Zenme Postgress admin",
     "database": "profile",
@@ -8,10 +23,6 @@
     "dialect": "postgres",
     "dialectOptions": {
       "ssl": true
-    },
-    "redis": {
-      "host": "localhost",
-      "port": 6379
     }
   }
 }
