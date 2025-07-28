@@ -1,5 +1,15 @@
 {
   "recommendations": [
-    "ms-azuretools.vscode-azurefunctions"
+    "ms-azuretools.vscode-azurefunctions",
+    "dbaeumer.vscode-eslint",
+    "orta.vscode-jest",
+    "esbenp.prettier-vscode",
+    "ms-vscode.vscode-typescript-tslint-plugin",
+    "ms-vscode.vscode-typescript-next",
+    "eamodio.gitlens",
+    "mhutchie.git-graph",
+    "ms-vscode.powershell",
+    "redhat.vscode-yaml",
+    "ms-vsliveshare.vsliveshare"
   ]
 }

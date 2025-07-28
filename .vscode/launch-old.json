@@ -3,17 +3,18 @@
   "compounds": [
     {
       "name": "Start Full Stack App",
-      "configurations": ["Launch Frontend", "Attach to Node Functions"]
+      "configurations": ["Start function questionV3"]
     }
   ],
   "configurations": [
     {
-      "name": "Attach to Node Functions",
+      "name": "Start function questionV3",
       "type": "node",
       "request": "attach",
       "restart": true,
       "port": 9229,
-      "preLaunchTask": "func: host start"
+      "program": "${workspaceFolder:questionV3/func}",
+      "preLaunchTask": "backend: start-functions-host"
     },
     {
       "name": "Launch Frontend",
@@ -21,7 +22,7 @@
       "request": "launch",
       "url": "http://localhost:5173",
       "webRoot": "${workspaceFolder}",
-      "preLaunchTask": "start-frontend"
+      "preLaunchTask": "frontend: start-dev-server"
     }
   ]
 }

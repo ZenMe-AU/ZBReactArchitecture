@@ -1,0 +1,49 @@
+{
+  "folders": [
+    {
+      "name": "ROOT",
+      "path": "../"
+    },
+    {
+      "name": "ui",
+      "path": "../ui"
+    },
+    {
+      "name": "questionV3/func",
+      "path": "../module/questionV3/func"
+    },
+    {
+      "name": "questionV2/func",
+      "path": "../module/questionV2/func"
+    },
+    {
+      "name": "questionV1/func",
+      "path": "../module/question/func"
+    },
+    {
+      "name": "profile/func",
+      "path": "../module/profile/func"
+    },
+    {
+      "name": "coordinate/func",
+      "path": "../module/coordinate/func"
+    }
+  ],
+
+  "settings": {
+    "files.exclude": {
+      "node_modules/": false
+    },
+    "jest.autoEnable": false,
+    "jest.disabledWorkspaceFolders": ["ROOT"]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "compounds": [
+      {
+        "name": "Start Full Stack App",
+        "configurations": ["Start ui", "Start questionV3", "Start profile"]
+      }
+    ]
+  }
+}
