@@ -27,6 +27,10 @@
     {
       "name": "coordinate/func",
       "path": "../module/coordinate/func"
+    },
+    {
+      "name": "shared/func",
+      "path": "../module/shared/func"
     }
   ],
 
@@ -43,6 +47,10 @@
       {
         "name": "Start Full Stack App",
         "configurations": ["Start ui", "Start questionV3", "Start profile"]
+      },
+      {
+        "name": "Install Dependencies",
+        "configurations": ["Dependencies shared", "Dependencies ui", "Dependencies questionV3", "Dependencies profile"]
       }
     ]
   }

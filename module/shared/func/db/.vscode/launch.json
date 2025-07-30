@@ -2,18 +2,12 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Start coordinate",
+      "name": "Start questionV3",
       "type": "node",
       "request": "attach",
       "restart": true,
       "port": 9229,
       "preLaunchTask": "func: host start"
-    },
-    {
-      "name": "Dependencies coordinate",
-      "type": "node",
-      "request": "launch",
-      "preLaunchTask": "npm install (functions)"
     }
   ]
 }

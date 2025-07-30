@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Start coordinate",
+      "name": "Start shared",
       "type": "node",
       "request": "attach",
       "restart": true,
@@ -10,7 +10,7 @@
       "preLaunchTask": "func: host start"
     },
     {
-      "name": "Dependencies coordinate",
+      "name": "Dependencies shared",
       "type": "node",
       "request": "launch",
       "preLaunchTask": "npm install (functions)"

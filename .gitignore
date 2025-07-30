@@ -25,3 +25,4 @@ package-lock.json
 pnpm-lock.yaml
 
 api/src/module/shared/db/migration
+ui/.react-router

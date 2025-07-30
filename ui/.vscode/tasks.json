@@ -25,6 +25,11 @@
           "endsPattern": "Local:.*"
         }
       }
+    },
+    {
+      "type": "shell",
+      "label": "pnpm install",
+      "command": "pnpm install"
     }
   ]
 }

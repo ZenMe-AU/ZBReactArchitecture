@@ -14,7 +14,7 @@
     },
     {
       "type": "shell",
-      "label": "backend: install-functions-deps",
+      "label": "npm install (functions)",
       "command": "npm install",
       "options": {
         "cwd": "${workspaceFolder}"

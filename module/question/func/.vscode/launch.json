@@ -8,6 +8,12 @@
       "restart": true,
       "port": 9229,
       "preLaunchTask": "func: host start"
+    },
+    {
+      "name": "Dependencies questionV1",
+      "type": "node",
+      "request": "launch",
+      "preLaunchTask": "npm install (functions)"
     }
   ]
 }
