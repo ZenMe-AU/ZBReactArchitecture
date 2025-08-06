@@ -1,5 +1,5 @@
 {
-  "development": {
+  "local": {
     "username": "root",
     "password": "DatabasePassword123!",
     "database": "questionV3",
@@ -14,9 +14,7 @@
       "port": 6379
     }
   },
-  "production": {
-    "username": "zmpostressadmin",
-    "password": "2024 Zenme Postgress admin",
+  "development": {
     "database": "questionV3",
     "host": "postgress1.postgres.database.azure.com",
     "port": 5432,
