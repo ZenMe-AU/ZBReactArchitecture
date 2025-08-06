@@ -27,7 +27,6 @@ pnpm-lock.yaml
 api/src/module/shared/db/migration
 ui/.react-router
 
-terraform.tfvars
-*.tfstate
+
 *.tfstate.backup
 .terraform/
