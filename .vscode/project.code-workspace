@@ -38,7 +38,7 @@
     "files.exclude": {
       "node_modules/": false
     },
-    "jest.autoEnable": false,
+    "jest.runMode": "on-demand",
     "jest.disabledWorkspaceFolders": ["ROOT"]
   },
   "launch": {
