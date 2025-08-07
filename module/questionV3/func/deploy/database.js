@@ -1,6 +1,5 @@
 const { Sequelize } = require("sequelize");
-const Umzug = require("umzug");
-const SequelizeStorage = require("umzug").SequelizeStorage;
+const { Umzug, SequelizeStorage } = require("umzug");
 
 const config = {
   database: "questionV3",
@@ -23,7 +22,8 @@ try {
 let aadUser;
 try {
   const azAccount = JSON.parse(execSync("az account show", { encoding: "utf8" }));
-  aadUser = azAccount.user.name + "@" + azAccount.tenantId;
+  // aadUser = azAccount.user.name + "@" + azAccount.tenantId;
+  aadUser = azAccount.user.name;
 } catch (err) {
   console.error("Failed to get Azure AD username:", err);
   process.exit(1);
@@ -41,7 +41,17 @@ const sequelize = new Sequelize(config.database, aadUser, accessToken, {
 
 // Configure Umzug for migrations
 const umzug = new Umzug({
-  migrations: { glob: config.migrationsFolder + "/*.js" },
+  migrations: {
+    glob: config.migrationsFolder + "/*.js",
+    resolve: ({ name, path, context }) => {
+      const migration = require(path);
+      return {
+        name,
+        up: async () => migration.up(context.queryInterface, Sequelize),
+        down: async () => migration.down(context.queryInterface, Sequelize),
+      };
+    },
+  },
   context: sequelize.getQueryInterface(),
   storage: new SequelizeStorage({ sequelize }),
   logger: console,
