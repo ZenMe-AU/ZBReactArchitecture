@@ -76,7 +76,14 @@ function initEnvironment() {
   console.log(`Setting location to: ${process.env.TF_VAR_location}`);
 
   try {
-    execSync(`terraform init`, { stdio: "inherit", shell: true });
+    execSync(
+      `terraform init -reconfigure\
+        -backend-config="resource_group_name=${TARGET_ENV}-resources" \
+        -backend-config="storage_account_name=${TARGET_ENV}storage" \
+        -backend-config="container_name=tfstatefile" \
+        -backend-config="key=${TARGET_ENV}/${TARGET_ENV}-terraform.tfstate"`,
+      { stdio: "inherit", shell: true }
+    );
     console.log("Terraform initialized successfully.");
 
     // Run terraform plan

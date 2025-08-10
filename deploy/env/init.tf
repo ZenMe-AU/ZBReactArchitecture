@@ -4,9 +4,23 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "~> 4.0"
     }
+    azuread = {
+      source  = "hashicorp/azuread"
+      version = "~> 2.0"
+    }
   }
   required_version = ">= 1.1.0"
+
+  
 }
+
+provider "azurerm" {
+  features {}
+  subscription_id = var.subscription_id
+}
+
+provider "azuread" {}
+
 variable "target_env" {
   description = "Target environment name for deployment, this must be globally unique on Azure"
   type        = string
@@ -33,43 +47,30 @@ output "location" {
   description = "value of location"
 }
 
-provider "azurerm" {
-  features {}
-  subscription_id = var.subscription_id
+variable "plan_os" {
+  description = "Operating system type for the plan"
+  type        = string
 }
 
-# Create a resource group for this environment
-resource "azurerm_resource_group" "rg" {
+data "azurerm_resource_group" "rg" {
   name     = "${var.target_env}-resources"
   location = var.location
 }
 
 # create a storage account for this environment
-resource "azurerm_storage_account" "sa" {
+data "azurerm_storage_account" "sa" {
   name                     = "${var.target_env}storage"
   resource_group_name      = azurerm_resource_group.rg.name
-  location                 = azurerm_resource_group.rg.location
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
-}
-
-# Create a storage container for Terraform state files
-resource "azurerm_storage_container" "tfstatecontianer" {
-  name                  = "tfstatefile"
-  storage_account_id    = azurerm_storage_account.sa.id
-  container_access_type = "private"      
 }
 
 # Azure App Configuration
-resource "azurerm_app_configuration" "appconfig" {
+data "azurerm_app_configuration" "appconfig" {
   name                = "${var.target_env}-appconfig"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-  sku                 = "standard"
+  resource_group_name = data.azurerm_resource_group.rg.name
 }
 
-resource "azurerm_app_configuration_key" "env_type" {
-  configuration_store_id = azurerm_app_configuration.appconfig.id
-  key                    = "Environment_Name"
-  value                  = var.target_env
+# Get the Azure client configuration for tenant ID
+data "azurerm_client_config" "current" {}
+output "tenant_id" {
+  value = data.azurerm_client_config.current.tenant_id
 }
