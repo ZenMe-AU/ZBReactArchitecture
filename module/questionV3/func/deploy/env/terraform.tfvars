@@ -1,10 +1,3 @@
-module_env  = "development"
+target_env  = "coherentladybug"
 module_name = "questionV3"
 
-queue_list = [
-  "sendFollowUp",
-  "shareQuestion",
-  "createQuestion",
-  "updateQuestion",
-  "createAnswer"
-]

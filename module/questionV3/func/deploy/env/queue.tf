@@ -1,12 +1,22 @@
+variable "queue_list" {
+  type    = list(string)
+  default = [
+    "sendFollowUp",
+    "shareQuestion",
+    "createQuestion",
+    "updateQuestion",
+    "createAnswer"
+  ]
+}
+
 data "azurerm_servicebus_namespace" "sb" {
-  name                = data.terraform_remote_state.shared.outputs.sb_name
-  resource_group_name = data.terraform_remote_state.shared.outputs.rg_name
+  name                = "${var.target_env}-sbnamespace"
+  resource_group_name = data.azurerm_resource_group.main_rg.name
 }
 
 # Create Service Bus Queues
 resource "azurerm_servicebus_queue" "queue" {
   for_each = toset(var.queue_list)
-
   name         = each.value
   namespace_id = data.azurerm_servicebus_namespace.sb.id
 }

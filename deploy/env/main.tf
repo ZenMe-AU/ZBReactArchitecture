@@ -49,6 +49,19 @@ resource "azurerm_resource_group" "rg" {
   name     = "${random_pet.env_name.id}-resources"
   location = var.location
 }
+# Azure App Configuration
+resource "azurerm_app_configuration" "appconfig" {
+  name                = "${random_pet.env_name.id}-appconfig"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  sku                 = "standard"
+}
+resource "azurerm_app_configuration_key" "env_type" {
+  configuration_store_id = azurerm_app_configuration.appconfig.id
+  key                    = "EnvironmentType"
+  value                  = "Development"
+  label                  = "dev"
+}
 
 # Storage Account
 resource "azurerm_storage_account" "sa" {
@@ -74,6 +87,12 @@ resource "azurerm_servicebus_namespace" "sb_namespace" {
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   sku                 = "Basic"
+}
+# Store Service bus namespace
+resource "azurerm_app_configuration_key" "sb_namespace" {
+  configuration_store_id = azurerm_app_configuration.appconfig.id
+  key                    = "ServiceBusNamespace"
+  value                  = "${azurerm_servicebus_namespace.sb_namespace.name}.servicebus.windows.net"
 }
 
 # PostgreSQL Flexible Server

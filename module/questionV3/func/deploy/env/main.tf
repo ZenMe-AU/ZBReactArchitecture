@@ -16,14 +16,8 @@ provider "azurerm" {
 }
 
 # provider "azuread" {}
-
-data "azurerm_storage_account" "main_sa" {
-  name                = data.terraform_remote_state.shared.outputs.sa_name
-  resource_group_name = data.terraform_remote_state.shared.outputs.rg_name
-}
-
-variable "module_env" {
-  description = "The environment of the module"
+variable "target_env" {
+  description = "The target environment for the module"
   type        = string
 }
 
@@ -32,7 +26,20 @@ variable "module_name" {
   type        = string
 }
 
-variable "queue_list" {
-  description = "The list of the queue"
-  type        = list(string)
+data "azurerm_resource_group" "main_rg" {
+  name = "${var.target_env}-resources"
+}
+data "azurerm_storage_account" "main_sa" {
+  name                = "${var.target_env}sa"
+  resource_group_name = data.azurerm_resource_group.main_rg.name
+}
+
+data "azurerm_service_plan" "main_plan" {
+  name                = "${var.target_env}-plan"
+  resource_group_name = data.azurerm_resource_group.main_rg.name
+}
+
+data "azurerm_app_configuration_key" "sb_namespace" {
+  configuration_store_id = data.azurerm_app_configuration.main_appconfig.id
+  key                    = "ServiceBusNamespace"
 }
