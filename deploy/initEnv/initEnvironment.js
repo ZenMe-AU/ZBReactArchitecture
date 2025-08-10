@@ -1,8 +1,8 @@
-const { execSync } = require("child_process");
-const readline = require("readline");
-const fs = require("fs");
-const path = require("path");
-const { uniqueNamesGenerator, adjectives, animals } = require("unique-names-generator");
+import { execSync } from "child_process";
+import { createInterface } from "readline";
+import { existsSync, readFileSync, writeFileSync } from "fs";
+import { resolve } from "path";
+import { uniqueNamesGenerator, adjectives, animals } from "unique-names-generator";
 
 let cachedSubscriptionId = null;
 function getAzureSubscriptionId() {
@@ -29,18 +29,22 @@ function getAzureLocation() {
     return azureLocation;
   } catch (error) {
     console.error("Failed to get Azure location. Make sure you are logged in with Azure CLI.");
-    process.exit(1);
   }
+  if (!azureLocation) {
+    azureLocation = "australiaeast"; // Default fallback location
+    console.warn(`Using fallback Azure location: ${azureLocation}`);
+  }
+  return azureLocation;
 }
 
 let TARGET_ENV = null;
-function getEnvName() {
+function getTargetEnvName() {
   if (TARGET_ENV) {
     return TARGET_ENV;
   }
-  const envFilePath = path.resolve(__dirname, "..", ".env");
-  if (fs.existsSync(envFilePath)) {
-    const envContent = fs.readFileSync(envFilePath, "utf8");
+  const envFilePath = resolve("..", ".env");
+  if (existsSync(envFilePath)) {
+    const envContent = readFileSync(envFilePath, "utf8");
     const match = envContent.match(/^TARGET_ENV=(.+)$/m);
     if (match && match[1]) {
       TARGET_ENV = match[1].trim();
@@ -49,23 +53,26 @@ function getEnvName() {
     }
   }
   if (!TARGET_ENV) {
-    TARGET_ENV =
-      uniqueNamesGenerator({
-        dictionaries: [adjectives, animals],
-        separator: "-",
-        style: "lowerCase",
-        length: 2,
-      }) + `-${Math.floor(Math.random() * 10000)}`;
-    fs.writeFileSync(envFilePath, `TARGET_ENV=${TARGET_ENV}\n`, { flag: "w" });
+    TARGET_ENV = uniqueNamesGenerator({
+      dictionaries: [adjectives, animals],
+      separator: "",
+      style: "lowerCase",
+      length: 2,
+    }); //+ `-${Math.floor(Math.random() * 10000)}`
+    writeFileSync(envFilePath, `TARGET_ENV=${TARGET_ENV}\n`, { flag: "w" });
     console.log(`Generated TARGET_ENV: ${TARGET_ENV} and saved to .env`);
   }
   return TARGET_ENV;
 }
 
 function initEnvironment() {
-  process.env.TF_VAR_target_env = getEnvName();
+  process.env.TF_VAR_target_env = getTargetEnvName();
+  console.log(`Setting TARGET_ENV to: ${process.env.TF_VAR_target_env}`);
   process.env.TF_VAR_subscription_id = getAzureSubscriptionId();
+  console.log(`Setting subscription_id to: ${process.env.TF_VAR_subscription_id}`);
   process.env.TF_VAR_location = getAzureLocation();
+  console.log(`Setting location to: ${process.env.TF_VAR_location}`);
+
   try {
     execSync(`terraform init`, { stdio: "inherit", shell: true });
     console.log("Terraform initialized successfully.");
@@ -76,7 +83,7 @@ function initEnvironment() {
 
     // Prompt user for confirmation before applying changes
     console.log("You are about to run 'terraform apply'. This will make changes to your infrastructure.");
-    const rl = readline.createInterface({
+    const rl = createInterface({
       input: process.stdin,
       output: process.stdout,
     });
@@ -100,8 +107,6 @@ function initEnvironment() {
   }
 }
 
-if (require.main === module) {
-  initEnvironment();
-}
+initEnvironment();
 
-module.exports = { initEnvironment };
+export default { initEnvironment };

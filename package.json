@@ -11,10 +11,9 @@
     "module/questionV3/ui",
     "module/profile/ui"
   ],
-  "scripts": {
-  },
-  "dependencies": {
-  },
+  "scripts": {},
+  "dependencies": {},
   "devDependencies": {
+    "unique-names-generator": "^4.7.1"
   }
 }

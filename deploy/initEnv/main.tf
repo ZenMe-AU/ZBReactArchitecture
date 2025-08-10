@@ -7,15 +7,30 @@ terraform {
   }
   required_version = ">= 1.1.0"
 }
+variable "target_env" {
+  description = "Target environment name for deployment, this must be globally unique on Azure"
+  type        = string
+}
+output "target_env" {
+  value = var.target_env
+  description = "value of target environment"
+}
 
 variable "subscription_id" {
   description = "Subscription ID for Azure resources"
   type        = string
 }
-
+output "subscription_id" {
+  value = var.subscription_id
+  description = "value of subscription ID"
+}
 variable "location" {
-  description = "Location for resources"
+  description = "Azure location for resources, defaults to 'australiaeast' if not set"
   type        = string
+}
+output "location" {
+  value = var.location
+  description = "value of location"
 }
 
 provider "azurerm" {
@@ -23,23 +38,16 @@ provider "azurerm" {
   subscription_id = var.subscription_id
 }
 
-
-resource "random_pet" "env_name" {
-  length    = 2
-  separator = ""
-}
-
-
 # Create a resource group for this environment
 resource "azurerm_resource_group" "rg" {
-  name     = "${random_pet.env_name.id}-resources"
+  name     = "${var.target_env}-resources"
   location = var.location
 }
 
 
 # create a storage account for this environment
 resource "azurerm_storage_account" "sa" {
-  name                     = "${random_pet.env_name.id}sa"
+  name                     = "${var.target_env}sa"
   resource_group_name      = azurerm_resource_group.rg.name
   location                 = azurerm_resource_group.rg.location
   account_tier             = "Standard"
@@ -55,7 +63,7 @@ resource "azurerm_storage_container" "tfstatecontianer" {
 
 # Azure App Configuration
 resource "azurerm_app_configuration" "appconfig" {
-  name                = "${random_pet.env_name.id}-appconfig"
+  name                = "${var.target_env}-appconfig"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   sku                 = "standard"
