@@ -28,9 +28,7 @@ function getAzureLocation() {
     azureLocation = execSync('az account list-locations --query "[?isDefault].name" -o tsv', { encoding: "utf8" }).trim();
     return azureLocation;
   } catch (error) {
-    console.error("Failed to get Azure location. Make sure you are logged in with Azure CLI.");
-  }
-  if (!azureLocation) {
+    console.error("Failed to get Azure location.");
     azureLocation = "australiaeast"; // Default fallback location
     console.warn(`Using fallback Azure location: ${azureLocation}`);
   }
