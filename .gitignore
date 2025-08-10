@@ -31,3 +31,4 @@ ui/.react-router
 terraform.tfstate.backup
 .terraform.*
 .terraform/
+.env
