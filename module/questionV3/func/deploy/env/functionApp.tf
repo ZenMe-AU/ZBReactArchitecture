@@ -13,7 +13,7 @@ resource "azurerm_linux_function_app" "fa" {
   }
 
   app_settings = {
-    FUNCTIONS_WORKER_RUNTIME            = "node"
+    FUNCTIONS_WORKER_RUNTIME = "node"
   }
 
   site_config {

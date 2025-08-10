@@ -7,19 +7,14 @@ terraform {
   }
   required_version = ">= 1.1.0"
 
-  backend "azurerm" {
-    resource_group_name  = ""
-    storage_account_name = ""
-    container_name       = ""
-    key                  = ""
-  }
+  backend "azurerm" {}
 }
 
 
 provider "azurerm" {
   features {}
 
-  subscription_id = data.terraform_remote_state.shared.outputs.subscription_id
+  subscription_id = var.subscription_id
 
 }
 
@@ -35,8 +30,13 @@ variable "module_name" {
   type        = string
 }
 
+variable "subscription_id" {
+  description = "The subscription ID for Azure resources"
+  type        = string
+}
+
 data "azurerm_resource_group" "main_rg" {
-  name = backend.resource_group_name
+  name = "${var.target_env}-resources"
 }
 data "azurerm_storage_account" "main_sa" {
   name                = "${var.target_env}sa"
@@ -48,10 +48,15 @@ data "azurerm_service_plan" "main_plan" {
   resource_group_name = data.azurerm_resource_group.main_rg.name
 }
 
-data "azurerm_app_configuration_key" "sb_namespace" {
-  configuration_store_id = data.azurerm_app_configuration.main_appconfig.id
-  key                    = "ServiceBusNamespace"
-}
+# data "azurerm_app_configuration" "main_appconfig" {
+#   name                = "${random_pet.env_name.id}-appconfig"
+#   resource_group_name = data.azurerm_resource_group.main_rg.name
+# }
+
+# data "azurerm_app_configuration_key" "sb_namespace" {
+#   configuration_store_id = data.azurerm_app_configuration.main_appconfig.id
+#   key                    = "ServiceBusNamespace"
+# }
 
 # Get group for PostgreSQL admins
 data "azuread_groups" "group" {
