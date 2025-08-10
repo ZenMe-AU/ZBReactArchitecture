@@ -1,0 +1,25 @@
+data "azurerm_servicebus_namespace" "sb" {
+  name                = data.terraform_remote_state.shared.outputs.sb_name
+  resource_group_name = data.terraform_remote_state.shared.outputs.rg_name
+}
+
+# Create Service Bus Queues
+resource "azurerm_servicebus_queue" "queue" {
+  for_each = toset(var.queue_list)
+
+  name         = each.value
+  namespace_id = data.azurerm_servicebus_namespace.sb.id
+}
+
+# Create Role Assignments
+resource "azurerm_role_assignment" "servicebus_sender" {
+  scope                = data.azurerm_servicebus_namespace.sb.id
+  role_definition_name = "Azure Service Bus Data Sender"
+  principal_id         = azurerm_linux_function_app.fa.identity[0].principal_id
+}
+
+resource "azurerm_role_assignment" "servicebus_receiver" {
+  scope                = data.azurerm_servicebus_namespace.sb.id
+  role_definition_name = "Azure Service Bus Data Receiver"
+  principal_id         = azurerm_linux_function_app.fa.identity[0].principal_id
+}
