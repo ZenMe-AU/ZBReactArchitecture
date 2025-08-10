@@ -1,7 +1,12 @@
+data "azurerm_postgresql_flexible_server" "pg_server" {
+  name                = "${var.target_env}-postgresqlserver"
+  resource_group_name = data.azurerm_resource_group.main_rg.name
+}
+
 # Create a Module Database
 resource "azurerm_postgresql_flexible_server_database" "module_db" {
   name      = var.module_name
-  server_id = data.terraform_remote_state.shared.outputs.pg_id
+  server_id = data.azurerm_postgresql_flexible_server.pg_server.id
   collation = "en_US.utf8"
   charset   = "UTF8"
 }
@@ -11,7 +16,7 @@ resource "null_resource" "create_role_group" {
   provisioner "local-exec" {
     command = <<EOT
     export PGPASSWORD=$(az account get-access-token --resource-type oss-rdbms --query accessToken -o tsv)
-    psql "host=${data.terraform_remote_state.shared.outputs.pg_name}.postgres.database.azure.com port=5432 dbname=${azurerm_postgresql_flexible_server_database.module_db.name} user=${data.terraform_remote_state.shared.outputs.group_name} sslmode=require" \
+    psql "host=${data.azurerm_resource_group.main_rg.name}.postgres.database.azure.com port=5432 dbname=${azurerm_postgresql_flexible_server_database.module_db.name} user=${data.azuread_groups.group.display_names.0} sslmode=require" \
     -c "CREATE ROLE \"${var.module_name}_rw_group\" NOLOGIN;" \
     -c "GRANT CONNECT ON DATABASE \"${azurerm_postgresql_flexible_server_database.module_db.name}\" TO \"${var.module_name}_rw_group\";" \
     -c "GRANT USAGE ON SCHEMA public TO \"${var.module_name}_rw_group\";" \

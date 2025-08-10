@@ -7,12 +7,12 @@ terraform {
   }
   required_version = ">= 1.1.0"
 
-    backend "azurerm" {
-      resource_group_name  = ""
-      storage_account_name = ""
-      container_name       = ""
-      key                  = ""
-    }
+  backend "azurerm" {
+    resource_group_name  = ""
+    storage_account_name = ""
+    container_name       = ""
+    key                  = ""
+  }
 }
 
 
@@ -36,7 +36,7 @@ variable "module_name" {
 }
 
 data "azurerm_resource_group" "main_rg" {
-  name = backend.resource_group_name 
+  name = backend.resource_group_name
 }
 data "azurerm_storage_account" "main_sa" {
   name                = "${var.target_env}sa"
@@ -53,3 +53,7 @@ data "azurerm_app_configuration_key" "sb_namespace" {
   key                    = "ServiceBusNamespace"
 }
 
+# Get group for PostgreSQL admins
+data "azuread_groups" "group" {
+  display_names = ["LeadDeveloper"]
+}
