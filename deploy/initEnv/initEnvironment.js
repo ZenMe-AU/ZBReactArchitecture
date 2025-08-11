@@ -80,7 +80,7 @@ function initEnvironment() {
     console.log("Terraform initialized successfully.");
 
     // Run terraform plan
-    execSync("terraform plan", { stdio: "inherit", shell: true });
+    execSync("terraform plan -out=planfile", { stdio: "inherit", shell: true });
     console.log("Terraform plan completed successfully.");
 
     // Prompt user for confirmation before applying changes
@@ -94,7 +94,7 @@ function initEnvironment() {
       rl.close();
       if (answer.trim().toLowerCase() === "y") {
         try {
-          execSync("terraform apply -auto-approve", { stdio: "inherit", shell: true });
+          execSync("terraform apply -auto-approve planfile", { stdio: "inherit", shell: true });
         } catch (error) {
           console.error("Terraform apply failed:", error);
           process.exit(1);
