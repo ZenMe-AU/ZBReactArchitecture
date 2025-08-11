@@ -1,6 +1,6 @@
 cd initEnv
 node ./initEnvironment.js
-cd ../env
+cd ../deployEnv
 node ./deployEnvironment.js
 cd ..
 #node ../module/questionV3/func/deploy/env/runTerraform.js
