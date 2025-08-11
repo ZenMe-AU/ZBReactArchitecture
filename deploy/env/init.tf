@@ -10,8 +10,6 @@ terraform {
     }
   }
   required_version = ">= 1.1.0"
-
-  
 }
 
 provider "azurerm" {
@@ -26,7 +24,7 @@ variable "target_env" {
   type        = string
 }
 output "target_env" {
-  value = var.target_env
+  value       = var.target_env
   description = "value of target environment"
 }
 
@@ -35,16 +33,8 @@ variable "subscription_id" {
   type        = string
 }
 output "subscription_id" {
-  value = var.subscription_id
+  value       = var.subscription_id
   description = "value of subscription ID"
-}
-variable "location" {
-  description = "Azure location for resources, defaults to 'australiaeast' if not set"
-  type        = string
-}
-output "location" {
-  value = var.location
-  description = "value of location"
 }
 
 variable "plan_os" {
@@ -53,14 +43,13 @@ variable "plan_os" {
 }
 
 data "azurerm_resource_group" "rg" {
-  name     = "${var.target_env}-resources"
-  location = var.location
+  name = "${var.target_env}-resources"
 }
 
 # create a storage account for this environment
 data "azurerm_storage_account" "sa" {
-  name                     = "${var.target_env}storage"
-  resource_group_name      = azurerm_resource_group.rg.name
+  name                = "${var.target_env}storage"
+  resource_group_name = data.azurerm_resource_group.rg.name
 }
 
 # Azure App Configuration

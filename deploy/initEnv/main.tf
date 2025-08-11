@@ -12,7 +12,7 @@ variable "target_env" {
   type        = string
 }
 output "target_env" {
-  value = var.target_env
+  value       = var.target_env
   description = "value of target environment"
 }
 
@@ -21,7 +21,7 @@ variable "subscription_id" {
   type        = string
 }
 output "subscription_id" {
-  value = var.subscription_id
+  value       = var.subscription_id
   description = "value of subscription ID"
 }
 variable "location" {
@@ -29,7 +29,7 @@ variable "location" {
   type        = string
 }
 output "location" {
-  value = var.location
+  value       = var.location
   description = "value of location"
 }
 
@@ -57,7 +57,7 @@ resource "azurerm_storage_account" "sa" {
 resource "azurerm_storage_container" "tfstatecontianer" {
   name                  = "tfstatefile"
   storage_account_id    = azurerm_storage_account.sa.id
-  container_access_type = "private"      
+  container_access_type = "private"
 }
 
 # Azure App Configuration
@@ -68,8 +68,20 @@ resource "azurerm_app_configuration" "appconfig" {
   sku                 = "standard"
 }
 
-resource "azurerm_app_configuration_key" "env_type" {
-  configuration_store_id = azurerm_app_configuration.appconfig.id
-  key                    = "Environment_Name"
-  value                  = var.target_env
-}
+# data "azurerm_client_config" "current" {}
+# // Should I create a role group for the app configuration data owner?
+# resource "azurerm_role_assignment" "appconf_dataowner" {
+#   scope                = azurerm_app_configuration.appconfig.id
+#   role_definition_name = "App Configuration Data Owner"
+#   principal_id         = data.azurerm_client_config.current.object_id
+# }
+
+# resource "azurerm_app_configuration_key" "env_type" {
+#   configuration_store_id = azurerm_app_configuration.appconfig.id
+#   key                    = "Environment_Name"
+#   value                  = var.target_env
+
+#   depends_on = [
+#     azurerm_role_assignment.appconf_dataowner
+#   ]
+# }

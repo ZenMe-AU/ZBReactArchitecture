@@ -1,16 +1,16 @@
 
-resource "azurerm_app_configuration_key" "env_type" {
-  configuration_store_id = azurerm_app_configuration.appconfig.id
-  key                    = "EnvironmentType"
-  value                  = "Development"
-  label                  = "dev"
-}
+# resource "azurerm_app_configuration_key" "env_type" {
+#   configuration_store_id = data.azurerm_app_configuration.appconfig.id
+#   key                    = "EnvironmentType"
+#   value                  = "Development"
+#   label                  = "dev"
+# }
 
 # App Service Plan
 resource "azurerm_service_plan" "plan" {
   name                = "${var.target_env}-plan"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = data.azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
   os_type             = var.plan_os
   sku_name            = "Y1" # Consumption
 }
@@ -24,16 +24,16 @@ output "plan_os" {
 # Service bus namespace
 resource "azurerm_servicebus_namespace" "sb_namespace" {
   name                = "${var.target_env}-sbnamespace"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = data.azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
   sku                 = "Basic"
 }
 # Store Service bus namespace
-resource "azurerm_app_configuration_key" "sb_namespace" {
-  configuration_store_id = azurerm_app_configuration.appconfig.id
-  key                    = "ServiceBusNamespace"
-  value                  = "${azurerm_servicebus_namespace.sb_namespace.name}.servicebus.windows.net"
-}
+# resource "azurerm_app_configuration_key" "sb_namespace" {
+#   configuration_store_id = data.azurerm_app_configuration.appconfig.id
+#   key                    = "ServiceBusNamespace"
+#   value                  = "${azurerm_servicebus_namespace.sb_namespace.name}.servicebus.windows.net"
+# }
 output "sb_namespace" {
   value = azurerm_servicebus_namespace.sb_namespace.name
 }
@@ -41,8 +41,8 @@ output "sb_namespace" {
 # PostgreSQL Flexible Server
 resource "azurerm_postgresql_flexible_server" "pg_server" {
   name                   = "${var.target_env}-postgresqlserver"
-  resource_group_name    = azurerm_resource_group.rg.name
-  location               = var.location
+  resource_group_name    = data.azurerm_resource_group.rg.name
+  location               = data.azurerm_resource_group.rg.location
   administrator_login    = null
   administrator_password = null
   version                = "15"
@@ -52,6 +52,7 @@ resource "azurerm_postgresql_flexible_server" "pg_server" {
   authentication {
     active_directory_auth_enabled = true
     password_auth_enabled         = false
+    tenant_id                     = data.azurerm_client_config.current.tenant_id
   }
 }
 output "pg_name" {
