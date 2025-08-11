@@ -37,11 +37,6 @@ output "subscription_id" {
   description = "value of subscription ID"
 }
 
-variable "plan_os" {
-  description = "Operating system type for the plan"
-  type        = string
-}
-
 data "azurerm_resource_group" "rg" {
   name = "${var.target_env}-resources"
 }

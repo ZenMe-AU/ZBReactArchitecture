@@ -11,7 +11,7 @@ resource "azurerm_service_plan" "plan" {
   name                = "${var.target_env}-plan"
   location            = data.azurerm_resource_group.rg.location
   resource_group_name = data.azurerm_resource_group.rg.name
-  os_type             = var.plan_os
+  os_type             = "Linux"
   sku_name            = "Y1" # Consumption
 }
 output "plan_id" {
