@@ -52,6 +52,9 @@ function initEnvironment() {
   process.env.TF_VAR_subscription_id = getAzureSubscriptionId();
   console.log(`Setting subscription_id to: ${process.env.TF_VAR_subscription_id}`);
 
+  //  process.env.TF_LOG = "DEBUG";
+  //  console.log(`Setting TF_LOG to: ${process.env.TF_LOG}`);
+
   try {
     execSync(
       `terraform init -reconfigure\

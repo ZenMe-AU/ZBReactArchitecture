@@ -1,10 +1,19 @@
+# Configure log analytics
+resource "azurerm_log_analytics_workspace" "loganalytics_workspace" {
+  name                = "${var.target_env}-law"
+  location            = data.azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
+  sku                 = "PerGB2018"
+  retention_in_days   = 30
+}
 
-# resource "azurerm_app_configuration_key" "env_type" {
-#   configuration_store_id = data.azurerm_app_configuration.appconfig.id
-#   key                    = "EnvironmentType"
-#   value                  = "Development"
-#   label                  = "dev"
-# }
+
+ resource "azurerm_app_configuration_key" "env_type" {
+  configuration_store_id = data.azurerm_app_configuration.appconfig.id
+  key                    = "EnvironmentType"
+  value                  = "Development"
+  label                  = "dev"
+ }
 
 # App Service Plan
 resource "azurerm_service_plan" "plan" {
