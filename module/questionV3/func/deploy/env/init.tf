@@ -39,7 +39,7 @@ data "azurerm_resource_group" "main_rg" {
   name = "${var.target_env}-resources"
 }
 data "azurerm_storage_account" "main_sa" {
-  name                = "${var.target_env}sa"
+  name                = "${var.target_env}storage"
   resource_group_name = data.azurerm_resource_group.main_rg.name
 }
 
@@ -49,7 +49,7 @@ data "azurerm_service_plan" "main_plan" {
 }
 
 # data "azurerm_app_configuration" "main_appconfig" {
-#   name                = "${random_pet.env_name.id}-appconfig"
+#   name                = "${var.target_env}-appconfig"
 #   resource_group_name = data.azurerm_resource_group.main_rg.name
 # }
 
@@ -58,7 +58,14 @@ data "azurerm_service_plan" "main_plan" {
 #   key                    = "ServiceBusNamespace"
 # }
 
-# Get group for PostgreSQL admins
-data "azuread_groups" "group" {
-  display_names = ["LeadDeveloper"]
+# Get the App Insights resource
+data "azurerm_application_insights" "main_appinsights" {
+  name                = "${var.target_env}-appinsights"
+  resource_group_name = "${var.target_env}-resources"
 }
+
+# # Get the Log Analytics Workspace
+# data "azurerm_log_analytics_workspace" "main_law" {
+#   name                = "${var.target_env}-law"
+#   resource_group_name = data.azurerm_resource_group.main_rg.name
+# }
