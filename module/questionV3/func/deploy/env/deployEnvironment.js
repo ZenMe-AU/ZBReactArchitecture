@@ -76,7 +76,7 @@ function initEnvironment() {
     execSync(
       `terraform init -reconfigure\
         -backend-config="resource_group_name=${TARGET_ENV}-resources" \
-        -backend-config="storage_account_name=${TARGET_ENV}storage" \
+        -backend-config="storage_account_name=${TARGET_ENV}pvtstor" \
         -backend-config="container_name=tfstatefile" \
         -backend-config="key=${TARGET_ENV}/${TARGET_ENV}=${MODULE_NAME}-terraform.tfstate"`,
       { stdio: "inherit", shell: true }
@@ -112,6 +112,12 @@ function initEnvironment() {
     console.error("Terraform command failed:", error);
     process.exit(1);
   }
+
+  // // apply the database security
+  // rl.question("Do you want to continue and run 'terraform apply'? (y/N): ", (answer) => {
+  //   rl.close();
+  //   // TODO:call the database security script
+  // });
 }
 if (require.main === module) {
   initEnvironment();

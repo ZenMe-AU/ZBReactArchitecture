@@ -4,12 +4,14 @@ const { DefaultAzureCredential } = require("@azure/identity");
 const { execSync } = require("child_process");
 const path = require("path");
 
-const pgHost = "coherentladybug-postresqlserver.postgres.database.azure.com";
+// TODO: default PostgreSQL connection configuration for local development or try to build local config
+const pgHost = "ethnicmacaw-postgresqlserver.postgres.database.azure.com";
 const pgPort = 5432;
 const pgDatabase = "questionV3";
 const pgDialect = "postgres";
 const migrationsFolder = path.join(__dirname, "../db/migration");
-const aadUser = "LukeYeh@zenme.com.au";
+// const aadUser = "LukeYeh@zenme.com.au";
+const aadGroup = "ethnicmacaw-pg-admins";
 
 const config = {
   host: pgHost,
@@ -55,7 +57,7 @@ async function getAzureAccessToken() {
 async function createSequelize() {
   // const aadUser = await getAzureADUser(); //only for development, use environment variable for production
   const accessToken = await getAzureAccessToken();
-  return new Sequelize(config.database, aadUser, accessToken, config);
+  return new Sequelize(config.database, aadGroup, accessToken, config);
 }
 
 // Function to create Sequelize instance

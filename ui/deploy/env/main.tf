@@ -15,7 +15,7 @@ resource "azurerm_storage_container" "static_content" {
 }
 
 # Enable static website hosting on the storage account
-resource "azurerm_storage_account_static_website" "example" {
+resource "azurerm_storage_account_static_website" "website" {
   storage_account_id = azurerm_storage_account.website.id
   index_document     = "index.html"
   error_404_document = "index.html"

@@ -29,7 +29,7 @@ function getTargetEnvName() {
     return TARGET_ENV;
   }
   try {
-    const envFilePath = resolve(__dirname, "..", "..", "..", "deploy", ".env");
+    const envFilePath = resolve(__dirname, "..", ".env");
     if (existsSync(envFilePath)) {
       const envContent = readFileSync(envFilePath, "utf8");
       const match = envContent.match(/^TARGET_ENV=(.+)$/m);
@@ -39,9 +39,9 @@ function getTargetEnvName() {
         return TARGET_ENV;
       }
     }
-    console.error("TARGET_ENV not found in .env. Exiting.");
+    console.error("TARGET_ENV not found in ../.env. Exiting.");
   } catch (error) {
-    console.error("Error reading .env:", error);
+    console.error("Error reading ../.env:", error);
   }
   process.exit(1);
 }
@@ -52,22 +52,19 @@ function initEnvironment() {
   process.env.TF_VAR_subscription_id = getAzureSubscriptionId();
   console.log(`Setting subscription_id to: ${process.env.TF_VAR_subscription_id}`);
 
-  //  process.env.TF_LOG = "DEBUG";
-  //  console.log(`Setting TF_LOG to: ${process.env.TF_LOG}`);
-
   try {
     execSync(
       `terraform init -reconfigure\
         -backend-config="resource_group_name=${TARGET_ENV}-resources" \
         -backend-config="storage_account_name=${TARGET_ENV}pvtstor" \
         -backend-config="container_name=tfstatefile" \
-        -backend-config="key=${TARGET_ENV}/ui-terraform.tfstate"`,
+        -backend-config="key=${TARGET_ENV}/${TARGET_ENV}-terraform.tfstate"`,
       { stdio: "inherit", shell: true }
     );
     console.log("Terraform initialized successfully.");
 
     // Run terraform plan
-    execSync("terraform plan -out=planfile", { stdio: "inherit", shell: true });
+    execSync("terraform plan", { stdio: "inherit", shell: true });
     console.log("Terraform plan completed successfully.");
 
     // Prompt user for confirmation before applying changes
@@ -81,7 +78,7 @@ function initEnvironment() {
       rl.close();
       if (answer.trim().toLowerCase() === "y") {
         try {
-          execSync("terraform apply -auto-approve planfile", { stdio: "inherit", shell: true });
+          execSync("terraform apply -auto-approve", { stdio: "inherit", shell: true });
         } catch (error) {
           console.error("Terraform apply failed:", error);
           process.exit(1);

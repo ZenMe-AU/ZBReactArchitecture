@@ -39,7 +39,7 @@ data "azurerm_resource_group" "main_rg" {
   name = "${var.target_env}-resources"
 }
 data "azurerm_storage_account" "main_sa" {
-  name                = "${var.target_env}storage"
+  name                = "${var.target_env}pvtstor"
   resource_group_name = data.azurerm_resource_group.main_rg.name
 }
 

@@ -53,14 +53,14 @@ resource "azurerm_app_configuration" "appconfig" {
 }
 # Store the environment name in App Configuration
 resource "azurerm_app_configuration_key" "env_type" {
-   configuration_store_id = azurerm_app_configuration.appconfig.id
-   key                    = "Environment_Name"
-   value                  = var.target_env
+  configuration_store_id = azurerm_app_configuration.appconfig.id
+  key                    = "Environment_Name"
+  value                  = var.target_env
 }
 
 # create a storage account for this environment
 resource "azurerm_storage_account" "sa" {
-  name                     = "${var.target_env}storage"
+  name                     = "${var.target_env}pvtstor"
   resource_group_name      = azurerm_resource_group.rg.name
   location                 = azurerm_resource_group.rg.location
   account_tier             = "Standard"

@@ -8,12 +8,12 @@ resource "azurerm_log_analytics_workspace" "loganalytics_workspace" {
 }
 
 
- resource "azurerm_app_configuration_key" "env_type" {
+resource "azurerm_app_configuration_key" "env_type" {
   configuration_store_id = data.azurerm_app_configuration.appconfig.id
   key                    = "EnvironmentType"
   value                  = "Development"
   label                  = "dev"
- }
+}
 
 # App Service Plan
 resource "azurerm_service_plan" "plan" {
@@ -91,3 +91,19 @@ resource "azurerm_postgresql_flexible_server_active_directory_administrator" "pg
   principal_type      = "Group"
 }
 
+# Create a group for storage contributors
+resource "azuread_group" "storage_contrib_group" {
+  display_name     = "${var.target_env}-pvtstor-contributors"
+  security_enabled = true
+  mail_enabled     = false
+}
+output "storage_contrib_group" {
+  value = azuread_group.storage_contrib_group.display_name
+}
+
+# Assign the Storage Blob Data Contributor role to the group
+resource "azurerm_role_assignment" "group_storage_blob_contributor" {
+  scope                = data.azurerm_storage_account.sa.id
+  role_definition_name = "Storage Blob Data Contributor"
+  principal_id         = azuread_group.storage_contrib_group.object_id
+}

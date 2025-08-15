@@ -11,6 +11,7 @@ terraform {
   }
   required_version = ">= 1.1.0"
 }
+
 provider "azurerm" {
   features {}
   subscription_id = var.subscription_id
@@ -36,6 +37,11 @@ output "subscription_id" {
   description = "value of subscription ID"
 }
 
+variable "plan_os" {
+  description = "Operating system type for the plan"
+  type        = string
+}
+
 data "azurerm_resource_group" "rg" {
   name = "${var.target_env}-resources"
 }
@@ -45,11 +51,11 @@ data "azurerm_storage_account" "sa" {
   name                = "${var.target_env}pvtstor"
   resource_group_name = data.azurerm_resource_group.rg.name
 }
+
 # Azure App Configuration
 data "azurerm_app_configuration" "appconfig" {
   name                = "${var.target_env}-appconfig"
   resource_group_name = data.azurerm_resource_group.rg.name
-  # depends_on = [  ]
 }
 
 # Get the Azure client configuration for tenant ID
@@ -57,11 +63,3 @@ data "azurerm_client_config" "current" {}
 output "tenant_id" {
   value = data.azurerm_client_config.current.tenant_id
 }
-
-
-# # TODO:azurerm_pim_active_role_assignment
-# resource "azurerm_pim_active_role_assignment" "pim_active_role_assignment" {
-#   scope              = data.azurerm_subscription.primary.id
-#   role_definition_id = "${data.azurerm_subscription.primary.id}${data.azurerm_role_definition.example.id}"
-#   principal_id       = data.azurerm_client_config.example.object_id
-# }
