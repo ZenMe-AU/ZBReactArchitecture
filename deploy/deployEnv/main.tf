@@ -21,7 +21,7 @@ resource "azurerm_service_plan" "plan" {
   location            = data.azurerm_resource_group.rg.location
   resource_group_name = data.azurerm_resource_group.rg.name
   os_type             = "Linux"
-  sku_name            = "Y1" # Consumption
+  sku_name            = "FC1" # Flex Consumption Plan
 }
 output "plan_id" {
   value = azurerm_service_plan.plan.id

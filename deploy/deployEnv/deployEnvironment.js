@@ -46,6 +46,25 @@ function getTargetEnvName() {
   process.exit(1);
 }
 
+/** Activate PIM role "App Configuration Data Owner" for the current user for the current tenant.
+ * This activation will usually expire within 8 hours and need to be re-activated every time it's needed.
+ */
+function activatePimPermissions() {
+  try {
+    // Get current user id from Azure CLI
+    const userId = execSync("az ad signed-in-user show --query id -o tsv", { encoding: "utf8" }).trim();
+    console.log(
+      `az role assignment create --assignee ${userId} --role "App Configuration Data Owner" --scope /subscriptions/${getAzureSubscriptionId()}`
+    );
+    execSync(
+      `az role assignment create --assignee ${userId} --role "App Configuration Data Owner" --scope /subscriptions/${getAzureSubscriptionId()}`
+    );
+  } catch (error) {
+    console.error("Failed to activate PIM role:", error);
+    process.exit(1);
+  }
+}
+
 function initEnvironment() {
   process.env.TF_VAR_target_env = getTargetEnvName();
   console.log(`Setting TARGET_ENV to: ${process.env.TF_VAR_target_env}`);
@@ -54,6 +73,8 @@ function initEnvironment() {
 
   //  process.env.TF_LOG = "DEBUG";
   //  console.log(`Setting TF_LOG to: ${process.env.TF_LOG}`);
+
+  activatePimPermissions();
 
   try {
     execSync(
@@ -97,5 +118,4 @@ function initEnvironment() {
 }
 
 initEnvironment();
-
 export default { initEnvironment };

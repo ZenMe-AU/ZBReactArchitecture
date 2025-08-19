@@ -44,14 +44,14 @@ resource "azurerm_resource_group" "rg" {
   location = var.location
 }
 
-# Azure App Configuration
+# Create Azure App Configuration
 resource "azurerm_app_configuration" "appconfig" {
   name                = "${var.target_env}-appconfig"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   sku                 = "standard"
 }
-# Store the environment name in App Configuration
+# Store the environment name in App Configuration. This requires "App Configuration Data Owner" role to be activated in PIM for this user at this current time.
 resource "azurerm_app_configuration_key" "env_type" {
   configuration_store_id = azurerm_app_configuration.appconfig.id
   key                    = "Environment_Name"
