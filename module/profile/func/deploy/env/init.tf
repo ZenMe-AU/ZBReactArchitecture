@@ -1,0 +1,33 @@
+terraform {
+  required_providers {
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "~> 4.0"
+    }
+  }
+  required_version = ">= 1.1.0"
+
+  backend "azurerm" {}
+}
+
+provider "azurerm" {
+  features {}
+  subscription_id = var.subscription_id
+}
+
+# The target environment will automatically load from the environment variable TF_VAR_target_env
+variable "target_env" {
+  description = "The target environment for the module"
+  type        = string
+}
+
+# The module name will automatically load from the environment variable TF_VAR_module_name
+variable "module_name" {
+  description = "The name of the module"
+  type        = string
+}
+
+variable "subscription_id" {
+  description = "The subscription ID for Azure resources"
+  type        = string
+}
