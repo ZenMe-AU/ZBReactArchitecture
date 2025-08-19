@@ -69,8 +69,8 @@ function initEnvironment() {
   process.env.TF_VAR_module_name = getModuleName();
   console.log(`Setting module_name to: ${process.env.TF_VAR_module_name}`);
 
-  process.env.TF_LOG = "DEBUG";
-  console.log(`Setting TF_LOG to: ${process.env.TF_LOG}`);
+  //process.env.TF_LOG = "DEBUG";
+  //console.log(`Setting TF_LOG to: ${process.env.TF_LOG}`);
 
   try {
     execSync(
