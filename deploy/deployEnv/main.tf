@@ -47,7 +47,11 @@ output "sb_namespace" {
   value = azurerm_servicebus_namespace.sb_namespace.name
 }
 
-# PostgreSQL Flexible Server
+# Create PostgreSQL Server where each module can create their own database.
+# sku_name has a special pattern (tier + name), 
+# See https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/postgresql_flexible_server, 
+# https://azure.microsoft.com/en-us/pricing/details/postgresql/flexible-server/
+# and az postgres flexible-server list-skus --output table --location australiaeast
 resource "azurerm_postgresql_flexible_server" "pg_server" {
   name                   = "${var.target_env}-postgresqlserver"
   resource_group_name    = data.azurerm_resource_group.rg.name
@@ -56,7 +60,7 @@ resource "azurerm_postgresql_flexible_server" "pg_server" {
   administrator_password = null
   version                = "15"
   storage_mb             = 32768
-  sku_name               = "GP_Standard_D2s_v3"
+  sku_name               = "B_Standard_B1ms" # Special pattern see comment above.
   zone                   = "1" # don't know what it is
   authentication {
     active_directory_auth_enabled = true
