@@ -4,18 +4,18 @@ data "azurerm_servicebus_namespace" "sb" {
   resource_group_name = data.azurerm_resource_group.main_rg.name
 }
 
-# Create Role Assignments
-resource "azurerm_role_assignment" "servicebus_sender" {
-  scope                = data.azurerm_servicebus_namespace.sb.id
-  role_definition_name = "Azure Service Bus Data Sender"
-  principal_id         = azurerm_linux_function_app.fa.identity[0].principal_id
-}
+# # Create Role Assignments
+# resource "azurerm_role_assignment" "servicebus_sender" {
+#   scope                = data.azurerm_servicebus_namespace.sb.id
+#   role_definition_name = "Azure Service Bus Data Sender"
+#   principal_id         = data.azurerm_linux_function_app.fa.identity[0].principal_id
+# }
 
-resource "azurerm_role_assignment" "servicebus_receiver" {
-  scope                = data.azurerm_servicebus_namespace.sb.id
-  role_definition_name = "Azure Service Bus Data Receiver"
-  principal_id         = azurerm_linux_function_app.fa.identity[0].principal_id
-}
+# resource "azurerm_role_assignment" "servicebus_receiver" {
+#   scope                = data.azurerm_servicebus_namespace.sb.id
+#   role_definition_name = "Azure Service Bus Data Receiver"
+#   principal_id         = data.azurerm_linux_function_app.fa.identity[0].principal_id
+# }
 
 
 # # Move to CI/CD Pipeline
