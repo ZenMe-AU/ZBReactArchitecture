@@ -15,20 +15,20 @@ resource "azurerm_app_configuration_key" "env_type" {
   label                  = "dev"
 }
 
-# App Service Plan
-resource "azurerm_service_plan" "plan" {
-  name                = "${var.target_env}-plan"
-  location            = data.azurerm_resource_group.rg.location
-  resource_group_name = data.azurerm_resource_group.rg.name
-  os_type             = "Linux"
-  sku_name            = "FC1" # Flex Consumption Plan
-}
-output "plan_id" {
-  value = azurerm_service_plan.plan.id
-}
-output "plan_os" {
-  value = azurerm_service_plan.plan.os_type
-}
+# # App Service Plan
+# resource "azurerm_service_plan" "plan" {
+#   name                = "${var.target_env}-plan"
+#   location            = data.azurerm_resource_group.rg.location
+#   resource_group_name = data.azurerm_resource_group.rg.name
+#   os_type             = "Linux"
+#   sku_name            = "FC1" # Flex Consumption Plan
+# }
+# output "plan_id" {
+#   value = azurerm_service_plan.plan.id
+# }
+# output "plan_os" {
+#   value = azurerm_service_plan.plan.os_type
+# }
 
 # Service bus namespace
 resource "azurerm_servicebus_namespace" "sb_namespace" {
