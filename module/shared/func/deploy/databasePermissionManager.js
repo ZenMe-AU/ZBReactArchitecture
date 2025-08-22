@@ -1,5 +1,11 @@
 const { getCurrentPublicIP } = require("./util/envSetup.js");
-const { getFunctionAppPrincipalId, addTemporaryFirewallRule, removeTemporaryFirewallRule } = require("./util/azureCli.js");
+const {
+  getObjectId,
+  getFunctionAppPrincipalId,
+  addTemporaryFirewallRule,
+  removeTemporaryFirewallRule,
+  addMemberToAadGroup,
+} = require("./util/azureCli.js");
 const { createDbReadWriteRole, createDbReadOnlyRole, createDbSchemaAdminRole, createAadLoginRole, grantRole } = require("./util/postgresql.js");
 
 class DatabasePermissionManager {
@@ -35,7 +41,9 @@ class DatabasePermissionManager {
   }
 
   async run() {
-    const functionAppPrincipalId = getFunctionAppPrincipalId({ functionAppName, resourceGroupName });
+    const objectId = getObjectId();
+    const functionAppPrincipalId = getFunctionAppPrincipalId({ functionAppName: this.functionAppName, resourceGroupName: this.resourceGroupName });
+    addMemberToAadGroup({ groupIdOrName: this.pgAdminUserName, memberId: objectId });
 
     const ip = getCurrentPublicIP();
     addTemporaryFirewallRule({
@@ -46,11 +54,11 @@ class DatabasePermissionManager {
     });
 
     try {
-      await createAadLoginRole(this.postgresDb, functionAppName, functionAppPrincipalId);
+      await createAadLoginRole(this.postgresDb, this.functionAppName, functionAppPrincipalId);
       await createDbReadWriteRole(this.moduleDb, this.rwRoleName, this.dbName);
       await createDbReadOnlyRole(this.moduleDb, this.roRoleName, this.dbName);
       await createDbSchemaAdminRole(this.moduleDb, this.dbSchemaAdminRoleName, this.dbName);
-      await grantRole(this.moduleDb, this.rwRoleName, functionAppName);
+      await grantRole(this.moduleDb, this.rwRoleName, this.functionAppName);
       await grantRole(this.moduleDb, this.dbSchemaAdminRoleName, this.pgAdminUserName); // for development
       // await grantRole(this.moduleDb, this.dbSchemaAdminRoleName, this.dbSchemaAdminUserName);// for development
     } catch (err) {

@@ -12,6 +12,21 @@ function getSubscriptionId() {
   }
 }
 
+/*
+ * Get current user objectId
+ */
+function getObjectId() {
+  try {
+    return execSync("az ad signed-in-user show --query id -o tsv", {
+      encoding: "utf8",
+      stdio: ["pipe", "pipe", "ignore"],
+    }).trim();
+  } catch (e) {
+    // console.error("Failed to get Azure subscription ID. Please login with Azure CLI.");
+    throw new Error("Could not retrieve Azure subscription ID.");
+  }
+}
+
 /**
  * Get Azure Function App principalId
  */
@@ -124,8 +139,26 @@ function createServiceBusQueue({ resourceGroupName, namespaceName, queueName }) 
   }
 }
 
+/*
+ * Add a member to an AAD group
+ */
+function addMemberToAadGroup({ groupIdOrName, memberId }) {
+  try {
+    const isMember = execSync(`az ad group member check --group ${groupIdOrName} --member-id ${memberId} --query value -o tsv`, {
+      encoding: "utf8",
+    }).trim();
+
+    if (isMember !== "true") {
+      execSync(`az ad group member add --group ${groupIdOrName} --member-id ${memberId}`, { stdio: "inherit" });
+    }
+  } catch (e) {
+    throw new Error(`Failed to add member to AAD group: ${e.message}`);
+  }
+}
+
 module.exports = {
   getSubscriptionId,
+  getObjectId,
   getFunctionAppPrincipalId,
   addTemporaryFirewallRule,
   removeTemporaryFirewallRule,
@@ -134,4 +167,5 @@ module.exports = {
   assignRole,
   deployFunctionAppZip,
   createServiceBusQueue,
+  addMemberToAadGroup,
 };
