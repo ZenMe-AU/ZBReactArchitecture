@@ -16,11 +16,22 @@ node ./deployEnvironment.js
 
 #Deploy the UI module
 Write-Output "Deploy the UI module"
-Set-Location $env:ROOT_FOLDER\ui\deploy\env
-node ./deployEnvironment.js
+Set-Location $env:ROOT_FOLDER\ui\deploy\
+./deployUi.ps1
 
-#Deploy the questionV3 module
-Write-Output "Deploy the question module"
-Set-Location $env:ROOT_FOLDER\module\questionV3\func\deploy
-./deployModule.ps1
+# #Deploy the questionV3 module
+# Write-Output "Deploy the question module"
+# Set-Location $env:ROOT_FOLDER\module\questionV3\func\deploy
+# ./deployModule.ps1
 
+
+# Deploy modules by looping through their paths
+$modules = @(
+    "questionV3",
+    "profile"
+)
+foreach ($modulePath in $modules) {
+    Write-Output "Deploy the $modulePath module"
+    Set-Location  $env:ROOT_FOLDER\module\$modulePath\func\deploy
+    ./deployModule.ps1
+}
