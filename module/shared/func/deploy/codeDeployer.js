@@ -8,6 +8,7 @@ const {
   deleteFunctionAppSetting,
   assignRole,
   deployFunctionAppZip,
+  createServiceBusQueue,
 } = require("./util/azureCli.js");
 const { npmInstall, npmPrune, zipDir } = require("./util/cli.js");
 
@@ -36,6 +37,7 @@ class CodeDeployer {
       //   { role: "Azure Service Bus Data Sender", scope: this._serviceBusScope() },
       //   { role: "Azure Service Bus Data Receiver", scope: this._serviceBusScope() },
     ];
+    this.queueNames = [];
   }
 
   _storageScope() {
@@ -68,6 +70,13 @@ class CodeDeployer {
     // Assign roles to the Function App
     this.roleAssignments.forEach(({ assignee = functionAppPrincipalId, role, scope }) => {
       assignRole({ assignee, role, scope });
+    });
+    if (this.queueNames.length > 0) {
+      console.log(`Creating Service Bus Queues...`);
+    }
+    // Create Service Bus Queues if any
+    this.queueNames.forEach((queueName) => {
+      createServiceBusQueue({ resourceGroupName: this.resourceGroupName, namespaceName: this.serviceBusName, queueName });
     });
     console.log(`dependencies installing...`);
     // Install shared module dependencies if it exists

@@ -113,6 +113,17 @@ function deployFunctionAppZip({ src, functionAppName, resourceGroupName }, { cwd
   });
 }
 
+/*
+ * Create a Service Bus Queue
+ */
+function createServiceBusQueue({ resourceGroupName, namespaceName, queueName }) {
+  try {
+    execSync(`az servicebus queue create -g ${resourceGroupName} --namespace-name ${namespaceName} -n ${queueName}`, { stdio: "inherit" });
+  } catch (e) {
+    throw new Error(`Failed to create queue ${queueName}: ${e.message}`);
+  }
+}
+
 module.exports = {
   getSubscriptionId,
   getFunctionAppPrincipalId,
@@ -122,4 +133,5 @@ module.exports = {
   deleteFunctionAppSetting,
   assignRole,
   deployFunctionAppZip,
+  createServiceBusQueue,
 };
