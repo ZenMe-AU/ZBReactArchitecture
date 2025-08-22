@@ -7,6 +7,8 @@
 # Set MODULE_FOLDER to one folder above the current directory
 $env:MODULE_FOLDER = Resolve-Path -Path ".."
 Write-Output "Set MODULE_FOLDER to $env:MODULE_FOLDER"
+Set-Location $env:MODULE_FOLDER
+npm install
 
 # Deploy the environment (infrastructure for Function App)
 Write-Output "Deploying the Function App environment..."

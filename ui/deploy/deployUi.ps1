@@ -5,6 +5,8 @@
 # set a root folder environment variable to one folder above the current folder.
 $env:UI_FOLDER = Resolve-Path -Path ".."
 Write-Output "Set UI_FOLDER to $env:UI_FOLDER"
+Set-Location $env:UI_FOLDER
+pnpm install
 
 #Deploy the ui environment(infra).
 Write-Output "Deploy the ui environment"

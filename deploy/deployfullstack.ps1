@@ -3,6 +3,8 @@
 # set a root folder environment variable to one folder above the current folder.
 $env:ROOT_FOLDER = Resolve-Path -Path ".."
 Write-Output "Set ROOT_FOLDER to $env:ROOT_FOLDER"
+Set-Location $env:ROOT_FOLDER
+pnpm install
 
 #Initialise the resource group that will contain all components and setup minimal components to support the Terraform backend.
 Write-Output "Initialise the resource group that will contain all components and setup minimal components to support the Terraform backend."
