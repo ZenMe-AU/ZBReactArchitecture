@@ -23,19 +23,13 @@ const migrationDir = resolve(__dirname, "..", "..", "db", "migration");
 (async () => {
   const targetEnv = getTargetEnv();
   const moduleName = getModuleName(moduleDir);
-  const pgHost = getPgHost(targetEnv);
-  const pgPort = 5432;
-  const pgDatabase = moduleName;
-  const pgDialect = "postgres";
-  const aadGroup = getPgAdminUser(targetEnv);
-  // const aadGroup = "getDbSchemaAdminName(moduleName)";
 
   const db = await createDatabaseInstance(DB_TYPE.POSTGRES, {
-    username: aadGroup,
-    host: pgHost,
-    dialect: pgDialect,
-    port: pgPort,
-    database: pgDatabase,
+    username: getPgAdminUser(targetEnv), //"getDbSchemaAdminName(moduleName)";
+    host: getPgHost(targetEnv),
+    dialect: "postgres",
+    port: 5432,
+    database: moduleName,
     logging: false,
     dialectOptions: {
       ssl: true,
