@@ -1,13 +1,6 @@
 const { resolve } = require("path");
-const { getTargetEnv, getModuleName, getCurrentPublicIP } = require("@zenmechat/shared/deploy/util/envSetup.js");
-const { getFunctionAppPrincipalId, addTemporaryFirewallRule, removeTemporaryFirewallRule } = require("@zenmechat/shared/deploy/util/azureCli.js");
-const {
-  createDbReadWriteRole,
-  createDbReadOnlyRole,
-  createDbSchemaAdminRole,
-  createAadLoginRole,
-  grantRole,
-} = require("@zenmechat/shared/deploy/util/postgresql.js");
+const DatabasePermissionManager = require("@zenmechat/shared/deploy/DatabasePermissionManager");
+const { getTargetEnv, getModuleName } = require("@zenmechat/shared/deploy/util/envSetup.js");
 const { createDatabaseInstance } = require("@zenmechat/shared/db/connection");
 const DB_TYPE = require("@zenmechat/shared/enum/dbType");
 
@@ -42,24 +35,24 @@ function getDbSchemaAdminName(moduleName) {
   return `${moduleName}-dbschemaadmins`;
 }
 
-const firewallRuleName = "temp-access-rule";
-const moduleDir = resolve(__dirname, "..", "..", "..");
-
-(async function main() {
+(async () => {
+  //basic environment setup
   const targetEnv = getTargetEnv();
-  const moduleName = getModuleName(moduleDir);
-  const ipAddress = getCurrentPublicIP();
-
-  const resourceGroupName = getResourceGroupName(targetEnv);
+  const moduleName = getModuleName(resolve(__dirname, "..", "..", ".."));
   const functionAppName = getFunctionAppName(targetEnv, moduleName);
-  const functionAppPrincipalId = getFunctionAppPrincipalId({ functionAppName, resourceGroupName });
-
+  const resourceGroupName = getResourceGroupName(targetEnv);
   const dbName = moduleName;
-  const adminUserName = getPgAdminUser(targetEnv);
-  const pgHost = getPgHost(targetEnv);
+  // pg role/user name setup
+  const pgServerName = getPgServerName(targetEnv);
+  const pgAdminUserName = getPgAdminUser(targetEnv);
+  const rwRoleName = getRwRoleName(moduleName);
+  const roRoleName = getRoRoleName(moduleName);
+  const dbSchemaAdminRoleName = getDbSchemaAdminRoleName(moduleName);
+  const dbSchemaAdminUserName = getDbSchemaAdminName(moduleName);
+  // db connection setup
   const config = {
-    username: adminUserName,
-    host: pgHost,
+    username: pgAdminUserName,
+    host: getPgHost(targetEnv),
     dialect: "postgres",
     database: dbName,
     port: 5432,
@@ -68,28 +61,26 @@ const moduleDir = resolve(__dirname, "..", "..", "..");
       ssl: { require: true, rejectUnauthorized: false },
     },
   };
-
   const moduleDb = await createDatabaseInstance(DB_TYPE.POSTGRES, config);
   const postgresDb = await createDatabaseInstance(DB_TYPE.POSTGRES, {
     ...config,
     database: "postgres",
   });
+  const dbManager = new DatabasePermissionManager({
+    targetEnv,
+    moduleName,
+    functionAppName,
+    resourceGroupName,
+    pgServerName,
+    pgAdminUserName,
+    moduleDb,
+    postgresDb,
+    dbName,
+    rwRoleName,
+    roRoleName,
+    dbSchemaAdminRoleName,
+    dbSchemaAdminUserName,
+  });
 
-  addTemporaryFirewallRule({ resourceGroup: resourceGroupName, serverName: getPgServerName(targetEnv), ruleName: firewallRuleName, ip: ipAddress });
-
-  try {
-    await createAadLoginRole(postgresDb, functionAppName, functionAppPrincipalId);
-    await createDbReadWriteRole(moduleDb, getRwRoleName(moduleName), dbName);
-    await createDbReadOnlyRole(moduleDb, getRoRoleName(moduleName), dbName);
-    await createDbSchemaAdminRole(moduleDb, getDbSchemaAdminRoleName(moduleName), dbName);
-    await grantRole(moduleDb, getRwRoleName(moduleName), functionAppName);
-    await grantRole(moduleDb, getDbSchemaAdminRoleName(moduleName), adminUserName); // for development
-    // await grantRole(moduleDb, getDbSchemaAdminRoleName(moduleName), getDbSchemaAdminName(moduleName));// for development
-  } catch (err) {
-    console.error("Failed to set up database roles:", err.message);
-  } finally {
-    await moduleDb.close();
-    await postgresDb.close();
-    removeTemporaryFirewallRule({ resourceGroup: resourceGroupName, serverName: getPgServerName(targetEnv), ruleName: firewallRuleName });
-  }
+  await dbManager.run();
 })();
