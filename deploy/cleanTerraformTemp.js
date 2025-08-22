@@ -6,7 +6,7 @@ import { glob } from "glob";
 const startDir = path.join(process.cwd(), "..");
 const targetDirs = ["deploy", "module/*/func/deploy", "ui/deploy"];
 const skipDirs = [".terraform", "node_modules", ".git", "dist"];
-const deleteFiles = [".terraform.lock.hcl", "terraform.tfstate.backup", "planfile", "terraform.tfstate"];
+const deleteFiles = [".terraform.lock.hcl", "terraform.tfstate.backup", "planfile", "terraform.tfstate", ".env"];
 
 function cleanDir(targetDir) {
   if (!fs.existsSync(targetDir)) return;

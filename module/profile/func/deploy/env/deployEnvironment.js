@@ -17,7 +17,5 @@ const moduleDir = resolve(__dirname, "..", "..", "..");
     process.exit(1);
   }
   const autoApprove = process.argv.includes("--auto-approve");
-  console.log(`autoApprove: ${autoApprove}`);
-  process.exit(1);
   new EnvironmentDeployer({ targetEnv, moduleName, subscriptionId, logLevel, autoApprove }).run();
 })();
