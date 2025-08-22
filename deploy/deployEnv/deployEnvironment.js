@@ -66,6 +66,7 @@ function activatePimPermissions() {
 }
 
 function initEnvironment() {
+  const autoApprove = process.argv.includes("--auto-approve");
   process.env.TF_VAR_target_env = getTargetEnvName();
   console.log(`Setting TARGET_ENV to: ${process.env.TF_VAR_target_env}`);
   process.env.TF_VAR_subscription_id = getAzureSubscriptionId();
@@ -93,24 +94,32 @@ function initEnvironment() {
 
     // Prompt user for confirmation before applying changes
     console.log("You are about to run 'terraform apply'. This will make changes to your infrastructure.");
-    const rl = createInterface({
-      input: process.stdin,
-      output: process.stdout,
-    });
-
-    rl.question("Do you want to continue and run 'terraform apply'? (y/N): ", (answer) => {
-      rl.close();
-      if (answer.trim().toLowerCase() === "y") {
-        try {
-          execSync("terraform apply -auto-approve planfile", { stdio: "inherit", shell: true });
-        } catch (error) {
-          console.error("Terraform apply failed:", error);
-          process.exit(1);
-        }
-      } else {
-        console.log("Aborted terraform apply.");
+    if (autoApprove) {
+      try {
+        execSync("terraform apply -auto-approve planfile", { stdio: "inherit", shell: true });
+      } catch (error) {
+        console.error("Terraform apply failed:", error);
+        process.exit(1);
       }
-    });
+    } else {
+      const rl = createInterface({
+        input: process.stdin,
+        output: process.stdout,
+      });
+      rl.question("Do you want to continue and run 'terraform apply'? (y/N): ", (answer) => {
+        rl.close();
+        if (answer.trim().toLowerCase() === "y") {
+          try {
+            execSync("terraform apply -auto-approve planfile", { stdio: "inherit", shell: true });
+          } catch (error) {
+            console.error("Terraform apply failed:", error);
+            process.exit(1);
+          }
+        } else {
+          console.log("Aborted terraform apply.");
+        }
+      });
+    }
   } catch (error) {
     console.error("Terraform command failed:", error);
     process.exit(1);

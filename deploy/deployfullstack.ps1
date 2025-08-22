@@ -7,12 +7,12 @@ Write-Output "Set ROOT_FOLDER to $env:ROOT_FOLDER"
 #Initialise the resource group that will contain all components and setup minimal components to support the Terraform backend.
 Write-Output "Initialise the resource group that will contain all components and setup minimal components to support the Terraform backend."
 Set-Location $env:ROOT_FOLDER\deploy\initEnv
-node ./initEnvironment.js
+node ./initEnvironment.js  --auto-approve
 
 #Deploy the main environment, databases, securitye, etc.
 Write-Output "Deploy the main environment, databases, security, etc."
 Set-Location $env:ROOT_FOLDER\deploy\deployEnv
-node ./deployEnvironment.js
+node ./deployEnvironment.js --auto-approve
 
 #Deploy the UI module
 Write-Output "Deploy the UI module"
