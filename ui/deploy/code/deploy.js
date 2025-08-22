@@ -27,7 +27,7 @@ function deploy() {
     execSync(`az storage blob delete-batch --account-name ${accountName} --source "\\$web"`, { stdio: "inherit", shell: true });
 
     console.log("Uploading new blobs...");
-    execSync(`az storage blob upload-batch --account-name ${accountName} -d "\\$web" -s ${distPath}`, {
+    execSync(`az storage blob upload-batch --account-name ${accountName} -d "\\$web" -s "${distPath}"`, {
       stdio: "inherit",
       shell: true,
       cwd: moduleDir,
