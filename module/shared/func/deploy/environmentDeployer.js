@@ -2,11 +2,12 @@ const { createInterface } = require("readline");
 const { terraformInit, terraformPlan, terraformApply } = require("./util/terraformCli");
 
 class EnvironmentDeployer {
-  constructor({ targetEnv, moduleName, subscriptionId, backendConfig, logLevel = "" }) {
+  constructor({ targetEnv, moduleName, subscriptionId, backendConfig, logLevel = "", autoApprove = false }) {
     this.targetEnv = targetEnv;
     this.moduleName = moduleName;
     this.subscriptionId = subscriptionId;
     this.logLevel = logLevel;
+    this.autoApprove = autoApprove;
     this.backendConfig = backendConfig || {
       resource_group_name: `${this.targetEnv}-resources`,
       storage_account_name: `${this.targetEnv}pvtstor`,
@@ -24,15 +25,19 @@ class EnvironmentDeployer {
     terraformInit({ backendConfig: this.backendConfig });
     terraformPlan();
 
-    const rl = createInterface({ input: process.stdin, output: process.stdout });
-    rl.question("Do you want to run terraform apply? (y/N): ", (answer) => {
-      rl.close();
-      if (answer.trim().toLowerCase() === "y") {
-        terraformApply();
-      } else {
-        console.log("Aborted.");
-      }
-    });
+    if (this.autoApprove) {
+      terraformApply();
+    } else {
+      const rl = createInterface({ input: process.stdin, output: process.stdout });
+      rl.question("Do you want to run terraform apply? (y/N): ", (answer) => {
+        rl.close();
+        if (answer.trim().toLowerCase() === "y") {
+          terraformApply();
+        } else {
+          console.log("Aborted.");
+        }
+      });
+    }
   }
 }
 

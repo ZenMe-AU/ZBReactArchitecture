@@ -16,6 +16,8 @@ const moduleDir = resolve(__dirname, "..", "..", "..");
     console.error("Failed to initialize environment variables:", err.message);
     process.exit(1);
   }
-
-  new EnvironmentDeployer({ targetEnv, moduleName, subscriptionId, logLevel }).run();
+  const autoApprove = process.argv.includes("--auto-approve");
+  console.log(`autoApprove: ${autoApprove}`);
+  process.exit(1);
+  new EnvironmentDeployer({ targetEnv, moduleName, subscriptionId, logLevel, autoApprove }).run();
 })();
