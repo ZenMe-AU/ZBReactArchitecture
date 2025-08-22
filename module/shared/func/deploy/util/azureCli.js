@@ -67,4 +67,59 @@ function removeTemporaryFirewallRule({ resourceGroup, serverName, ruleName }) {
   }
 }
 
-module.exports = { getSubscriptionId, getFunctionAppPrincipalId, addTemporaryFirewallRule, removeTemporaryFirewallRule };
+/**
+ * Set a setting for the Azure Function App
+ */
+function setFunctionAppSetting({ functionAppName, resourceGroupName, appSettings }) {
+  const settingsArgs = Object.entries(appSettings)
+    .map(([k, v]) => `${k}=${v}`)
+    .join(" ");
+  try {
+    return execSync(`az functionapp config appsettings set -n ${functionAppName} -g ${resourceGroupName} --settings ${settingsArgs}`, {
+      stdio: "inherit",
+      shell: true,
+    });
+  } catch (e) {
+    throw new Error("Could not set Azure Function App settings.");
+  }
+}
+
+/**
+ * Delete settings from the Azure Function App
+ */
+function deleteFunctionAppSetting({ functionAppName, resourceGroupName, appSettingKeys }) {
+  const keys = appSettingKeys.join(" ");
+  return execSync(`az functionapp config appsettings delete -n ${functionAppName} -g ${resourceGroupName} --setting-names ${keys}`, {
+    stdio: "inherit",
+    shell: true,
+  });
+}
+
+/**
+ * Assign a role
+ */
+function assignRole({ assignee, role, scope }) {
+  return execSync(`az role assignment create --assignee ${assignee} --role "${role}" --scope ${scope}`, { stdio: "inherit", shell: true });
+}
+
+/**
+ * Deploy a zip file to an Azure Function App
+ */
+function deployFunctionAppZip({ src, functionAppName, resourceGroupName }, { cwd } = {}) {
+  return execSync(`az functionapp deployment source config-zip --src "${src}" --name ${functionAppName} --resource-group ${resourceGroupName}`, {
+    stdio: "inherit",
+    shell: true,
+    cwd,
+  });
+}
+
+module.exports = {
+  getSubscriptionId,
+  getFunctionAppPrincipalId,
+  addTemporaryFirewallRule,
+  removeTemporaryFirewallRule,
+  setFunctionAppSetting,
+  deleteFunctionAppSetting,
+  assignRole,
+  deployFunctionAppZip,
+};
