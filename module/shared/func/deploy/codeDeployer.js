@@ -30,11 +30,11 @@ class CodeDeployer {
     this.deleteAppSettings = ["AzureWebJobsStorage"];
 
     this.roleAssignments = [
-      { role: "Storage Blob Data Contributor", scope: this._storageScope() },
-      { role: "Storage Queue Data Contributor", scope: this._storageScope() },
-      { role: "Storage Table Data Contributor", scope: this._storageScope() },
-      { role: "Azure Service Bus Data Sender", scope: this._serviceBusScope() },
-      { role: "Azure Service Bus Data Receiver", scope: this._serviceBusScope() },
+      //   { role: "Storage Blob Data Contributor", scope: this._storageScope() },
+      //   { role: "Storage Queue Data Contributor", scope: this._storageScope() },
+      //   { role: "Storage Table Data Contributor", scope: this._storageScope() },
+      //   { role: "Azure Service Bus Data Sender", scope: this._serviceBusScope() },
+      //   { role: "Azure Service Bus Data Receiver", scope: this._serviceBusScope() },
     ];
   }
 

@@ -48,7 +48,7 @@ output "sb_namespace" {
 }
 
 # Create PostgreSQL Server where each module can create their own database.
-# sku_name has a special pattern (tier + name), 
+# sku_name has a special pattern (tier + name),
 # See https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/postgresql_flexible_server, 
 # https://azure.microsoft.com/en-us/pricing/details/postgresql/flexible-server/
 # and az postgres flexible-server list-skus --output table --location australiaeast
@@ -61,7 +61,7 @@ resource "azurerm_postgresql_flexible_server" "pg_server" {
   version                = "15"
   storage_mb             = 32768
   sku_name               = "B_Standard_B1ms" # Special pattern see comment above.
-  zone                   = "1" # don't know what it is
+  zone                   = "1"               # don't know what it is
   authentication {
     active_directory_auth_enabled = true
     password_auth_enabled         = false
@@ -95,19 +95,44 @@ resource "azurerm_postgresql_flexible_server_active_directory_administrator" "pg
   principal_type      = "Group"
 }
 
-# Create a group for storage contributors
-resource "azuread_group" "storage_contrib_group" {
-  display_name     = "${var.target_env}-pvtstor-contributors"
-  security_enabled = true
-  mail_enabled     = false
+# Create a User Assigned Identity
+resource "azurerm_user_assigned_identity" "uai" {
+  name                = "${var.target_env}-uai"
+  resource_group_name = data.azurerm_resource_group.rg.name
+  location            = data.azurerm_resource_group.rg.location
 }
-output "storage_contrib_group" {
-  value = azuread_group.storage_contrib_group.display_name
+output "uai_principal_id" {
+  value = azurerm_user_assigned_identity.uai.principal_id
 }
 
 # Assign the Storage Blob Data Contributor role to the group
 resource "azurerm_role_assignment" "group_storage_blob_contributor" {
   scope                = data.azurerm_storage_account.sa.id
   role_definition_name = "Storage Blob Data Contributor"
-  principal_id         = azuread_group.storage_contrib_group.object_id
+  principal_id         = azurerm_user_assigned_identity.uai.principal_id
+}
+# Assign the Storage Queue Data Contributor role to the group
+resource "azurerm_role_assignment" "group_storage_queue_contributor" {
+  scope                = data.azurerm_storage_account.sa.id
+  role_definition_name = "Storage Queue Data Contributor"
+  principal_id         = azurerm_user_assigned_identity.uai.principal_id
+}
+# Assign the Storage Table Data Contributor role to the group
+resource "azurerm_role_assignment" "group_storage_table_contributor" {
+  scope                = data.azurerm_storage_account.sa.id
+  role_definition_name = "Storage Table Data Contributor"
+  principal_id         = azurerm_user_assigned_identity.uai.principal_id
+}
+
+# Create Role Assignments
+resource "azurerm_role_assignment" "servicebus_sender" {
+  scope                = azurerm_servicebus_namespace.sb_namespace.id
+  role_definition_name = "Azure Service Bus Data Sender"
+  principal_id         = azurerm_user_assigned_identity.uai.principal_id
+}
+
+resource "azurerm_role_assignment" "servicebus_receiver" {
+  scope                = azurerm_servicebus_namespace.sb_namespace.id
+  role_definition_name = "Azure Service Bus Data Receiver"
+  principal_id         = azurerm_user_assigned_identity.uai.principal_id
 }

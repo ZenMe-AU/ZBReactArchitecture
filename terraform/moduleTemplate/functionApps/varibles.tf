@@ -34,3 +34,10 @@ variable "application_insights_key" {
   type = string
 }
 
+variable "user_assigned_identity_id" {
+  type = string
+}
+
+variable "user_assigned_identity_client_id" {
+  type = string
+}

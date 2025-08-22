@@ -17,7 +17,11 @@ data "azurerm_application_insights" "main_appinsights" {
   name                = "${var.target_env}-appinsights"
   resource_group_name = data.azurerm_resource_group.main_rg.name
 }
-
+# Get the User Assigned Identity
+data "azurerm_user_assigned_identity" "uai" {
+  name                = "${var.target_env}-uai"
+  resource_group_name = data.azurerm_resource_group.main_rg.name
+}
 # create function app
 module "function_app" {
   source                                 = "../../../../../terraform/moduleTemplate/functionApps"
@@ -30,6 +34,8 @@ module "function_app" {
   storage_container_name                 = lower("${var.target_env}-${var.module_name}-stor")
   application_insights_connection_string = data.azurerm_application_insights.main_appinsights.connection_string
   application_insights_key               = data.azurerm_application_insights.main_appinsights.instrumentation_key
+  user_assigned_identity_id              = data.azurerm_user_assigned_identity.uai.id
+  user_assigned_identity_client_id       = data.azurerm_user_assigned_identity.uai.client_id
 }
 
 

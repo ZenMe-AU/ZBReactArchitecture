@@ -21,19 +21,23 @@ resource "azurerm_function_app_flex_consumption" "fa" {
   location            = var.resource_group_location
   service_plan_id     = azurerm_service_plan.plan.id
 
-  storage_container_type      = "blobContainer"
-  storage_container_endpoint  = "https://${var.storage_account_name}.blob.core.windows.net/${var.storage_container_name}"
-  storage_authentication_type = "SystemAssignedIdentity"
-  runtime_name                = "node"
-  runtime_version             = "22"
+  storage_container_type            = "blobContainer"
+  storage_container_endpoint        = "https://${var.storage_account_name}.blob.core.windows.net/${var.storage_container_name}"
+  storage_authentication_type       = "UserAssignedIdentity"
+  storage_user_assigned_identity_id = var.user_assigned_identity_id
+
+  runtime_name    = "node"
+  runtime_version = "22"
   identity {
-    type = "SystemAssigned"
+    type         = "SystemAssigned, UserAssigned"
+    identity_ids = [var.user_assigned_identity_id]
   }
 
 
   app_settings = {
     AzureWebJobsStorage__accountName     = var.storage_account_name
     AzureWebJobsStorage__credential      = "managedidentity"
+    AzureWebJobsStorage__clientId        = var.user_assigned_identity_client_id
     AzureWebJobsStorage__queueServiceUri = "https://${var.storage_account_name}.queue.core.windows.net/"
     AzureWebJobsStorage__tableServiceUri = "https://${var.storage_account_name}.table.core.windows.net/"
     AzureWebJobsStorage__blobServiceUri  = "https://${var.storage_account_name}.blob.core.windows.net/"
