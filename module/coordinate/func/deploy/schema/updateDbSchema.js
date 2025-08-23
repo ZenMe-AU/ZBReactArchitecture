@@ -36,5 +36,7 @@ const migrationDir = resolve(__dirname, "..", "..", "db", "migration");
     },
   });
   const direction = process.argv[2] || "up";
-  await new MigrationRunner({ db, migrationDir }).run(direction);
+  const migrationRunner = new MigrationRunner({ db, migrationDir });
+  migrationRunner.extensionNames.push("postgis");
+  await migrationRunner.run(direction);
 })();

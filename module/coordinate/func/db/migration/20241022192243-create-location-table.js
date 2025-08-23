@@ -4,7 +4,7 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.sequelize.query("CREATE EXTENSION postgis;");
+    await queryInterface.sequelize.query("CREATE EXTENSION IF NOT EXISTS postgis;");
     await queryInterface.createTable("location", {
       id: {
         type: Sequelize.UUID,

@@ -156,6 +156,15 @@ function addMemberToAadGroup({ groupIdOrName, memberId }) {
   }
 }
 
+function addPgServerExtensionsList({ resourceGroup, serverName, subscriptionId, extensionNames }) {
+  execSync(`az postgres flexible-server parameter set \
+  --resource-group ${resourceGroup} \
+  --server-name ${serverName} \
+  --subscription ${subscriptionId} \
+  --name azure.extensions \
+  --value ${extensionNames.join(",")}`);
+}
+
 module.exports = {
   getSubscriptionId,
   getObjectId,
@@ -168,4 +177,5 @@ module.exports = {
   deployFunctionAppZip,
   createServiceBusQueue,
   addMemberToAadGroup,
+  addPgServerExtensionsList,
 };

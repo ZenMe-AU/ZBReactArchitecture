@@ -12,10 +12,21 @@ class MigrationRunner {
     this.resourceGroupName = `${this.targetEnv}-resources`;
     this.pgServerName = `${this.targetEnv}-postgresqlserver`;
     this.firewallRuleName = "temp-access-rule";
+    this.extensionNames = [];
   }
 
   async run(direction = "up") {
     const ip = getCurrentPublicIP();
+    if (this.extensionNames.length > 0) {
+      const { addPgServerExtensionsList, getSubscriptionId } = require("./util/azureCli.js");
+      addPgServerExtensionsList({
+        resourceGroup: this.resourceGroupName,
+        serverName: this.pgServerName,
+        subscriptionId: getSubscriptionId(),
+        extensionNames: this.extensionNames,
+      });
+      console.log(`Enabled PostgreSQL extensions: ${this.extensionNames.join(", ")}`);
+    }
     addTemporaryFirewallRule({
       resourceGroup: this.resourceGroupName,
       serverName: this.pgServerName,
