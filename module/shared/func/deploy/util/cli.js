@@ -13,4 +13,8 @@ function zipDir(targetZip, cwd, excludeList = []) {
   execSync(`zip -r ${targetZip} . ${excludeArgs}`, { stdio: "inherit", cwd });
 }
 
-module.exports = { npmInstall, npmPrune, zipDir };
+module.exports = {
+  npmInstall,
+  npmPrune,
+  zipDir,
+};

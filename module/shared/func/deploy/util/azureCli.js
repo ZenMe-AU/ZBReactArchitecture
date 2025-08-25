@@ -28,6 +28,17 @@ function getObjectId() {
 }
 
 /**
+ * Get default Azure location
+ */
+function getDefaultAzureLocation() {
+  try {
+    return execSync('az account list-locations --query "[?isDefault].name" -o tsv', { encoding: "utf8" }).trim();
+  } catch (e) {
+    throw new Error("Failed to get Azure location.");
+  }
+}
+
+/**
  * Get Azure Function App principalId
  */
 function getFunctionAppPrincipalId({ functionAppName, resourceGroupName }) {
@@ -144,15 +155,38 @@ function createServiceBusQueue({ resourceGroupName, namespaceName, queueName }) 
  */
 function addMemberToAadGroup({ groupIdOrName, memberId }) {
   try {
-    const isMember = execSync(`az ad group member check --group ${groupIdOrName} --member-id ${memberId} --query value -o tsv`, {
-      encoding: "utf8",
-    }).trim();
-
-    if (isMember !== "true") {
+    if (!isMemberOfAadGroup({ groupIdOrName, memberId })) {
       execSync(`az ad group member add --group ${groupIdOrName} --member-id ${memberId}`, { stdio: "inherit" });
     }
   } catch (e) {
     throw new Error(`Failed to add member to AAD group: ${e.message}`);
+  }
+}
+/*
+ * Check if a user is member of an AAD group
+ */
+function isMemberOfAadGroup({ groupIdOrName, memberId }) {
+  try {
+    const isMember = execSync(`az ad group member check --group ${groupIdOrName} --member-id ${memberId} --query value -o tsv`, {
+      encoding: "utf8",
+    }).trim();
+    return isMember === "true";
+  } catch (e) {
+    throw new Error(`Failed to check membership in AAD group: ${e.message}`);
+  }
+}
+
+/*
+Check if a storage account name is available
+ */
+function isStorageAccountNameAvailable(name) {
+  try {
+    const result = execSync(`az storage account check-name --name ${name} --query nameAvailable -o tsv`, {
+      encoding: "utf8",
+    }).trim();
+    return result === "true";
+  } catch (e) {
+    throw new Error(`Failed to check storage account name availability: ${e.message}`);
   }
 }
 
@@ -168,6 +202,7 @@ function addPgServerExtensionsList({ resourceGroup, serverName, subscriptionId, 
 module.exports = {
   getSubscriptionId,
   getObjectId,
+  getDefaultAzureLocation,
   getFunctionAppPrincipalId,
   addTemporaryFirewallRule,
   removeTemporaryFirewallRule,
@@ -178,4 +213,6 @@ module.exports = {
   createServiceBusQueue,
   addMemberToAadGroup,
   addPgServerExtensionsList,
+  isMemberOfAadGroup,
+  isStorageAccountNameAvailable,
 };
