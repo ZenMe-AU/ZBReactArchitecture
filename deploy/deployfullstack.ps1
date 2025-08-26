@@ -1,10 +1,16 @@
 # This script runs the js files that run terraform files to deploy the environment and code.
+
+# Prerequisites:
+# The identity doing this deployment must have the following permissions:
+# + Owner on the Azure Subscription
+# + App Configuration Data Owner for the Azure subscription
+# + DbAdmin group membership for the relevant environment type e.g. DbAdmin-Dev, DbAdmin-Test, DbAdmin-Prod
+
+# 
 param(
     [string]$type
 )
-
 $validTypes = @("dev", "test", "prod")
-
 if (-not $type) {
     $type = $env:TF_VAR_env_type
     if ($type) {
