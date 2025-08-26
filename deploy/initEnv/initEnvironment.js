@@ -6,6 +6,8 @@ import { resolve } from "path";
 import { getResourceGroupName, getStorageAccountName, getAppConfigName } from "../../module/shared/func/deploy/util/namingConvention.js";
 import { generateNewEnvName, getTargetEnv } from "../../module/shared/func/deploy/util/envSetup.js";
 import { getSubscriptionId, getDefaultAzureLocation, isStorageAccountNameAvailable } from "../../module/shared/func/deploy/util/azureCli.js";
+import { AzureCliCredential } from "@azure/identity";
+import { Client } from "@microsoft/microsoft-graph-client";
 
 // function getResourceGroupName(envType, targetEnv) {
 //   return `${envType}-${targetEnv}`;
@@ -68,6 +70,40 @@ function getTargetEnvName() {
     }
   }
   return TARGET_ENV;
+}
+
+/* use graph api to activate groupname membership in entra id.
+*/
+const graphClient = null;
+function graphActivatePimEntitlement(groupname) {
+
+if (!graphClient) {
+  // Login to Graph
+  const credential = new AzureCliCredential();
+  graphClient = Client.initWithMiddleware({
+    authProvider: {
+      getAccessToken: async () => {
+        const tokenResponse = await credential.getToken("https://graph.microsoft.com/.default");
+        return tokenResponse.token;
+      }
+    }
+  });
+}
+
+const requestBody = {
+  "action": "activate",
+  "assignmentScheduleId": "<assignmentScheduleId>", // ID of the eligible assignment
+  "justification": "Need access for deployment",
+  "principalId": "<userObjectId>", // Current user's object ID
+  "targetId": "<groupObjectId>",   // Target group ID
+  "assignmentType": "member",
+  "duration": "PT4H" // ISO 8601 duration format (e.g., 4 hours)
+};
+
+const response = await graphClient
+  .api("/identityGovernance/privilegedAccess/group/assignmentScheduleRequests")
+  .post(requestBody);
+console.log("Activation response:", response);
 }
 
 /** Activate PIM role "App Configuration Data Owner" for the current user for the current tenant.
