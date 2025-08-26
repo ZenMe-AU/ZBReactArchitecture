@@ -27,6 +27,19 @@ output "target_env" {
   description = "value of target environment"
 }
 
+variable "env_type" {
+  description = "Environment type for deployment, like dev, test, prod"
+  type        = string
+  validation {
+    condition     = contains(["dev", "test", "prod"], var.env_type)
+    error_message = "env_type must be one of: dev, test, prod."
+  }
+}
+output "env_type" {
+  value       = var.env_type
+  description = "value of environment type"
+}
+
 variable "subscription_id" {
   description = "Subscription ID for Azure resources"
   type        = string
@@ -36,18 +49,45 @@ output "subscription_id" {
   description = "value of subscription ID"
 }
 
+variable "resource_group_name" {
+  description = "Name of the Azure Resource Group"
+  type        = string
+}
+output "resource_group_name" {
+  value       = var.resource_group_name
+  description = "value of resource group name"
+}
+
+variable "storage_account_name" {
+  description = "Name of the Azure Storage Account"
+  type        = string
+}
+output "storage_account_name" {
+  value       = var.storage_account_name
+  description = "value of storage account name"
+}
+
+variable "appconfig_name" {
+  description = "Name of the Azure App Configuration"
+  type        = string
+}
+output "appconfig_name" {
+  value       = var.appconfig_name
+  description = "value of app configuration name"
+}
+
 data "azurerm_resource_group" "rg" {
-  name = "${var.target_env}-resources"
+  name = var.resource_group_name
 }
 
 # create a storage account for this environment
 data "azurerm_storage_account" "sa" {
-  name                = "${var.target_env}pvtstor"
+  name                = var.storage_account_name
   resource_group_name = data.azurerm_resource_group.rg.name
 }
 # Azure App Configuration
 data "azurerm_app_configuration" "appconfig" {
-  name                = "${var.target_env}-appconfig"
+  name                = var.appconfig_name
   resource_group_name = data.azurerm_resource_group.rg.name
   # depends_on = [  ]
 }
@@ -65,3 +105,54 @@ output "tenant_id" {
 #   role_definition_id = "${data.azurerm_subscription.primary.id}${data.azurerm_role_definition.example.id}"
 #   principal_id       = data.azurerm_client_config.example.object_id
 # }
+variable "log_analytics_workspace_name" {
+  description = "Name of the Azure Log Analytics Workspace"
+  type        = string
+
+}
+output "log_analytics_workspace_name" {
+  value       = var.log_analytics_workspace_name
+  description = "value of log analytics workspace name"
+}
+variable "service_bus_name" {
+  description = "Name of the Azure Service Bus Namespace"
+  type        = string
+
+}
+output "service_bus_name" {
+  value       = var.service_bus_name
+  description = "value of service bus namespace name"
+}
+variable "postgresql_server_name" {
+  description = "Name of the Azure PostgreSQL Flexible Server"
+  type        = string
+
+}
+output "postgresql_server_name" {
+  value       = var.postgresql_server_name
+  description = "value of postgresql server name"
+}
+variable "db_admin_group_name" {
+  description = "Name of the Azure PostgreSQL Flexible Server Admin"
+  type        = string
+}
+output "db_admin_group_name" {
+  value       = var.db_admin_group_name
+  description = "value of db admin name"
+}
+variable "identity_name" {
+  description = "Name of the Azure User Assigned Identity"
+  type        = string
+}
+output "identity_name" {
+  value       = var.identity_name
+  description = "value of identity name"
+}
+variable "app_insights_name" {
+  description = "Name of the Azure Application Insights"
+  type        = string
+}
+output "app_insights_name" {
+  value       = var.app_insights_name
+  description = "value of app insights name"
+}

@@ -1,6 +1,6 @@
 # Configure log analytics
 resource "azurerm_log_analytics_workspace" "loganalytics_workspace" {
-  name                = "${var.target_env}-law"
+  name                = var.log_analytics_workspace_name
   location            = data.azurerm_resource_group.rg.location
   resource_group_name = data.azurerm_resource_group.rg.name
   sku                 = "PerGB2018"
@@ -11,8 +11,8 @@ resource "azurerm_log_analytics_workspace" "loganalytics_workspace" {
 resource "azurerm_app_configuration_key" "env_type" {
   configuration_store_id = data.azurerm_app_configuration.appconfig.id
   key                    = "EnvironmentType"
-  value                  = "Development"
-  label                  = "dev"
+  value                  = var.env_type
+  label                  = var.env_type
 }
 
 # # App Service Plan
@@ -32,7 +32,7 @@ resource "azurerm_app_configuration_key" "env_type" {
 
 # Service bus namespace
 resource "azurerm_servicebus_namespace" "sb_namespace" {
-  name                = "${var.target_env}-sbnamespace"
+  name                = var.service_bus_name
   location            = data.azurerm_resource_group.rg.location
   resource_group_name = data.azurerm_resource_group.rg.name
   sku                 = "Basic"
@@ -53,7 +53,7 @@ output "sb_namespace" {
 # https://azure.microsoft.com/en-us/pricing/details/postgresql/flexible-server/
 # and az postgres flexible-server list-skus --output table --location australiaeast
 resource "azurerm_postgresql_flexible_server" "pg_server" {
-  name                   = "${var.target_env}-postgresqlserver"
+  name                   = var.postgresql_server_name
   resource_group_name    = data.azurerm_resource_group.rg.name
   location               = data.azurerm_resource_group.rg.location
   administrator_login    = null
@@ -76,28 +76,38 @@ output "pg_id" {
   value = azurerm_postgresql_flexible_server.pg_server.id
 }
 
-resource "azuread_group" "pg_admin_group" {
-  display_name     = "${var.target_env}-pg-admins"
-  security_enabled = true
-  mail_enabled     = false
+# resource "azuread_group" "pg_admin_group" {
+#   display_name     = "${var.target_env}-pg-admins"
+#   security_enabled = true
+#   mail_enabled     = false
+# }
+
+data "azuread_group" "pg_admin_group" {
+  display_name = var.db_admin_group_name
 }
 output "pg_admin_group" {
-  value = azuread_group.pg_admin_group.display_name
+  value = data.azuread_group.pg_admin_group.display_name
+}
+resource "azurerm_app_configuration_key" "db_host" {
+  configuration_store_id = data.azurerm_app_configuration.appconfig.id
+  key                    = "DbHost"
+  value                  = azurerm_postgresql_flexible_server.pg_server.fqdn
+  label                  = var.env_type
 }
 
 # Set Administrator for PostgreSQL
 resource "azurerm_postgresql_flexible_server_active_directory_administrator" "pg_admin" {
   resource_group_name = data.azurerm_resource_group.rg.name
   server_name         = azurerm_postgresql_flexible_server.pg_server.name
-  object_id           = azuread_group.pg_admin_group.object_id
+  object_id           = data.azuread_group.pg_admin_group.object_id
   tenant_id           = data.azurerm_client_config.current.tenant_id
-  principal_name      = azuread_group.pg_admin_group.display_name
+  principal_name      = data.azuread_group.pg_admin_group.display_name
   principal_type      = "Group"
 }
 
 # Create a User Assigned Identity
 resource "azurerm_user_assigned_identity" "uai" {
-  name                = "${var.target_env}-uai"
+  name                = var.identity_name
   resource_group_name = data.azurerm_resource_group.rg.name
   location            = data.azurerm_resource_group.rg.location
 }

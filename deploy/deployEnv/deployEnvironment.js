@@ -3,10 +3,49 @@ import { createInterface } from "readline";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
-// import { uniqueNamesGenerator, adjectives, animals } from "unique-names-generator";
+import {
+  getResourceGroupName,
+  getStorageAccountName,
+  getAppConfigName,
+  getLogAnalyticsWorkspaceName,
+  getServiceBusName,
+  getPgServerName,
+  getDbAdminName,
+  getIdentityName,
+  getAppInsightsName,
+} from "../../module/shared/func/deploy/util/namingConvention.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+// function getResourceGroupName(envType, targetEnv) {
+//   return `${envType}-${targetEnv}`;
+// }
+// function getStorageAccountName(targetEnv) {
+//   return `${targetEnv}`;
+// }
+// function getAppConfigName(targetEnv) {
+//   return `${targetEnv}-appconfig`;
+// }
+// function getLogAnalyticsWorkspaceName(targetEnv) {
+//   return `${targetEnv}-law`;
+// }
+// function getServiceBusName(targetEnv) {
+//   return `${targetEnv}-sbnamespace`;
+// }
+// function getPgServerName(targetEnv) {
+//   return `${targetEnv}-postgresqlserver`;
+// }
+// function getDbAdminName(envType) {
+//   const suffix = envType.charAt(0).toUpperCase() + envType.slice(1);
+//   return `DbAdmin-${suffix}`;
+// }
+// function getIdentityName(targetEnv) {
+//   return `${targetEnv}-identity`;
+// }
+// function getAppInsightsName(targetEnv) {
+//   return `${targetEnv}-appinsights`;
+// }
 
 let cachedSubscriptionId = null;
 function getAzureSubscriptionId() {
@@ -67,23 +106,45 @@ function activatePimPermissions() {
 
 function initEnvironment() {
   const autoApprove = process.argv.includes("--auto-approve");
-  process.env.TF_VAR_target_env = getTargetEnvName();
+  const envType = process.env.TF_VAR_env_type;
+  const targetEnv = getTargetEnvName();
+  process.env.TF_VAR_target_env = targetEnv;
   console.log(`Setting TARGET_ENV to: ${process.env.TF_VAR_target_env}`);
   process.env.TF_VAR_subscription_id = getAzureSubscriptionId();
   console.log(`Setting subscription_id to: ${process.env.TF_VAR_subscription_id}`);
+  const resourceGroupName = getResourceGroupName(envType, targetEnv);
+  process.env.TF_VAR_resource_group_name = resourceGroupName;
+  console.log(`Setting resource_group_name to: ${process.env.TF_VAR_resource_group_name}`);
+  const storageAccountName = getStorageAccountName(targetEnv);
+  process.env.TF_VAR_storage_account_name = storageAccountName;
+  console.log(`Setting storage_account_name to: ${process.env.TF_VAR_storage_account_name}`);
+  const appConfigName = getAppConfigName(targetEnv);
+  process.env.TF_VAR_appconfig_name = appConfigName;
+  console.log(`Setting appconfig_name to: ${process.env.TF_VAR_appconfig_name}`);
 
+  process.env.TF_VAR_log_analytics_workspace_name = getLogAnalyticsWorkspaceName(targetEnv);
+  console.log(`Setting log_analytics_workspace_name to: ${process.env.TF_VAR_log_analytics_workspace_name}`);
+  process.env.TF_VAR_service_bus_name = getServiceBusName(targetEnv);
+  console.log(`Setting service_bus_name to: ${process.env.TF_VAR_service_bus_name}`);
+  process.env.TF_VAR_postgresql_server_name = getPgServerName(targetEnv);
+  console.log(`Setting postgresql_server_name to: ${process.env.TF_VAR_postgresql_server_name}`);
+  process.env.TF_VAR_db_admin_group_name = getDbAdminName(envType);
+  console.log(`Setting db_admin_group_name to: ${process.env.TF_VAR_db_admin_group_name}`);
+  process.env.TF_VAR_identity_name = getIdentityName(targetEnv);
+  console.log(`Setting identity_name to: ${process.env.TF_VAR_identity_name}`);
+  process.env.TF_VAR_app_insights_name = getAppInsightsName(targetEnv);
+  console.log(`Setting app_insights_name to: ${process.env.TF_VAR_app_insights_name}`);
   //  process.env.TF_LOG = "DEBUG";
   //  console.log(`Setting TF_LOG to: ${process.env.TF_LOG}`);
-
   activatePimPermissions();
 
   try {
     execSync(
       `terraform init -reconfigure\
-        -backend-config="resource_group_name=${TARGET_ENV}-resources" \
-        -backend-config="storage_account_name=${TARGET_ENV}pvtstor" \
+        -backend-config="resource_group_name=${resourceGroupName}" \
+        -backend-config="storage_account_name=${storageAccountName}" \
         -backend-config="container_name=tfstatefile" \
-        -backend-config="key=${TARGET_ENV}/${TARGET_ENV}-terraform.tfstate"`,
+        -backend-config="key=${targetEnv}/${targetEnv}-terraform.tfstate"`,
       { stdio: "inherit", shell: true }
     );
     console.log("Terraform initialized successfully.");
