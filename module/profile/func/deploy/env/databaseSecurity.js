@@ -3,48 +3,31 @@ const DatabasePermissionManager = require("@zenmechat/shared/deploy/DatabasePerm
 const { getTargetEnv, getModuleName } = require("@zenmechat/shared/deploy/util/envSetup.js");
 const { createDatabaseInstance } = require("@zenmechat/shared/db/connection");
 const DB_TYPE = require("@zenmechat/shared/enum/dbType");
+const {
+  getFunctionAppName,
+  getResourceGroupName,
+  getPgServerName,
+  getRwRoleName,
+  getRoRoleName,
+  getDbSchemaAdminName,
+  getDbSchemaAdminRoleName,
+  getDbAdminName,
+} = require("@zenmechat/shared/deploy/util/namingConvention");
 
-/**
- * Naming convention helpers
- */
-function getResourceGroupName(targetEnv) {
-  return `${targetEnv}-resources`;
-}
-function getPgServerName(targetEnv) {
-  return `${targetEnv}-postgresqlserver`;
-}
 function getPgHost(targetEnv) {
   return `${targetEnv}-postgresqlserver.postgres.database.azure.com`;
 }
-function getPgAdminUser(targetEnv) {
-  return `${targetEnv}-pg-admins`;
-}
-function getFunctionAppName(targetEnv, moduleName) {
-  return `${targetEnv}-${moduleName}-func`;
-}
-function getRwRoleName(moduleName) {
-  return `${moduleName}_rw_group`;
-}
-function getRoRoleName(moduleName) {
-  return `${moduleName}_ro_group`;
-}
-function getDbSchemaAdminRoleName(moduleName) {
-  return `${moduleName}_schemaAdmin_role`;
-}
-function getDbSchemaAdminName(moduleName) {
-  return `${moduleName}-dbschemaadmins`;
-}
-
 (async () => {
   //basic environment setup
+  const envType = process.env.TF_VAR_env_type;
   const targetEnv = getTargetEnv();
   const moduleName = getModuleName(resolve(__dirname, "..", "..", ".."));
   const functionAppName = getFunctionAppName(targetEnv, moduleName);
-  const resourceGroupName = getResourceGroupName(targetEnv);
+  const resourceGroupName = getResourceGroupName(envType, targetEnv);
   const dbName = moduleName;
   // pg role/user name setup
   const pgServerName = getPgServerName(targetEnv);
-  const pgAdminUserName = getPgAdminUser(targetEnv);
+  const pgAdminUserName = getDbAdminName(envType);
   const rwRoleName = getRwRoleName(moduleName);
   const roRoleName = getRoRoleName(moduleName);
   const dbSchemaAdminRoleName = getDbSchemaAdminRoleName(moduleName);

@@ -15,7 +15,7 @@ function getResourceGroupName(targetEnv) {
   return `${targetEnv}-resources`;
 }
 function getStorageAccountName(targetEnv) {
-  return `${targetEnv}pvtstor`;
+  return `${targetEnv}`;
 }
 function getFunctionAppName(targetEnv, moduleName) {
   return `${targetEnv}-${moduleName}-func`;
