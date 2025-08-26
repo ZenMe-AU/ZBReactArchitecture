@@ -24,13 +24,23 @@ variable "target_env" {
   type        = string
 }
 
+variable "resource_group_name" {
+  description = "Resource group name for deployment"
+  type        = string
+}
+
+variable "storage_account_web_name" {
+  description = "Storage account name for static website"
+  type        = string
+}
+
 variable "subscription_id" {
   description = "Subscription ID for Azure resources"
   type        = string
 }
 
 data "azurerm_resource_group" "main_resource" {
-  name = "${var.target_env}-resources"
+  name = var.resource_group_name
 }
 
 # Get the Azure client configuration for tenant ID
