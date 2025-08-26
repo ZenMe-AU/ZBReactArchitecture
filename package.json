@@ -14,6 +14,8 @@
   "scripts": {},
   "dependencies": {},
   "devDependencies": {
+    "@azure/identity": "^4.11.1",
+    "@microsoft/microsoft-graph-client": "^3.0.7",
     "glob": "^11.0.3",
     "unique-names-generator": "^4.7.1"
   }
