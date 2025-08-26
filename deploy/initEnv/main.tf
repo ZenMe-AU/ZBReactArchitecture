@@ -16,6 +16,19 @@ output "target_env" {
   description = "value of target environment"
 }
 
+variable "env_type" {
+  description = "Environment type for deployment, like dev, test, prod"
+  type        = string
+  validation {
+    condition     = contains(["dev", "test", "prod"], var.env_type)
+    error_message = "env_type must be one of: dev, test, prod."
+  }
+}
+output "env_type" {
+  value       = var.env_type
+  description = "value of environment type"
+}
+
 variable "subscription_id" {
   description = "Subscription ID for Azure resources"
   type        = string
@@ -33,6 +46,33 @@ output "location" {
   description = "value of location"
 }
 
+variable "resource_group_name" {
+  description = "Name of the Azure Resource Group"
+  type        = string
+}
+output "resource_group_name" {
+  value       = var.resource_group_name
+  description = "value of resource group name"
+}
+
+variable "storage_account_name" {
+  description = "Name of the Azure Storage Account"
+  type        = string
+}
+output "storage_account_name" {
+  value       = var.storage_account_name
+  description = "value of storage account name"
+}
+
+variable "appconfig_name" {
+  description = "Name of the Azure App Configuration"
+  type        = string
+}
+output "appconfig_name" {
+  value       = var.appconfig_name
+  description = "value of app configuration name"
+}
+
 provider "azurerm" {
   features {}
   subscription_id = var.subscription_id
@@ -40,13 +80,13 @@ provider "azurerm" {
 
 # Create a resource group for this environment
 resource "azurerm_resource_group" "rg" {
-  name     = "${var.target_env}-resources"
+  name     = var.resource_group_name
   location = var.location
 }
 
 # Create Azure App Configuration
 resource "azurerm_app_configuration" "appconfig" {
-  name                = "${var.target_env}-appconfig"
+  name                = var.appconfig_name
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   sku                 = "free"
@@ -54,13 +94,13 @@ resource "azurerm_app_configuration" "appconfig" {
 # Store the environment name in App Configuration. This requires "App Configuration Data Owner" role to be activated in PIM for this user at this current time.
 resource "azurerm_app_configuration_key" "env_type" {
   configuration_store_id = azurerm_app_configuration.appconfig.id
-  key                    = "Environment_Name"
+  key                    = "EnvironmentName"
   value                  = var.target_env
 }
 
 # create a storage account for this environment
 resource "azurerm_storage_account" "sa" {
-  name                     = "${var.target_env}pvtstor"
+  name                     = var.storage_account_name
   resource_group_name      = azurerm_resource_group.rg.name
   location                 = azurerm_resource_group.rg.location
   account_tier             = "Standard"

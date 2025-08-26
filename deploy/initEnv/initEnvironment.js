@@ -2,7 +2,20 @@ import { execSync } from "child_process";
 import { createInterface } from "readline";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { resolve } from "path";
-import { uniqueNamesGenerator, adjectives, animals } from "unique-names-generator";
+// import { uniqueNamesGenerator, adjectives, animals } from "unique-names-generator";
+import { getResourceGroupName, getStorageAccountName, getAppConfigName } from "../../module/shared/func/deploy/util/namingConvention.js";
+import { generateNewEnvName, getTargetEnv } from "../../module/shared/func/deploy/util/envSetup.js";
+import { getSubscriptionId, getDefaultAzureLocation, isStorageAccountNameAvailable } from "../../module/shared/func/deploy/util/azureCli.js";
+
+// function getResourceGroupName(envType, targetEnv) {
+//   return `${envType}-${targetEnv}`;
+// }
+// function getStorageAccountName(targetEnv) {
+//   return `${targetEnv}`;
+// }
+// function getAppConfigName(targetEnv) {
+//   return `${targetEnv}-appconfig`;
+// }
 
 let cachedSubscriptionId = null;
 function getAzureSubscriptionId() {
@@ -10,9 +23,7 @@ function getAzureSubscriptionId() {
     return cachedSubscriptionId;
   }
   try {
-    const output = execSync("az account show --query id -o tsv", { encoding: "utf8", stdio: ["pipe", "pipe", "ignore"] });
-    cachedSubscriptionId = output.trim();
-    return cachedSubscriptionId;
+    return (cachedSubscriptionId = getSubscriptionId());
   } catch (error) {
     console.error("Failed to get Azure subscription ID. Make sure you are logged in with Azure CLI.");
     process.exit(1);
@@ -24,18 +35,16 @@ function getAzureLocation() {
   if (azureLocation) {
     return azureLocation;
   }
-  let tmpazureLocation = null;
   try {
-    tmpazureLocation = execSync('az account list-locations --query "[?isDefault].name" -o tsv', { encoding: "utf8" }).trim();
+    const tmpazureLocation = getDefaultAzureLocation();
+    if (tmpazureLocation && tmpazureLocation.length > 0) {
+      return (azureLocation = tmpazureLocation);
+    }
   } catch (error) {
-    console.error("Failed to get Azure location.");
+    console.error("Failed to get Azure location:", error.message);
   }
-  if (tmpazureLocation && tmpazureLocation.length > 0) {
-    azureLocation = tmpazureLocation;
-  } else {
-    azureLocation = "australiaeast"; // Default fallback location
-    console.warn(`Using fallback Azure location: ${azureLocation}`);
-  }
+  azureLocation = "australiaeast"; // Default fallback location
+  console.warn(`Using fallback Azure location: ${azureLocation}`);
   return azureLocation;
 }
 
@@ -45,24 +54,18 @@ function getTargetEnvName() {
     return TARGET_ENV;
   }
   const envFilePath = resolve("..", ".env");
-  if (existsSync(envFilePath)) {
-    const envContent = readFileSync(envFilePath, "utf8");
-    const match = envContent.match(/^TARGET_ENV=(.+)$/m);
-    if (match && match[1]) {
-      TARGET_ENV = match[1].trim();
-      console.log(`Loaded TARGET_ENV from .env: ${TARGET_ENV}`);
-      return TARGET_ENV;
+  try {
+    // Try to read existing TARGET_ENV from .env file
+    TARGET_ENV = getTargetEnv();
+  } catch (error) {
+    const newEnvName = generateNewEnvName();
+    const isAvailable = isStorageAccountNameAvailable(newEnvName);
+    if (isAvailable) {
+      TARGET_ENV = newEnvName;
+      writeFileSync(envFilePath, `TARGET_ENV=${TARGET_ENV}\n`, { flag: "w" });
+    } else {
+      getTargetEnvName();
     }
-  }
-  if (!TARGET_ENV) {
-    TARGET_ENV = uniqueNamesGenerator({
-      dictionaries: [adjectives, animals],
-      separator: "",
-      style: "lowerCase",
-      length: 2,
-    }); //+ `-${Math.floor(Math.random() * 10000)}`
-    writeFileSync(envFilePath, `TARGET_ENV=${TARGET_ENV}\n`, { flag: "w" });
-    console.log(`Generated TARGET_ENV: ${TARGET_ENV} and saved to .env`);
   }
   return TARGET_ENV;
 }
@@ -88,12 +91,21 @@ function activatePimPermissions() {
 
 function initEnvironment() {
   const autoApprove = process.argv.includes("--auto-approve");
-  process.env.TF_VAR_target_env = getTargetEnvName();
+  const envType = process.env.TF_VAR_env_type;
+  const targetEnv = getTargetEnvName();
+  process.env.TF_VAR_target_env = targetEnv;
   console.log(`Setting TARGET_ENV to: ${process.env.TF_VAR_target_env}`);
   process.env.TF_VAR_subscription_id = getAzureSubscriptionId();
   console.log(`Setting subscription_id to: ${process.env.TF_VAR_subscription_id}`);
   process.env.TF_VAR_location = getAzureLocation();
   console.log(`Setting location to: ${process.env.TF_VAR_location}`);
+
+  process.env.TF_VAR_resource_group_name = getResourceGroupName(envType, targetEnv);
+  console.log(`Setting resource_group_name to: ${process.env.TF_VAR_resource_group_name}`);
+  process.env.TF_VAR_storage_account_name = getStorageAccountName(targetEnv);
+  console.log(`Setting storage_account_name to: ${process.env.TF_VAR_storage_account_name}`);
+  process.env.TF_VAR_appconfig_name = getAppConfigName(targetEnv);
+  console.log(`Setting appconfig_name to: ${process.env.TF_VAR_appconfig_name}`);
 
   activatePimPermissions();
 
