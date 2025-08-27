@@ -15,29 +15,32 @@ provider "azurerm" {
 }
 
 # Create a resource group for this environment
-resource "azurerm_resource_group" "rg" {
+data "azurerm_resource_group" "rg" {
   name     = "ryanTest"
-  location = "australiaeast"
+#  location = "australiaeast"
 }
 
 # Create a Front Door Standard/Premium profile
-resource "azurerm_frontdoor_profile" "fd_profile" {
+resource "azurerm_cdn_frontdoor_profile" "fd_profile" {
   name                = "ryanTestFrontDoorProfile"
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
   sku_name            = "Standard_AzureFrontDoor"
+
+  identity {
+    type = "SystemAssigned"
+  }
 }
 
 # Create a Front Door endpoint
-resource "azurerm_frontdoor_endpoint" "fd_endpoint" {
+resource "azurerm_cdn_frontdoor_endpoint" "fd_endpoint" {
   name                     = "ryantestfrontdoor"
-  frontdoor_profile_id     = azurerm_frontdoor_profile.fd_profile.id
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.fd_profile.id
 }
 
 # Create an origin group (backend pool)
-resource "azurerm_frontdoor_origin_group" "fd_origin_group" {
+resource "azurerm_cdn_frontdoor_origin_group" "fd_origin_group" {
   name                = "default-origin-group"
-  frontdoor_profile_id = azurerm_frontdoor_profile.fd_profile.id
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.fd_profile.id
 
   session_affinity_enabled = false
 
@@ -51,30 +54,28 @@ resource "azurerm_frontdoor_origin_group" "fd_origin_group" {
   load_balancing {
     sample_size                     = 4
     successful_samples_required      = 2
-    additional_latency_milliseconds = 0
   }
 }
 
 # Create an origin (backend)
-resource "azurerm_frontdoor_origin" "fd_origin" {
-  name                    = "salmon-ground-staticapp"
-  frontdoor_origin_group_id = azurerm_frontdoor_origin_group.fd_origin_group.id
-  host_name               = "salmon-ground-01f879d1e.5.azurestaticapps.net"
-  enabled                 = true
-  http_port               = 80
-  https_port              = 443
-  origin_host_header      = "salmon-ground-01f879d1e.5.azurestaticapps.net"
+resource "azurerm_cdn_frontdoor_origin" "fd_origin" {
+  name                          = "salmon-ground-staticapp"
+  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.fd_origin_group.id
+  host_name                     = "salmon-ground-01f879d1e.5.azurestaticapps.net"
+  enabled                       = true
+  http_port                     = 80
+  https_port                    = 443
+  origin_host_header            = "salmon-ground-01f879d1e.5.azurestaticapps.net"
+  certificate_name_check_enabled = true
 }
 
 # Create a route (routing rule)
-resource "azurerm_frontdoor_route" "fd_route" {
-  name                      = "DefaultRoutingRule"
-  frontdoor_profile_id      = azurerm_frontdoor_profile.fd_profile.id
-  frontend_endpoints        = [azurerm_frontdoor_endpoint.fd_endpoint.id]
-  patterns_to_match         = ["/*"]
-  supported_protocols       = ["Https"]
-  forwarding_protocol       = "MatchRequest"
-  forwarding_enabled        = true
-  origin_group_id           = azurerm_frontdoor_origin_group.fd_origin_group.id
-  # You can add more settings as needed
+resource "azurerm_cdn_frontdoor_route" "fd_route" {
+  name                              = "DefaultRoutingRule"
+  cdn_frontdoor_endpoint_id         = azurerm_cdn_frontdoor_endpoint.fd_endpoint.id
+  cdn_frontdoor_origin_ids          = [azurerm_cdn_frontdoor_origin.fd_origin.id]
+  cdn_frontdoor_origin_group_id     = azurerm_cdn_frontdoor_origin_group.fd_origin_group.id
+  patterns_to_match                 = ["/*"]
+  supported_protocols               = ["Https"]
+  forwarding_protocol               = "MatchRequest"
 }
