@@ -1,16 +1,16 @@
 const path = require("path");
 const { createMigrationInstance } = require("../db/migration");
 const { getCurrentPublicIP, getTargetEnv } = require("./util/envSetup.js");
+const { getResourceGroupName, getPgServerName } = require("./util/namingConvention.js");
 const { addTemporaryFirewallRule, removeTemporaryFirewallRule } = require("./util/azureCli.js");
 
 class MigrationRunner {
-  constructor({ db, migrationDir }) {
+  constructor({ db, migrationDir, envType, targetEnv }) {
     this.db = db;
     this.migration = createMigrationInstance({ db, migrationDir });
 
-    this.targetEnv = getTargetEnv();
-    this.resourceGroupName = `${this.targetEnv}-resources`;
-    this.pgServerName = `${this.targetEnv}-postgresqlserver`;
+    this.resourceGroupName = getResourceGroupName(envType, targetEnv);
+    this.pgServerName = getPgServerName(targetEnv);
     this.firewallRuleName = "temp-access-rule";
     this.extensionNames = [];
   }

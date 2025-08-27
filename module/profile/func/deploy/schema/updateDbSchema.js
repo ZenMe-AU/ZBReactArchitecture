@@ -15,6 +15,7 @@ const moduleDir = resolve(__dirname, "..", "..", "..");
 const migrationDir = resolve(__dirname, "..", "..", "db", "migration");
 
 (async () => {
+  const envType = process.env.TF_VAR_env_type;
   const targetEnv = getTargetEnv();
   const moduleName = getModuleName(moduleDir);
 
@@ -30,5 +31,5 @@ const migrationDir = resolve(__dirname, "..", "..", "db", "migration");
     },
   });
   const direction = process.argv[2] || "up";
-  await new MigrationRunner({ db, migrationDir }).run(direction);
+  await new MigrationRunner({ db, migrationDir, envType, targetEnv }).run(direction);
 })();

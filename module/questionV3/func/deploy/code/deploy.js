@@ -4,7 +4,6 @@ const {
   getResourceGroupName,
   getServiceBusName,
   getFunctionAppName,
-  getFunctionAppName,
   getStorageAccountName,
 } = require("@zenmechat/shared/deploy/util/namingConvention");
 const { getSubscriptionId } = require("@zenmechat/shared/deploy/util/azureCli");

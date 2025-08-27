@@ -43,7 +43,7 @@ class DatabasePermissionManager {
   async run() {
     const objectId = getObjectId();
     const functionAppPrincipalId = getFunctionAppPrincipalId({ functionAppName: this.functionAppName, resourceGroupName: this.resourceGroupName });
-    addMemberToAadGroup({ groupIdOrName: this.pgAdminUserName, memberId: objectId });
+    // addMemberToAadGroup({ groupIdOrName: this.pgAdminUserName, memberId: objectId });
 
     const ip = getCurrentPublicIP();
     addTemporaryFirewallRule({
