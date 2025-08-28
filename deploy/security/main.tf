@@ -78,4 +78,7 @@ resource "azurerm_cdn_frontdoor_route" "fd_route" {
   patterns_to_match                 = ["/*"]
   supported_protocols               = ["Https"]
   forwarding_protocol               = "MatchRequest"
+  // The 'https_redirect_enabled' field cannot be set to 'true' 
+  // unless the 'supported_protocols' field contains both 'Http' and 'Https'
+  https_redirect_enabled            = false
 }
