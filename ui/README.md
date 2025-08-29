@@ -1,7 +1,5 @@
 # Welcome to React Router!
 
-- [React Router Docs](https://reactrouter.com/home)
-
 ## Development
 
 From your terminal:
@@ -34,5 +32,6 @@ If you're familiar with deploying node applications, the built-in React Router a
 
 Make sure to deploy the output of `react-router build`
 
-- `build/server`
-- `build/client`
+# ui
+
+This folder contains the frontend application for ZenMeChatPOC1, built with React and Vite. It includes all client-side code, components, and assets.

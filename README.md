@@ -1,4 +1,4 @@
-# ZenMeChatPOC1
+This is the root folder of the monorepo. It contains global configuration, documentation, deployment scripts, and workspace management files for the entire system.
 
 Follow these instructions to test the POC chat app on your local machine.
 

@@ -1,6 +1,6 @@
 # 🐘 Local PostgreSQL Dev Environment with pgAdmin
 
-This repo provides a ready-to-use PostgreSQL environment for local development, with optional pgAdmin GUI.
+This folder provides a ready-to-use PostgreSQL environment for local development, with optional pgAdmin GUI.
 
 ## Prerequisites
 
