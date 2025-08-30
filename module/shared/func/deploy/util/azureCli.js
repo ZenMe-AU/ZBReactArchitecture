@@ -38,6 +38,19 @@ function getDefaultAzureLocation() {
   }
 }
 
+/*
+ *  Get the value of a key in a specific label from Azure App Configuration
+ */
+function getAppConfigValueByKeyLabel({ appConfigName, key, label }) {
+  try {
+    return execSync(`az appconfig kv show --name "${appConfigName}"  --key "${key}" --label "${label}" --query value -o tsv`, {
+      encoding: "utf8",
+    }).trim();
+  } catch (e) {
+    throw new Error("Could not retrieve Azure App Configuration value.");
+  }
+}
+
 /**
  * Get Azure Function App principalId
  */
@@ -203,6 +216,7 @@ module.exports = {
   getSubscriptionId,
   getObjectId,
   getDefaultAzureLocation,
+  getAppConfigValueByKeyLabel,
   getFunctionAppPrincipalId,
   addTemporaryFirewallRule,
   removeTemporaryFirewallRule,
