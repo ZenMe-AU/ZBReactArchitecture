@@ -28,7 +28,7 @@ data "azurerm_app_configuration" "config" {
 }
 # create function app
 module "function_app" {
-  source                                 = "../../../../../terraform/moduleTemplate/functionApps"
+  source                                 = "../../../../../module/shared/func/deploy/terraformTemplate/functionApps"
   function_app_name                      = var.function_app_name
   resource_group_name                    = data.azurerm_resource_group.main_rg.name
   resource_group_location                = data.azurerm_resource_group.main_rg.location
@@ -53,7 +53,7 @@ data "azurerm_postgresql_flexible_server" "main_server" {
 
 # create database
 module "database" {
-  source               = "../../../../../terraform/moduleTemplate/database"
+  source               = "../../../../../module/shared/func/deploy/terraformTemplate/database"
   database_name        = var.db_name
   postgresql_server_id = data.azurerm_postgresql_flexible_server.main_server.id
 }
@@ -66,7 +66,7 @@ module "database" {
 
 # # create service bus Role Assignments
 # module "service_bus" {
-#   source                    = "../../../../../terraform/moduleTemplate/serviceBus"
+#   source                    = "../../../../../module/shared/func/deploy/terraformTemplate/serviceBus"
 #   servicebus_namespace_id   = data.azurerm_servicebus_namespace.sb.id
 #   function_app_principal_id = module.function_app.principal_id
 # }
