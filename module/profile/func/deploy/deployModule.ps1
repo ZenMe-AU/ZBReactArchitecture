@@ -3,24 +3,28 @@
 # 2. Applying database security configurations.
 # 3. Updating the database schema.
 # 4. Deploying the Function App code.
+
+# Define a script parameter named "type" (string).
+# This allows the script to be called with -type <value>, e.g.: .\deployfullstack.ps1 -type dev
 param(
     [string]$type
 )
+# If no type parameter is passed, try to read it from environment variable TF_VAR_env_type
+# If still no value, or the value is not in the valid list, default to "dev"
+# Set environment variable TF_VAR_env_type with the value
 $validTypes = @("dev", "test", "prod")
-
 if (-not $type) {
     $type = $env:TF_VAR_env_type
     if ($type) {
         Write-Output "type parameter not set, using TF_VAR_env_type environment variable value: $type"
     }
 }
-
 if (-not $type -or $type -notin $validTypes) {
     Write-Warning "type is not set to a valid value ($($validTypes -join ', ')). Defaulting to 'dev'."
     $type = "dev"
 }
-
 $env:TF_VAR_env_type = $type
+Write-Output "TF_VAR_env_type was set to $env:TF_VAR_env_type"
 
 # Set MODULE_FOLDER to one folder above the current directory
 $env:MODULE_FOLDER = Resolve-Path -Path ".."

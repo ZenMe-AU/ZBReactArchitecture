@@ -6,10 +6,14 @@
 # + App Configuration Data Owner for the Azure subscription
 # + DbAdmin group membership for the relevant environment type e.g. DbAdmin-Dev, DbAdmin-Test, DbAdmin-Prod
 
-# 
+# Define a script parameter named "type" (string).
+# This allows the script to be called with -type <value>, e.g.: .\deployfullstack.ps1 -type dev
 param(
     [string]$type
 )
+# If no type parameter is passed, try to read it from environment variable TF_VAR_env_type
+# If still no value, or the value is not in the valid list, default to "dev"
+# Set environment variable TF_VAR_env_type with the value
 $validTypes = @("dev", "test", "prod")
 if (-not $type) {
     $type = $env:TF_VAR_env_type
@@ -17,18 +21,11 @@ if (-not $type) {
         Write-Output "type parameter not set, using TF_VAR_env_type environment variable value: $type"
     }
 }
-
 if (-not $type -or $type -notin $validTypes) {
     Write-Warning "type is not set to a valid value ($($validTypes -join ', ')). Defaulting to 'dev'."
     $type = "dev"
 }
-
 $env:TF_VAR_env_type = $type
-
-# if (-not $env:TF_VAR_env_type -or ($env:TF_VAR_env_type -notin @("dev", "test", "prod"))) {
-#     Write-Warning "TF_VAR_env_type is not set to a valid value (dev, test, prod). Defaulting to 'dev'."
-#     $env:TF_VAR_env_type = "dev"
-# }
 Write-Output "TF_VAR_env_type was set to $env:TF_VAR_env_type"
 
 # set a root folder environment variable to one folder above the current folder.
@@ -57,7 +54,6 @@ if ($LASTEXITCODE -ne 0) { Write-Warning "UI deployment failed" }
 
 # Deploy modules by looping through their paths
 $modules = @(
-    # "questionV3"
     "questionV3",
     "profile"
 )

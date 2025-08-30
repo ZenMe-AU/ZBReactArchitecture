@@ -2,24 +2,27 @@
 # 1. Running js deployment scripts that use terraform to build the environment.
 # 2. Deploying application code into the environment.
 
+# Define a script parameter named "type" (string).
+# This allows the script to be called with -type <value>, e.g.: .\deployfullstack.ps1 -type dev
 param(
     [string]$type
 )
+# If no type parameter is passed, try to read it from environment variable TF_VAR_env_type
+# If still no value, or the value is not in the valid list, default to "dev"
+# Set environment variable TF_VAR_env_type with the value
 $validTypes = @("dev", "test", "prod")
-
 if (-not $type) {
     $type = $env:TF_VAR_env_type
     if ($type) {
         Write-Output "type parameter not set, using TF_VAR_env_type environment variable value: $type"
     }
 }
-
 if (-not $type -or $type -notin $validTypes) {
     Write-Warning "type is not set to a valid value ($($validTypes -join ', ')). Defaulting to 'dev'."
     $type = "dev"
 }
-
 $env:TF_VAR_env_type = $type
+Write-Output "TF_VAR_env_type was set to $env:TF_VAR_env_type"
 
 # set a root folder environment variable to one folder above the current folder.
 $env:UI_FOLDER = Resolve-Path -Path ".."
