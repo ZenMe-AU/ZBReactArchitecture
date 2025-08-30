@@ -31,3 +31,57 @@ variable "subscription_id" {
   description = "The subscription ID for Azure resources"
   type        = string
 }
+
+variable "function_app_name" {
+  description = "The name of the function app"
+  type        = string
+}
+
+variable "resource_group_name" {
+  description = "The name of the resource group"
+  type        = string
+}
+
+variable "storage_account_name" {
+  description = "The name of the storage account"
+  type        = string
+}
+
+variable "app_insights_name" {
+  description = "The name of the application insights"
+  type        = string
+}
+
+variable "identity_name" {
+  description = "The name of the user assigned identity"
+  type        = string
+}
+
+variable "service_plan_name" {
+  description = "The name of the service plan"
+  type        = string
+}
+
+variable "storage_account_container_name" {
+  description = "The name of the storage account container"
+  type        = string
+}
+
+variable "pg_server_name" {
+  description = "The name of the postgreSQL server"
+  type        = string
+}
+
+variable "db_name" {
+  description = "The name of the database"
+  type        = string
+}
+
+variable "appconfig_name" {
+  description = "The name of the app configuration"
+  type        = string
+}
+
+variable "env_type" {
+  type = string
+}
