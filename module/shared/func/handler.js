@@ -1,10 +1,12 @@
 // const appInsights = require("applicationinsights");
 const { trace, context: sContext, TraceFlags, SpanKind, SpanStatusCode } = require("@opentelemetry/api");
 const { randomBytes } = require("crypto");
+const { startup } = require("./bootstrap/registry");
 
 const requestHandler =
   (fn, { schemas = [], customParams = {}, requireAuth = true } = {}) =>
   async (request, context) => {
+    await startup();
     const tracer = trace.getTracer("httpRequestTracer");
     const route = request.url || "unknown url";
     const method = request.method || "unknown method";
@@ -101,6 +103,7 @@ const requestHandler =
   };
 
 const serviceBusHandler = (fn) => async (message, context) => {
+  await startup();
   console.log("context:", context);
   console.log("bindingData:", context.bindingData || "no bindingData");
   console.log("message:", message);
