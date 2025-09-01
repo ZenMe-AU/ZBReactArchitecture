@@ -37,7 +37,7 @@ class ProfileRepo extends BaseRepository {
         }),
       },
       {
-        include: [Attributes],
+        include: [this.Attributes],
       }
     );
 
