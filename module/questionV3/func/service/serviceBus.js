@@ -2,27 +2,27 @@ const { output } = require("@azure/functions");
 
 const sendFollowUp = output.serviceBusQueue({
   queueName: "sendFollowUp",
-  connection: "Zmchat_SERVICEBUS",
+  connection: "ServiceBusConnection",
 });
 
 const shareQuestion = output.serviceBusQueue({
   queueName: "shareQuestion",
-  connection: "Zmchat_SERVICEBUS",
+  connection: "ServiceBusConnection",
 });
 
 const createQuestion = output.serviceBusQueue({
   queueName: "createQuestion",
-  connection: "Zmchat_SERVICEBUS",
+  connection: "ServiceBusConnection",
 });
 
 const updateQuestion = output.serviceBusQueue({
   queueName: "updateQuestion",
-  connection: "Zmchat_SERVICEBUS",
+  connection: "ServiceBusConnection",
 });
 
 const createAnswer = output.serviceBusQueue({
   queueName: "createAnswer",
-  connection: "Zmchat_SERVICEBUS",
+  connection: "ServiceBusConnection",
 });
 
 module.exports = {

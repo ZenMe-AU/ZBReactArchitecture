@@ -106,31 +106,31 @@ app.http("ShareQuestion", {
 });
 
 app.serviceBusQueue("sendFollowUpQueue", {
-  connection: "Zmchat_SERVICEBUS",
+  connection: "ServiceBusConnection",
   queueName: "sendFollowUp",
   handler: serviceBusHandler(queueCmdHandler.SendFollowUp),
 });
 
 app.serviceBusQueue("shareQuestionQueue", {
-  connection: "Zmchat_SERVICEBUS",
+  connection: "ServiceBusConnection",
   queueName: "shareQuestion",
   handler: serviceBusHandler(queueCmdHandler.ShareQuestion),
 });
 
 app.serviceBusQueue("CreateQuestionQueue", {
-  connection: "Zmchat_SERVICEBUS",
+  connection: "ServiceBusConnection",
   queueName: "createQuestion",
   handler: serviceBusHandler(queueCmdHandler.CreateQuestion),
 });
 
 app.serviceBusQueue("UpdateQuestionQueue", {
-  connection: "Zmchat_SERVICEBUS",
+  connection: "ServiceBusConnection",
   queueName: "updateQuestion",
   handler: serviceBusHandler(queueCmdHandler.UpdateQuestion),
 });
 
 app.serviceBusQueue("CreateAnswerQueue", {
-  connection: "Zmchat_SERVICEBUS",
+  connection: "ServiceBusConnection",
   queueName: "createAnswer",
   handler: serviceBusHandler(queueCmdHandler.CreateAnswer),
 });
