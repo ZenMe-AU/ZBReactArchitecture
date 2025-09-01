@@ -1,26 +1,20 @@
 const { resolve } = require("path");
 const { getTargetEnv, getModuleName } = require("@zenmechat/shared/deploy/util/envSetup");
+const {
+  getResourceGroupName,
+  getServiceBusName,
+  getFunctionAppName,
+  getStorageAccountName,
+} = require("@zenmechat/shared/deploy/util/namingConvention");
 const { getSubscriptionId } = require("@zenmechat/shared/deploy/util/azureCli");
 const CodeDeployer = require("@zenmechat/shared/deploy//CodeDeployer");
-
-function getResourceGroupName(targetEnv) {
-  return `${targetEnv}-resources`;
-}
-function getStorageAccountName(targetEnv) {
-  return `${targetEnv}pvtstor`;
-}
-function getFunctionAppName(targetEnv, moduleName) {
-  return `${targetEnv}-${moduleName}-func`;
-}
-function getServiceBusName(targetEnv) {
-  return `${targetEnv}-sbnamespace`;
-}
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
 
 (async () => {
-  let targetEnv, moduleName, subscriptionId;
+  let targetEnv, moduleName, subscriptionId, envType;
   try {
+    envType = process.env.TF_VAR_env_type;
     targetEnv = getTargetEnv();
     moduleName = getModuleName(moduleDir);
     subscriptionId = getSubscriptionId();
@@ -30,7 +24,7 @@ const moduleDir = resolve(__dirname, "..", "..", "..");
   }
   const serviceBusName = getServiceBusName(targetEnv);
   const functionAppName = getFunctionAppName(targetEnv, moduleName);
-  const resourceGroupName = getResourceGroupName(targetEnv);
+  const resourceGroupName = getResourceGroupName(envType, targetEnv);
   const storageAccountName = getStorageAccountName(targetEnv);
 
   const codeDeployer = new CodeDeployer({

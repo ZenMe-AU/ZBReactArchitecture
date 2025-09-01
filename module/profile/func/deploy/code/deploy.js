@@ -24,7 +24,7 @@ const moduleDir = resolve(__dirname, "..", "..", "..");
   }
   const serviceBusName = getServiceBusName(targetEnv);
   const functionAppName = getFunctionAppName(targetEnv, moduleName);
-  const resourceGroupName = getResourceGroupName(targetEnv);
+  const resourceGroupName = getResourceGroupName(envType, targetEnv);
   const storageAccountName = getStorageAccountName(targetEnv);
 
   new CodeDeployer({

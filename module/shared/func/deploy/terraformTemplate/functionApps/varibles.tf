@@ -41,3 +41,11 @@ variable "user_assigned_identity_id" {
 variable "user_assigned_identity_client_id" {
   type = string
 }
+
+variable "appconfig_id" {
+  type = string
+}
+
+variable "env_type" {
+  type = string
+}

@@ -1,6 +1,6 @@
 import { jwtFetch } from "./jwtFetch";
 
-const apiDomain = import.meta.env.VITE_PROFILE_DOMAIN || "https://local-chat.azurewebsites.net";
+const apiDomain = import.meta.env.VITE_PROFILE_DOMAIN;
 
 export async function getProfileList(): Promise<any> {
   try {

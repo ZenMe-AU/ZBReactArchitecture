@@ -3,6 +3,7 @@ const MigrationRunner = require("@zenmechat/shared/deploy/migrationRunner.js");
 const { getTargetEnv, getModuleName } = require("@zenmechat/shared/deploy/util/envSetup.js");
 const { createDatabaseInstance } = require("@zenmechat/shared/db/connection");
 const DB_TYPE = require("@zenmechat/shared/enum/dbType");
+const { getDbAdminName } = require("@zenmechat/shared/deploy/util/namingConvention");
 
 /**
  * Naming convention helpers
@@ -10,22 +11,17 @@ const DB_TYPE = require("@zenmechat/shared/enum/dbType");
 function getPgHost(targetEnv) {
   return `${targetEnv}-postgresqlserver.postgres.database.azure.com`;
 }
-function getPgAdminUser(targetEnv) {
-  return `${targetEnv}-pg-admins`;
-}
-function getDbSchemaAdminName(moduleName) {
-  return `${moduleName}-dbschemaadmins`;
-}
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
 const migrationDir = resolve(__dirname, "..", "..", "db", "migration");
 
 (async () => {
+  const envType = process.env.TF_VAR_env_type;
   const targetEnv = getTargetEnv();
   const moduleName = getModuleName(moduleDir);
 
   const db = await createDatabaseInstance(DB_TYPE.POSTGRES, {
-    username: getPgAdminUser(targetEnv), //"getDbSchemaAdminName(moduleName)";
+    username: getDbAdminName(envType), //"getDbSchemaAdminName(moduleName)";
     host: getPgHost(targetEnv),
     dialect: "postgres",
     port: 5432,
@@ -36,7 +32,5 @@ const migrationDir = resolve(__dirname, "..", "..", "db", "migration");
     },
   });
   const direction = process.argv[2] || "up";
-  const migrationRunner = new MigrationRunner({ db, migrationDir });
-  migrationRunner.extensionNames.push("postgis");
-  await migrationRunner.run(direction);
+  await new MigrationRunner({ db, migrationDir, envType, targetEnv }).run(direction);
 })();

@@ -76,3 +76,12 @@ variable "db_name" {
   description = "The name of the database"
   type        = string
 }
+
+variable "appconfig_name" {
+  description = "The name of the app configuration"
+  type        = string
+}
+
+variable "env_type" {
+  type = string
+}

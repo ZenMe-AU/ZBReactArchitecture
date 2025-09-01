@@ -4,6 +4,7 @@ const {
   getFunctionAppName,
   getResourceGroupName,
   getStorageAccountName,
+  getAppConfigName,
   getAppInsightsName,
   getIdentityName,
   getDbAdminName,
@@ -34,6 +35,7 @@ class EnvironmentDeployer {
     this.storageAccountContainerName = getModuleStorageAccountContainerName(this.targetEnv, this.moduleName);
     this.pgServerName = getPgServerName(this.targetEnv);
     this.storageAccountWebName = getStorageAccountWebName(this.targetEnv);
+    this.appConfigName = getAppConfigName(this.targetEnv);
 
     this.backendConfig = backendConfig || {
       resource_group_name: this.resourceGroupName,
@@ -60,6 +62,7 @@ class EnvironmentDeployer {
     process.env.TF_VAR_storage_account_container_name = this.storageAccountContainerName;
     process.env.TF_VAR_pg_server_name = this.pgServerName;
     process.env.TF_VAR_storage_account_web_name = this.storageAccountWebName;
+    process.env.TF_VAR_appconfig_name = this.appConfigName;
 
     terraformInit({ backendConfig: this.backendConfig });
     terraformPlan();

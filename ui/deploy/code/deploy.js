@@ -1,9 +1,11 @@
 // deployStatic.js
+import fs from "fs";
 import { getTargetEnv } from "../../../module/shared/func/deploy/util/envSetup.js";
+import { getAppConfigValueByKeyLabel } from "../../../module/shared/func/deploy/util/azureCli.js";
 import { execSync } from "child_process";
 import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
-import { getStorageAccountWebName } from "../../../module/shared/func/deploy/util/namingConvention.js";
+import { getStorageAccountWebName, getFunctionAppName, getAppConfigName } from "../../../module/shared/func/deploy/util/namingConvention.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -11,11 +13,47 @@ const __dirname = dirname(__filename);
 const moduleDir = resolve(__dirname, "..", "..");
 const distPath = resolve(moduleDir, "build", "client");
 
+const envFile = resolve(moduleDir, ".env.production");
+const apiList = ["profile", "questionV3"];
+
 function deploy() {
+  const envType = process.env.TF_VAR_env_type;
   const targetEnv = getTargetEnv();
   const accountName = getStorageAccountWebName(targetEnv);
+  const appConfigName = getAppConfigName(targetEnv);
 
   try {
+    console.log(`Building environment file: ${envFile}`);
+    if (!fs.existsSync(envFile)) {
+      fs.writeFileSync(envFile, "", "utf-8");
+    }
+    // read existing env file
+    const envContent = fs.readFileSync(envFile, "utf-8").trim().split("\n");
+    const envMap = new Map();
+    envContent.forEach((line) => {
+      const [key, ...rest] = line.split("=");
+      if (key) envMap.set(key, rest.join("="));
+    });
+    // fetch api domain from app config
+    apiList.forEach((module) => {
+      try {
+        const key = `FunctionAppHost:${getFunctionAppName(targetEnv, module)}`;
+        const value = getAppConfigValueByKeyLabel({
+          appConfigName,
+          key,
+          label: envType,
+        });
+        envMap.set(`VITE_${module.toUpperCase()}_DOMAIN`, `https://${value}`);
+      } catch (err) {
+        console.error(`Failed to fetch ${module}:`, err);
+      }
+    });
+    // writing back to envFile
+    const newEnvContent = Array.from(envMap.entries())
+      .map(([k, v]) => `${k}=${v}`)
+      .join("\n");
+
+    fs.writeFileSync(envFile, newEnvContent, "utf-8");
     console.log("Building project...");
     execSync("pnpm install", { stdio: "inherit", cwd: moduleDir });
     execSync("pnpm run build", { stdio: "inherit", cwd: moduleDir });
