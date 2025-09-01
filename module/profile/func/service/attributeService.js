@@ -1,5 +1,4 @@
-const { Op, Sequelize } = require("sequelize");
-const { Attributes } = require("../db/model");
+const AttributeRepo = require("../repository/attributeRepository");
 
 /**
  * get user's attributes
@@ -7,15 +6,9 @@ const { Attributes } = require("../db/model");
  * @param {number} profileId - User's id
  * @return {array}
  */
-async function getByUser(profileId) {
+async function getUserAttributeList(profileId) {
   try {
-    const attrData = await Attributes.findAll({
-      where: {
-        profileId: profileId,
-      },
-    });
-
-    return attrData.map(({ tag }) => tag);
+    return AttributeRepo.getByProfileId(profileId);
   } catch (err) {
     console.log(err);
     throw new Error(`Function failed: ${err.message}`, { cause: err });
@@ -29,31 +22,9 @@ async function getByUser(profileId) {
  * @param {array} tags - The attributes of user
  * @return {array}
  */
-async function update(profileId, tags) {
+async function updateAttribute(profileId, tags) {
   try {
-    const attrData = await Attributes.findAll({
-      where: {
-        profileId: profileId,
-      },
-    });
-    const originTags = attrData.map(({ tag }) => tag);
-    const addTags = tags
-      .filter((tag) => !originTags.includes(tag))
-      .map(function (tag) {
-        return {
-          profileId: profileId,
-          tag: tag,
-        };
-      });
-    const deleteIds = attrData.filter(({ tag }) => !tags.includes(tag)).map(({ id }) => id);
-
-    await Attributes.destroy({
-      where: { id: deleteIds },
-    });
-    await Attributes.bulkCreate(addTags, {
-      validate: true,
-    });
-    return tags;
+    return AttributeRepo.updateAttribute(profileId, tags);
   } catch (err) {
     console.log(err);
     throw new Error(`Function failed: ${err.message}`, { cause: err });
@@ -61,6 +32,6 @@ async function update(profileId, tags) {
 }
 
 module.exports = {
-  getByUser,
-  update,
+  getUserAttributeList,
+  updateAttribute,
 };
