@@ -1,5 +1,5 @@
-const Profiles = require("./service/function.js");
-const Attributes = require("./service/attributeService.js");
+const Profile = require("../service/profileService.js");
+const Attribute = require("../service/attributeService.js");
 
 /**
  * @swagger
@@ -37,7 +37,7 @@ const Attributes = require("./service/attributeService.js");
  */
 async function GetAttributes(request, context) {
   const userId = parseInt(request.params.userId);
-  let attributes = await Attributes.getByUser(userId);
+  let attributes = await Attribute.getUserAttributeList(userId);
   return { return: { attributes: attributes } };
 }
 
@@ -91,7 +91,7 @@ async function GetAttributes(request, context) {
 async function PutAttributes(request, context) {
   const userId = parseInt(request.params.userId);
   const { attributes } = request.clientParams;
-  const attrData = await Attributes.update(userId, attributes);
+  const attrData = await Attribute.updateAttribute(userId, attributes);
   return { return: { attributes: attrData } };
 }
 
@@ -143,7 +143,7 @@ async function PutAttributes(request, context) {
  */
 async function CreateProfile(request, context) {
   const { name, avatar = null, attributes = [] } = request.clientParams;
-  const profile = await Profiles.create(name, attributes, avatar);
+  const profile = await Profile.createProfile(name, attributes, avatar);
   return { return: { id: profile.id } };
 }
 
@@ -214,7 +214,7 @@ async function SearchProfile(request, context) {
       attributes = attributes.map((tag) => "%" + tag + "%");
     }
   }
-  let profile = await Profiles.getList(null, attributes);
+  let profile = await Profile.searchProfile(attributes);
   return { return: { profile: profile } };
 }
 

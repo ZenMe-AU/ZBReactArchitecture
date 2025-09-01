@@ -1,4 +1,4 @@
-const { getById } = require("./service/function");
+const Profile = require("../service/profileService");
 const { generateToken, decode } = require("@zenmechat/shared/service/authUtils");
 
 /**
@@ -41,7 +41,7 @@ async function loginUser(request, context) {
     throw err;
   }
 
-  const profile = await getById(userId);
+  const profile = await Profile.getProfileById(userId);
 
   if (!profile) {
     const err = new Error("User not found");
@@ -113,7 +113,7 @@ async function verify(request, context) {
       throw err;
     }
 
-    const profile = await getById(decoded.profileId);
+    const profile = await Profile.getProfileById(decoded.profileId);
     if (!profile) {
       const err = new Error("User not found");
       err.statusCode = 404;

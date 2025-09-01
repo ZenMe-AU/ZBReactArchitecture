@@ -2,8 +2,8 @@ require("@zenmechat/shared");
 require("./bootstrap");
 const { app } = require("@azure/functions");
 const { requestHandler } = require("@zenmechat/shared/handler");
-const authHandler = require("./authHandler.js");
-const profileHandler = require("./handler.js");
+const authHandler = require("./handler/authHandler.js");
+const profileHandler = require("./handler/handler.js");
 
 app.http("Login", {
   route: "auth/login",
