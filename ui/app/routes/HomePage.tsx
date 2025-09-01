@@ -1,5 +1,6 @@
 import { Helmet } from "react-helmet";
 import { Link } from "react-router";
+import { Button, Box } from "@mui/material";
 
 export async function clientLoader() {
   let isAuthenticated = localStorage.getItem("token") ? true : false;
@@ -19,18 +20,35 @@ export default function HomePage({ loaderData }: { loaderData: { isAuthenticated
         {isAuthenticated && (
           <>
             <p>You are logged in.</p>
-            <Link to="/question">
-              <button>Go to Question</button>
-            </Link>
-            <Link to="/questionV2">
-              <button>Go to QuestionV2</button>
-            </Link>
-
-            <Link to="/questionV3">
-              <button>Go to QuestionV3</button>
-            </Link>
           </>
         )}
+        <Box
+          sx={{
+            // height: "100vh",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+              minWidth: 200,
+            }}
+          >
+            <Button component={Link} to="/question" variant="contained">
+              Question
+            </Button>
+            <Button component={Link} to="/questionV2" variant="contained">
+              Question V2
+            </Button>
+            <Button component={Link} to="/questionV3" variant="contained">
+              Question V3
+            </Button>
+          </Box>
+        </Box>
       </div>
     </main>
   );
