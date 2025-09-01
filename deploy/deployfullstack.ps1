@@ -32,6 +32,47 @@ Write-Output "TF_VAR_env_type was set to $env:TF_VAR_env_type"
 $env:ROOT_FOLDER = Resolve-Path -Path ".."
 Write-Output "Set ROOT_FOLDER to $env:ROOT_FOLDER"
 Set-Location $env:ROOT_FOLDER
+
+# Ensure Node.js and npm is installed on Win and MacOs. If not, install with winget or homebrew.
+# Check if Node.js and npm are installed
+$nodeInstalled = Get-Command node -ErrorAction SilentlyContinue
+$npmInstalled = Get-Command npm -ErrorAction SilentlyContinue
+
+if (-not $nodeInstalled -or -not $npmInstalled) {
+    if ($IsWindows) {
+        Write-Output "Node.js or npm not found. Installing Node.js using winget..."
+        winget install OpenJS.NodeJS -e --silent
+    } elseif ($IsMacOS) {
+        Write-Output "Node.js or npm not found. Installing Node.js using Homebrew..."
+        brew install node
+    } else {
+        Write-Warning "Unsupported OS for automatic Node.js installation. Please install Node.js manually."
+        exit 1
+    }
+    # Re-check installation
+    $nodeInstalled = Get-Command node -ErrorAction SilentlyContinue
+    $npmInstalled = Get-Command npm -ErrorAction SilentlyContinue
+    if (-not $nodeInstalled -or -not $npmInstalled) {
+        Write-Error "Node.js or npm installation failed. Please install them manually. Visit https://nodejs.org/en/download/ for installation instructions."
+        exit 1
+    }
+} else {
+    Write-Output "Node.js and npm are already installed."
+}
+
+# Ensure pnpm is installed
+if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
+    Write-Output "pnpm is not installed. Installing pnpm globally using npm..."
+    npm install -g pnpm
+    if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
+        Write-Error "pnpm installation failed. Please install pnpm manually."
+        exit 1
+    }
+} else {
+    Write-Output "pnpm is already installed."
+}
+
+# Install dependencies
 pnpm install
 
 #Initialise the resource group that will contain all components and setup minimal components to support the Terraform backend.

@@ -10,6 +10,7 @@
     "mhutchie.git-graph",
     "ms-vscode.powershell",
     "redhat.vscode-yaml",
-    "ms-vsliveshare.vsliveshare"
+    "ms-vsliveshare.vsliveshare",
+    "hcommand.run-runner"
   ]
 }

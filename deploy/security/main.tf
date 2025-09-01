@@ -69,6 +69,11 @@ resource "azurerm_cdn_frontdoor_origin" "fd_origin" {
   certificate_name_check_enabled = true
 }
 
+data "azurerm_static_site" "swa" {
+  name                = "ZenmeChatPOC1"
+  resource_group_name = "ZenmeChatPOC1_group"
+}
+
 # Create a route (routing rule)
 resource "azurerm_cdn_frontdoor_route" "fd_route" {
   name                              = "DefaultRoutingRule"
