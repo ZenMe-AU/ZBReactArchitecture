@@ -1,24 +1,58 @@
-const { QuestionAnswer } = require("../db/model");
+const BaseRepository = require("@zenmechat/shared/repository/baseRepository");
+const { Op, Sequelize, QueryTypes, literal } = require("sequelize");
 
-async function upsertAnswerByQuestionId({ questionId, profileId, ansData, transaction = null }) {
-  const options = {};
-  if (transaction) {
-    options.transaction = transaction;
-    options.lock = transaction.LOCK.UPDATE;
+class QuestionAnswerRepository extends BaseRepository {
+  constructor() {
+    super(["QuestionAnswer"]);
   }
-  const { answer: answerText = null, option: optionAnswerList = null, duration, when = null } = ansData;
-  return await QuestionAnswer.upsert(
-    {
-      questionId,
-      profileId,
-      answerText,
-      optionAnswerList,
-      duration,
-      when,
-    },
-    options
-  );
+
+  async upsertAnswerByQuestionId({ questionId, profileId, ansData, transaction = null }) {
+    const options = {};
+    if (transaction) {
+      options.transaction = transaction;
+      options.lock = transaction.LOCK.UPDATE;
+    }
+    const { answer: answerText = null, option: optionAnswerList = null, duration, when = null } = ansData;
+    return await this.QuestionAnswer.upsert(
+      {
+        questionId,
+        profileId,
+        answerText,
+        optionAnswerList,
+        duration,
+        when,
+      },
+      options
+    );
+  }
+
+  async getAnswerById(answerId) {
+    return await this.QuestionAnswer.findByPk(answerId);
+  }
+
+  async getAnswerListByQuestionId(questionId) {
+    return await await this.QuestionAnswer.sequelize.query(
+      `
+          SELECT DISTINCT ON ("profileId")
+            "id",
+            "profileId",
+            "createdAt",
+            COUNT("id") OVER (PARTITION BY "profileId") AS "answerCount",
+            "questionId",
+            "answerText",
+            "optionAnswerList",
+            "duration",
+            "when"
+          FROM "questionAnswer"
+          WHERE "questionId" = :questionId
+          ORDER BY "profileId", "createdAt" DESC;
+        `,
+      {
+        replacements: { questionId },
+        type: this.QuestionAnswer.sequelize.QueryTypes.SELECT,
+      }
+    );
+  }
 }
-module.exports = {
-  upsertAnswerByQuestionId,
-};
+
+module.exports = new QuestionAnswerRepository();

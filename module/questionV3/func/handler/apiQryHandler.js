@@ -1,4 +1,4 @@
-const Question = require("../service/function.js");
+const QuestionQueryService = require("../service/questionQueryService");
 const { decode } = require("@zenmechat/shared/service/authUtils.js");
 
 /**
@@ -34,7 +34,7 @@ const { decode } = require("@zenmechat/shared/service/authUtils.js");
  */
 async function GetQuestionById(request, context) {
   const { questionId } = request.params;
-  const question = await Question.getById(questionId);
+  const question = await QuestionQueryService.getById(questionId);
   return { return: { detail: question } };
 }
 
@@ -71,7 +71,7 @@ async function GetQuestionById(request, context) {
  */
 async function GetAnswerById(request, context) {
   const { answerId } = request.params;
-  const answer = await Question.getAnswerById(questionId, answerId);
+  const answer = await QuestionQueryService.getAnswerById(questionId, answerId);
   return { return: { detail: answer } };
 }
 /**
@@ -127,7 +127,7 @@ async function GetAnswerById(request, context) {
  */
 async function GetQuestionListByUser(request, context) {
   const { profileId } = request.params;
-  const question = await Question.getCombinationListByUser(profileId);
+  const question = await QuestionQueryService.getCombinationListByUser(profileId);
   return { return: { list: question } };
 }
 
@@ -198,7 +198,7 @@ async function GetAnswerListByQuestionId(request, context) {
   const token = authorization.split(" ")[1];
   const decoded = decode(token);
   const profileId = decoded.profileId;
-  const answers = await Question.getAnswerListByQuestionId(questionId);
+  const answers = await QuestionQueryService.getAnswerListByQuestionId(questionId);
   const processedAnswers = answers.map((ans) => {
     return {
       ...ans,
@@ -263,14 +263,14 @@ async function GetAnswerListByQuestionId(request, context) {
  */
 async function GetSharedQuestionListByUser(request, context) {
   const { profileId } = request.params;
-  const sharedQuestion = await Question.getSharedQuestionListByUser(profileId);
+  const sharedQuestion = await QuestionQueryService.getSharedQuestionListByUser(profileId);
   return { return: { list: sharedQuestion } };
 }
 
 async function GetEventByCorrelationId(request, context) {
   const { correlationId } = request.params;
   const { tableName } = request.customParams;
-  const result = await Question.getEventByCorrelationId(tableName, correlationId);
+  const result = await QuestionQueryService.getEventByCorrelationId(tableName, correlationId);
   return { return: { qty: result.length } };
 }
 

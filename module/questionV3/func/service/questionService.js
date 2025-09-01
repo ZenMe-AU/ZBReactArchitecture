@@ -5,10 +5,11 @@ const EventRepo = require("../repository/eventRepository");
 const AnswerRepo = require("../repository/questionAnswerRepository");
 const ShareRepo = require("../repository/questionShareRepository");
 const { AGGREGATE_TYPE, ACTION_TYPE, STATUS } = require("../enum");
-const { sequelize } = require("../db/index");
-const { getFollowUpReceiver } = require("./function");
+const container = require("@zenmechat/shared/bootstrap/container");
+const QuestionQueryService = require("./questionQueryService");
 
 async function createQuestion(messageId, profileId, body, correlationId, title, questionText, option) {
+  let sequelize = container.get("db");
   // run whole command in a transaction
   return await withTransaction(sequelize, async ({ transaction }) => {
     // inserts a command for the question creation
@@ -49,6 +50,7 @@ async function createQuestion(messageId, profileId, body, correlationId, title, 
 }
 
 async function updateQuestion(messageId, profileId, body, correlationId, questionId, patchData) {
+  let sequelize = container.get("db");
   // run whole command in a transaction
   return await withTransaction(sequelize, async ({ transaction }) => {
     // insert a command for the question update
@@ -86,6 +88,7 @@ async function updateQuestion(messageId, profileId, body, correlationId, questio
 }
 
 async function createAnswer(messageId, profileId, body, correlationId, questionId) {
+  let sequelize = container.get("db");
   // run whole command in a transaction
   return await withTransaction(sequelize, async ({ transaction }) => {
     // inserts a command for the answer creation
@@ -131,6 +134,7 @@ async function createAnswer(messageId, profileId, body, correlationId, questionI
 }
 
 async function sendFollowUp(messageId, profileId, body, correlationId, questionIdList) {
+  let sequelize = container.get("db");
   // run whole command in a transaction
   return await withTransaction(sequelize, async ({ transaction }) => {
     // inserts a command for the follow-up action
@@ -142,7 +146,7 @@ async function sendFollowUp(messageId, profileId, body, correlationId, questionI
       correlationId,
       transaction,
     });
-    const receiverIds = await getFollowUpReceiver(body); // filters the receiver IDs based on the answers to the questions
+    const receiverIds = await QuestionQueryService.getFollowUpReceiver(body); // filters the receiver IDs based on the answers to the questions
     // shares the question with the specified receiver IDs
     const sharedQuestions = questionIdList.map(async (questionId) => {
       return await ShareRepo.insertQuestionShare({
@@ -174,6 +178,7 @@ async function sendFollowUp(messageId, profileId, body, correlationId, questionI
 }
 
 async function shareQuestion(messageId, profileId, body, correlationId, newQuestionId, receiverIds) {
+  let sequelize = container.get("db");
   // run whole command in a transaction
   return await withTransaction(sequelize, async ({ transaction }) => {
     // inserts a command for the question sharing action
