@@ -33,6 +33,10 @@ $env:ROOT_FOLDER = Resolve-Path -Path ".."
 Write-Output "Set ROOT_FOLDER to $env:ROOT_FOLDER"
 Set-Location $env:ROOT_FOLDER
 
+# Here's a robust way to detect Windows:
+$isWindows = $PSVersionTable.Platform -eq 'Win32NT' -or $env:OS -eq 'Windows_NT'
+$isMacOS = $PSVersionTable.Platform -eq 'Unix' -and (uname) -eq 'Darwin'
+
 # Ensure Node.js and npm is installed on Win and MacOs. If not, install with winget or homebrew.
 # Check if Node.js and npm are installed
 $nodeInstalled = Get-Command node -ErrorAction SilentlyContinue
@@ -70,6 +74,31 @@ if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
     }
 } else {
     Write-Output "pnpm is already installed."
+}
+
+# Ensure Terraform is installed
+$terraformInstalled = Get-Command terraform -ErrorAction SilentlyContinue
+
+if (-not $terraformInstalled) {
+    if ($IsWindows) {
+        Write-Output "Terraform not found. Installing Terraform using winget..."
+        winget install HashiCorp.Terraform -e --silent
+    } elseif ($IsMacOS) {
+        Write-Output "Terraform not found. Installing Terraform using Homebrew..."
+        brew tap hashicorp/tap
+        brew install hashicorp/tap/terraform
+    } else {
+        Write-Warning "Unsupported OS for automatic Terraform installation. Please install Terraform manually."
+        exit 1
+    }
+    # Re-check installation
+    $terraformInstalled = Get-Command terraform -ErrorAction SilentlyContinue
+    if (-not $terraformInstalled) {
+        Write-Error "Terraform installation failed. Please install it manually. Visit https://www.terraform.io/downloads.html for instructions."
+        exit 1
+    }
+} else {
+    Write-Output "Terraform is already installed."
 }
 
 # Install dependencies
