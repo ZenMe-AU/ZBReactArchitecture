@@ -21,13 +21,17 @@ dist-ssr
 *.sw?
 package-lock.json
 */package-lock.json
-
 pnpm-lock.yaml
 
 api/src/module/shared/db/migration
 ui/.react-router
 
+#Build files
+
+
+
 # Terraform files
+*.tfstate
 terraform.tfstate.backup
 .terraform.*
 .terraform/

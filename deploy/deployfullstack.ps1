@@ -9,8 +9,9 @@
 # Define a script parameter named "type" (string).
 # This allows the script to be called with -type <value>, e.g.: .\deployfullstack.ps1 -type dev
 param(
-    [string]$type
+    [string]$type = "dev"
 )
+Set-StrictMode -Version Latest
 # If no type parameter is passed, try to read it from environment variable TF_VAR_env_type
 # If still no value, or the value is not in the valid list, default to "dev"
 # Set environment variable TF_VAR_env_type with the value
@@ -33,9 +34,15 @@ $env:ROOT_FOLDER = Resolve-Path -Path ".."
 Write-Output "Set ROOT_FOLDER to $env:ROOT_FOLDER"
 Set-Location $env:ROOT_FOLDER
 
-# Here's a robust way to detect Windows:
-$isWindows = $PSVersionTable.Platform -eq 'Win32NT' -or $env:OS -eq 'Windows_NT'
-$isMacOS = $PSVersionTable.Platform -eq 'Unix' -and (uname) -eq 'Darwin'
+# Detect OS, Pre powershell 6
+if ($PSVersionTable.PSVersion.Major -lt 6) {
+    Write-Warning "You are using a version of powershell older than 6, upgrade when possible"
+    $IsWindows = $env:OS -eq 'Windows_NT'
+    $IsMacOS = $false
+    if ($env:OSTYPE -eq 'darwin') { $IsMacOS = $true }
+    elseif ((Get-Command uname -ErrorAction SilentlyContinue) -and (uname) -eq 'Darwin') { $IsMacOS = $true }
+
+}
 
 # Ensure Node.js and npm is installed on Win and MacOs. If not, install with winget or homebrew.
 # Check if Node.js and npm are installed
@@ -53,6 +60,8 @@ if (-not $nodeInstalled -or -not $npmInstalled) {
         Write-Warning "Unsupported OS for automatic Node.js installation. Please install Node.js manually."
         exit 1
     }
+    # Get the updated path from environment
+    $Env:Path = [Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [Environment]::GetEnvironmentVariable("Path", "User")
     # Re-check installation
     $nodeInstalled = Get-Command node -ErrorAction SilentlyContinue
     $npmInstalled = Get-Command npm -ErrorAction SilentlyContinue
@@ -116,16 +125,10 @@ Set-Location $env:ROOT_FOLDER\deploy\deployEnv
 node ./deployEnvironment.js --auto-approve
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-#Deploy the UI module
-Write-Output "Deploy the UI module"
-Set-Location $env:ROOT_FOLDER\ui\deploy\
-./deployUi.ps1
-if ($LASTEXITCODE -ne 0) { Write-Warning "UI deployment failed" }
-
 # Deploy modules by looping through their paths
 $modules = @(
-    "questionV3",
-    "profile"
+    "profile",
+    "questionV3"
 )
 foreach ($modulePath in $modules) {
     Write-Output "Deploy the $modulePath module"
@@ -133,3 +136,13 @@ foreach ($modulePath in $modules) {
     ./deployModule.ps1
     if ($LASTEXITCODE -ne 0) { Write-Warning "Module $modulePath deployment failed" }
 }
+
+#Deploy the UI module
+Write-Output "Deploy the UI module"
+Set-Location $env:ROOT_FOLDER\ui\deploy\
+./deployUi.ps1
+if ($LASTEXITCODE -ne 0) { Write-Warning "UI deployment failed" }
+
+#TODO: Run verification test to confirm the deployment succeeded.
+node ./verify/verifyDeployment.js
+if ($LASTEXITCODE -ne 0) { Write-Warning "Deploy Function App code failed" }
