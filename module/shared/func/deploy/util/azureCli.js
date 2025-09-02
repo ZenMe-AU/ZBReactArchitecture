@@ -38,6 +38,16 @@ function getDefaultAzureLocation() {
   }
 }
 
+function getIdentityClientId({ identityName, resourceGroupName }) {
+  try {
+    return execSync(`az identity show -n ${identityName} -g ${resourceGroupName} --query clientId -o tsv`, {
+      encoding: "utf8",
+    }).trim();
+  } catch (e) {
+    throw new Error("Could not retrieve Azure Identity Client ID.");
+  }
+}
+
 /*
  *  Get the value of a key in a specific label from Azure App Configuration
  */
@@ -216,6 +226,7 @@ module.exports = {
   getSubscriptionId,
   getObjectId,
   getDefaultAzureLocation,
+  getIdentityClientId,
   getAppConfigValueByKeyLabel,
   getFunctionAppPrincipalId,
   addTemporaryFirewallRule,

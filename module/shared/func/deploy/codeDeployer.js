@@ -9,8 +9,10 @@ const {
   assignRole,
   deployFunctionAppZip,
   createServiceBusQueue,
+  getIdentityClientId,
 } = require("./util/azureCli.js");
 const { npmInstall, npmPrune, zipDir } = require("./util/cli.js");
+const { getIdentityName } = require("../deploy/util/namingConvention");
 
 class CodeDeployer {
   constructor({ targetEnv, moduleName, subscriptionId, functionAppName, resourceGroupName, storageAccountName, serviceBusName, moduleDir }) {
@@ -27,6 +29,11 @@ class CodeDeployer {
     this.excludeList = ["dist/*", ".vscode/*", ".git/*", "local.settings.json", "local.settings.json.template", "deploy/*"];
     this.appSettings = {
       ServiceBusConnection__fullyQualifiedNamespace: `${this.serviceBusName}.servicebus.windows.net`,
+      ServiceBusConnection__credential: "managedidentity",
+      ServiceBusConnection__clientId: getIdentityClientId({
+        identityName: getIdentityName(this.targetEnv),
+        resourceGroupName: this.resourceGroupName,
+      }),
     };
     this.deleteAppSettings = ["AzureWebJobsStorage"];
 
@@ -40,13 +47,13 @@ class CodeDeployer {
     this.queueNames = [];
   }
 
-  _storageScope() {
-    return `/subscriptions/${this.subscriptionId}/resourceGroups/${this.resourceGroupName}/providers/Microsoft.Storage/storageAccounts/${this.storageAccountName}`;
-  }
+  // _storageScope() {
+  //   return `/subscriptions/${this.subscriptionId}/resourceGroups/${this.resourceGroupName}/providers/Microsoft.Storage/storageAccounts/${this.storageAccountName}`;
+  // }
 
-  _serviceBusScope() {
-    return `/subscriptions/${this.subscriptionId}/resourceGroups/${this.resourceGroupName}/providers/Microsoft.ServiceBus/namespaces/${this.serviceBusName}`;
-  }
+  // _serviceBusScope() {
+  //   return `/subscriptions/${this.subscriptionId}/resourceGroups/${this.resourceGroupName}/providers/Microsoft.ServiceBus/namespaces/${this.serviceBusName}`;
+  // }
 
   async run() {
     console.log("Starting deployment...");
