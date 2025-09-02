@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   QuestionShare.associate = (models) => {
-    QuestionShare.belongsTo(models.Question, { targetKey: "id", foreignKey: "questionId" });
+    QuestionShare.belongsTo(models.Question, { as: "Question", targetKey: "id", foreignKey: "questionId" });
   };
   return QuestionShare;
 };

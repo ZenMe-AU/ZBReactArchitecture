@@ -40,7 +40,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
   QuestionAnswer.associate = (models) => {
-    QuestionAnswer.belongsTo(models.Question, { targetKey: "id", foreignKey: "questionId" });
+    QuestionAnswer.belongsTo(models.Question, { as: "Question", targetKey: "id", foreignKey: "questionId" });
   };
   return QuestionAnswer;
 };

@@ -36,8 +36,8 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   Question.associate = (models) => {
-    Question.hasMany(models.QuestionAnswer, { foreignKey: "questionId", sourceKey: "id" });
-    Question.hasMany(models.QuestionShare, { foreignKey: "questionId", sourceKey: "id" });
+    Question.hasMany(models.QuestionAnswer, { as: "QuestionAnswer", foreignKey: "questionId", sourceKey: "id" });
+    Question.hasMany(models.QuestionShare, { as: "QuestionShare", foreignKey: "questionId", sourceKey: "id" });
   };
   return Question;
 };

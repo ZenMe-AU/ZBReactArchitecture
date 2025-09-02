@@ -52,6 +52,7 @@ class QuestionRepository extends BaseRepository {
       include: [
         {
           model: this.QuestionShare,
+          as: "QuestionShare",
           attributes: [],
           group: ["questionId"],
         },

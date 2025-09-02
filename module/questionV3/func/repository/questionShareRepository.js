@@ -23,7 +23,8 @@ class QuestionShareRepository extends BaseRepository {
       include: [
         {
           model: this.Question,
-          attributes: ["title", "questionText", "option"],
+          as: "Question",
+          attributes: ["title", "questionText", "optionList"],
         },
       ],
     });
