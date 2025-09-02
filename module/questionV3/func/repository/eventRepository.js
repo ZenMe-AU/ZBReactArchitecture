@@ -34,7 +34,7 @@ class EventRepository extends BaseRepository {
   }
 
   async searchEvent(correlationId, aggregateType) {
-    return await Event.findAll({
+    return await this.Event.findAll({
       where: {
         correlationId,
         aggregateType,

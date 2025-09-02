@@ -2,7 +2,7 @@ const BaseRepository = require("@zenmechat/shared/repository/baseRepository");
 
 class QuestionShareRepository extends BaseRepository {
   constructor() {
-    super(["QuestionShare"]);
+    super(["QuestionShare", "Question"]);
   }
 
   async insertQuestionShare({ questionId, senderId, receiverIds, transaction = null }) {

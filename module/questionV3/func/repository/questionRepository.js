@@ -1,5 +1,6 @@
 const BaseRepository = require("@zenmechat/shared/repository/baseRepository");
 const { applyPatch } = require("fast-json-patch");
+const { Op } = require("sequelize");
 
 class QuestionRepository extends BaseRepository {
   constructor() {
