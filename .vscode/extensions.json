@@ -11,6 +11,7 @@
     "ms-vscode.powershell",
     "redhat.vscode-yaml",
     "ms-vsliveshare.vsliveshare",
-    "hcommand.run-runner"
+    "hcommand.run-runner",
+    "bierner.markdown-mermaid"
   ]
 }
