@@ -20,3 +20,10 @@ resource "azurerm_storage_account_static_website" "website" {
   index_document     = "index.html"
   error_404_document = "index.html"
 }
+
+resource "azurerm_app_configuration_key" "static_web_endpoint" {
+  configuration_store_id = data.azurerm_app_configuration.main_appconfig.id
+  key                    = "webEndpoint"
+  value                  = azurerm_storage_account.website.primary_web_endpoint
+  label                  = var.env_type
+}

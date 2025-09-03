@@ -10,12 +10,15 @@ const {
   deployFunctionAppZip,
   createServiceBusQueue,
   getIdentityClientId,
+  getAppConfigValueByKeyLabel,
+  setFunctionAppCors,
 } = require("./util/azureCli.js");
 const { npmInstall, npmPrune, zipDir } = require("./util/cli.js");
-const { getIdentityName } = require("../deploy/util/namingConvention");
+const { getIdentityName, getAppConfigName } = require("../deploy/util/namingConvention");
 
 class CodeDeployer {
-  constructor({ targetEnv, moduleName, subscriptionId, functionAppName, resourceGroupName, storageAccountName, serviceBusName, moduleDir }) {
+  constructor({ envType, targetEnv, moduleName, subscriptionId, functionAppName, resourceGroupName, storageAccountName, serviceBusName, moduleDir }) {
+    this.envType = envType;
     this.targetEnv = targetEnv;
     this.moduleName = moduleName;
     this.subscriptionId = subscriptionId;
@@ -45,6 +48,9 @@ class CodeDeployer {
       //   { role: "Azure Service Bus Data Receiver", scope: this._serviceBusScope() },
     ];
     this.queueNames = [];
+    this.allowedOrigins = [
+      getAppConfigValueByKeyLabel({ appConfigName: getAppConfigName(this.targetEnv), key: "webEndpoint", label: this.envType }).replace(/\/+$/, ""),
+    ];
   }
 
   // _storageScope() {
@@ -85,6 +91,15 @@ class CodeDeployer {
     this.queueNames.forEach((queueName) => {
       createServiceBusQueue({ resourceGroupName: this.resourceGroupName, namespaceName: this.serviceBusName, queueName });
     });
+    // Set CORS settings
+    if (this.allowedOrigins.length > 0) {
+      console.log(`Setting CORS for Function App...`);
+      setFunctionAppCors({
+        functionAppName: this.functionAppName,
+        resourceGroupName: this.resourceGroupName,
+        allowedOrigins: this.allowedOrigins,
+      });
+    }
     console.log(`dependencies installing...`);
     // Install shared module dependencies if it exists
     if (fs.existsSync(resolve(this.moduleDir, "..", "shared", "func", "package.json"))) {

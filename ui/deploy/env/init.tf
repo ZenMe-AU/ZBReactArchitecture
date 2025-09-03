@@ -19,6 +19,15 @@ provider "azurerm" {
 
 provider "azuread" {}
 
+variable "env_type" {
+  description = "Environment type for deployment, like dev, test, prod"
+  type        = string
+  validation {
+    condition     = contains(["dev", "test", "prod"], var.env_type)
+    error_message = "env_type must be one of: dev, test, prod."
+  }
+}
+
 variable "target_env" {
   description = "Target environment name for deployment, this must be globally unique on Azure"
   type        = string
@@ -39,8 +48,19 @@ variable "subscription_id" {
   type        = string
 }
 
+variable "appconfig_name" {
+  description = "App Configuration name"
+  type        = string
+}
+
+
 data "azurerm_resource_group" "main_resource" {
   name = var.resource_group_name
+}
+
+data "azurerm_app_configuration" "main_appconfig" {
+  name                = var.appconfig_name
+  resource_group_name = var.resource_group_name
 }
 
 # Get the Azure client configuration for tenant ID
