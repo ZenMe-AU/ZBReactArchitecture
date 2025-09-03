@@ -50,6 +50,12 @@ Set-Location $env:MODULE_FOLDER\deploy\schema
 node ./updateDbSchema.js
 if ($LASTEXITCODE -ne 0) { Write-Warning "Update database schema failed" }
 
+# initialize database with seed data
+Write-Output "Initializing database with seed data..."
+Set-Location $env:MODULE_FOLDER\deploy\schema
+node ./initData.js
+if ($LASTEXITCODE -ne 0) { Write-Warning "Initialize database with seed data failed" }
+
 # Deploy Function App code
 Write-Output "Deploying the Function App code..."
 Set-Location $env:MODULE_FOLDER\deploy\code
