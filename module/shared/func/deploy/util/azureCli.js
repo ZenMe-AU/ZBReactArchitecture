@@ -38,6 +38,16 @@ function getDefaultAzureLocation() {
   }
 }
 
+function getIdentityClientId({ identityName, resourceGroupName }) {
+  try {
+    return execSync(`az identity show -n ${identityName} -g ${resourceGroupName} --query clientId -o tsv`, {
+      encoding: "utf8",
+    }).trim();
+  } catch (e) {
+    throw new Error("Could not retrieve Azure Identity Client ID.");
+  }
+}
+
 /*
  *  Get the value of a key in a specific label from Azure App Configuration
  */
@@ -108,6 +118,7 @@ function removeTemporaryFirewallRule({ resourceGroup, serverName, ruleName }) {
 
 /**
  * Set a setting for the Azure Function App
+ * appSettings must be an object
  */
 function setFunctionAppSetting({ functionAppName, resourceGroupName, appSettings }) {
   const settingsArgs = Object.entries(appSettings)
@@ -125,6 +136,7 @@ function setFunctionAppSetting({ functionAppName, resourceGroupName, appSettings
 
 /**
  * Delete settings from the Azure Function App
+ * appSettingKeys must be an array
  */
 function deleteFunctionAppSetting({ functionAppName, resourceGroupName, appSettingKeys }) {
   const keys = appSettingKeys.join(" ");
@@ -132,6 +144,36 @@ function deleteFunctionAppSetting({ functionAppName, resourceGroupName, appSetti
     stdio: "inherit",
     shell: true,
   });
+}
+
+/**
+ * Set CORS settings for the Azure Function App
+ * allowedOrigins must be an array
+ */
+function setFunctionAppCors({ functionAppName, resourceGroupName, allowedOrigins }) {
+  const origins = allowedOrigins.join(" ");
+  try {
+    execSync(`az functionapp cors add -n ${functionAppName} -g ${resourceGroupName} --allowed-origins ${origins}`, {
+      stdio: "inherit",
+      shell: true,
+    });
+  } catch (e) {
+    throw new Error("Could not set Azure Function App CORS settings.");
+  }
+}
+
+/**
+ * Remove CORS settings for the Azure Function App
+ */
+function removeFunctionAppCors({ functionAppName, resourceGroupName, allowedOrigins }) {
+  try {
+    execSync(`az functionapp cors remove -n ${functionAppName} -g ${resourceGroupName} --allowed-origins ${allowedOrigins}`, {
+      stdio: "inherit",
+      shell: true,
+    });
+  } catch (e) {
+    throw new Error("Could not remove Azure Function App CORS settings.");
+  }
 }
 
 /**
@@ -216,12 +258,15 @@ module.exports = {
   getSubscriptionId,
   getObjectId,
   getDefaultAzureLocation,
+  getIdentityClientId,
   getAppConfigValueByKeyLabel,
   getFunctionAppPrincipalId,
   addTemporaryFirewallRule,
   removeTemporaryFirewallRule,
   setFunctionAppSetting,
   deleteFunctionAppSetting,
+  setFunctionAppCors,
+  removeFunctionAppCors,
   assignRole,
   deployFunctionAppZip,
   createServiceBusQueue,

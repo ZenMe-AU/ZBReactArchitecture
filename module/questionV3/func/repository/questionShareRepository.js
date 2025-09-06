@@ -2,7 +2,7 @@ const BaseRepository = require("@zenmechat/shared/repository/baseRepository");
 
 class QuestionShareRepository extends BaseRepository {
   constructor() {
-    super(["QuestionShare"]);
+    super(["QuestionShare", "Question"]);
   }
 
   async insertQuestionShare({ questionId, senderId, receiverIds, transaction = null }) {
@@ -23,7 +23,8 @@ class QuestionShareRepository extends BaseRepository {
       include: [
         {
           model: this.Question,
-          attributes: ["title", "questionText", "option"],
+          as: "Question",
+          attributes: ["title", "questionText", "optionList"],
         },
       ],
     });

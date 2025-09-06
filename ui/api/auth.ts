@@ -1,6 +1,8 @@
 import { jwtFetch } from "./jwtFetch";
+import { getConfig } from "../config/loadConfig";
 
-const apiDomain = import.meta.env.VITE_PROFILE_DOMAIN;
+// const apiDomain = import.meta.env.VITE_PROFILE_DOMAIN;
+const apiDomain = getConfig("PROFILE_DOMAIN");
 
 export const login = async (userId: string) => {
   try {

@@ -1,5 +1,6 @@
 const BaseRepository = require("@zenmechat/shared/repository/baseRepository");
 const { applyPatch } = require("fast-json-patch");
+const { Op } = require("sequelize");
 
 class QuestionRepository extends BaseRepository {
   constructor() {
@@ -51,6 +52,7 @@ class QuestionRepository extends BaseRepository {
       include: [
         {
           model: this.QuestionShare,
+          as: "QuestionShare",
           attributes: [],
           group: ["questionId"],
         },

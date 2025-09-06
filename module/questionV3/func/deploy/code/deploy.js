@@ -28,6 +28,7 @@ const moduleDir = resolve(__dirname, "..", "..", "..");
   const storageAccountName = getStorageAccountName(targetEnv);
 
   const codeDeployer = new CodeDeployer({
+    envType,
     targetEnv,
     moduleName,
     subscriptionId,

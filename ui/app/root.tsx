@@ -7,6 +7,7 @@ import type { Route } from "./+types/root";
 import appStylesHref from "./app.css?url";
 import bootstrapHref from "bootstrap/dist/css/bootstrap.min.css?url";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { loadConfig } from "../config/loadConfig";
 
 export default function App() {
   return (
@@ -96,14 +97,14 @@ export function HydrateFallback() {
   );
 }
 
-// export function clientLoader({ request }: LoaderFunctionArgs) {
-//   const url = new URL(request.url);
-//   // const location = useLocation();
-
-//   // logPageView(url.pathname, url.search);
-//   // logEvent("pageView", { pathname: url.pathname });
-//   // console.log("location:", location.pathname);
-//   // console.log("url.pathname:", url.pathname);
-//   console.log("url:", url);
-//   return null;
-// }
+export async function clientLoader({ request }: LoaderFunctionArgs) {
+  await loadConfig();
+  //   const url = new URL(request.url);
+  //   // const location = useLocation();
+  //   // logPageView(url.pathname, url.search);
+  //   // logEvent("pageView", { pathname: url.pathname });
+  //   // console.log("location:", location.pathname);
+  //   // console.log("url.pathname:", url.pathname);
+  //   console.log("url:", url);
+  //   return null;
+}

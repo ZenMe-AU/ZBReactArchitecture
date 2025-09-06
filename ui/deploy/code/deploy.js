@@ -11,9 +11,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const moduleDir = resolve(__dirname, "..", "..");
-const distPath = resolve(moduleDir, "build", "client");
+const distPath = resolve(moduleDir, "dist", "client");
 
-const envFile = resolve(moduleDir, ".env.production");
+const envFile = resolve(moduleDir, "public", "env.json");
 const apiList = ["profile", "questionV3"];
 
 function deploy() {
@@ -28,12 +28,14 @@ function deploy() {
       fs.writeFileSync(envFile, "", "utf-8");
     }
     // read existing env file
-    const envContent = fs.readFileSync(envFile, "utf-8").trim().split("\n");
-    const envMap = new Map();
-    envContent.forEach((line) => {
-      const [key, ...rest] = line.split("=");
-      if (key) envMap.set(key, rest.join("="));
-    });
+    // const envContent = fs.readFileSync(envFile, "utf-8").trim().split("\n");
+    // const envMap = new Map();
+    // envContent.forEach((line) => {
+    //   const [key, ...rest] = line.split("=");
+    //   if (key) envMap.set(key, rest.join("="));
+    // });
+    const envContent = JSON.parse(fs.readFileSync(envFile, "utf-8"));
+    const envMap = new Map(Object.entries(envContent));
     // fetch api domain from app config
     apiList.forEach((module) => {
       try {
@@ -43,18 +45,23 @@ function deploy() {
           key,
           label: envType,
         });
-        envMap.set(`VITE_${module.toUpperCase()}_DOMAIN`, `https://${value}`);
+        envMap.set(`${module.toUpperCase()}_DOMAIN`, `https://${value}`);
       } catch (err) {
         console.error(`Failed to fetch ${module}:`, err);
       }
     });
-    // writing back to envFile
-    const newEnvContent = Array.from(envMap.entries())
-      .map(([k, v]) => `${k}=${v}`)
-      .join("\n");
 
-    fs.writeFileSync(envFile, newEnvContent, "utf-8");
+    // writing back to envFile
+    // const newEnvContent = Array.from(envMap.entries())
+    //   .map(([k, v]) => `${k}=${v}`)
+    //   .join("\n");
+    // fs.writeFileSync(envFile, newEnvContent, "utf-8");
+    const envObject = Object.fromEntries(envMap);
+    const jsonContent = JSON.stringify(envObject, null, 2);
+
+    fs.writeFileSync(envFile, jsonContent, "utf-8");
     console.log("Building project...");
+
     execSync("pnpm install", { stdio: "inherit", cwd: moduleDir });
     execSync("pnpm run build", { stdio: "inherit", cwd: moduleDir });
 
