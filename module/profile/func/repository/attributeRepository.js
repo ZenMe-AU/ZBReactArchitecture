@@ -2,7 +2,7 @@ const BaseRepository = require("@zenmechat/shared/repository/baseRepository");
 
 class AttributeRepo extends BaseRepository {
   constructor() {
-    super(["Attributes"]);
+    super(["Attribute"]);
   }
 
   /**
@@ -12,10 +12,16 @@ class AttributeRepo extends BaseRepository {
    * @return {array}
    */
   async getByProfileId(profileId) {
-    const attrData = await this.Attributes.findAll({
+    const attrData = await this.Attribute.findAll({
       where: {
         profileId: profileId,
       },
+      include: [
+        {
+          model: this.Attribute.sequelize.models.Profile,
+          as: "Profile",
+        },
+      ],
     });
 
     return attrData.map(({ tag }) => tag);
@@ -29,7 +35,7 @@ class AttributeRepo extends BaseRepository {
    * @return {array}
    */
   async updateAttribute(profileId, tags) {
-    const attrData = await this.Attributes.findAll({
+    const attrData = await this.Attribute.findAll({
       where: {
         profileId: profileId,
       },
@@ -45,10 +51,10 @@ class AttributeRepo extends BaseRepository {
       });
     const deleteIds = attrData.filter(({ tag }) => !tags.includes(tag)).map(({ id }) => id);
 
-    await this.Attributes.destroy({
+    await this.Attribute.destroy({
       where: { id: deleteIds },
     });
-    await this.Attributes.bulkCreate(addTags, {
+    await this.Attribute.bulkCreate(addTags, {
       validate: true,
     });
     return tags;

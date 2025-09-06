@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
-  const Attributes = sequelize.define(
-    "Attributes",
+  const Attribute = sequelize.define(
+    "Attribute",
     {
       id: {
         type: DataTypes.UUID,
@@ -23,8 +23,8 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
-  Attributes.associate = (models) => {
-    Attributes.belongsTo(models.Profiles, { targetKey: "id", foreignKey: "profileId" });
+  Attribute.associate = (models) => {
+    Attribute.belongsTo(models.Profile, { as: "Profile", targetKey: "id", foreignKey: "profileId" });
   };
-  return Attributes;
+  return Attribute;
 };

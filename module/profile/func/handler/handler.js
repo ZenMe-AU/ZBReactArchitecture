@@ -36,7 +36,7 @@ const Attribute = require("../service/attributeService.js");
  *                         example: "blond"
  */
 async function GetAttributes(request, context) {
-  const userId = parseInt(request.params.userId);
+  const userId = request.params.userId;
   let attributes = await Attribute.getUserAttributeList(userId);
   return { return: { attributes: attributes } };
 }
@@ -89,7 +89,7 @@ async function GetAttributes(request, context) {
  *                         example: "blond"
  */
 async function PutAttributes(request, context) {
-  const userId = parseInt(request.params.userId);
+  const userId = request.params.userId;
   const { attributes } = request.clientParams;
   const attrData = await Attribute.updateAttribute(userId, attributes);
   return { return: { attributes: attrData } };
