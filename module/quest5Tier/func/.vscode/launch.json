@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Start questionV3",
+      "name": "Start quest5Tier",
       "type": "node",
       "request": "attach",
       "restart": true,
@@ -10,7 +10,7 @@
       "preLaunchTask": "func: host start"
     },
     {
-      "name": "Dependencies questionV3",
+      "name": "Dependencies quest5Tier",
       "type": "node",
       "request": "launch",
       "preLaunchTask": "npm install (functions)"

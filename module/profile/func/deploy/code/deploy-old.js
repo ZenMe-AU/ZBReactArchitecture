@@ -138,7 +138,7 @@ main();
 
 // az identity show -g stripedfrog-resources -n stripedfrog-mi
 
-// az functionapp identity show -g stripedfrog-resources -n stripedfrog-questionV3-func
+// az functionapp identity show -g stripedfrog-resources -n stripedfrog-quest5Tier-func
 // {
 //   "principalId": "5be5ded1-82b7-4efa-831d-c344cc790141",
 //   "tenantId": "15fb0613-7977-4551-801b-6aadac824241",

@@ -44,7 +44,7 @@ export default function HomePage({ loaderData }: { loaderData: { isAuthenticated
             <Button component={Link} to="/questionV2" variant="contained">
               Question V2
             </Button>
-            <Button component={Link} to="/questionV3" variant="contained">
+            <Button component={Link} to="/quest5Tier" variant="contained">
               Question V3
             </Button>
           </Box>

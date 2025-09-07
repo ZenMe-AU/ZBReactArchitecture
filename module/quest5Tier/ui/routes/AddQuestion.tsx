@@ -21,7 +21,7 @@ import { logEvent, setOperationId } from "@zenmechat/shared-ui/monitor/telemetry
 //   try {
 //     const id = await createQuestion(title, questionText, options.length === 0 ? null : options);
 //     // return { id };
-//     navigate(`/questionV3/${id}`, { replace: true });
+//     navigate(`/quest5Tier/${id}`, { replace: true });
 //   } catch (error) {
 //     console.error("Error creating question:", error);
 //     throw error;
@@ -76,7 +76,7 @@ function AddQuestion() {
           parentId: "QuestionForm",
           // questionId: id,
         });
-        // navigate(`/questionV3/${id}`, { replace: true }); // Redirect to the question detail page after successful submission
+        // navigate(`/quest5Tier/${id}`, { replace: true }); // Redirect to the question detail page after successful submission
         navigate(-1);
       }
     }

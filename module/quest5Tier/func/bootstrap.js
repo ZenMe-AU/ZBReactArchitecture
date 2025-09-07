@@ -11,8 +11,8 @@ register("db", async () => {
   const modelDir = path.join(__dirname, "db", "model");
   const config = {
     authMode: "azure-ad",
-    username: "hugejunglefowl-questionV3-func",
-    database: "questionV3",
+    username: "hugejunglefowl-quest5Tier-func",
+    database: "quest5Tier",
     host: "hugejunglefowl-postgresqlserver.postgres.database.azure.com",
     port: 5432,
     dialect: "postgres",

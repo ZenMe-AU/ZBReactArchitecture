@@ -268,7 +268,7 @@ export default function AnswerQuestion({ loaderData }: { loaderData: any }) {
           when: answerPayload.when,
         };
       });
-      // navigate(`/questionV3/${id}`);
+      // navigate(`/quest5Tier/${id}`);
     } catch (err) {
       console.error("Error submitting answer:", err);
       alert("Failed to submit the answer.");
@@ -291,7 +291,7 @@ export default function AnswerQuestion({ loaderData }: { loaderData: any }) {
       parentId: "ActionButton",
       questionId: questionId,
     });
-    navigate(`/questionV3/${questionId}/followUp`);
+    navigate(`/quest5Tier/${questionId}/followUp`);
   };
 
   const handleCheckboxChange = (option: string) => {

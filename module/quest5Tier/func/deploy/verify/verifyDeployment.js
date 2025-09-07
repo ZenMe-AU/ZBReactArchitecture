@@ -99,7 +99,7 @@ function getFunctionList(functionAppName, resourceGroupName) {
 // Running
 
 //  az functionapp function list \
-//   --name hugejunglefowl-questionV3-func \
+//   --name hugejunglefowl-quest5Tier-func \
 //   --resource-group dev-hugejunglefowl \
 //  --query "[].config.name"
 

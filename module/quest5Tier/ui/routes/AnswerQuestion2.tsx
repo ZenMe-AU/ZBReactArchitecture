@@ -137,7 +137,7 @@ export default function AnswerQuestion2({ loaderData }: { loaderData: any }) {
             {navigation.state === "submitting" ? "Submitting..." : "Submit Answer"}
           </Button>
           {isOption && (
-            <Button type="button" variant="outlined" color="secondary" onClick={() => navigate(`/questionV3/${question.id}/followUp`)}>
+            <Button type="button" variant="outlined" color="secondary" onClick={() => navigate(`/quest5Tier/${question.id}/followUp`)}>
               Follow Up
             </Button>
           )}

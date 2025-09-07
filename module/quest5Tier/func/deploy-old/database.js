@@ -2,7 +2,7 @@ const { Sequelize } = require("sequelize");
 const { Umzug, SequelizeStorage } = require("umzug");
 
 const config = {
-  database: "questionV3",
+  database: "quest5Tier",
   host: "postgress1.postgres.database.azure.com",
   port: 5432,
   migrationsFolder: "../db/migration",
