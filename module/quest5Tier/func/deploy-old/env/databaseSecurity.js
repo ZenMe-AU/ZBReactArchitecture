@@ -311,5 +311,5 @@ const TEMP_RULE_NAME = "temp-access-rule";
 //     EOT
 //   }
 // }
-// SELECT * FROM pg_catalog.pgaadauth_create_principal_with_oid('questionV3-fa', '8b2e6533-872b-4592-83a5-3ff2bc90266d', 'service', false, false);
+// SELECT * FROM pg_catalog.pgaadauth_create_principal_with_oid('quest5Tier-fa', '8b2e6533-872b-4592-83a5-3ff2bc90266d', 'service', false, false);
 // select * from pg_catalog.pgaadauth_list_principals(false);

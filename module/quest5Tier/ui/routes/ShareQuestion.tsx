@@ -76,7 +76,7 @@ function ShareQuestion() {
       console.error(err);
     } finally {
       setLoading(false);
-      navigate(`/questionV3/${id}/answer`); // Navigate back to the question detail
+      navigate(`/quest5Tier/${id}/answer`); // Navigate back to the question detail
     }
   };
 

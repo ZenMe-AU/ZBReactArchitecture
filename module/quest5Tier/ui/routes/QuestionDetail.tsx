@@ -39,7 +39,7 @@ function QuestionDetail() {
         setQuestionData(data);
         setEditedData(data); // Initialize editing data
         if (data.profileId !== localStorage.getItem("profileId")) {
-          navigate(`/questionV3/${id}/add`, { replace: true });
+          navigate(`/quest5Tier/${id}/add`, { replace: true });
         }
       } catch (error) {
         console.error("Error fetching question:", error);

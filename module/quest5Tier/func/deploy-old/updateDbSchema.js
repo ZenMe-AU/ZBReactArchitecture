@@ -7,7 +7,7 @@ const path = require("path");
 // TODO: default PostgreSQL connection configuration for local development or try to build local config
 const pgHost = "ethnicmacaw-postgresqlserver.postgres.database.azure.com";
 const pgPort = 5432;
-const pgDatabase = "questionV3";
+const pgDatabase = "quest5Tier";
 const pgDialect = "postgres";
 const migrationsFolder = path.join(__dirname, "../db/migration");
 // const aadUser = "LukeYeh@zenme.com.au";

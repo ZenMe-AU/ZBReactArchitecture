@@ -6,5 +6,5 @@
   "debug.internalConsoleOptions": "neverOpen",
   "azureFunctions.projectLanguageModel": 4,
   "azureFunctions.preDeployTask": "npm prune (functions)",
-  "azureFunctions.functionAppName": "questionv3"
+  "azureFunctions.functionAppName": "quest5Tier"
 }

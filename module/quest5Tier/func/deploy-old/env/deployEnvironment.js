@@ -125,4 +125,4 @@ if (require.main === module) {
 
 module.exports = { initEnvironment };
 
-// az functionapp show --name stripedfrog-questionV3-func --resource-group stripedfrog-resources --query "identity.principalId" -o tsv
+// az functionapp show --name stripedfrog-quest5Tier-func --resource-group stripedfrog-resources --query "identity.principalId" -o tsv
