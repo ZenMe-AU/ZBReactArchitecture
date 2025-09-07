@@ -1,5 +1,6 @@
 {
   "development": {
+    "authMode": "password",
     "username": "zmpostressadmin",
     "password": "2024 Zenme Postgress admin",
     "database": "question",

@@ -1,23 +1,24 @@
 const { Op, Sequelize } = require("sequelize");
 // const { Op } = require("@zenmechat/shared/db").sequelize;
 
-const {
-  Question,
-  QuestionAnswer,
-  QuestionShare,
-  QuestionShareCmd,
-  QuestionAction,
-  FollowUpCmd,
-  FollowUpFilter,
-  FollowUpEvent,
-  QuestionShareEvent,
-} = require("../db/model");
+// const {
+//   Question,
+//   QuestionAnswer,
+//   QuestionShare,
+//   QuestionShareCmd,
+//   QuestionAction,
+//   FollowUpCmd,
+//   FollowUpFilter,
+//   FollowUpEvent,
+//   QuestionShareEvent,
+// } = require("../db/model");
+const Model = require("../db/model");
 const { v4: uuidv4 } = require("uuid");
 const { cmdName } = require("../enum.js");
 
 async function create(profileId, title = null, question = null, option = null) {
   try {
-    return await Question.create({
+    return await Model.Question.create({
       profileId: profileId,
       title: title,
       questionText: question,
@@ -31,7 +32,7 @@ async function create(profileId, title = null, question = null, option = null) {
 
 async function updateById(questionId, title = null, questionText = null, option = null) {
   try {
-    return await Question.update(
+    return await Model.Question.update(
       {
         title: title,
         questionText: questionText,
@@ -53,7 +54,7 @@ async function updateById(questionId, title = null, questionText = null, option 
 async function getById(questionId) {
   try {
     // return await Questionnaires.findOne({ where: { id: questionId } });
-    return await Question.findByPk(questionId);
+    return await Model.Question.findByPk(questionId);
   } catch (err) {
     console.log(err);
     throw new Error(`Function failed: ${err.message}`, { cause: err });
@@ -62,7 +63,7 @@ async function getById(questionId) {
 
 async function getListByUser(profileId) {
   try {
-    return await Question.findAll({ where: { profileId: profileId } });
+    return await Model.Question.findAll({ where: { profileId: profileId } });
   } catch (err) {
     console.log(err);
     throw new Error(`Function failed: ${err.message}`, { cause: err });
@@ -71,7 +72,7 @@ async function getListByUser(profileId) {
 
 async function getCombinationListByUser(profileId) {
   try {
-    return await Question.findAll({
+    return await Model.Question.findAll({
       where: {
         [Op.or]: [
           { profileId: profileId },
@@ -82,7 +83,7 @@ async function getCombinationListByUser(profileId) {
       },
       include: [
         {
-          model: QuestionShare,
+          model: Model.QuestionShare,
           attributes: [],
           group: ["newQuestionId"],
         },
@@ -96,7 +97,7 @@ async function getCombinationListByUser(profileId) {
 
 async function addAnswerByQuestionId(questionId, profileId, duration, answer = null, option = null) {
   try {
-    return await QuestionAnswer.create({
+    return await Model.QuestionAnswer.create({
       questionId: questionId,
       profileId: profileId,
       answerText: answer,
@@ -111,7 +112,7 @@ async function addAnswerByQuestionId(questionId, profileId, duration, answer = n
 
 async function getAnswerById(questionId, answerId) {
   try {
-    return await QuestionAnswer.findOne({ where: { id: answerId, questionId: questionId } });
+    return await Model.QuestionAnswer.findOne({ where: { id: answerId, questionId: questionId } });
   } catch (err) {
     console.log(err);
     throw new Error(`Function failed: ${err.message}`, { cause: err });
@@ -134,7 +135,7 @@ async function getAnswerListByQuestionId(questionId) {
     //   order: [[Sequelize.fn("MAX", Sequelize.col("createdAt")), "DESC"]],
     //   raw: true,
     // });
-    return await await QuestionAnswer.sequelize.query(
+    return await Model.QuestionAnswer.sequelize.query(
       `
           SELECT DISTINCT ON ("profileId")
             "id",
@@ -151,7 +152,7 @@ async function getAnswerListByQuestionId(questionId) {
         `,
       {
         replacements: { questionId },
-        type: QuestionAnswer.sequelize.QueryTypes.SELECT,
+        type: Model.QuestionAnswer.sequelize.QueryTypes.SELECT,
       }
     );
   } catch (err) {
@@ -170,7 +171,7 @@ async function shareQuestion(newQuestionId, senderId, receiverIds) {
         receiverProfileId: receiverId,
       };
     });
-    return await QuestionShare.bulkCreate(addData);
+    return await Model.QuestionShare.bulkCreate(addData);
   } catch (err) {
     console.log(err);
     throw new Error(`Function failed: ${err.message}`, { cause: err });
@@ -188,7 +189,7 @@ async function addFollowUpByQuestionId(newQuestionId, senderId, questionList, is
         isSave: isSave,
       };
     });
-    const list = await FollowUpCmd.bulkCreate(addData);
+    const list = await Model.FollowUpCmd.bulkCreate(addData);
     // await followUpCmdQueue.add("processFollowUpCmd", { tasks: list });
     // console.log(list.map(({ id }) => id));
     // await followUpCmdQueue.add("processFollowUpCmd", { tasks: list.map(({ id }) => id) });
@@ -201,7 +202,7 @@ async function addFollowUpByQuestionId(newQuestionId, senderId, questionList, is
 
 async function insertFollowUpCmd(cmdId, senderId, cmdData, correlationId) {
   try {
-    return await FollowUpCmd.create({
+    return await Model.FollowUpCmd.create({
       id: cmdId,
       senderProfileId: senderId,
       action: "create",
@@ -228,7 +229,7 @@ async function insertFollowUpFilter(cmdData) {
           newQuestionId: cmdData.newQuestionId,
         };
       });
-      return await FollowUpFilter.bulkCreate(filterDataAry);
+      return await Model.FollowUpFilter.bulkCreate(filterDataAry);
     }
   } catch (err) {
     console.log(err);
@@ -262,7 +263,7 @@ async function getFollowUpReceiver(cmdData) {
 
 async function updateFollowUpCmdStatus(id) {
   try {
-    return await FollowUpCmd.update({ status: 1 }, { where: { id: id }, individualHooks: true });
+    return await Model.FollowUpCmd.update({ status: 1 }, { where: { id: id }, individualHooks: true });
   } catch (err) {
     console.log(err);
     throw new Error(`Function failed: ${err.message}`, { cause: err });
@@ -271,7 +272,7 @@ async function updateFollowUpCmdStatus(id) {
 
 async function insertQuestionShareCmd(cmdId, senderId, cmdData, correlationId) {
   try {
-    return await QuestionShareCmd.create({
+    return await Model.QuestionShareCmd.create({
       id: cmdId,
       senderProfileId: senderId,
       action: "create",
@@ -286,7 +287,7 @@ async function insertQuestionShareCmd(cmdId, senderId, cmdData, correlationId) {
 
 async function updateQuestionShareCmdStatus(id) {
   try {
-    return await QuestionShareCmd.update({ status: 1 }, { where: { id: id }, individualHooks: true });
+    return await Model.QuestionShareCmd.update({ status: 1 }, { where: { id: id }, individualHooks: true });
   } catch (err) {
     console.log(err);
     throw new Error(`Function failed: ${err.message}`, { cause: err });
@@ -360,11 +361,11 @@ async function updateQuestionShareCmdStatus(id) {
 
 async function getSharedQuestionListByUser(profileId) {
   try {
-    return await QuestionShare.findAll({
+    return await Model.QuestionShare.findAll({
       where: { receiverId: profileId },
       include: [
         {
-          model: Question,
+          model: Model.Question,
           attributes: ["title", "questionText", "option"],
         },
       ],
@@ -377,7 +378,7 @@ async function getSharedQuestionListByUser(profileId) {
 
 async function patchById(questionId, action, profileId) {
   try {
-    return await QuestionAction.create({ questionId, profileId, action });
+    return await Model.QuestionAction.create({ questionId, profileId, action });
   } catch (err) {
     console.log(err);
     throw new Error(`Function failed: ${err.message}`, { cause: err });
@@ -385,13 +386,13 @@ async function patchById(questionId, action, profileId) {
 }
 
 async function getEventByCorrelationId(name, correlationId) {
-  var model;
+  let model;
   switch (name) {
     case cmdName.FollowUpCmd:
-      model = FollowUpEvent;
+      model = Model.FollowUpEvent;
       break;
     case cmdName.QuestionShareCmd:
-      model = QuestionShareEvent;
+      model = Model.QuestionShareEvent;
       break;
     default:
       throw new Error("unknown eventName");

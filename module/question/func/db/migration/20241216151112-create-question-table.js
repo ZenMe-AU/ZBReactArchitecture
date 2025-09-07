@@ -36,9 +36,9 @@ module.exports = {
         defaultValue: Sequelize.NOW,
       },
     });
-    await queryInterface.sequelize.query(
-      'ALTER TABLE question ADD CONSTRAINT question_profile_id_fkey FOREIGN KEY ("profileId") REFERENCES profiles (id);'
-    );
+    // await queryInterface.sequelize.query(
+    //   'ALTER TABLE question ADD CONSTRAINT question_profile_id_fkey FOREIGN KEY ("profileId") REFERENCES profiles (id);'
+    // );
   },
 
   async down(queryInterface, Sequelize) {

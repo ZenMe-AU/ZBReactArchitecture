@@ -1,9 +1,9 @@
 const BaseRepository = require("@zenmechat/shared/repository/baseRepository");
-const { Op, Sequelize, QueryTypes, literal } = require("sequelize");
+const { Op, Sequelize, QueryTypes, literal, fn, col } = require("sequelize");
 
 class ProfileRepo extends BaseRepository {
   constructor() {
-    super(["Profiles", "Attributes"]);
+    super(["Profile", "Attribute"]);
   }
 
   async getList(tags) {
@@ -11,33 +11,48 @@ class ProfileRepo extends BaseRepository {
       attributes: ["id", "name", "avatar"],
     };
     if (tags != null) {
-      queryObj.include = [
-        {
-          model: this.Attributes,
-          attributes: [],
-          where: { tag: { [Op.like]: { [Op.any]: tags } } },
+      // queryObj.include = [
+      //   {
+      //     model: this.Attribute,
+      //     as: "Attribute",
+      //     attributes: [],
+      //     where: { tag: { [Op.like]: { [Op.any]: tags } } },
+      //   },
+      // ];
+      // queryObj.group = ["Profile.id"];
+      // queryObj.having = Sequelize.literal(`COUNT(Attribute.id) >= ${tags.length}`);
+      // const sequelize = this.Profile.sequelize;
+      const tagCount = tags.length;
+      const query = `
+        SELECT p.*
+        FROM profiles p
+        JOIN attributes a ON a."profileId" = p.id
+        WHERE a.tag LIKE ANY(ARRAY[:tags])
+        GROUP BY p.id
+        HAVING COUNT(a.id) >= :tagCount;
+      `;
+      return this.Profile.sequelize.query(query, {
+        replacements: {
+          tags,
+          tagCount,
         },
-      ];
-      queryObj.group = ["profiles.id"];
-      // queryObj.having = Sequelize.where(Sequelize.fn("COUNT", Sequelize.col("attributes.id")), {
-      //   [Op.gte]: tags.length,
-      // });
-      queryObj.having = Sequelize.literal(`COUNT(attributes.id) >= ${tags.length}`);
+        type: QueryTypes.SELECT,
+      });
     }
-    return this.Profiles.findAll(queryObj);
+    return this.Profile.findAll(queryObj);
   }
 
   async insertProfile(name, tags = [], avatar = null) {
-    let profile = await this.Profiles.create(
+    let profile = await this.Profile.create(
       {
         name: name,
         avatar: avatar,
-        attributes: tags.map(function (tag) {
+        Attribute: tags.map(function (tag) {
           return { tag: tag };
         }),
       },
       {
-        include: [this.Attributes],
+        include: [{ model: this.Attribute, as: "Attribute" }],
       }
     );
 
@@ -47,7 +62,7 @@ class ProfileRepo extends BaseRepository {
   }
 
   async getProfile(profileId) {
-    return await this.Profiles.findByPk(profileId);
+    return await this.Profile.findByPk(profileId);
   }
 }
 

@@ -56,27 +56,27 @@ module.exports = {
       onDelete: "CASCADE",
     });
 
-    await queryInterface.addConstraint("questionShare", {
-      fields: ["senderProfileId"],
-      type: "foreign key",
-      name: "share_senderId_fkey",
-      references: {
-        table: "profiles",
-        field: "id",
-      },
-      onDelete: "CASCADE",
-    });
+    // await queryInterface.addConstraint("questionShare", {
+    //   fields: ["senderProfileId"],
+    //   type: "foreign key",
+    //   name: "share_senderId_fkey",
+    //   references: {
+    //     table: "profiles",
+    //     field: "id",
+    //   },
+    //   onDelete: "CASCADE",
+    // });
 
-    await queryInterface.addConstraint("questionShare", {
-      fields: ["receiverProfileId"],
-      type: "foreign key",
-      name: "share_receiverId_fkey",
-      references: {
-        table: "profiles",
-        field: "id",
-      },
-      onDelete: "CASCADE",
-    });
+    // await queryInterface.addConstraint("questionShare", {
+    //   fields: ["receiverProfileId"],
+    //   type: "foreign key",
+    //   name: "share_receiverId_fkey",
+    //   references: {
+    //     table: "profiles",
+    //     field: "id",
+    //   },
+    //   onDelete: "CASCADE",
+    // });
   },
 
   async down(queryInterface, Sequelize) {

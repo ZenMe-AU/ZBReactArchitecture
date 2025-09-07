@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
-  const Profiles = sequelize.define(
-    "Profiles",
+  const Profile = sequelize.define(
+    "Profile",
     {
       id: {
         type: DataTypes.UUID,
@@ -30,8 +30,8 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
-  Profiles.associate = (models) => {
-    Profiles.hasMany(models.Attributes, { foreignKey: "profileId", sourceKey: "id" });
+  Profile.associate = (models) => {
+    Profile.hasMany(models.Attribute, { as: "Attribute", foreignKey: "profileId", sourceKey: "id" });
   };
-  return Profiles;
+  return Profile;
 };
