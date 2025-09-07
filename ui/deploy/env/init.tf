@@ -31,26 +31,31 @@ variable "env_type" {
 variable "target_env" {
   description = "Target environment name for deployment, this must be globally unique on Azure"
   type        = string
+  default     = "zenmeUITest"
 }
 
 variable "resource_group_name" {
   description = "Resource group name for deployment"
   type        = string
+  default     = "dev-enviouseel"
 }
 
 variable "storage_account_web_name" {
   description = "Storage account name for static website"
   type        = string
+  default     = "enviouseelweb"
 }
 
 variable "subscription_id" {
   description = "Subscription ID for Azure resources"
   type        = string
+  default     = "0930d9a7-2369-4a2d-a0b6-5805ef505868"
 }
 
 variable "appconfig_name" {
   description = "App Configuration name"
   type        = string
+  default     = "enviouseel-appconfig"
 }
 
 
