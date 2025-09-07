@@ -157,10 +157,10 @@ resource "azurerm_cdn_frontdoor_route" "fd_route" {
   cdn_frontdoor_origin_ids          = [azurerm_cdn_frontdoor_origin.fd_origin.id]
   cdn_frontdoor_origin_group_id     = azurerm_cdn_frontdoor_origin_group.fd_origin_group.id
   patterns_to_match                 = ["/*"]
-  supported_protocols               = ["Https"]
-  forwarding_protocol               = "MatchRequest"
+  supported_protocols               = ["Http", "Https"]
+  forwarding_protocol               = "HttpsOnly"
   // The 'https_redirect_enabled' field cannot be set to 'true' 
   // unless the 'supported_protocols' field contains both 'Http' and 'Https'
-  https_redirect_enabled            = false
+  https_redirect_enabled            = true
 }
 
