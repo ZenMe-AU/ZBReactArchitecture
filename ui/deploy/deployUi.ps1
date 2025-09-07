@@ -40,5 +40,5 @@ if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 #Deploy the application code
 Write-Output "Deploy the application code"
 Set-Location $env:UI_FOLDER\deploy\code
-#node ./deploy.js
+node ./deploy.js
 if ($LASTEXITCODE -ne 0) { Write-Warning "Deploy ui code failed" }
