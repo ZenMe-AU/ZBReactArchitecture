@@ -53,7 +53,6 @@ async function updateById(questionId, title = null, questionText = null, option 
 
 async function getById(questionId) {
   try {
-    console.log("👀see what is inside", Model.Question);
     // return await Questionnaires.findOne({ where: { id: questionId } });
     return await Model.Question.findByPk(questionId);
   } catch (err) {

@@ -5,7 +5,7 @@ const { requestHandler, serviceBusHandler } = require("@zenmechat/shared/handler
 const questionHandler = require("./handler.js");
 const sendFollowUpCmdSchema = require("./schema/sendFollowUpCmdSchema");
 const shareQuestionCmdSchema = require("./schema/shareQuestionCmdSchema");
-const { followUpCmdQueue, shareQuestionCmdQueue } = require("@zenmechat/shared/service/serviceBus.js");
+const { followUpCmdQueue, shareQuestionCmdQueue } = require("./service/serviceBus.js");
 
 app.http("CreateQuestion", {
   route: "question",
@@ -107,13 +107,13 @@ app.http("getEventByCorrelationId", {
 });
 
 app.serviceBusQueue("sendFollowUpCmdQueue", {
-  connection: "Zmchat_SERVICEBUS",
+  connection: "ServiceBusConnection",
   queueName: "followupcmd",
   handler: serviceBusHandler(questionHandler.SendFollowUpCmd),
 });
 
 app.serviceBusQueue("shareQuestionCmdQueue", {
-  connection: "Zmchat_SERVICEBUS",
+  connection: "ServiceBusConnection",
   queueName: "ShareQuestionCmd",
   handler: serviceBusHandler(questionHandler.ShareQuestionCmd),
 });

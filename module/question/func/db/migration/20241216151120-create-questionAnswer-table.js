@@ -37,8 +37,8 @@ module.exports = {
       },
     });
     await queryInterface.sequelize.query(
-      'ALTER TABLE "questionAnswer" ADD CONSTRAINT answers_questionId_fkey FOREIGN KEY ("questionId") REFERENCES question (id);',
-      'ALTER TABLE "questionAnswer" ADD CONSTRAINT answers_profileId_fkey FOREIGN KEY ("profileId") REFERENCES profiles (id);'
+      'ALTER TABLE "questionAnswer" ADD CONSTRAINT answers_questionId_fkey FOREIGN KEY ("questionId") REFERENCES question (id);'
+      // 'ALTER TABLE "questionAnswer" ADD CONSTRAINT answers_profileId_fkey FOREIGN KEY ("profileId") REFERENCES profiles (id);'
     );
   },
 
