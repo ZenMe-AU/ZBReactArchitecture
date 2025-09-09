@@ -1,4 +1,4 @@
-const DB_TYPE = require("../../enum/dbType");
+const DB_TYPE = require("../../../shared/enum/dbType");
 
 function createDatabaseInstance(type, config) {
   switch (type) {

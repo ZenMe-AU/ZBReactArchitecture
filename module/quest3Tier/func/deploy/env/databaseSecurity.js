@@ -1,7 +1,7 @@
 const { resolve } = require("path");
 const DatabasePermissionManager = require("../../shared/deploy/DatabasePermissionManager");
 const { getTargetEnv, getModuleName } = require("../../shared/deploy/util/envSetup.js");
-const { createDatabaseInstance } = require("../../shared/db/connection");
+const { createDatabaseInstance } = require("../../repository/model/connection");
 const DB_TYPE = require("../../shared/enum/dbType");
 const {
   getFunctionAppName,

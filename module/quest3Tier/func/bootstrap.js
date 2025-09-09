@@ -4,7 +4,7 @@ const container = require("./shared/bootstrap/container");
 
 // register db
 register("db", async () => {
-  const { createDatabaseInstance } = require("./shared/db/connection");
+  const { createDatabaseInstance } = require("./repository/model/connection");
   const DB_TYPE = require("./shared/enum/dbType");
   // const config = require("./db/config.json")["development"];
   const config = {
