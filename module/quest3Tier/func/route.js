@@ -1,7 +1,7 @@
-require("@zenmechat/shared");
+require("./shared/index.js");
 require("./bootstrap");
 const { app } = require("@azure/functions");
-const { requestHandler, serviceBusHandler } = require("@zenmechat/shared/handler");
+const { requestHandler, serviceBusHandler } = require("./shared/handler");
 const questionHandler = require("./handler.js");
 const sendFollowUpCmdSchema = require("./schema/sendFollowUpCmdSchema");
 const shareQuestionCmdSchema = require("./schema/shareQuestionCmdSchema");

@@ -1,6 +1,6 @@
 const { resolve } = require("path");
-const { getTargetEnv, getModuleName } = require("@zenmechat/shared/deploy/util/envSetup.js");
-const EnvironmentDeployer = require("@zenmechat/shared/deploy/environmentDeployer.js");
+const { getTargetEnv, getModuleName } = require("../../shared/deploy/util/envSetup.js");
+const EnvironmentDeployer = require("../../shared/deploy/environmentDeployer.js");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
 

@@ -1,8 +1,8 @@
 const { resolve } = require("path");
-const DatabasePermissionManager = require("@zenmechat/shared/deploy/DatabasePermissionManager");
-const { getTargetEnv, getModuleName } = require("@zenmechat/shared/deploy/util/envSetup.js");
-const { createDatabaseInstance } = require("@zenmechat/shared/db/connection");
-const DB_TYPE = require("@zenmechat/shared/enum/dbType");
+const DatabasePermissionManager = require("../../shared/deploy/DatabasePermissionManager");
+const { getTargetEnv, getModuleName } = require("../../shared/deploy/util/envSetup.js");
+const { createDatabaseInstance } = require("../../shared/db/connection");
+const DB_TYPE = require("../../shared/enum/dbType");
 const {
   getFunctionAppName,
   getResourceGroupName,
@@ -12,7 +12,7 @@ const {
   getDbSchemaAdminName,
   getDbSchemaAdminRoleName,
   getDbAdminName,
-} = require("@zenmechat/shared/deploy/util/namingConvention");
+} = require("../../shared/deploy/util/namingConvention");
 
 function getPgHost(targetEnv) {
   return `${targetEnv}-postgresqlserver.postgres.database.azure.com`;

@@ -1,13 +1,8 @@
 const { resolve } = require("path");
-const { getTargetEnv, getModuleName } = require("@zenmechat/shared/deploy/util/envSetup");
-const {
-  getResourceGroupName,
-  getServiceBusName,
-  getFunctionAppName,
-  getStorageAccountName,
-} = require("@zenmechat/shared/deploy/util/namingConvention");
-const { getSubscriptionId } = require("@zenmechat/shared/deploy/util/azureCli");
-const CodeDeployer = require("@zenmechat/shared/deploy//CodeDeployer");
+const { getTargetEnv, getModuleName } = require("../../shared/deploy/util/envSetup");
+const { getResourceGroupName, getServiceBusName, getFunctionAppName, getStorageAccountName } = require("../../shared/deploy/util/namingConvention");
+const { getSubscriptionId } = require("../../shared/deploy/util/azureCli");
+const CodeDeployer = require("../../shared/deploy//CodeDeployer");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
 

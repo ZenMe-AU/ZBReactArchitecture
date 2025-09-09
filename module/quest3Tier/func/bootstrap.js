@@ -1,11 +1,11 @@
 const path = require("path");
-const { register } = require("@zenmechat/shared/bootstrap/registry");
-const container = require("@zenmechat/shared/bootstrap/container");
+const { register } = require("./shared/bootstrap/registry");
+const container = require("./shared/bootstrap/container");
 
 // register db
 register("db", async () => {
-  const { createDatabaseInstance } = require("@zenmechat/shared/db/connection");
-  const DB_TYPE = require("@zenmechat/shared/enum/dbType");
+  const { createDatabaseInstance } = require("./shared/db/connection");
+  const DB_TYPE = require("./shared/enum/dbType");
   // const config = require("./db/config.json")["development"];
   const config = {
     username: "hugejunglefowl-question-func",

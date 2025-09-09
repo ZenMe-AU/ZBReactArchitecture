@@ -1,9 +1,9 @@
 const { resolve } = require("path");
-const MigrationRunner = require("@zenmechat/shared/deploy/migrationRunner.js");
-const { getTargetEnv, getModuleName } = require("@zenmechat/shared/deploy/util/envSetup.js");
-const { createDatabaseInstance } = require("@zenmechat/shared/db/connection");
-const DB_TYPE = require("@zenmechat/shared/enum/dbType");
-const { getDbAdminName } = require("@zenmechat/shared/deploy/util/namingConvention");
+const MigrationRunner = require("../../shared/deploy/migrationRunner.js");
+const { getTargetEnv, getModuleName } = require("../../shared/deploy/util/envSetup.js");
+const { createDatabaseInstance } = require("../../shared/db/connection");
+const DB_TYPE = require("../../shared/enum/dbType");
+const { getDbAdminName } = require("../../shared/deploy/util/namingConvention");
 
 /**
  * Naming convention helpers

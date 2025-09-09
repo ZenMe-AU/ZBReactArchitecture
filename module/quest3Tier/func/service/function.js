@@ -1,5 +1,5 @@
 const { Op, Sequelize } = require("sequelize");
-// const { Op } = require("@zenmechat/shared/db").sequelize;
+// const { Op } = require("../shared/db").sequelize;
 
 // const {
 //   Question,
