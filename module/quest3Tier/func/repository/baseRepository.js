@@ -1,4 +1,4 @@
-const container = require("../bootstrap/container");
+const container = require("../shared/bootstrap/container");
 
 class BaseRepository {
   constructor(modelMap = {}) {
