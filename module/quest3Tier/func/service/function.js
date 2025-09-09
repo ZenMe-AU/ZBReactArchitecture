@@ -12,7 +12,7 @@ const { Op, Sequelize } = require("sequelize");
 //   FollowUpEvent,
 //   QuestionShareEvent,
 // } = require("../db/model");
-const Model = require("../db/model");
+const Model = require("../repository/model/index.js");
 const { v4: uuidv4 } = require("uuid");
 const { cmdName } = require("../enum.js");
 
