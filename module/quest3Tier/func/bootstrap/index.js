@@ -1,11 +1,11 @@
 const path = require("path");
-const { register } = require("./shared/bootstrap/registry");
-const container = require("./shared/bootstrap/container");
+const { register } = require("./registry");
+const container = require("./container");
 
 // register db
 register("db", async () => {
-  const { createDatabaseInstance } = require("./repository/model/connection");
-  const DB_TYPE = require("./enum/dbType");
+  const { createDatabaseInstance } = require("../repository/model/connection");
+  const DB_TYPE = require("../enum/dbType");
   // const config = require("./db/config.json")["development"];
   const config = {
     username: "hugejunglefowl-question-func",

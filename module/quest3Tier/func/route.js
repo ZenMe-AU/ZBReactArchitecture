@@ -1,5 +1,5 @@
 require("./shared/index.js");
-require("./bootstrap");
+require("./bootstrap/index.js");
 const { app } = require("@azure/functions");
 const { requestHandler, serviceBusHandler } = require("./handler/handlerWrapper.js");
 const questionHandler = require("./handler/handler.js");

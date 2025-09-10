@@ -2,7 +2,7 @@ const { DataTypes } = require("sequelize");
 // const { sequelize } = require("./db.js");
 // const { sequelize } = require("../");
 const { applyPatch } = require("fast-json-patch");
-const container = require("../../shared/bootstrap/container");
+const container = require("../../bootstrap/container");
 
 let models = null;
 function initModels() {
