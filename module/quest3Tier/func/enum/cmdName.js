@@ -3,6 +3,4 @@ const cmdName = Object.freeze({
   ShareQuestionCmd: "ShareQuestionCmd",
 });
 
-module.exports = {
-  cmdName,
-};
+module.exports = cmdName;

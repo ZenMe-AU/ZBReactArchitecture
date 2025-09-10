@@ -14,7 +14,7 @@ const { Op, Sequelize } = require("sequelize");
 // } = require("../db/model");
 const Model = require("../repository/model/index.js");
 const { v4: uuidv4 } = require("uuid");
-const { cmdName } = require("../enum/enum.js");
+const cmdName = require("../enum/cmdName.js");
 
 async function create(profileId, title = null, question = null, option = null) {
   try {
