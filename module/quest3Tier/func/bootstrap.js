@@ -5,7 +5,7 @@ const container = require("./shared/bootstrap/container");
 // register db
 register("db", async () => {
   const { createDatabaseInstance } = require("./repository/model/connection");
-  const DB_TYPE = require("./shared/enum/dbType");
+  const DB_TYPE = require("./enum/dbType");
   // const config = require("./db/config.json")["development"];
   const config = {
     username: "hugejunglefowl-question-func",

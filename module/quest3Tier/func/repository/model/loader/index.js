@@ -1,4 +1,4 @@
-const DB_TYPE = require("../../../shared/enum/dbType");
+const DB_TYPE = require("../../../enum/dbType");
 
 function createModelsLoader(type, db, modelsDir) {
   switch (type) {
