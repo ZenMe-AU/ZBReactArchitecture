@@ -1,7 +1,7 @@
 // require("./otel-setup");
 require("./monitoring/instrumentation");
 const { app } = require("@azure/functions");
-require("./swagger/route");
+require("../swagger/route");
 app.setup({
   enableHttpStream: true,
 });

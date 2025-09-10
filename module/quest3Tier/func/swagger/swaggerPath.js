@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 module.exports = async function (request, context) {
-  const filePath = path.join(__dirname, "../../node_modules/swagger-ui-dist", request.params.path || "index.html");
+  const filePath = path.join(__dirname, "../node_modules/swagger-ui-dist", request.params.path || "index.html");
   console.log(filePath);
   if (fs.existsSync(filePath)) {
     var content = fs.readFileSync(filePath);
