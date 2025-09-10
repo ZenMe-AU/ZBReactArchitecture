@@ -1,9 +1,9 @@
 const { resolve } = require("path");
 const MigrationRunner = require("../../../../shared/func/deploy/migrationRunner.js");
 const { getTargetEnv, getModuleName } = require("../../../../shared/func/deploy/util/envSetup.js");
-const { createDatabaseInstance } = require("../../repository/model/connection");
+const { createDatabaseInstance } = require("../../repository/model/connection/index.js");
 const DB_TYPE = require("../../enum/dbType.js");
-const { getDbAdminName } = require("../../../../shared/func/deploy/util/namingConvention");
+const { getDbAdminName } = require("../../../../shared/func/deploy/util/namingConvention.js");
 
 /**
  * Naming convention helpers
@@ -13,7 +13,7 @@ function getPgHost(targetEnv) {
 }
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
-const migrationDir = resolve(__dirname, "..", "..", "db", "migration");
+const migrationDir = resolve(__dirname, "migration");
 
 (async () => {
   const envType = process.env.TF_VAR_env_type;
