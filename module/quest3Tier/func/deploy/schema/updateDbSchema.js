@@ -1,9 +1,9 @@
 const { resolve } = require("path");
-const MigrationRunner = require("../../shared/deploy/migrationRunner.js");
-const { getTargetEnv, getModuleName } = require("../../shared/deploy/util/envSetup.js");
+const MigrationRunner = require("../../../../shared/func/deploy/migrationRunner.js");
+const { getTargetEnv, getModuleName } = require("../../../../shared/func/deploy/util/envSetup.js");
 const { createDatabaseInstance } = require("../../repository/model/connection");
 const DB_TYPE = require("../../enum/dbType.js");
-const { getDbAdminName } = require("../../shared/deploy/util/namingConvention");
+const { getDbAdminName } = require("../../../../shared/func/deploy/util/namingConvention");
 
 /**
  * Naming convention helpers
