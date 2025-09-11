@@ -1,7 +1,7 @@
 // const appInsights = require("applicationinsights");
 const { trace, context: sContext, TraceFlags, SpanKind, SpanStatusCode } = require("@opentelemetry/api");
 const { randomBytes } = require("crypto");
-const { startup } = require("../bootstrap/registry");
+const { startup } = require("../di/diRegistry");
 
 const requestHandler =
   (fn, { schemas = [], customParams = {}, requireAuth = true } = {}) =>

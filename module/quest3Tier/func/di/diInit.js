@@ -1,6 +1,6 @@
 const path = require("path");
-const { register } = require("./registry");
-const container = require("./container");
+const { register } = require("./diRegistry");
+const container = require("./diContainer");
 
 // register db
 register("db", async () => {

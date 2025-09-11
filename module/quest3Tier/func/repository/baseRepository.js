@@ -1,4 +1,4 @@
-const container = require("../bootstrap/container");
+const container = require("../di/diContainer");
 
 class BaseRepository {
   constructor(modelMap = {}) {
