@@ -162,5 +162,49 @@ resource "azurerm_cdn_frontdoor_route" "fd_route" {
   // The 'https_redirect_enabled' field cannot be set to 'true' 
   // unless the 'supported_protocols' field contains both 'Http' and 'Https'
   https_redirect_enabled            = true
+
+  # Associate the custom domain with the Front Door endpoint
+  cdn_frontdoor_custom_domain_ids = [
+    azurerm_cdn_frontdoor_custom_domain.custom_domain.id
+  ]
+
+  # Ensure the route is created after the custom domain and DNS records
+  depends_on = [
+    azurerm_dns_txt_record.dns_validation,
+    azurerm_dns_cname_record.cname_record
+  ]
+}
+
+#----------------------------------
+# creating domain name
+resource "azurerm_cdn_frontdoor_custom_domain" "custom_domain" {
+  name                        = "${var.target_env}-dns"
+  cdn_frontdoor_profile_id    = azurerm_cdn_frontdoor_profile.fd_profile.id
+  host_name                   = "${var.target_env}.zenblox.com.au"
+  tls {
+    certificate_type = "ManagedCertificate"
+    
+  }
+}
+#this code should help make certification for the custom domain work
+#creates dns validation:
+resource "azurerm_dns_txt_record" "dns_validation" {
+  name                = "_dnsauth.${var.target_env}"
+  zone_name           = "zenblox.com.au"
+  resource_group_name = "root-zenblox"
+  ttl                 = 3600
+
+  record {
+    value = azurerm_cdn_frontdoor_custom_domain.custom_domain.validation_token
+  }
+}
+
+# creates cname record to point to front door endpoint
+resource "azurerm_dns_cname_record" "cname_record" {
+  name                = var.target_env
+  zone_name           = "zenblox.com.au"
+  resource_group_name = "root-zenblox"
+  ttl                 = 3600
+  record              = azurerm_cdn_frontdoor_endpoint.fd_endpoint.host_name
 }
 
