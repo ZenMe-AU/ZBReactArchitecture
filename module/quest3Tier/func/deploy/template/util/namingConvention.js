@@ -20,11 +20,17 @@ function getDbAdminName(envType) {
 // function getPgAdminUser(targetEnv) {
 //   return `${targetEnv}-pg-admins`;
 // }
+function getPgHost(targetEnv) {
+  return `${getPgServerName(targetEnv)}.postgres.database.azure.com`;
+}
 function getLogAnalyticsWorkspaceName(targetEnv) {
   return `${targetEnv}-law`;
 }
 function getServiceBusName(targetEnv) {
   return `${targetEnv}-sbnamespace`;
+}
+function getServiceBusHost(targetEnv) {
+  return `${getServiceBusName(targetEnv)}.servicebus.windows.net`;
 }
 function getIdentityName(targetEnv) {
   return `${targetEnv}-identity`;
@@ -65,8 +71,10 @@ module.exports = {
   getAppConfigName,
   getPgServerName,
   getDbAdminName,
+  getPgHost,
   getLogAnalyticsWorkspaceName,
   getServiceBusName,
+  getServiceBusHost,
   getIdentityName,
   getAppInsightsName,
   getStorageAccountWebName,

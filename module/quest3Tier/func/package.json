@@ -4,8 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "setup:local": "node deploy/localDev/localSetting.js",
+    "prestart": "npm run setup:local",
     "start": "func start",
-      "test": "jest"
+    "test": "jest"
   },
   "dependencies": {
     "@azure/functions": "^4.0.0",
