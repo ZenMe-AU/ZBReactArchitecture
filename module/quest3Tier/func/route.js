@@ -1,5 +1,3 @@
-// require("./index.js");
-require("./di/diInit.js");
 const { app } = require("@azure/functions");
 const { requestHandler, serviceBusHandler } = require("./handler/handlerWrapper.js");
 const questionHandler = require("./handler/handler.js");
