@@ -17,8 +17,8 @@
       "path": "../module/questionV2/func"
     },
     {
-      "name": "questionV1/func",
-      "path": "../module/question/func"
+      "name": "quest3Tier/func",
+      "path": "../module/quest3Tier/func"
     },
     {
       "name": "profile/func",
