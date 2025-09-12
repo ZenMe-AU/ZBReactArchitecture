@@ -65,21 +65,22 @@ class EnvironmentDeployer {
     process.env.TF_VAR_appconfig_name = this.appConfigName;
 
     terraformInit({ backendConfig: this.backendConfig });
-    terraformPlan();
+    terraformApply(this.autoApprove);
+    // terraformPlan();
 
-    if (this.autoApprove) {
-      terraformApply();
-    } else {
-      const rl = createInterface({ input: process.stdin, output: process.stdout });
-      rl.question("Do you want to run terraform apply? (y/N): ", (answer) => {
-        rl.close();
-        if (answer.trim().toLowerCase() === "y") {
-          terraformApply();
-        } else {
-          console.log("Aborted.");
-        }
-      });
-    }
+    // if (this.autoApprove) {
+    //   terraformApply();
+    // } else {
+    //   const rl = createInterface({ input: process.stdin, output: process.stdout });
+    //   rl.question("Do you want to run terraform apply? (y/N): ", (answer) => {
+    //     rl.close();
+    //     if (answer.trim().toLowerCase() === "y") {
+    //       terraformApply();
+    //     } else {
+    //       console.log("Aborted.");
+    //     }
+    //   });
+    // }
   }
 }
 
