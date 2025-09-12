@@ -200,10 +200,9 @@ async function addFollowUpByQuestionId(newQuestionId, senderId, questionList, is
   }
 }
 
-async function insertFollowUpCmd(cmdId, senderId, cmdData, correlationId) {
+async function insertFollowUpCmd(senderId, cmdData, correlationId) {
   try {
     return await Model.FollowUpCmd.create({
-      id: cmdId,
       senderProfileId: senderId,
       action: "create",
       data: cmdData,
@@ -270,10 +269,9 @@ async function updateFollowUpCmdStatus(id) {
   }
 }
 
-async function insertQuestionShareCmd(cmdId, senderId, cmdData, correlationId) {
+async function insertQuestionShareCmd(senderId, cmdData, correlationId) {
   try {
     return await Model.QuestionShareCmd.create({
-      id: cmdId,
       senderProfileId: senderId,
       action: "create",
       data: cmdData,
