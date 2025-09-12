@@ -22,9 +22,14 @@ data "azurerm_app_configuration" "config" {
   name                = var.appconfig_name
   resource_group_name = data.azurerm_resource_group.main_rg.name
 }
+# Get the postgreSQL server details
+data "azurerm_postgresql_flexible_server" "main_server" {
+  name                = var.pg_server_name
+  resource_group_name = data.azurerm_resource_group.main_rg.name
+}
 # create function app
 module "function_app" {
-  source                                 = "../../../../../module/shared/func/deploy/terraformTemplate/functionApps"
+  source                                 = "../template/terraformTemplate/functionApps"
   function_app_name                      = var.function_app_name
   resource_group_name                    = data.azurerm_resource_group.main_rg.name
   resource_group_location                = data.azurerm_resource_group.main_rg.location
@@ -38,17 +43,14 @@ module "function_app" {
   user_assigned_identity_client_id       = data.azurerm_user_assigned_identity.uai.client_id
   appconfig_id                           = data.azurerm_app_configuration.config.id
   env_type                               = var.env_type
-}
-
-# Get the postgreSQL server details
-data "azurerm_postgresql_flexible_server" "main_server" {
-  name                = var.pg_server_name
-  resource_group_name = data.azurerm_resource_group.main_rg.name
+  db_username                            = var.function_app_name
+  db_database                            = var.db_name
+  db_host                                = data.azurerm_postgresql_flexible_server.main_server.fqdn
 }
 
 # create database
 module "database" {
-  source               = "../../../../../module/shared/func/deploy/terraformTemplate/database"
+  source               = "../template/terraformTemplate/database"
   database_name        = var.db_name
   postgresql_server_id = data.azurerm_postgresql_flexible_server.main_server.id
 }

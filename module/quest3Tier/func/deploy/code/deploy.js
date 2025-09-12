@@ -1,13 +1,8 @@
 const { resolve } = require("path");
-const { getTargetEnv, getModuleName } = require("../../../../shared/func/deploy/util/envSetup");
-const {
-  getResourceGroupName,
-  getServiceBusName,
-  getFunctionAppName,
-  getStorageAccountName,
-} = require("../../../../shared/func/deploy/util/namingConvention");
-const { getSubscriptionId } = require("../../../../shared/func/deploy/util/azureCli");
-const CodeDeployer = require("../../../../shared/func/deploy/CodeDeployer");
+const { getTargetEnv, getModuleName } = require("../template/util/envSetup");
+const { getResourceGroupName, getServiceBusName, getFunctionAppName, getStorageAccountName } = require("../template/util/namingConvention");
+const { getSubscriptionId } = require("../template/util/azureCli");
+const CodeDeployer = require("../template/CodeDeployer");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
 

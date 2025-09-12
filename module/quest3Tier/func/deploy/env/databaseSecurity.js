@@ -1,6 +1,6 @@
 const { resolve } = require("path");
-const DatabasePermissionManager = require("../../../../shared/func/deploy/DatabasePermissionManager");
-const { getTargetEnv, getModuleName } = require("../../../../shared/func/deploy/util/envSetup.js");
+const DatabasePermissionManager = require("../template/databasePermissionManager.js");
+const { getTargetEnv, getModuleName } = require("../template/util/envSetup.js");
 const { createDatabaseInstance } = require("../../repository/model/connection");
 const DB_TYPE = require("../../enum/dbType.js");
 const {
@@ -12,7 +12,7 @@ const {
   getDbSchemaAdminName,
   getDbSchemaAdminRoleName,
   getDbAdminName,
-} = require("../../../../shared/func/deploy/util/namingConvention");
+} = require("../template/util/namingConvention");
 
 function getPgHost(targetEnv) {
   return `${targetEnv}-postgresqlserver.postgres.database.azure.com`;
