@@ -33,6 +33,5 @@ const moduleDir = resolve(__dirname, "..", "..", "..");
     serviceBusName,
     moduleDir,
   });
-  codeDeployer.queueNames = ["followupcmd", "ShareQuestionCmd"];
   await codeDeployer.run();
 })();
