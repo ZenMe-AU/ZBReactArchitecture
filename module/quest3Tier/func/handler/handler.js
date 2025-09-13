@@ -335,13 +335,6 @@ async function GetQuestionListByUser(request, context) {
  *           type: string
  *           format: uuid
  *           example: "985953ea-77d4-4b64-b11c-764d51c93b73"
- *       - name: Authorization
- *         in: header
- *         required: true
- *         schema:
- *           type: string
- *           example: "Bearer <your_jwt_token>"
- *         description: Bearer token to authorize the request.
  *     responses:
  *       200:
  *         description: Successfully retrieved list of answers.
