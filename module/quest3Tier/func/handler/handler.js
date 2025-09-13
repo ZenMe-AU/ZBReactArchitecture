@@ -832,6 +832,7 @@ async function SendFollowUpCmd(request, context) {
   }
 
   await Question.updateFollowUpCmdStatus(cmd["id"]);
+  return { return: true };
 }
 
 async function ShareQuestionCmd(request, context) {
@@ -840,6 +841,7 @@ async function ShareQuestionCmd(request, context) {
   const sharedQuestions = await Question.shareQuestion(body["newQuestionId"], body["profileId"], body["receiverIds"]);
 
   await Question.updateQuestionShareCmdStatus(cmd["id"]);
+  return { return: true };
 }
 
 module.exports = {
