@@ -37,6 +37,8 @@ class CodeDeployer {
         identityName: getIdentityName(this.targetEnv),
         resourceGroupName: this.resourceGroupName,
       }),
+      // JWT_SECRET: getAppConfigValueByKeyLabel({ appConfigName: getAppConfigName(this.targetEnv), key: "jwtSecret", label: this.envType }),
+      JWT_SECRET: "bb64c67554381aff324d26669540f591e02e3e993ce85c2d1ed2962e22411634",
     };
     this.deleteAppSettings = ["AzureWebJobsStorage"];
 
