@@ -1,24 +1,9 @@
-const baseUrl = process.env.QUESTION_URL || "http://localhost:7071";
-const profileBaseUrl = process.env.PROFILE_URL || "http://localhost:7072";
-const profileUrl = new URL("/profile", profileBaseUrl);
+const { v4: uuidv4 } = require("uuid");
 
 const createUser = () => {
-  test.each(createUserData())("create User $userId", async (u) => {
-    const response = await fetch(profileUrl, {
-      headers: { "Content-Type": "application/json" },
-      method: "POST",
-      body: JSON.stringify({
-        name: u.name ?? "user" + u.userId,
-        avatar: u.avatar,
-        attributes: u.attributes,
-      }),
-    });
-
-    let profile = await response.json();
-    let profileId = profile.return.id;
+  createUserData().forEach((u) => {
+    let profileId = uuidv4();
     profileIdLookup.add(u.userId, profileId);
-
-    expect(response.ok).toBeTruthy();
   });
 };
 

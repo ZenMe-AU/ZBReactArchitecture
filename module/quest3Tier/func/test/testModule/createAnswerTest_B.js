@@ -1,24 +1,14 @@
-const baseUrl = process.env.QUESTION_URL || "http://localhost:7071";
-const profileBaseUrl = process.env.PROFILE_URL || "http://localhost:7072";
+const baseUrl = process.env.QUESTION_URL;
 const questionUrl = new URL("/question", baseUrl);
-const loginUrl = new URL("/auth/login", profileBaseUrl);
+const { generateToken } = require("../../service/authUtils");
 
 const checkAnswer = (profileIdLookup, questionIdLookup) => {
   test.each(getAnswerTestResult())("There should be $count answers for question $questionId.", async (r) => {
     if (!tokenLookup.data) {
-      const response = await fetch(loginUrl, {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-        },
-        body: JSON.stringify({
-          userId: profileIdLookup.data[0].profileId,
-        }),
-      });
-      const resultData = await response.json();
-      tokenLookup.add(resultData.return.token);
+      const token = generateToken({ profileId: profileIdLookup.data[0].profileId });
+      console.log("Profile ID: ", profileIdLookup.data[0].profileId);
+      console.log("Generated Token: ", token);
+      tokenLookup.add(token);
     }
     // console.log(tokenLookup.data);
     const response = await fetch(questionUrl + "/" + questionIdLookup.getQuestionId(r.questionId) + "/answer", {
