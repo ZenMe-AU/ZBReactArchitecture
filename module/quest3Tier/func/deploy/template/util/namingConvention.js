@@ -1,5 +1,8 @@
 /**
- * Naming convention helpers
+ * This file sets the global naming standards for resources in this application when creating the environment.
+ * The file will be called from every script that need to reference these resource names.
+ * At deploy time, these names will be saved to the relevant configuration settings location
+ * (e.g. .env file, Azure App Configuration, etc.) so that the application code can reference them.
  */
 function getResourceGroupName(envType, targetEnv) {
   return `${envType}-${targetEnv}`;
