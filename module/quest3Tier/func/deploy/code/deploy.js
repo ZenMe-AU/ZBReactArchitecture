@@ -1,3 +1,14 @@
+// SPDX-License-Identifier: MIT
+/**
+ * @file deploy.js
+ * @description
+ * Handles deployment of the module's Azure resources and code, including initialization of environment variables,
+ * resource naming conventions, and execution of the deployment process via the CodeDeployer class.
+ * This script is intended to be run as a standalone deployment utility for the ZenMeChatPOC1 project.
+ * @copyright 2025 Zenme Pty Ltd
+ * @license MIT
+ */
+
 const { resolve } = require("path");
 const { getTargetEnv, getModuleName } = require("../template/util/envSetup");
 const { getResourceGroupName, getServiceBusName, getFunctionAppName, getStorageAccountName } = require("../template/util/namingConvention");
