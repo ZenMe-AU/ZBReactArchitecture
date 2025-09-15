@@ -10,9 +10,9 @@
  */
 
 const { resolve } = require("path");
-const { getTargetEnv, getModuleName } = require("../template/util/envSetup");
-const { getResourceGroupName, getServiceBusName, getFunctionAppName, getStorageAccountName } = require("../template/util/namingConvention");
-const { getSubscriptionId } = require("../template/util/azureCli");
+const { getTargetEnv, getModuleName } = require("../util/envSetup");
+const { getResourceGroupName, getServiceBusName, getFunctionAppName, getStorageAccountName } = require("../util/namingConvention");
+const { getSubscriptionId } = require("../util/azureCli");
 const CodeDeployer = require("../template/CodeDeployer");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");

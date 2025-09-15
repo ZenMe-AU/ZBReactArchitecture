@@ -12,9 +12,9 @@ const {
   getIdentityClientId,
   getAppConfigValueByKeyLabel,
   setFunctionAppCors,
-} = require("./util/azureCli.js");
-const { npmInstall, npmPrune, zipDir } = require("./util/cli.js");
-const { getIdentityName, getAppConfigName } = require("./util/namingConvention");
+} = require("../util/azureCli.js");
+const { npmInstall, npmPrune, zipDir } = require("./cli.js");
+const { getIdentityName, getAppConfigName } = require("../util/namingConvention.js");
 
 class CodeDeployer {
   constructor({ envType, targetEnv, moduleName, subscriptionId, functionAppName, resourceGroupName, storageAccountName, serviceBusName, moduleDir }) {

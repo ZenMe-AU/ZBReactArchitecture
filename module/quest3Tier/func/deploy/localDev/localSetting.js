@@ -1,6 +1,7 @@
 const { resolve } = require("path");
-const { getTargetEnv, getModuleName } = require("../template/util/envSetup.js");
-const { getDbAdminName, getPgHost, getServiceBusHost } = require("../template/util/namingConvention.js");
+const { getTargetEnv, getModuleName } = require("../util/envSetup.js");
+const { getDbAdminName, getPgHost, getServiceBusHost, getAppInsightsName, getResourceGroupName } = require("../util/namingConvention.js");
+const { getAppInsightsConnectionString } = require("../util/azureCli.js");
 const fs = require("fs");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");

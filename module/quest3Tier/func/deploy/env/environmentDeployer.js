@@ -1,5 +1,5 @@
 const { createInterface } = require("readline");
-const { terraformInit, terraformPlan, terraformApply } = require("./util/terraformCli");
+const { terraformInit, terraformPlan, terraformApply } = require("./terraformCli");
 const {
   getFunctionAppName,
   getResourceGroupName,
@@ -12,8 +12,8 @@ const {
   getModuleStorageAccountContainerName,
   getPgServerName,
   getStorageAccountWebName,
-} = require("./util/namingConvention");
-const { getSubscriptionId } = require("./util/azureCli");
+} = require("../util/namingConvention");
+const { getSubscriptionId } = require("../util/azureCli");
 
 class EnvironmentDeployer {
   constructor({ envType, targetEnv, moduleName, dbName, backendConfig, logLevel = "", autoApprove = false }) {

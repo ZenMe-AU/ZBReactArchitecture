@@ -62,6 +62,24 @@ function getAppConfigValueByKeyLabel({ appConfigName, key, label }) {
 }
 
 /**
+ * Get Application Insights connection string
+ * appInsightsName: name of the Application Insights resource
+ * resourceGroupName: name of the resource group containing the Application Insights resource
+ */
+function getAppInsightsConnectionString({ appInsightsName, resourceGroupName }) {
+  try {
+    return execSync(
+      `az monitor app-insights component show --app ${appInsightsName} --resource-group ${resourceGroupName} --query connectionString -o tsv`,
+      {
+        encoding: "utf8",
+      }
+    ).trim();
+  } catch (e) {
+    throw new Error("Could not retrieve Application Insights connection string.");
+  }
+}
+
+/**
  * Get Azure Function App principalId
  */
 function getFunctionAppPrincipalId({ functionAppName, resourceGroupName }) {
@@ -259,6 +277,7 @@ module.exports = {
   getObjectId,
   getDefaultAzureLocation,
   getIdentityClientId,
+  getAppInsightsConnectionString,
   getAppConfigValueByKeyLabel,
   getFunctionAppPrincipalId,
   addTemporaryFirewallRule,

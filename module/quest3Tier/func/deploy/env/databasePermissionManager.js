@@ -1,12 +1,12 @@
-const { getCurrentPublicIP } = require("./util/envSetup.js");
+const { getCurrentPublicIP } = require("../util/envSetup.js");
 const {
   getObjectId,
   getFunctionAppPrincipalId,
   addTemporaryFirewallRule,
   removeTemporaryFirewallRule,
   addMemberToAadGroup,
-} = require("./util/azureCli.js");
-const { createDbReadWriteRole, createDbReadOnlyRole, createDbSchemaAdminRole, createAadLoginRole, grantRole } = require("./util/postgresql.js");
+} = require("../util/azureCli.js");
+const { createDbReadWriteRole, createDbReadOnlyRole, createDbSchemaAdminRole, createAadLoginRole, grantRole } = require("./postgresql.js");
 
 class DatabasePermissionManager {
   constructor({
