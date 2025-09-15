@@ -3,7 +3,7 @@ const { resolve, basename } = require("path");
 const { execSync } = require("child_process");
 const { uniqueNamesGenerator, adjectives, animals } = require("unique-names-generator");
 
-function getTargetEnv(rootDir = resolve(__dirname, "..", "..", "..", "..", "..", "..")) {
+function getTargetEnv(rootDir = resolve(__dirname, "..", "..", "..", "..", "..")) {
   const envFilePath = resolve(rootDir, "deploy", ".env");
   if (!existsSync(envFilePath)) {
     throw new Error(".env file not found at " + envFilePath);
@@ -18,7 +18,7 @@ function getTargetEnv(rootDir = resolve(__dirname, "..", "..", "..", "..", "..",
   return match[1].trim();
 }
 
-function getModuleName(moduleDir = resolve(process.cwd(), "..", "..", "..")) {
+function getModuleName(moduleDir = resolve(__dirname, "..", "..")) {
   const moduleEnvFilePath = resolve(moduleDir, "deploy", ".env");
   if (existsSync(moduleEnvFilePath)) {
     const envContent = readFileSync(moduleEnvFilePath, "utf8");
