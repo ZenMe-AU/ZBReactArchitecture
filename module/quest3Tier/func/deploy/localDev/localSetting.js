@@ -41,7 +41,10 @@ const customSettings = {
     json.Values = {
       ...json.Values,
       ...customSettings,
-      // APPLICATIONINSIGHTS_CONNECTION_STRING : "",
+      APPLICATIONINSIGHTS_CONNECTION_STRING: getAppInsightsConnectionString({
+        appInsightsName: getAppInsightsName(targetEnv),
+        resourceGroupName: getResourceGroupName(envType, targetEnv),
+      }),
       ServiceBusConnection: getServiceBusHost(targetEnv),
       DB_USERNAME: getDbAdminName(envType),
       DB_DATABASE: moduleName,
