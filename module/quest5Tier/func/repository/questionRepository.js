@@ -1,4 +1,4 @@
-const BaseRepository = require("@zenmechat/shared/repository/baseRepository");
+const BaseRepository = require("./baseRepository");
 const { applyPatch } = require("fast-json-patch");
 const { Op } = require("sequelize");
 

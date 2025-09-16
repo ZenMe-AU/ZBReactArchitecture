@@ -1,11 +1,13 @@
 const { createQuestion } = require("../../service/questionService");
-const { withTransaction } = require("@zenmechat/shared/service/dbUtils");
+const { withTransaction } = require("./dbUtils");
 const CmdRepo = require("../../repository/cmdRepository");
 const QuestionRepo = require("../../repository/questionRepository");
 const EventRepo = require("../../repository/eventRepository");
 const AnswerRepo = require("../../repository/questionAnswerRepository");
 const ShareRepo = require("../../repository/questionShareRepository");
-const { AGGREGATE_TYPE, ACTION_TYPE, STATUS } = require("../../enum");
+const AGGREGATE_TYPE = require("../../enum/aggregateType");
+const ACTION_TYPE = require("../../enum/actionType");
+const STATUS = require("../../enum/status");
 const { sequelize } = require("../../db/index");
 const { getFollowUpReceiver } = require("../../service/function");
 const { v4: uuidv4 } = require("uuid");

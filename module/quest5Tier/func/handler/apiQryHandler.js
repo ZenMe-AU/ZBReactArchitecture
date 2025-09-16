@@ -1,5 +1,5 @@
 const QuestionQueryService = require("../service/questionQueryService");
-const { decode } = require("@zenmechat/shared/service/authUtils.js");
+const { decode } = require("../service/authUtils");
 
 /**
  * @swagger

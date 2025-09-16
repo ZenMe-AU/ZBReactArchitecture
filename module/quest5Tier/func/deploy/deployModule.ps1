@@ -46,7 +46,7 @@ if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 # Update database schema for Function App
 Write-Output "Updating database schema..."
-Set-Location $env:MODULE_FOLDER\deploy\schema
+Set-Location $env:MODULE_FOLDER\deploy\db
 node ./updateDbSchema.js
 if ($LASTEXITCODE -ne 0) { Write-Warning "Update database schema failed" }
 
@@ -56,6 +56,8 @@ Set-Location $env:MODULE_FOLDER\deploy\code
 node ./deploy.js
 if ($LASTEXITCODE -ne 0) { Write-Warning "Deploy Function App code failed" }
 
-#TODO: Run verification test to confirm the deployment succeeded.
-node ./verify/verifyDeployment.js
-if ($LASTEXITCODE -ne 0) { Write-Warning "Deploy Function App code failed" }
+# Verify the deployment
+Write-Output "Verifying the deployment..."
+Set-Location $env:MODULE_FOLDER\deploy\verify
+node ./verifyDeployment.js
+if ($LASTEXITCODE -ne 0) { Write-Warning "Verify deployment failed" }

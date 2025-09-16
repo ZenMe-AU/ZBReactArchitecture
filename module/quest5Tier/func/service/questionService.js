@@ -1,11 +1,13 @@
-const { withTransaction } = require("@zenmechat/shared/service/dbUtils");
+const { withTransaction } = require("./dbUtils");
 const CmdRepo = require("../repository/cmdRepository");
 const QuestionRepo = require("../repository/questionRepository");
 const EventRepo = require("../repository/eventRepository");
 const AnswerRepo = require("../repository/questionAnswerRepository");
 const ShareRepo = require("../repository/questionShareRepository");
-const { AGGREGATE_TYPE, ACTION_TYPE, STATUS } = require("../enum");
-const container = require("@zenmechat/shared/bootstrap/container");
+const AGGREGATE_TYPE = require("../enum/aggregateType");
+const ACTION_TYPE = require("../enum/actionType");
+const STATUS = require("../enum/status");
+const container = require("../di/diContainer");
 const QuestionQueryService = require("./questionQueryService");
 
 async function createQuestion(messageId, profileId, body, correlationId, title, questionText, option) {

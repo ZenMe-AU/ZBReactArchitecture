@@ -2,7 +2,7 @@ const QuestionRepo = require("../repository/questionRepository");
 const AnswerRepo = require("../repository/questionAnswerRepository");
 const ShareRepo = require("../repository/questionShareRepository");
 const EventRepo = require("../repository/eventRepository");
-const { AGGREGATE_TYPE } = require("../enum.js");
+const AGGREGATE_TYPE = require("../enum/aggregateType");
 
 async function getById(questionId) {
   try {

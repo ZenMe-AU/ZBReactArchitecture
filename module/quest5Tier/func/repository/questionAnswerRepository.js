@@ -1,4 +1,4 @@
-const BaseRepository = require("@zenmechat/shared/repository/baseRepository");
+const BaseRepository = require("./baseRepository");
 const { Op, Sequelize, QueryTypes, literal } = require("sequelize");
 
 class QuestionAnswerRepository extends BaseRepository {

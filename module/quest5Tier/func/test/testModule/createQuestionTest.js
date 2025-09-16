@@ -1,4 +1,4 @@
-const baseUrl = process.env.QUESTION_URL || "http://localhost:7071";
+const baseUrl = process.env.BASE_URL;
 const questionUrl = new URL("/question", baseUrl);
 const questionProfileUrl = new URL("/profile", baseUrl);
 const qryUrl = new URL("/questionQry", baseUrl);

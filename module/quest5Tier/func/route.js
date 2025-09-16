@@ -1,7 +1,5 @@
-require("@zenmechat/shared");
-require("./bootstrap");
 const { app } = require("@azure/functions");
-const { requestHandler, serviceBusHandler } = require("@zenmechat/shared/handler");
+const { requestHandler, serviceBusHandler } = require("./handler/handlerWrapper.js");
 const apiCmdHandler = require("./handler/apiCmdHandler.js");
 const apiQryHandler = require("./handler/apiQryHandler.js");
 const queueCmdHandler = require("./handler/queueCmdHandler.js");
@@ -44,7 +42,7 @@ app.http("GetSharedQuestionList", {
   handler: requestHandler(apiQryHandler.GetSharedQuestionListByUser),
 });
 
-app.http("getQuestionShareEventList", {
+app.http("GetQuestionShareEventList", {
   route: "questionQry/getQuestionShareEvents/{correlationId}",
   methods: ["GET"],
   authLevel: "anonymous",
@@ -53,7 +51,7 @@ app.http("getQuestionShareEventList", {
   }),
 });
 
-app.http("getFollowUpEventList", {
+app.http("GetFollowUpEventList", {
   route: "questionQry/getFollowUpEvents/{correlationId}",
   methods: ["GET"],
   authLevel: "anonymous",
@@ -106,13 +104,13 @@ app.http("ShareQuestion", {
   }),
 });
 
-app.serviceBusQueue("sendFollowUpQueue", {
+app.serviceBusQueue("SendFollowUpQueue", {
   connection: "ServiceBusConnection",
   queueName: "sendFollowUp",
   handler: serviceBusHandler(queueCmdHandler.SendFollowUp),
 });
 
-app.serviceBusQueue("shareQuestionQueue", {
+app.serviceBusQueue("ShareQuestionQueue", {
   connection: "ServiceBusConnection",
   queueName: "shareQuestion",
   handler: serviceBusHandler(queueCmdHandler.ShareQuestion),

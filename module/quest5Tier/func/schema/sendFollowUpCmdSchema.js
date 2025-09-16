@@ -1,5 +1,5 @@
 const Joi = require("joi");
-const { uuidSchema } = require("@zenmechat/shared/schema/commonSchema");
+const { uuidSchema } = require("./commonSchema");
 
 const sendFollowUpSchema = Joi.object({
   profileId: uuidSchema.required(),

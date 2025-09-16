@@ -1,13 +1,8 @@
 const { resolve } = require("path");
-const { getTargetEnv, getModuleName } = require("@zenmechat/shared/deploy/util/envSetup");
-const {
-  getResourceGroupName,
-  getServiceBusName,
-  getFunctionAppName,
-  getStorageAccountName,
-} = require("@zenmechat/shared/deploy/util/namingConvention");
-const { getSubscriptionId } = require("@zenmechat/shared/deploy/util/azureCli");
-const CodeDeployer = require("@zenmechat/shared/deploy//CodeDeployer");
+const { getTargetEnv, getModuleName } = require("../util/envSetup");
+const { getResourceGroupName, getServiceBusName, getFunctionAppName, getStorageAccountName } = require("../util/namingConvention");
+const { getSubscriptionId } = require("../util/azureCli");
+const CodeDeployer = require("./CodeDeployer");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
 
@@ -38,6 +33,5 @@ const moduleDir = resolve(__dirname, "..", "..", "..");
     serviceBusName,
     moduleDir,
   });
-  codeDeployer.queueNames = ["sendFollowUp", "shareQuestion", "createQuestion", "updateQuestion", "createAnswer"];
   await codeDeployer.run();
 })();

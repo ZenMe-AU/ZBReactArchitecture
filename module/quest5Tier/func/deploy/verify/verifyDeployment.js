@@ -1,30 +1,28 @@
 // Test that the deployment succeeded and all dependencies are in place. This test will not change any data.
 const { resolve } = require("path");
 const { execSync } = require("child_process");
-const { getTargetEnv, getModuleName } = require("@zenmechat/shared/deploy/util/envSetup");
-const { getFunctionAppName, getResourceGroupName } = require("@zenmechat/shared/deploy/util/namingConvention");
+const { getTargetEnv, getModuleName } = require("../util/envSetup");
+const { getFunctionAppName, getResourceGroupName } = require("../util/namingConvention");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
 const expectedFunctionList = [
-  "CreateQuestion",
-  "UpdateQuestion",
   "CreateAnswer",
-  "SendFollowUp",
-  "ShareQuestion",
-
-  "CreateQuestionQueue",
-  "UpdateQuestionQueue",
-  "CreateAnswerQueue",
-  "sendFollowUpQueue",
-  "shareQuestionQueue",
-
-  "GetQuestion",
-  "GetQuestionList",
+  "CreateQuestion",
   "GetAnswer",
   "GetAnswerList",
+  "GetFollowUpEventList",
+  "GetQuestion",
+  "GetQuestionList",
+  "GetQuestionShareEventList",
   "GetSharedQuestionList",
-  "getFollowUpEventList",
-  "getQuestionShareEventList",
+  "SendFollowUp",
+  "ShareQuestion",
+  "UpdateQuestion",
+  "CreateAnswerQueue",
+  "CreateQuestionQueue",
+  "SendFollowUpQueue",
+  "ShareQuestionQueue",
+  "UpdateQuestionQueue",
   //   "defaultPage",
   //   "swagger",
   //   "swaggerJson",
@@ -40,25 +38,28 @@ const expectedFunctionList = [
     const functionAppName = getFunctionAppName(targetEnv, moduleName);
     const resourceGroupName = getResourceGroupName(envType, targetEnv);
 
-    // Step 1: Check if the  function app is running
+    console.log("Start: Post-Deployment Verification (PDV)");
+    // Step 1: Check if the function app is running
+    console.log("PDV Step 1: Check if the function app is running.");
     const state = getFunctionAppState(functionAppName, resourceGroupName);
     if (state !== "Running") {
       throw new Error(`Function App ${functionAppName} is not running! Current state: ${state}`);
     }
-    console.log(`Function App ${functionAppName} is running.`);
+    console.log(`Success: Function App ${functionAppName} is running.`);
 
     // Step 2: Check if the function app contains expected functions
+    console.log("PDV Step 2: Check if the function app contains expected functions.");
     const list = new Set(getFunctionList(functionAppName, resourceGroupName));
     const missingFunctions = expectedFunctionList.filter((func) => !list.has(func));
     if (missingFunctions.length > 0) {
-      console.warn("Missing functions in Function App:", missingFunctions);
+      throw new Error(`Missing functions in Function App: ${missingFunctions}`);
     } else {
-      console.log("All expected functions are present.");
+      console.log(`Success: All expected functions are present.`);
     }
 
-    console.log("All deployment checks passed!");
+    console.log("End: All deployment checks passed!");
   } catch (err) {
-    console.error("Deployment verification failed:", err.message);
+    console.error("Error:", err.message);
     process.exit(1);
   }
 })();
@@ -91,38 +92,3 @@ function getFunctionList(functionAppName, resourceGroupName) {
     throw error;
   }
 }
-
-// az functionapp show \
-//   --name hugejunglefowl-profile-func \
-//   --resource-group dev-hugejunglefowl \
-//  --query "properties.state"
-// Running
-
-//  az functionapp function list \
-//   --name hugejunglefowl-quest5Tier-func \
-//   --resource-group dev-hugejunglefowl \
-//  --query "[].config.name"
-
-// [
-//   "CreateAnswer",
-//   "CreateAnswerQueue",
-//   "CreateQuestion",
-//   "CreateQuestionQueue",
-//   "defaultPage",
-//   "GetAnswer",
-//   "GetAnswerList",
-//   "getFollowUpEventList",
-//   "GetQuestion",
-//   "GetQuestionList",
-//   "getQuestionShareEventList",
-//   "GetSharedQuestionList",
-//   "SendFollowUp",
-//   "sendFollowUpQueue",
-//   "ShareQuestion",
-//   "shareQuestionQueue",
-//   "swagger",
-//   "swaggerJson",
-//   "swaggerPath",
-//   "UpdateQuestion",
-//   "UpdateQuestionQueue"
-// ]

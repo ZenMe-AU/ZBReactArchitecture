@@ -3,7 +3,7 @@ require("dotenv").config(); // Load environment variables
 //npm run test:local testException
 //npm run test:prod testException
 
-const baseUrl = process.env.QUESTION_URL || "http://localhost:7071";
+const baseUrl = process.env.BASE_URL;
 const shareQuestionCmdUrl = new URL("/shareQuestionCmd", baseUrl);
 const questionUrl = new URL("/question", baseUrl);
 const testCorrelationId = crypto.randomUUID().replace(/-/g, "");

@@ -1,5 +1,5 @@
-const BaseRepository = require("@zenmechat/shared/repository/baseRepository");
-const { ACTION_TYPE } = require("../enum");
+const BaseRepository = require("./baseRepository");
+const ACTION_TYPE = require("../enum/actionType");
 class CmdRepo extends BaseRepository {
   constructor() {
     super(["Cmd"]);
