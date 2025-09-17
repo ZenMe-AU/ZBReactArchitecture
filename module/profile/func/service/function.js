@@ -67,8 +67,8 @@ function getList(name, tags) {
       queryObj.having = Sequelize.where(Sequelize.fn("COUNT", Sequelize.col("attributes.id")), {
         [Op.gte]: tags.length,
       });
-      WARNING: Sequelize.literal must never be used with input variables.
-      TODO: Check that the variables cannot be altered by user input.
+      //WARNING: Sequelize.literal must never be used with input variables.
+      //TODO: Check that the variables cannot be altered by user input.
       queryObj.having = Sequelize.literal(`COUNT(attributes.id) >= ${tags.length}`);
       //       const tagCount = tags.length;
       //       const query = `
