@@ -3,17 +3,17 @@
   "compounds": [
     {
       "name": "Start Full Stack App",
-      "configurations": ["Start function questionV3"]
+      "configurations": ["Start function quest5Tier"]
     }
   ],
   "configurations": [
     {
-      "name": "Start function questionV3",
+      "name": "Start function quest5Tier",
       "type": "node",
       "request": "attach",
       "restart": true,
       "port": 9229,
-      "program": "${workspaceFolder:questionV3/func}",
+      "program": "${workspaceFolder:quest5Tier/func}",
       "preLaunchTask": "backend: start-functions-host"
     },
     {

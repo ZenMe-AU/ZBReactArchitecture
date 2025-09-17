@@ -14,7 +14,7 @@ const moduleDir = resolve(__dirname, "..", "..");
 const distPath = resolve(moduleDir, "dist", "client");
 
 const envFile = resolve(moduleDir, "public", "env.json");
-const apiList = ["profile", "questionV3"];
+const apiList = ["profile", "quest5Tier"];
 
 function deploy() {
   const envType = process.env.TF_VAR_env_type;

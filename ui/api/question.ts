@@ -1,7 +1,7 @@
 import { jwtFetch } from "./jwtFetch";
 import { getConfig } from "../config/loadConfig";
-// const apiDomain = import.meta.env.VITE_QUESTIONV3_DOMAIN;
-const apiDomain = getConfig("QUESTIONV3_DOMAIN");
+// const apiDomain = import.meta.env.VITE_quest5Tier_DOMAIN;
+const apiDomain = getConfig("quest5Tier_DOMAIN");
 // Fetch list of questions for a specific user
 export const getQuestionsByUser = async () => {
   const profileId = localStorage.getItem("profileId");

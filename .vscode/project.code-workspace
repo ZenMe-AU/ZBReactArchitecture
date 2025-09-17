@@ -9,8 +9,8 @@
       "path": "../ui"
     },
     {
-      "name": "questionV3/func",
-      "path": "../module/questionV3/func"
+      "name": "quest5Tier/func",
+      "path": "../module/quest5Tier/func"
     },
     {
       "name": "questionV2/func",
@@ -46,11 +46,11 @@
     "compounds": [
       {
         "name": "Start Full Stack App",
-        "configurations": ["Start ui", "Start questionV3", "Start profile"]
+        "configurations": ["Start ui", "Start quest5Tier", "Start profile"]
       },
       {
         "name": "Install Dependencies",
-        "configurations": ["Dependencies shared", "Dependencies ui", "Dependencies questionV3", "Dependencies profile"]
+        "configurations": ["Dependencies shared", "Dependencies ui", "Dependencies quest5Tier", "Dependencies profile"]
       }
     ]
   }
