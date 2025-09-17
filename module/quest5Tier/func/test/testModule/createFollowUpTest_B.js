@@ -1,7 +1,4 @@
 const baseUrl = process.env.BASE_URL;
-const profileBaseUrl = process.env.PROFILE_URL || "http://localhost:7072";
-const profileUrl = new URL("/profile", profileBaseUrl);
-const eventUrl = new URL("/getEventByCorrelationId", baseUrl);
 const qryUrl = new URL("/questionQry", baseUrl);
 const cmdUrl = new URL("/questionCmd", baseUrl);
 const followUpQuestionQty = 5;

@@ -1,6 +1,4 @@
 const baseUrl = process.env.BASE_URL;
-const profileBaseUrl = process.env.PROFILE_URL || "http://localhost:7072";
-const sendFollowUpCmdUrl = new URL("/sendFollowUpCmd", baseUrl);
 const qryUrl = new URL("/questionQry", baseUrl);
 const cmdUrl = new URL("/questionCmd", baseUrl);
 

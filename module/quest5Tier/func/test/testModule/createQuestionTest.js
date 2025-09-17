@@ -1,6 +1,4 @@
 const baseUrl = process.env.BASE_URL;
-const questionUrl = new URL("/question", baseUrl);
-const questionProfileUrl = new URL("/profile", baseUrl);
 const qryUrl = new URL("/questionQry", baseUrl);
 const cmdUrl = new URL("/questionCmd", baseUrl);
 const { questionData, questionTestResult } = require("./createQuestionTestData");
