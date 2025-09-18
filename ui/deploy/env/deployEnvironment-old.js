@@ -60,7 +60,7 @@ function initEnvironment() {
       `terraform init -reconfigure\
         -backend-config="resource_group_name=${TARGET_ENV}-resources" \
         -backend-config="storage_account_name=${TARGET_ENV}pvtstor" \
-        -backend-config="container_name=tfstatefile" \
+        -backend-config="container_name=terraformState" \
         -backend-config="key=${TARGET_ENV}/ui-terraform.tfstate"`,
       { stdio: "inherit", shell: true }
     );
