@@ -23,6 +23,7 @@ const localSettingTemplate = {
 const customSettings = {
   JWT_SECRET: "bb64c67554381aff324d26669540f591e02e3e993ce85c2d1ed2962e22411634",
   BASE_URL: "http://localhost:" + localPort,
+  ServiceBusConnection: "",
 };
 
 (async () => {
@@ -41,15 +42,15 @@ const customSettings = {
 
     json.Values = {
       ...json.Values,
-      ...customSettings,
       APPLICATIONINSIGHTS_CONNECTION_STRING: getAppInsightsConnectionString({
         appInsightsName: getAppInsightsName(targetEnv),
         resourceGroupName: getResourceGroupName(envType, targetEnv),
       }),
-      ServiceBusConnection: getServiceBusHost(targetEnv),
+      ServiceBusConnection__fullyQualifiedNamespace: getServiceBusHost(targetEnv),
       DB_USERNAME: getDbAdminName(envType),
       DB_DATABASE: moduleName,
       DB_HOST: getPgHost(targetEnv),
+      ...customSettings,
     };
 
     fs.writeFileSync(path, JSON.stringify(json, null, 2));

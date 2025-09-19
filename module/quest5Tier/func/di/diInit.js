@@ -19,10 +19,20 @@ register("db", async () => {
   container.register("db", sequelize);
   container.register("models", models);
 
-  console.log(container.get("models"));
+  // console.log(container.get("models"));
   console.log("🥳DB initialized");
 });
 
+// register serviceBus
+register("serviceBus", async () => {
+  const { createServiceBusInstance } = require("../serviceBus/connection");
+  const sbClient = await createServiceBusInstance({
+    namespace: process.env.ServiceBusConnection__fullyQualifiedNamespace,
+    clientId: process.env.ServiceBusConnection__clientId || null,
+  });
+  container.register("serviceBus", sbClient);
+  console.log("🥳serviceBus initialized");
+});
 // register something else...(e.g. telemetry etc)
 (async () => {
   await startup();

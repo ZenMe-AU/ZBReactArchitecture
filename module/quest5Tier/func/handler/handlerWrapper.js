@@ -116,8 +116,9 @@ const serviceBusHandler = (fn) => async (message, context) => {
   // const { messageId, correlationId } = context.triggerMetadata;
   // const { invocationId, functionName = "unknown serviceBus" } = context;
   const { invocationId, functionName = "unknown serviceBus", triggerMetadata = {} } = context;
-  const { messageId } = triggerMetadata;
-  const { correlationId } = message;
+  const { messageId, correlationId } = context.triggerMetadata;
+  // const { messageId } = triggerMetadata;
+  // const { correlationId } = message;
   console.log("✨✨correlationId:", correlationId);
   console.log("💁functionName:", functionName);
 
