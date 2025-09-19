@@ -26,10 +26,17 @@ register("db", async () => {
 // register serviceBus
 register("serviceBus", async () => {
   const { createServiceBusInstance } = require("../serviceBus/connection");
-  const sbClient = await createServiceBusInstance({
+  let sbClient = await createServiceBusInstance({
     namespace: process.env.ServiceBusConnection__fullyQualifiedNamespace,
     clientId: process.env.ServiceBusConnection__clientId || null,
   });
+  // for local development, use connection string if ServiceBusConnection is set
+  if (process.env.ServiceBusConnection && process.env.ServiceBusConnection.startsWith("Endpoint=sb://localhost")) {
+    sbClient = await createServiceBusInstance({
+      namespace: process.env.ServiceBusConnection__fullyQualifiedNamespace,
+      connectionString: process.env.ServiceBusConnection,
+    });
+  }
   container.register("serviceBus", sbClient);
   console.log("🥳serviceBus initialized");
 });

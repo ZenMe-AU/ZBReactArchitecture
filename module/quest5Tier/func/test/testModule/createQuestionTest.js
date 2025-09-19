@@ -15,13 +15,14 @@ const createQuestion = (profileIdLookup, testCorrelationId) => {
         option: q.option,
       }),
     });
-
+    //
     let question = await response.json();
-    let questionId = question.return.id;
-    questionIdLookup.add(q.questionId, questionId);
 
     expect(response.ok).toBeTruthy();
   });
+  // TODO: listen on queue and add responses to questionIdLookUp
+  let questionId = question.return.id;
+  questionIdLookup.add(q.questionId, questionId);
 };
 
 const checkQuestion = (profileIdLookup) => {

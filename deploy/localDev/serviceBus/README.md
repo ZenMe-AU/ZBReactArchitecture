@@ -1,0 +1,2 @@
+- [Test locally by using the Azure Service Bus emulator](https://learn.microsoft.com/en-us/azure/service-bus-messaging/test-locally-with-service-bus-emulator?tabs=automated-script)
+- [azure-service-bus-emulator-installer](https://github.com/Azure/azure-service-bus-emulator-installer/tree/main)

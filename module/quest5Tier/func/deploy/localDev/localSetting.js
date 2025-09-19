@@ -23,7 +23,9 @@ const localSettingTemplate = {
 const customSettings = {
   JWT_SECRET: "bb64c67554381aff324d26669540f591e02e3e993ce85c2d1ed2962e22411634",
   BASE_URL: "http://localhost:" + localPort,
-  ServiceBusConnection: "",
+  ServiceBusConnection:
+    "Endpoint=sb://localhost;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;",
+  // DB_PASSWORD: "your_password", // set your local DB password here
 };
 
 (async () => {
@@ -31,7 +33,7 @@ const customSettings = {
   const path = resolve(moduleDir, "func", fileName);
   let targetEnv, moduleName, envType, json;
   try {
-    envType = process.env.TF_VAR_env_type;
+    envType = process.env.TF_VAR_env_type || "dev";
     targetEnv = getTargetEnv();
     moduleName = getModuleName(moduleDir);
     json = localSettingTemplate;
