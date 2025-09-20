@@ -13,6 +13,11 @@ register("db", async () => {
     database: process.env.DB_DATABASE,
     host: process.env.DB_HOST,
   };
+  // for local development, use password auth if DB_PASSWORD is set
+  if (process.env.DB_PASSWORD) {
+    config.authMode = "password";
+    config.password = process.env.DB_PASSWORD;
+  }
   const sequelize = await createDatabaseInstance(DB_TYPE.POSTGRES, config);
   const models = createModelsLoader(DB_TYPE.POSTGRES, sequelize, modelDir);
 

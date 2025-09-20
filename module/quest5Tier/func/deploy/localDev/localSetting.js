@@ -25,7 +25,11 @@ const customSettings = {
   BASE_URL: "http://localhost:" + localPort,
   ServiceBusConnection:
     "Endpoint=sb://localhost;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;",
-  // DB_PASSWORD: "your_password", // set your local DB password here
+  ServiceBusConnection__fullyQualifiedNamespace: "localhost",
+  // set your local DB details
+  DB_USERNAME: "root",
+  DB_HOST: "localhost",
+  DB_PASSWORD: "DatabasePassword123!",
 };
 
 (async () => {
