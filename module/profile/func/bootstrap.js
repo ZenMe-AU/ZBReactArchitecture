@@ -13,8 +13,13 @@ register("db", async () => {
   // const env = process.env.NODE_ENV || "development";
   // const config = require("./config.json")[env];
   // const { getFunctionAppName } = require("@zenmechat/shared/deploy/util/namingConvention");
-  config.host = "hugejunglefowl-postgresqlserver.postgres.database.azure.com";
-  config.username = "hugejunglefowl-profile-func";
+  // config.host = "hugejunglefowl-postgresqlserver.postgres.database.azure.com";
+  // config.username = "hugejunglefowl-profile-func";
+  config.username = "root";
+  config.password = "DatabasePassword123!";
+  config.database = "profile";
+  config.host = "localhost";
+  config.authMode = "password";
 
   const sequelize = await createDatabaseInstance(DB_TYPE.POSTGRES, config);
   const models = createModelsLoader(DB_TYPE.POSTGRES, sequelize, modelDir);
