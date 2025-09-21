@@ -6,7 +6,7 @@ async function sendMessageToQueue({ sbClient, queueName, body, correlationId, me
   sbClient = sbClient ?? container.get("serviceBus");
   const sender = sbClient.createSender(queueName);
   try {
-    await sender.sendMessages({ body, correlationId, messageId });
+    await sender.sendMessages({ body, correlationId, messageId, subject: queueName });
     return messageId;
   } catch (error) {
     throw new Error(`Failed to send message: ${error.message}`);
