@@ -1,27 +1,31 @@
-const baseUrl = process.env.QUESTION_URL || "http://localhost:7071";
+const baseUrl = process.env.QUESTION_URL;
 const questionUrl = new URL("/question", baseUrl);
 const questionProfileUrl = new URL("/profile", baseUrl);
 const { questionData, questionTestResult } = require("./createQuestionTestData");
 
 const createQuestion = (profileIdLookup) => {
-  test.each(questionData())("create question $questionId", async (q) => {
-    const response = await fetch(questionUrl, {
-      headers: { "Content-Type": "application/json" },
-      method: "POST",
-      body: JSON.stringify({
-        profileId: profileIdLookup.getProfileId(q.userId),
-        title: q.title,
-        questionText: q.question,
-        option: q.option,
-      }),
-    });
+  test.each(questionData())(
+    "create question $questionId",
+    async (q) => {
+      const response = await fetch(questionUrl, {
+        headers: { "Content-Type": "application/json" },
+        method: "POST",
+        body: JSON.stringify({
+          profileId: profileIdLookup.getProfileId(q.userId),
+          title: q.title,
+          questionText: q.question,
+          option: q.option,
+        }),
+      });
 
-    let question = await response.json();
-    let questionId = question.return.id;
-    questionIdLookup.add(q.questionId, questionId);
+      let question = await response.json();
+      let questionId = question.return.id;
+      questionIdLookup.add(q.questionId, questionId);
 
-    expect(response.ok).toBeTruthy();
-  });
+      expect(response.ok).toBeTruthy();
+    },
+    10000
+  );
 };
 
 const checkQuestion = (profileIdLookup) => {

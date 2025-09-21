@@ -9,6 +9,20 @@ const swaggerOptions = {
       version: "1.0.0",
       description: "API documentation for Azure Functions",
     },
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
     // servers: [
     //   {
     //     url: "http://localhost:7071/api", // Update with your local function URL

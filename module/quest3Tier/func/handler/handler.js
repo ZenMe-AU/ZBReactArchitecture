@@ -335,13 +335,6 @@ async function GetQuestionListByUser(request, context) {
  *           type: string
  *           format: uuid
  *           example: "985953ea-77d4-4b64-b11c-764d51c93b73"
- *       - name: Authorization
- *         in: header
- *         required: true
- *         schema:
- *           type: string
- *           example: "Bearer <your_jwt_token>"
- *         description: Bearer token to authorize the request.
  *     responses:
  *       200:
  *         description: Successfully retrieved list of answers.
@@ -682,20 +675,20 @@ async function PatchQuestionById(request, context) {
  *                   description: Indicates whether the follow-up was successfully processed.
  *                   example: true
  */
-async function SendFollowUpCmdQueue(request, context) {
-  // await sendMessageToQueue(request.customParams.queueName, request.clientParams, request.correlationId);
-  // console.log("invocationId:", context.invocationId);
-  // put correlationId into service bus from ui
-  // fix this: put correlationId
-  const messageBody = {
-    body: {
-      ...(request.clientParams ?? {}),
-    },
-    correlationId: request.correlationId,
-  };
-  context.extraOutputs.set(followUpCmdQueue, messageBody);
-  return { return: true };
-}
+// async function SendFollowUpCmdQueue(request, context) {
+//   // await sendMessageToQueue(request.customParams.queueName, request.clientParams, request.correlationId);
+//   // console.log("invocationId:", context.invocationId);
+//   // put correlationId into service bus from ui
+//   // fix this: put correlationId
+//   const messageBody = {
+//     body: {
+//       ...(request.clientParams ?? {}),
+//     },
+//     correlationId: request.correlationId,
+//   };
+//   context.extraOutputs.set(followUpCmdQueue, messageBody);
+//   return { return: true };
+// }
 
 /**
  * @swagger
@@ -760,18 +753,18 @@ async function SendFollowUpCmdQueue(request, context) {
  *                   description: Indicates whether the question was successfully shared.
  *                   example: true
  */
-async function SendShareQuestionCmdQueue(request, context) {
-  // await sendMessageToQueue(request.customParams.queueName, request.clientParams, request.correlationId);
-  // todo:correlationId allow null
-  const messageBody = {
-    body: {
-      ...(request.clientParams ?? {}),
-    },
-    correlationId: request.correlationId,
-  };
-  context.extraOutputs.set(shareQuestionCmdQueue, messageBody);
-  return { return: true };
-}
+// async function SendShareQuestionCmdQueue(request, context) {
+//   // await sendMessageToQueue(request.customParams.queueName, request.clientParams, request.correlationId);
+//   // todo:correlationId allow null
+//   const messageBody = {
+//     body: {
+//       ...(request.clientParams ?? {}),
+//     },
+//     correlationId: request.correlationId,
+//   };
+//   context.extraOutputs.set(shareQuestionCmdQueue, messageBody);
+//   return { return: true };
+// }
 
 /**
  * @swagger
@@ -824,11 +817,9 @@ async function GetEventByCorrelationId(request, context) {
   return { return: { qty: result.length } };
 }
 
-async function SendFollowUpCmd(message, context) {
-  context.log("Service bus queue function processed message:", message);
-  // const { messageId, correlationId } = context.triggerMetadata;
-  const { messageId, correlationId, body } = message;
-  const cmd = await Question.insertFollowUpCmd(messageId, body["profileId"], body, correlationId);
+async function SendFollowUpCmd(request, context) {
+  const { correlationId, clientParams: body } = request;
+  const cmd = await Question.insertFollowUpCmd(body["profileId"], body, correlationId);
   const filters = Question.insertFollowUpFilter(body);
   const receiverIds = Question.getFollowUpReceiver(body);
   const sharedQuestions = Question.shareQuestion(body["newQuestionId"], body["profileId"], await receiverIds);
@@ -841,15 +832,16 @@ async function SendFollowUpCmd(message, context) {
   }
 
   await Question.updateFollowUpCmdStatus(cmd["id"]);
+  return { return: true };
 }
 
-async function ShareQuestionCmd(message, context) {
-  // const { messageId, correlationId } = context.triggerMetadata;
-  const { messageId, correlationId, body } = message;
-  const cmd = await Question.insertQuestionShareCmd(messageId, body["profileId"], body, correlationId);
+async function ShareQuestionCmd(request, context) {
+  const { correlationId, clientParams: body } = request;
+  const cmd = await Question.insertQuestionShareCmd(body["profileId"], body, correlationId);
   const sharedQuestions = await Question.shareQuestion(body["newQuestionId"], body["profileId"], body["receiverIds"]);
 
   await Question.updateQuestionShareCmdStatus(cmd["id"]);
+  return { return: true };
 }
 
 module.exports = {
@@ -865,7 +857,5 @@ module.exports = {
   PatchQuestionById,
   SendFollowUpCmd,
   ShareQuestionCmd,
-  SendFollowUpCmdQueue,
-  SendShareQuestionCmdQueue,
   GetEventByCorrelationId,
 };

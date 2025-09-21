@@ -1,5 +1,4 @@
-const baseUrl = process.env.QUESTION_URL || "http://localhost:7071";
-const profileBaseUrl = process.env.PROFILE_URL || "http://localhost:7072";
+const baseUrl = process.env.QUESTION_URL;
 const sendFollowUpCmdUrl = new URL("/sendFollowUpCmd", baseUrl);
 
 const createFollowUp = (profileIdLookup, questionIdLookup, testCorrelationId) => {

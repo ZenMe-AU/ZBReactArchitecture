@@ -1,11 +1,9 @@
-// require("./index.js");
-require("./bootstrap/index.js");
 const { app } = require("@azure/functions");
 const { requestHandler, serviceBusHandler } = require("./handler/handlerWrapper.js");
 const questionHandler = require("./handler/handler.js");
 const sendFollowUpCmdSchema = require("./schema/sendFollowUpCmdSchema");
 const shareQuestionCmdSchema = require("./schema/shareQuestionCmdSchema");
-const { followUpCmdQueue, shareQuestionCmdQueue } = require("./service/serviceBus.js");
+// const { followUpCmdQueue, shareQuestionCmdQueue } = require("./service/serviceBus.js");
 
 app.http("CreateQuestion", {
   route: "question",
@@ -80,22 +78,18 @@ app.http("GetSharedQuestionListByUser", {
 app.http("SendFollowUpCmd", {
   route: "sendFollowUpCmd",
   methods: ["POST"],
-  extraOutputs: [followUpCmdQueue],
   authLevel: "anonymous",
-  handler: requestHandler(questionHandler.SendFollowUpCmdQueue, {
+  handler: requestHandler(questionHandler.SendFollowUpCmd, {
     schemas: [sendFollowUpCmdSchema],
-    customParams: { queueName: "followUpCmd" },
   }),
 });
 
 app.http("ShareQuestionCmd", {
   route: "shareQuestionCmd",
   methods: ["POST"],
-  extraOutputs: [shareQuestionCmdQueue],
   authLevel: "anonymous",
-  handler: requestHandler(questionHandler.SendShareQuestionCmdQueue, {
+  handler: requestHandler(questionHandler.ShareQuestionCmd, {
     schemas: [shareQuestionCmdSchema],
-    customParams: { queueName: "shareQuestionCmd" },
   }),
 });
 
@@ -106,14 +100,14 @@ app.http("getEventByCorrelationId", {
   handler: requestHandler(questionHandler.GetEventByCorrelationId),
 });
 
-app.serviceBusQueue("sendFollowUpCmdQueue", {
-  connection: "ServiceBusConnection",
-  queueName: "followupcmd",
-  handler: serviceBusHandler(questionHandler.SendFollowUpCmd),
-});
+// app.serviceBusQueue("sendFollowUpCmdQueue", {
+//   connection: "ServiceBusConnection",
+//   queueName: "followupcmd",
+//   handler: serviceBusHandler(questionHandler.SendFollowUpCmd),
+// });
 
-app.serviceBusQueue("shareQuestionCmdQueue", {
-  connection: "ServiceBusConnection",
-  queueName: "ShareQuestionCmd",
-  handler: serviceBusHandler(questionHandler.ShareQuestionCmd),
-});
+// app.serviceBusQueue("shareQuestionCmdQueue", {
+//   connection: "ServiceBusConnection",
+//   queueName: "ShareQuestionCmd",
+//   handler: serviceBusHandler(questionHandler.ShareQuestionCmd),
+// });

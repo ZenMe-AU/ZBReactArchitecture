@@ -55,3 +55,9 @@ Write-Output "Deploying the Function App code..."
 Set-Location $env:MODULE_FOLDER\deploy\code
 node ./deploy.js
 if ($LASTEXITCODE -ne 0) { Write-Warning "Deploy Function App code failed" }
+
+# Verify the deployment
+Write-Output "Verifying the deployment..."
+Set-Location $env:MODULE_FOLDER\deploy\verify
+node ./verifyDeployment.js
+if ($LASTEXITCODE -ne 0) { Write-Warning "Verify deployment failed" }

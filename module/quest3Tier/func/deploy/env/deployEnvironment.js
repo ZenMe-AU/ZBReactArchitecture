@@ -1,6 +1,6 @@
 const { resolve } = require("path");
-const { getTargetEnv, getModuleName } = require("../../../../shared/func/deploy/util/envSetup.js");
-const EnvironmentDeployer = require("../../../../shared/func/deploy/environmentDeployer.js");
+const { getTargetEnv, getModuleName } = require("../util/envSetup.js");
+const EnvironmentDeployer = require("./environmentDeployer.js");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
 
