@@ -9,45 +9,67 @@ const ACTION_TYPE = require("../enum/actionType");
 const STATUS = require("../enum/status");
 const container = require("../di/diContainer");
 const QuestionQueryService = require("./questionQueryService");
+const { sendMessageToQueue } = require("../serviceBus/function");
+const { qNameQuestionCreatedEvent } = require("../serviceBus/queueNameList");
 
-async function createQuestion(messageId, profileId, body, correlationId, title, questionText, option) {
+async function createQuestion(cmdId, cmdType, cmdBody, correlationId, senderId, questionTitle, questionText, questionOption) {
   let sequelize = container.get("db");
-  // run whole command in a transaction
+  // run whole command in a transaction to ensure the event is written only if the question is created successfully
   return await withTransaction(sequelize, async ({ transaction }) => {
     // inserts a command for the question creation
     const cmd = await CmdRepo.insertCmd({
       aggregateType: AGGREGATE_TYPE.QUESTION,
-      cmdId: messageId,
-      senderId: profileId,
-      cmdData: body,
+      cmdId,
+      senderId,
+      cmdData: cmdBody,
       correlationId,
       transaction,
     });
     // creates a new question with the provided data
     const question = await QuestionRepo.insertQuestion({
       profileId,
-      title,
+      title: questionTitle,
       questionText,
-      optionList: option,
+      optionList: questionOption,
       transaction,
     });
-    // creates an event for the question creation
-    const event = await EventRepo.insertEvent({
+
+    // -------- notify that a new question has been created -------- //
+    // Send Event to questionCreatedEvent service bus queue
+    const eventBody = {
       aggregateType: AGGREGATE_TYPE.QUESTION,
       aggregateId: question.id,
-      causationId: messageId,
-      senderId: body.profileId,
-      eventData: body,
+      causationId: cmdId,
+      causationType: cmdType,
+      senderId,
+    };
+    // Send the event message to the service bus
+    const eventMessageId = await sendMessageToQueue({
+      queueName: qNameQuestionCreatedEvent,
+      body: eventBody,
+      correlationId,
+      messageId: cmdId, // use the same messageId as the command for easier tracking, this may change in the future if cmd is not 1:1 with event
+    });
+    // creates an event for the question creation, this is slower than sending to the queue but easier to keep the code in one place
+    const event = await EventRepo.insertEvent({
+      id: eventMessageId,
+      aggregateType: AGGREGATE_TYPE.QUESTION,
+      aggregateId: question.id,
+      causationId: cmdId,
+      causationType: cmdType,
+      senderId,
+      eventData: eventBody,
       correlationId,
       transaction,
     });
     // updates the command status to success
     await CmdRepo.updateCmd({
-      cmdId: cmd.id,
+      cmdId,
       status: STATUS.SUCCESS,
-      eventId: event.id,
+      eventId: eventMessageId,
       transaction,
     });
+    // ------------------------------------------------------------ //
   });
 }
 

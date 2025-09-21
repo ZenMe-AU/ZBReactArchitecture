@@ -5,10 +5,10 @@ const QuestionService = require("../service/questionService");
  * It processes the question creation, updates the command status, and returns the created question.
  */
 async function CreateQuestion(message, context) {
-  const { messageId, correlationId } = context.triggerMetadata;
+  const { messageId, correlationId, subject: cmdType } = context.triggerMetadata;
   const { title, questionText, option, profileId } = message;
 
-  await QuestionService.createQuestion(messageId, profileId, message, correlationId, title, questionText, option);
+  await QuestionService.createQuestion(messageId, cmdType, message, correlationId, profileId, title, questionText, option);
 }
 
 /**
