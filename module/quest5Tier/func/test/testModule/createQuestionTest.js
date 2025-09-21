@@ -17,12 +17,14 @@ const createQuestion = (profileIdLookup, testCorrelationId) => {
     });
     //
     let question = await response.json();
+    let messageId = question.return.messageId;
+    questionIdLookup.add(q.questionId, messageId);
 
     expect(response.ok).toBeTruthy();
   });
-  // TODO: listen on queue and add responses to questionIdLookUp
-  let questionId = question.return.id;
-  questionIdLookup.add(q.questionId, questionId);
+  // // TODO: listen on queue and add responses to questionIdLookUp
+  // let questionId = question.return.id;
+  // questionIdLookup.add(q.questionId, questionId);
 };
 
 const checkQuestion = (profileIdLookup) => {
