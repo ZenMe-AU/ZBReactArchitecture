@@ -7,7 +7,7 @@ import type { Route } from "./+types/root";
 import appStylesHref from "./app.css?url";
 import bootstrapHref from "bootstrap/dist/css/bootstrap.min.css?url";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { loadConfig } from "../config/loadConfig";
+import { loadConfig, getConfig } from "../config/loadConfig";
 
 export default function App() {
   return (
@@ -66,11 +66,12 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let message = "Oops!";
   let details = "An unexpected error occurred.";
   let stack: string | undefined;
+  let isDev = getConfig("DEV") || false;
 
   if (isRouteErrorResponse(error)) {
     message = error.status === 404 ? "404" : "Error";
     details = error.status === 404 ? "The requested page could not be found." : error.statusText || details;
-  } else if (import.meta.env.DEV && error && error instanceof Error) {
+  } else if (isDev && error && error instanceof Error) {
     details = error.message;
     stack = error.stack;
   }
