@@ -27,7 +27,7 @@ async function createQuestion(cmdId, cmdType, cmdBody, correlationId, senderId, 
     });
     // creates a new question with the provided data
     const question = await QuestionRepo.insertQuestion({
-      profileId,
+      profileId: senderId,
       title: questionTitle,
       questionText,
       optionList: questionOption,
