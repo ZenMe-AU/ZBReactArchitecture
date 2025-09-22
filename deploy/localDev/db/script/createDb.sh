@@ -7,7 +7,7 @@ RESET="\033[0m"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../docker/config.env"
 
-MODULE_DIR="$SCRIPT_DIR/../../module"
+MODULE_DIR="$SCRIPT_DIR/../../../../module"
 echo "Bootstrapping module databases from $MODULE_DIR..."
 
 for dir in "$MODULE_DIR"/*; do
