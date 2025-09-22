@@ -3,14 +3,18 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MODULE_DIR="$SCRIPT_DIR/../../../../module"
-OUTPUT="$SCRIPT_DIR/config.json"
-NAMESPACE="localServiceBusEmulator"
+OUTPUT="$SCRIPT_DIR/../config.json"
+NAMESPACE="sbemulatorns" # must less than 12 characters
+LOGGING="Console" # Console or File
 
 printf "START: Generating $OUTPUT"
 
 cat > "$OUTPUT" <<EOF
 {
   "UserConfig": {
+    "Logging": {
+      "Type": "$LOGGING"
+    },
     "Namespaces": [
       {
         "Name": "$NAMESPACE",
