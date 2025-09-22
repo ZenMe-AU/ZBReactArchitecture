@@ -1,35 +1,8 @@
-# Get the Resource Group resource
-data "azurerm_resource_group" "main_rg" {
-  name = var.resource_group_name
-}
-# Get the Storage Account resource
-data "azurerm_storage_account" "main_sa" {
-  name                = var.storage_account_name
-  resource_group_name = data.azurerm_resource_group.main_rg.name
-}
+# Main Terraform script for deploying function app and database
 
-# Get the App Insights resource
-data "azurerm_application_insights" "main_appinsights" {
-  name                = var.app_insights_name
-  resource_group_name = data.azurerm_resource_group.main_rg.name
-}
-# Get the User Assigned Identity
-data "azurerm_user_assigned_identity" "uai" {
-  name                = var.identity_name
-  resource_group_name = data.azurerm_resource_group.main_rg.name
-}
-data "azurerm_app_configuration" "config" {
-  name                = var.appconfig_name
-  resource_group_name = data.azurerm_resource_group.main_rg.name
-}
-# Get the postgreSQL server details
-data "azurerm_postgresql_flexible_server" "main_server" {
-  name                = var.pg_server_name
-  resource_group_name = data.azurerm_resource_group.main_rg.name
-}
 # create function app
 module "function_app" {
-  source                                 = "../template/terraformTemplate/functionApps"
+  source                                 = "./functionApps"
   function_app_name                      = var.function_app_name
   resource_group_name                    = data.azurerm_resource_group.main_rg.name
   resource_group_location                = data.azurerm_resource_group.main_rg.location
@@ -50,7 +23,7 @@ module "function_app" {
 
 # create database
 module "database" {
-  source               = "../template/terraformTemplate/database"
+  source               = "./database"
   database_name        = var.db_name
   postgresql_server_id = data.azurerm_postgresql_flexible_server.main_server.id
 }

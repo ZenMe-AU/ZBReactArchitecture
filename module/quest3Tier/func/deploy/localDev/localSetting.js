@@ -1,6 +1,7 @@
 const { resolve } = require("path");
-const { getTargetEnv, getModuleName } = require("../template/util/envSetup.js");
-const { getDbAdminName, getPgHost, getServiceBusHost } = require("../template/util/namingConvention.js");
+const { getTargetEnv, getModuleName } = require("../util/envSetup.js");
+const { getDbAdminName, getPgHost, getServiceBusHost, getAppInsightsName, getResourceGroupName } = require("../util/namingConvention.js");
+const { getAppInsightsConnectionString } = require("../util/azureCli.js");
 const fs = require("fs");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
@@ -40,7 +41,10 @@ const customSettings = {
     json.Values = {
       ...json.Values,
       ...customSettings,
-      // APPLICATIONINSIGHTS_CONNECTION_STRING : "",
+      APPLICATIONINSIGHTS_CONNECTION_STRING: getAppInsightsConnectionString({
+        appInsightsName: getAppInsightsName(targetEnv),
+        resourceGroupName: getResourceGroupName(envType, targetEnv),
+      }),
       ServiceBusConnection: getServiceBusHost(targetEnv),
       DB_USERNAME: getDbAdminName(envType),
       DB_DATABASE: moduleName,

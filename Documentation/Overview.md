@@ -140,7 +140,7 @@ flowchart LR
 
 ### Modules using this pattern:
 
-- `questionV3`
+- `quest5Tier`
 
 ---
 
@@ -152,7 +152,7 @@ flowchart LR
 | profile    | Basic 3-Tier                     | User profile management               |
 | coordinate | Basic 3-Tier                     | Location/coordinate logic             |
 | questionV2 | Incomplete 5-Tier w/ Event Queue | Event-driven, async business logic    |
-| questionV3 | 5-Tier CQRS + Event Sourcing     | Full separation, event sourcing, CQRS |
+| quest5Tier | 5-Tier CQRS + Event Sourcing     | Full separation, event sourcing, CQRS |
 
 ---
 
@@ -184,7 +184,7 @@ CQRS is an architectural pattern that separates the handling of read (query) and
 
 ## Implementation in the System
 
-In modules like `questionV3`, CQRS is fully implemented:
+In modules like `quest5Tier`, CQRS is fully implemented:
 
 - The UI sends commands and queries to separate endpoints.
 - Commands are processed asynchronously, generating events and updating the write model.
@@ -239,7 +239,7 @@ Event sourcing is an architectural pattern where state changes are captured as a
 
 ### Implementation in the System
 
-In modules such as `questionV3`, event sourcing is used for command processing. Commands result in events that are stored and later consumed by business logic and downstream systems. Azure Service Bus is leveraged for event distribution, and Azure Application Insights tracks event flows using correlation IDs.
+In modules such as `quest5Tier`, event sourcing is used for command processing. Commands result in events that are stored and later consumed by business logic and downstream systems. Azure Service Bus is leveraged for event distribution, and Azure Application Insights tracks event flows using correlation IDs.
 
 This approach ensures that every business action is traceable, recoverable, and extensible, forming a robust foundation for complex, scalable applications.
 
