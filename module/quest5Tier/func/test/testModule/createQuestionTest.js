@@ -2,6 +2,8 @@ const baseUrl = process.env.BASE_URL;
 const qryUrl = new URL("/questionQry", baseUrl);
 const cmdUrl = new URL("/questionCmd", baseUrl);
 const { questionData, questionTestResult } = require("./createQuestionTestData");
+const { getMessageById, removeMessagesByIds, getServiceBusClient } = require("../receiveMessages");
+const { qNameQuestionCreatedEvent } = require("../../serviceBus/queueNameList");
 
 const createQuestion = (profileIdLookup, testCorrelationId) => {
   test.each(questionData())("create question $questionId", async (q) => {
@@ -18,8 +20,12 @@ const createQuestion = (profileIdLookup, testCorrelationId) => {
     //
     let question = await response.json();
     let messageId = question.return.messageId;
-    questionIdLookup.add(q.questionId, messageId);
 
+    let messageBody = await getMessageById(qNameQuestionCreatedEvent, messageId);
+    let questionId = messageBody ? messageBody.aggregateId : null;
+    questionIdLookup.add(q.questionId, questionId);
+    let removed = await removeMessagesByIds(qNameQuestionCreatedEvent, [messageId]);
+    // console.log(" Removed messages:", { removed });
     expect(response.ok).toBeTruthy();
   });
   // // TODO: listen on queue and add responses to questionIdLookUp
@@ -56,4 +62,8 @@ const questionIdLookup = {
   },
 };
 
-module.exports = { createQuestion, checkQuestion, questionIdLookup };
+module.exports = {
+  createQuestion,
+  checkQuestion,
+  questionIdLookup,
+};
