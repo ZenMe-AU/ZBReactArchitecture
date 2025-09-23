@@ -5,11 +5,12 @@ const { getSubscriptionId } = require("../util/azureCli");
 const CodeDeployer = require("./CodeDeployer");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
+const queueNameList = require("../../serviceBus/queueNameList");
 
 (async () => {
   let targetEnv, moduleName, subscriptionId, envType;
   try {
-    envType = process.env.TF_VAR_env_type;
+    envType = process.env.TF_VAR_env_type || "dev";
     targetEnv = getTargetEnv();
     moduleName = getModuleName(moduleDir);
     subscriptionId = getSubscriptionId();
@@ -33,6 +34,6 @@ const moduleDir = resolve(__dirname, "..", "..", "..");
     serviceBusName,
     moduleDir,
   });
-  codeDeployer.queueNames = ["sendFollowUp", "shareQuestion", "createQuestion", "updateQuestion", "createAnswer"];
+  codeDeployer.queueNames = JSON.stringify(Object.values(queueNameList));
   await codeDeployer.run();
 })();
