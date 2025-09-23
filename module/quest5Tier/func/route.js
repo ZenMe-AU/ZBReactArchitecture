@@ -56,7 +56,7 @@ app.http("GetFollowUpEventList", {
   methods: ["GET"],
   authLevel: "anonymous",
   handler: requestHandler(apiQryHandler.GetEventByCorrelationId, {
-    customParams: { tableName: "followUpEvent" },
+    customParams: { tableName: "followUp" },
   }),
 });
 
