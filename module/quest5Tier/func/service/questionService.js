@@ -10,7 +10,13 @@ const STATUS = require("../enum/status");
 const container = require("../di/diContainer");
 const QuestionQueryService = require("./questionQueryService");
 const { sendMessageToQueue } = require("../serviceBus/function");
-const { qNameQuestionCreatedEvent } = require("../serviceBus/queueNameList");
+const {
+  qNameFollowUpSentEvent,
+  qNameQuestionSharedEvent,
+  qNameQuestionCreatedEvent,
+  qNameQuestionUpdatedEvent,
+  qNameAnswerCreatedEvent,
+} = require("../serviceBus/queueNameList");
 
 async function createQuestion(cmdId, cmdType, cmdBody, correlationId, senderId, questionTitle, questionText, questionOption) {
   let sequelize = container.get("db");
@@ -73,7 +79,8 @@ async function createQuestion(cmdId, cmdType, cmdBody, correlationId, senderId, 
   });
 }
 
-async function updateQuestion(messageId, profileId, body, correlationId, questionId, patchData) {
+// async function updateQuestion(messageId, profileId, body, correlationId, questionId, patchData) {
+async function updateQuestion(cmdId, cmdType, cmdBody, correlationId, senderId, questionId, patchData) {
   let sequelize = container.get("db");
   // run whole command in a transaction
   return await withTransaction(sequelize, async ({ transaction }) => {
@@ -81,20 +88,38 @@ async function updateQuestion(messageId, profileId, body, correlationId, questio
     const cmd = await CmdRepo.insertCmd({
       aggregateType: AGGREGATE_TYPE.QUESTION,
       action: ACTION_TYPE.UPDATE,
-      cmdId: messageId,
-      senderId: profileId,
-      cmdData: body,
+      cmdId,
+      senderId,
+      cmdData: cmdBody,
       correlationId,
       transaction,
     });
     const question = await QuestionRepo.patchQuestionById({ questionId, patchData, transaction }); // update the question with the provided patch data
+    // -------- notify that a new question has been updated -------- //
+    // Send Event to questionUpdatedEvent service bus queue
+    const eventBody = {
+      aggregateType: AGGREGATE_TYPE.QUESTION,
+      aggregateId: questionId,
+      eventType: ACTION_TYPE.UPDATE,
+      causationId: cmdId,
+      causationType: cmdType,
+      senderId,
+    };
+    // Send the event message to the service bus
+    const eventMessageId = await sendMessageToQueue({
+      queueName: qNameQuestionUpdatedEvent,
+      body: eventBody,
+      correlationId,
+      messageId: cmdId, // use the same messageId as the command for easier tracking, this may change in the future if cmd is not 1:1 with event
+    });
     // create an event for the question update
     const event = await EventRepo.insertEvent({
       aggregateType: AGGREGATE_TYPE.QUESTION,
       aggregateId: questionId,
       eventType: ACTION_TYPE.UPDATE,
-      causationId: messageId,
-      senderId: profileId,
+      causationId: cmdId,
+      causationType: cmdType,
+      senderId,
       eventData: patchData,
       originalData: question._previousDataValues,
       correlationId,
@@ -102,7 +127,7 @@ async function updateQuestion(messageId, profileId, body, correlationId, questio
     });
     // update the command status to success
     await CmdRepo.updateCmd({
-      cmdId: cmd.id,
+      cmdId,
       status: STATUS.SUCCESS,
       eventId: event.id,
       transaction,
@@ -111,16 +136,17 @@ async function updateQuestion(messageId, profileId, body, correlationId, questio
   });
 }
 
-async function createAnswer(messageId, profileId, body, correlationId, questionId) {
+// async function createAnswer(messageId, profileId, body, correlationId, questionId) {
+async function createAnswer(cmdId, cmdType, cmdBody, correlationId, senderId, questionId) {
   let sequelize = container.get("db");
   // run whole command in a transaction
   return await withTransaction(sequelize, async ({ transaction }) => {
     // inserts a command for the answer creation
     const cmd = await CmdRepo.insertCmd({
       aggregateType: AGGREGATE_TYPE.QUESTION_ANSWER,
-      cmdId: messageId,
-      senderId: profileId,
-      cmdData: body,
+      cmdId,
+      senderId,
+      cmdData: cmdBody,
       correlationId,
       transaction,
     });
@@ -132,23 +158,24 @@ async function createAnswer(messageId, profileId, body, correlationId, questionI
     // If the answer already exists, it will be updated, otherwise a new one will be created
     const answer = await AnswerRepo.upsertAnswerByQuestionId({
       questionId,
-      profileId,
-      ansData: body,
+      profileId: senderId,
+      ansData: cmdBody,
       transaction,
     });
     // creates an event for the answer creation
     const event = await EventRepo.insertEvent({
       aggregateType: AGGREGATE_TYPE.QUESTION_ANSWER,
       aggregateId: answer.id,
-      causationId: messageId,
-      senderId: body.profileId,
-      eventData: body,
+      causationId: cmdId,
+      causationType: cmdType,
+      senderId,
+      eventData: cmdBody,
       correlationId,
       transaction,
     });
     // updates the command status to success
     await CmdRepo.updateCmd({
-      cmdId: cmd.id,
+      cmdId,
       status: STATUS.SUCCESS,
       eventId: event.id,
       transaction,
@@ -157,25 +184,26 @@ async function createAnswer(messageId, profileId, body, correlationId, questionI
   });
 }
 
-async function sendFollowUp(messageId, profileId, body, correlationId, questionIdList) {
+// async function sendFollowUp(messageId, profileId, body, correlationId, questionIdList) {
+async function sendFollowUp(cmdId, cmdType, cmdBody, correlationId, senderId, questionIdList) {
   let sequelize = container.get("db");
   // run whole command in a transaction
   return await withTransaction(sequelize, async ({ transaction }) => {
     // inserts a command for the follow-up action
     const cmd = await CmdRepo.insertCmd({
       aggregateType: AGGREGATE_TYPE.FOLLOW_UP,
-      cmdId: messageId,
-      senderId: profileId,
-      cmdData: body,
+      cmdId,
+      senderId,
+      cmdData: cmdBody,
       correlationId,
       transaction,
     });
-    const receiverIds = await QuestionQueryService.getFollowUpReceiver(body); // filters the receiver IDs based on the answers to the questions
+    const receiverIds = await QuestionQueryService.getFollowUpReceiver(cmdBody); // filters the receiver IDs based on the answers to the questions
     // shares the question with the specified receiver IDs
     const sharedQuestions = questionIdList.map(async (questionId) => {
       return await ShareRepo.insertQuestionShare({
         questionId,
-        senderId: profileId,
+        senderId,
         receiverIds,
         transaction,
       });
@@ -184,15 +212,16 @@ async function sendFollowUp(messageId, profileId, body, correlationId, questionI
     const event = await EventRepo.insertEvent({
       aggregateType: AGGREGATE_TYPE.FOLLOW_UP,
       aggregateId: null,
-      causationId: messageId,
-      senderId: profileId,
-      eventData: body,
+      causationId: cmdId,
+      causationType: cmdType,
+      senderId,
+      eventData: cmdBody,
       correlationId,
       transaction,
     });
     // updates the command status to success
     await CmdRepo.updateCmd({
-      cmdId: messageId,
+      cmdId,
       status: STATUS.SUCCESS,
       eventId: event.id,
       transaction,
@@ -201,23 +230,24 @@ async function sendFollowUp(messageId, profileId, body, correlationId, questionI
   });
 }
 
-async function shareQuestion(messageId, profileId, body, correlationId, newQuestionId, receiverIds) {
+// async function shareQuestion(messageId, profileId, body, correlationId, newQuestionId, receiverIds) {
+async function shareQuestion(cmdId, cmdType, cmdBody, correlationId, senderId, newQuestionId, receiverIds) {
   let sequelize = container.get("db");
   // run whole command in a transaction
   return await withTransaction(sequelize, async ({ transaction }) => {
     // inserts a command for the question sharing action
     const cmd = await CmdRepo.insertCmd({
       aggregateType: AGGREGATE_TYPE.QUESTION_SHARE,
-      cmdId: messageId,
-      senderId: profileId,
-      cmdData: body,
+      cmdId,
+      senderId,
+      cmdData: cmdBody,
       correlationId,
       transaction,
     });
     // shares the question with the specified receiver IDs
     const sharedQuestions = await ShareRepo.insertQuestionShare({
       questionId: newQuestionId,
-      senderId: profileId,
+      senderId,
       receiverIds,
       transaction,
     });
@@ -225,15 +255,16 @@ async function shareQuestion(messageId, profileId, body, correlationId, newQuest
     const event = await EventRepo.insertEvent({
       aggregateType: AGGREGATE_TYPE.QUESTION_SHARE,
       aggregateId: null,
-      causationId: messageId,
-      senderId: profileId,
-      eventData: body,
+      causationId: cmdId,
+      causationType: cmdType,
+      senderId,
+      eventData: cmdBody,
       correlationId,
       transaction,
     });
     // updates the command status to success
     await CmdRepo.updateCmd({
-      cmdId: cmd.id,
+      cmdId,
       status: STATUS.SUCCESS,
       eventId: event.id,
       transaction,

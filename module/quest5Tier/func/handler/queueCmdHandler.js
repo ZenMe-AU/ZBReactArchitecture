@@ -16,9 +16,9 @@ async function CreateQuestion(message, context) {
  * It processes the question update, applies the patch data, and updates the command status.
  */
 async function UpdateQuestion(message, context) {
-  const { messageId, correlationId } = context.triggerMetadata;
+  const { messageId, correlationId, subject: cmdType } = context.triggerMetadata;
   const { patchData, questionId, profileId } = message;
-  const question = await QuestionService.updateQuestion(messageId, profileId, message, correlationId, questionId, patchData);
+  const question = await QuestionService.updateQuestion(messageId, cmdType, message, correlationId, profileId, questionId, patchData);
   // console.log("🥳UpdateQuestion: ", question);
 }
 
@@ -27,9 +27,9 @@ async function UpdateQuestion(message, context) {
  * It processes the answer creation, updates the command status, and returns the created answer.
  */
 async function CreateAnswer(message, context) {
-  const { messageId, correlationId } = context.triggerMetadata;
+  const { messageId, correlationId, subject: cmdType } = context.triggerMetadata;
   const { questionId, profileId, answer: answerText = null, option = null, duration } = message;
-  const answer = await QuestionService.createAnswer(messageId, profileId, message, correlationId, questionId);
+  const answer = await QuestionService.createAnswer(messageId, cmdType, message, correlationId, profileId, questionId);
   // console.log("🥳CreateAnswer: ", answer);
 }
 
@@ -38,9 +38,9 @@ async function CreateAnswer(message, context) {
  * It processes the follow-up questions, shares them with the appropriate users, and updates the command status.
  */
 async function SendFollowUp(message, context) {
-  const { messageId, correlationId } = context.triggerMetadata;
+  const { messageId, correlationId, subject: cmdType } = context.triggerMetadata;
   const { questionIdList, profileId, question: filterData } = message;
-  const sharedQuestions = await QuestionService.sendFollowUp(messageId, profileId, message, correlationId, questionIdList);
+  const sharedQuestions = await QuestionService.sendFollowUp(messageId, cmdType, message, correlationId, profileId, questionIdList);
   // console.log("🥳SendFollowUp: ", sharedQuestions);
 }
 
@@ -49,9 +49,9 @@ async function SendFollowUp(message, context) {
  * It processes the sharing of the question and updates the command status.
  */
 async function ShareQuestion(message, context) {
-  const { messageId, correlationId } = context.triggerMetadata;
+  const { messageId, correlationId, subject: cmdType } = context.triggerMetadata;
   const { newQuestionId, profileId, receiverIds } = message;
-  const sharedQuestions = await QuestionService.shareQuestion(messageId, profileId, message, correlationId, newQuestionId, receiverIds);
+  const sharedQuestions = await QuestionService.shareQuestion(messageId, cmdType, message, correlationId, profileId, newQuestionId, receiverIds);
   // console.log("🥳ShareQuestion: ", sharedQuestions);
 }
 
