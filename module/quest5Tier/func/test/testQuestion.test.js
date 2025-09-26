@@ -13,10 +13,10 @@ describe("test question data", () => {
   createUser();
   createQuestion(profileIdLookup, testCorrelationId);
   createAnswer(profileIdLookup, questionIdLookup, testCorrelationId);
-  // checkQuestion(profileIdLookup);
-  // checkAnswer(profileIdLookup, questionIdLookup);
+  checkQuestion(profileIdLookup);
+  checkAnswer(profileIdLookup, questionIdLookup);
   createFollowUp(profileIdLookup, questionIdLookup, testCorrelationId);
-  // checkShareQuestion(profileIdLookup, testCorrelationId);
+  checkShareQuestion(profileIdLookup, testCorrelationId);
   checkFollowUpQty(testCorrelationId);
 });
 
