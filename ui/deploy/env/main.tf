@@ -11,7 +11,11 @@ resource "azurerm_storage_account" "website" {
 resource "azurerm_storage_container" "static_content" {
   name                  = "$web"
   storage_account_id    = azurerm_storage_account.website.id
-  container_access_type = "blob"
+  # Make the $web container private so direct blob URLs like
+  # https://<account>.blob.core.windows.net/$web/index.html are blocked.
+  # Front Door uses the static website endpoint (web.core.windows.net),
+  # which continues to work regardless of this ACL.
+  container_access_type = "private" 
 }
 
 # Enable static website hosting on the storage account
