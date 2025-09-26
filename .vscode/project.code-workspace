@@ -9,6 +9,10 @@
       "path": "../ui"
     },
     {
+      "name": "quest5TierEg/func",
+      "path": "../module/quest5TierEg/func"
+    },
+    {
       "name": "quest5Tier/func",
       "path": "../module/quest5Tier/func"
     },
