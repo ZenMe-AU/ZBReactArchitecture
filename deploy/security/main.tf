@@ -1,5 +1,7 @@
 
 #----------------------------------
+
+# used to create a vnet and subnet for private endpoints
 resource "azurerm_virtual_network" "virtual_network" {
   name                = "${var.storage_account_web_name}-vnet"
   address_space       = ["10.0.0.0/16"]

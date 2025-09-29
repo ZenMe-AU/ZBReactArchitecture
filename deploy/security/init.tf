@@ -31,19 +31,19 @@ variable "env_type" {
 variable "target_env" {
   description = "Target environment name for deployment, this must be globally unique on Azure"
   type        = string
-  default     = "zenmeUITest"
+  default     = "shortpigeon"
 }
 
 variable "resource_group_name" {
   description = "Resource group name for deployment"
   type        = string
-  default     = "dev-enviouseel"
+  default     = "dev-shortpigeon"
 }
 
 variable "storage_account_web_name" {
   description = "Storage account name for static website"
   type        = string
-  default     = "enviouseelweb"
+  default     = "shortpigeonweb"
 }
 
 variable "subscription_id" {

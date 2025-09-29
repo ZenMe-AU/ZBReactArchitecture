@@ -89,7 +89,7 @@ resource "azurerm_app_configuration" "appconfig" {
   name                = var.appconfig_name
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
-  sku                 = "free"
+  sku                 = "developer"
 }
 # Store the environment name in App Configuration. This requires "App Configuration Data Owner" role to be activated in PIM for this user at this current time.
 resource "azurerm_app_configuration_key" "env_type" {
