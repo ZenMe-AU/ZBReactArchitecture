@@ -1,5 +1,11 @@
 # Create an Azure Front Door to securely host the website
 
+# Get the Front Door profile
+data "azurerm_cdn_frontdoor_profile" "fd_profile" {
+  name                = "${var.target_env}-fd-profile"
+  resource_group_name = data.azurerm_resource_group.main_resource.name
+}
+
 # Main entry point into Front Door
 data "azurerm_cdn_frontdoor_endpoint" "fd_endpoint" {
   name = "${var.target_env}-fd-endpoint"
@@ -25,25 +31,22 @@ resource "azurerm_cdn_frontdoor_origin_group" "ui_fdog" {
   }
 }
 
-# Enable custom domain by adding txt record to dns zone
-resource "azurerm_dns_txt_record" "dns_validation" {
-  name                = "_dnsauth.${var.target_env}"
-  zone_name           = var.parent_domain_name
-  resource_group_name = "root-zenblox"
-  ttl                 = 3600
-  record {
-    value = azurerm_cdn_frontdoor_custom_domain.ui_custom_domain.validation_token
-  }
-}
+# DNS TXT record for domain validation (commented out since domain already exists)
+# resource "azurerm_dns_txt_record" "dns_validation" {
+#   name                = "_dnsauth.${var.target_env}"
+#   zone_name           = var.parent_domain_name
+#   resource_group_name = data.azurerm_resource_group.dns_resource.name
+#   ttl                 = 3600
+#   record {
+#     value = "existing-validation-token"
+#   }
+# }
 
-# creating domain with environment name
-resource "azurerm_cdn_frontdoor_custom_domain" "ui_custom_domain" {
-  name                        = "${var.target_env}-dns"
-  cdn_frontdoor_profile_id    = data.azurerm_cdn_frontdoor_profile.fd_profile.id
-  host_name                   = lower("www.${var.parent_domain_name}") # change this (www.) for other subdomains
-  tls {
-    certificate_type = "ManagedCertificate"
-    }
+# Reference existing custom domain
+data "azurerm_cdn_frontdoor_custom_domain" "ui_custom_domain" {
+  name                     = "${var.target_env}-dns"
+  profile_name             = data.azurerm_cdn_frontdoor_profile.fd_profile.name
+  resource_group_name      = data.azurerm_resource_group.main_resource.name
 }
 
 # Redirecting requests whose Host != custom domain
@@ -52,13 +55,11 @@ resource "azurerm_cdn_frontdoor_rule_set" "fd_rules" {
   cdn_frontdoor_profile_id  = data.azurerm_cdn_frontdoor_profile.fd_profile.id
 }
 
-# creates cname record to point to front door endpoint
-resource "azurerm_dns_cname_record" "cname_record" {
+# Reference existing CNAME record that points to front door endpoint
+data "azurerm_dns_cname_record" "cname_record" {
   name                = var.target_env
   zone_name           = var.parent_domain_name
-  resource_group_name = data.azurerm_resource_group.main_resource.name
-  ttl                 = 3600
-  record              = data.azurerm_cdn_frontdoor_endpoint.fd_endpoint.host_name
+  resource_group_name = data.azurerm_resource_group.dns_resource.name
 }
 
 # Origin to point to the static website that is being published by Front Door
@@ -76,7 +77,7 @@ resource "azurerm_cdn_frontdoor_origin" "ui_fdo" {
 resource "azurerm_cdn_frontdoor_route" "fd_route" {
   name                              = "${var.target_env}-fd-route"
   cdn_frontdoor_endpoint_id         = data.azurerm_cdn_frontdoor_endpoint.fd_endpoint.id
-  cdn_frontdoor_origin_ids          = [azurerm_cdn_frontdoor_origin.fd_origin.id]
+  cdn_frontdoor_origin_ids          = [azurerm_cdn_frontdoor_origin.ui_fdo.id]
   cdn_frontdoor_origin_group_id     = azurerm_cdn_frontdoor_origin_group.ui_fdog.id
   cdn_frontdoor_rule_set_ids        = [azurerm_cdn_frontdoor_rule_set.fd_rules.id]
   patterns_to_match                 = ["/*"]
@@ -84,6 +85,6 @@ resource "azurerm_cdn_frontdoor_route" "fd_route" {
   forwarding_protocol               = "HttpsOnly"
   link_to_default_domain            = true
   https_redirect_enabled            = false
-  cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.custom_domain.id] # Associate the custom domain with the Front Door endpoint
-  depends_on = [azurerm_dns_txt_record.dns_validation, azurerm_dns_cname_record.cname_record] # Ensure the route is created after the custom domain and DNS records
+  cdn_frontdoor_custom_domain_ids = [data.azurerm_cdn_frontdoor_custom_domain.ui_custom_domain.id] # Associate the custom domain with the Front Door endpoint
+  # No depends_on needed since we're referencing existing DNS records via data sources
 }

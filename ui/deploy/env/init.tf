@@ -56,11 +56,21 @@ variable "appconfig_name" {
 variable "parent_domain_name" {
   description = "Parent domain name for the custom domain"
   type        = string
-  default     = lower("${var.target_env}.zenblox.com.au")
+  default     = "zenblox.com.au"
+}
+
+variable "dns_resource_group_name" {
+  description = "Resource group name where the DNS zone is located"
+  type        = string
+  default     = "root-zenblox"
 }
 
 data "azurerm_resource_group" "main_resource" {
   name = var.resource_group_name
+}
+
+data "azurerm_resource_group" "dns_resource" {
+  name = var.dns_resource_group_name
 }
 
 data "azurerm_app_configuration" "main_appconfig" {

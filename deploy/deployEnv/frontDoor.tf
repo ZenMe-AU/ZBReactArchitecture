@@ -3,7 +3,7 @@
 # The profile is the top-level resource for Front Door
 resource "azurerm_cdn_frontdoor_profile" "fd_profile" {
   name                = "${var.target_env}-fd-profile"   
-  resource_group_name = data.azurerm_resource_group.main_resource.name  
+  resource_group_name = data.azurerm_resource_group.rg.name  
   # sku_name            = "Premium_AzureFrontDoor"
   sku_name            = "Standard_AzureFrontDoor"                       
   identity {
@@ -36,31 +36,6 @@ resource "azurerm_dns_txt_record" "dns_validation" {
   ttl                 = 3600
   record {
     value = azurerm_cdn_frontdoor_custom_domain.custom_domain.validation_token
-  }
-}
-
-# Enforce custom domain
-resource "azurerm_cdn_frontdoor_rule" "enforce_custom_host" {
-  name                        = "${var.target_env}EnforceCustomHost"
-  cdn_frontdoor_rule_set_id   = azurerm_cdn_frontdoor_rule_set.fd_rules.id
-  order                       = 1
-  conditions {
-    host_name_condition {
-      operator          = "Equal"
-      match_values      = [lower("${var.target_env}.zenblox.com.au")]
-      negate_condition  = true
-      transforms        = []
-    }
-  }
-  actions {
-    url_redirect_action {
-      redirect_type      = "PermanentRedirect"  # 308
-      destination_hostname = lower("${var.target_env}.zenblox.com.au")
-      destination_path   = "/{path}"
-      destination_fragment = "{fragment}"
-      query_string       = "{query_string}"
-      redirect_protocol  = "Https"
-    }
   }
 }
 
