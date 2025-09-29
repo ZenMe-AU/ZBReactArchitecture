@@ -1,6 +1,7 @@
 @rem For Windows, this script allows powershell script execution and launches the powershell script.
 
-@rem powershell Set-ExecutionPolicy -Scope Process Bypass
+powershell Set-ExecutionPolicy -Scope CurrentUser RemoteSigned;
+powershell Get-ExecutionPolicy -List
 
 powershell -ExecutionPolicy Bypass -Command "Set-Location -Path './deploy'; ./deployfullstack.ps1"
 
