@@ -106,30 +106,30 @@ app.http("ShareQuestion", {
 
 app.serviceBusQueue("SendFollowUpQueue", {
   connection: "ServiceBusConnection",
-  queueName: "sendFollowUp",
+  queueName: "sendFollowUpCmd",
   handler: serviceBusHandler(queueCmdHandler.SendFollowUp),
 });
 
 app.serviceBusQueue("ShareQuestionQueue", {
   connection: "ServiceBusConnection",
-  queueName: "shareQuestion",
+  queueName: "shareQuestionCmd",
   handler: serviceBusHandler(queueCmdHandler.ShareQuestion),
 });
 
 app.serviceBusQueue("CreateQuestionQueue", {
   connection: "ServiceBusConnection",
-  queueName: "createQuestion",
+  queueName: "createQuestionCmd",
   handler: serviceBusHandler(queueCmdHandler.CreateQuestion),
 });
 
 app.serviceBusQueue("UpdateQuestionQueue", {
   connection: "ServiceBusConnection",
-  queueName: "updateQuestion",
+  queueName: "updateQuestionCmd",
   handler: serviceBusHandler(queueCmdHandler.UpdateQuestion),
 });
 
 app.serviceBusQueue("CreateAnswerQueue", {
   connection: "ServiceBusConnection",
-  queueName: "createAnswer",
+  queueName: "createAnswerCmd",
   handler: serviceBusHandler(queueCmdHandler.CreateAnswer),
 });
