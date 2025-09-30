@@ -1,6 +1,6 @@
 import { jwtFetch } from "@zenmechat/shared-ui/api/jwtFetch";
-
-const apiDomain = import.meta.env.VITE_QUESTION_DOMAIN || "https://local-chat.azurewebsites.net";
+import { getConfig } from "@zenmechat/shared-ui/config/loadConfig";
+const apiDomain = getConfig("QUEST3TIER_DOMAIN");
 // Fetch list of questions for a specific user
 export const getQuestionsByUser = async () => {
   const profileId = localStorage.getItem("profileId");
