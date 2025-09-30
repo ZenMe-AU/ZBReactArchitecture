@@ -5,6 +5,7 @@ const { checkAnswer } = require("./testModule/createAnswerTest_B");
 const { createFollowUp } = require("./testModule/createFollowUpTest");
 const { checkShareQuestion, checkFollowUpQty } = require("./testModule/createFollowUpTest_B");
 const { v4: uuidv4 } = require("uuid");
+const { getServiceBusClient } = require("./receiveMessages");
 
 const testCorrelationId = uuidv4();
 
@@ -12,9 +13,13 @@ describe("test question data", () => {
   createUser();
   createQuestion(profileIdLookup, testCorrelationId);
   createAnswer(profileIdLookup, questionIdLookup, testCorrelationId);
-  // checkQuestion(profileIdLookup);
-  // checkAnswer(profileIdLookup, questionIdLookup);
+  checkQuestion(profileIdLookup);
+  checkAnswer(profileIdLookup, questionIdLookup);
   createFollowUp(profileIdLookup, questionIdLookup, testCorrelationId);
-  // checkShareQuestion(profileIdLookup, testCorrelationId);
+  checkShareQuestion(profileIdLookup, testCorrelationId);
   checkFollowUpQty(testCorrelationId);
+});
+
+afterAll(() => {
+  getServiceBusClient().then((sbClient) => sbClient.close());
 });

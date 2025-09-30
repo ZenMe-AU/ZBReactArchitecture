@@ -51,7 +51,6 @@ async function getFollowUpReceiver(cmdData) {
 
         for (const { profileId, optionAnswerList } of ansList) {
           if (profileId === senderProfileId) continue;
-
           const hasMatchedOption = (optionAnswerList ?? []).some((opt) => filterOptionSet.has(opt));
 
           if (hasMatchedOption) {
@@ -110,7 +109,7 @@ async function getEventByCorrelationId(name, correlationId) {
       throw new Error("unknown eventName");
   }
   try {
-    return await EventRepo.searchEvent(aggregateType, correlationId);
+    return await EventRepo.searchEvent(correlationId, aggregateType);
   } catch (err) {
     console.log(err);
     throw new Error("can't get event by correlationId");

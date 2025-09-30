@@ -5,7 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../docker/config.env"
 
 OUTPUT="$SCRIPT_DIR/../docker/pgadmin/servers.json"
-MODULE_DIR="$SCRIPT_DIR/../../module"
+MODULE_DIR="$SCRIPT_DIR/../../../../module"
 
 # Ensure pgadmin directory exists
 mkdir -p "$SCRIPT_DIR/../docker/pgadmin"

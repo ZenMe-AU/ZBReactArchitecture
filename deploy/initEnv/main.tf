@@ -1,3 +1,6 @@
+# This file does the absolute minimum to initialize an environment for Terraform.
+# Anything that's not critical for Terraform functioning, can be moved to the deployeEnv folder instead.
+
 terraform {
   required_providers {
     azurerm = {

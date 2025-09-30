@@ -1,5 +1,5 @@
-const { sendFollowUp, shareQuestion, createQuestion, updateQuestion, createAnswer } = require("../service/serviceBus");
-
+// const { sendFollowUp, shareQuestion, createQuestion, updateQuestion, createAnswer } = require("../service/serviceBus");
+const { sendMessageToQueue } = require("../serviceBus/function");
 /**
  * @swagger
  * /questionCmd/createQuestion:
@@ -60,14 +60,19 @@ const { sendFollowUp, shareQuestion, createQuestion, updateQuestion, createAnswe
  *                   example: true
  */
 async function CreateQuestion(request, context) {
-  const messageBody = {
-    body: {
-      ...(request.clientParams ?? {}),
-    },
-    correlationId: request.correlationId,
-  };
-  context.extraOutputs.set(createQuestion, messageBody);
-  return { return: true };
+  // const messageBody = {
+  //   body: {
+  //     ...(request.clientParams ?? {}),
+  //   },
+  //   correlationId: request.correlationId,
+  // };
+  // context.extraOutputs.set(createQuestion, messageBody);
+  const body = request.clientParams ?? {};
+  const queueName = "createQuestion";
+  const correlationId = request.correlationId;
+
+  const messageId = await sendMessageToQueue({ body, queueName, correlationId });
+  return { return: { messageId } };
 }
 
 /**
@@ -141,17 +146,27 @@ async function CreateQuestion(request, context) {
  *                       example: "b08992c2-7c89-43a6-a152-9d24a74349a7"
  */
 async function UpdateQuestion(request, context) {
+  // const { questionId } = request.params;
+  // const messageBody = {
+  //   body: {
+  //     patchData: request.clientParams ?? {},
+  //     questionId,
+  //     profileId: request.headers.get("x-profile-id"),
+  //   },
+  //   correlationId: request.correlationId,
+  // };
+  // context.extraOutputs.set(updateQuestion, messageBody);
   const { questionId } = request.params;
-  const messageBody = {
-    body: {
-      patchData: request.clientParams ?? {},
-      questionId,
-      profileId: request.headers.get("x-profile-id"),
-    },
-    correlationId: request.correlationId,
+  const body = {
+    patchData: request.clientParams ?? {},
+    questionId,
+    profileId: request.headers.get("x-profile-id"),
   };
-  context.extraOutputs.set(updateQuestion, messageBody);
-  return { return: true };
+  const queueName = "updateQuestion";
+  const correlationId = request.correlationId;
+
+  const messageId = await sendMessageToQueue({ body, queueName, correlationId });
+  return { return: { messageId } };
 }
 
 /**
@@ -219,16 +234,25 @@ async function UpdateQuestion(request, context) {
  *                   example: true
  */
 async function CreateAnswer(request, context) {
+  // const { questionId } = request.params;
+  // const messageBody = {
+  //   body: {
+  //     ...(request.clientParams ?? {}),
+  //     questionId,
+  //   },
+  //   correlationId: request.correlationId,
+  // };
+  // context.extraOutputs.set(createAnswer, messageBody);
   const { questionId } = request.params;
-  const messageBody = {
-    body: {
-      ...(request.clientParams ?? {}),
-      questionId,
-    },
-    correlationId: request.correlationId,
+  const body = {
+    ...(request.clientParams ?? {}),
+    questionId,
   };
-  context.extraOutputs.set(createAnswer, messageBody);
-  return { return: true };
+  const queueName = "createAnswer";
+  const correlationId = request.correlationId;
+
+  const messageId = await sendMessageToQueue({ body, queueName, correlationId });
+  return { return: { messageId } };
 }
 
 /**
@@ -303,14 +327,19 @@ async function CreateAnswer(request, context) {
  *                   example: true
  */
 async function SendFollowUp(request, context) {
-  const messageBody = {
-    body: {
-      ...(request.clientParams ?? {}),
-    },
-    correlationId: request.correlationId,
-  };
-  context.extraOutputs.set(sendFollowUp, messageBody);
-  return { return: true };
+  // const messageBody = {
+  //   body: {
+  //     ...(request.clientParams ?? {}),
+  //   },
+  //   correlationId: request.correlationId,
+  // };
+  // context.extraOutputs.set(sendFollowUp, messageBody);
+  const body = request.clientParams ?? {};
+  const queueName = "sendFollowUp";
+  const correlationId = request.correlationId;
+
+  const messageId = await sendMessageToQueue({ body, queueName, correlationId });
+  return { return: { messageId } };
 }
 
 /**
@@ -377,14 +406,19 @@ async function SendFollowUp(request, context) {
  *                   example: true
  */
 async function ShareQuestion(request, context) {
-  const messageBody = {
-    body: {
-      ...(request.clientParams ?? {}),
-    },
-    correlationId: request.correlationId,
-  };
-  context.extraOutputs.set(shareQuestion, messageBody);
-  return { return: true };
+  // const messageBody = {
+  //   body: {
+  //     ...(request.clientParams ?? {}),
+  //   },
+  //   correlationId: request.correlationId,
+  // };
+  // context.extraOutputs.set(shareQuestion, messageBody);
+  const body = request.clientParams ?? {};
+  const queueName = "sendFollowUp";
+  const correlationId = request.correlationId;
+
+  const messageId = await sendMessageToQueue({ body, queueName, correlationId });
+  return { return: { messageId } };
 }
 
 module.exports = {

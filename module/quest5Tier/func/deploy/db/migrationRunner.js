@@ -27,12 +27,14 @@ class MigrationRunner {
       });
       console.log(`Enabled PostgreSQL extensions: ${this.extensionNames.join(", ")}`);
     }
-    addTemporaryFirewallRule({
-      resourceGroup: this.resourceGroupName,
-      serverName: this.pgServerName,
-      ruleName: this.firewallRuleName,
-      ip,
-    });
+    if (this.firewallRuleName) {
+      addTemporaryFirewallRule({
+        resourceGroup: this.resourceGroupName,
+        serverName: this.pgServerName,
+        ruleName: this.firewallRuleName,
+        ip,
+      });
+    }
     try {
       if (direction === "down") {
         await this.migration.down();
@@ -46,11 +48,13 @@ class MigrationRunner {
       process.exit(1);
     } finally {
       await this.db.close();
-      removeTemporaryFirewallRule({
-        resourceGroup: this.resourceGroupName,
-        serverName: this.pgServerName,
-        ruleName: this.firewallRuleName,
-      });
+      if (this.firewallRuleName) {
+        removeTemporaryFirewallRule({
+          resourceGroup: this.resourceGroupName,
+          serverName: this.pgServerName,
+          ruleName: this.firewallRuleName,
+        });
+      }
     }
   }
 }

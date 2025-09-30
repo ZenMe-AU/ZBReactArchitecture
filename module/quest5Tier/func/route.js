@@ -5,7 +5,7 @@ const apiQryHandler = require("./handler/apiQryHandler.js");
 const queueCmdHandler = require("./handler/queueCmdHandler.js");
 const sendFollowUpCmdSchema = require("./schema/sendFollowUpCmdSchema");
 const shareQuestionCmdSchema = require("./schema/shareQuestionCmdSchema");
-const { sendFollowUp, shareQuestion, createQuestion, updateQuestion, createAnswer } = require("./service/serviceBus");
+// const { sendFollowUp, shareQuestion, createQuestion, updateQuestion, createAnswer } = require("./service/serviceBus");
 
 app.http("GetQuestion", {
   route: "questionQry/getQuestion/{questionId}",
@@ -56,14 +56,14 @@ app.http("GetFollowUpEventList", {
   methods: ["GET"],
   authLevel: "anonymous",
   handler: requestHandler(apiQryHandler.GetEventByCorrelationId, {
-    customParams: { tableName: "followUpEvent" },
+    customParams: { tableName: "followUp" },
   }),
 });
 
 app.http("CreateQuestion", {
   route: "questionCmd/createQuestion",
   methods: ["POST"],
-  extraOutputs: [createQuestion],
+  // extraOutputs: [createQuestion],
   authLevel: "anonymous",
   handler: requestHandler(apiCmdHandler.CreateQuestion),
 });
@@ -71,7 +71,7 @@ app.http("CreateQuestion", {
 app.http("UpdateQuestion", {
   route: "questionCmd/updateQuestion/{questionId}",
   methods: ["POST"],
-  extraOutputs: [updateQuestion],
+  // extraOutputs: [updateQuestion],
   authLevel: "anonymous",
   handler: requestHandler(apiCmdHandler.UpdateQuestion),
 });
@@ -79,7 +79,7 @@ app.http("UpdateQuestion", {
 app.http("CreateAnswer", {
   route: "questionCmd/createAnswer/{questionId}",
   methods: ["POST"],
-  extraOutputs: [createAnswer],
+  // extraOutputs: [createAnswer],
   authLevel: "anonymous",
   handler: requestHandler(apiCmdHandler.CreateAnswer),
 });
@@ -87,7 +87,7 @@ app.http("CreateAnswer", {
 app.http("SendFollowUp", {
   route: "questionCmd/sendFollowUp",
   methods: ["POST"],
-  extraOutputs: [sendFollowUp],
+  // extraOutputs: [sendFollowUp],
   authLevel: "anonymous",
   handler: requestHandler(apiCmdHandler.SendFollowUp, {
     schemas: [sendFollowUpCmdSchema],
@@ -97,7 +97,7 @@ app.http("SendFollowUp", {
 app.http("ShareQuestion", {
   route: "questionCmd/shareQuestion",
   methods: ["POST"],
-  extraOutputs: [shareQuestion],
+  // extraOutputs: [shareQuestion],
   authLevel: "anonymous",
   handler: requestHandler(apiCmdHandler.ShareQuestion, {
     schemas: [shareQuestionCmdSchema],

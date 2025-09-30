@@ -21,15 +21,11 @@ const migrationDir = resolve(__dirname, "..", "..", "db", "seeder");
   const moduleName = getModuleName(moduleDir);
 
   const db = await createDatabaseInstance(DB_TYPE.POSTGRES, {
-    username: getDbAdminName(envType), //"getDbSchemaAdminName(moduleName)";
-    host: getPgHost(targetEnv),
-    dialect: "postgres",
-    port: 5432,
-    database: moduleName,
-    logging: false,
-    dialectOptions: {
-      ssl: true,
-    },
+    authMode: "password",
+    username: "root",
+    database: "profile",
+    host: "localhost",
+    password: "DatabasePassword123!",
   });
   const direction = process.argv[2] || "up";
   await new MigrationRunner({ db, migrationDir, envType, targetEnv }).run(direction);
