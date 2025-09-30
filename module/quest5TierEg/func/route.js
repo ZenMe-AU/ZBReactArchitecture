@@ -5,7 +5,7 @@ const apiQryHandler = require("./handler/apiQryHandler.js");
 const queueCmdHandler = require("./handler/queueCmdHandler.js");
 const sendFollowUpCmdSchema = require("./schema/sendFollowUpCmdSchema");
 const shareQuestionCmdSchema = require("./schema/shareQuestionCmdSchema");
-// const { sendFollowUp, shareQuestion, createQuestion, updateQuestion, createAnswer } = require("./service/serviceBus");
+const { eventGridDomain } = require("./eventGrid/eventGridDomain");
 
 app.http("GetQuestion", {
   route: "questionQry/getQuestion/{questionId}",
@@ -63,7 +63,7 @@ app.http("GetFollowUpEventList", {
 app.http("CreateQuestion", {
   route: "questionCmd/createQuestion",
   methods: ["POST"],
-  // extraOutputs: [createQuestion],
+  extraOutputs: [eventGridDomain],
   authLevel: "anonymous",
   handler: requestHandler(apiCmdHandler.CreateQuestion),
 });
@@ -104,32 +104,35 @@ app.http("ShareQuestion", {
   }),
 });
 
-app.serviceBusQueue("SendFollowUpQueue", {
-  connection: "ServiceBusConnection",
-  queueName: "sendFollowUp",
-  handler: serviceBusHandler(queueCmdHandler.SendFollowUp),
+app.eventGrid("CreateQuestionQueue", {
+  handler: queueCmdHandler.CreateQuestion,
 });
+// app.serviceBusQueue("SendFollowUpQueue", {
+//   connection: "ServiceBusConnection",
+//   queueName: "sendFollowUp",
+//   handler: serviceBusHandler(queueCmdHandler.SendFollowUp),
+// });
 
-app.serviceBusQueue("ShareQuestionQueue", {
-  connection: "ServiceBusConnection",
-  queueName: "shareQuestion",
-  handler: serviceBusHandler(queueCmdHandler.ShareQuestion),
-});
+// app.serviceBusQueue("ShareQuestionQueue", {
+//   connection: "ServiceBusConnection",
+//   queueName: "shareQuestion",
+//   handler: serviceBusHandler(queueCmdHandler.ShareQuestion),
+// });
 
-app.serviceBusQueue("CreateQuestionQueue", {
-  connection: "ServiceBusConnection",
-  queueName: "createQuestion",
-  handler: serviceBusHandler(queueCmdHandler.CreateQuestion),
-});
+// app.serviceBusQueue("CreateQuestionQueue", {
+//   connection: "ServiceBusConnection",
+//   queueName: "createQuestion",
+//   handler: serviceBusHandler(queueCmdHandler.CreateQuestion),
+// });
 
-app.serviceBusQueue("UpdateQuestionQueue", {
-  connection: "ServiceBusConnection",
-  queueName: "updateQuestion",
-  handler: serviceBusHandler(queueCmdHandler.UpdateQuestion),
-});
+// app.serviceBusQueue("UpdateQuestionQueue", {
+//   connection: "ServiceBusConnection",
+//   queueName: "updateQuestion",
+//   handler: serviceBusHandler(queueCmdHandler.UpdateQuestion),
+// });
 
-app.serviceBusQueue("CreateAnswerQueue", {
-  connection: "ServiceBusConnection",
-  queueName: "createAnswer",
-  handler: serviceBusHandler(queueCmdHandler.CreateAnswer),
-});
+// app.serviceBusQueue("CreateAnswerQueue", {
+//   connection: "ServiceBusConnection",
+//   queueName: "createAnswer",
+//   handler: serviceBusHandler(queueCmdHandler.CreateAnswer),
+// });

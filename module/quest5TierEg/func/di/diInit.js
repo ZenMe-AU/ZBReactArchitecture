@@ -45,6 +45,26 @@ register("serviceBus", async () => {
   container.register("serviceBus", sbClient);
   console.log("🥳serviceBus initialized");
 });
+
+// register eventGrid
+register("eventGrid", async () => {
+  const { createEventGridInstance } = require("../eventGrid/connection");
+
+  let egClient = createEventGridInstance({
+    endpoint: process.env.EventGridConnection__topicEndpointUri,
+    clientId: process.env.EventGridConnection__clientId || null,
+  });
+  // for local development, use connection string if EVENT_GRID_CONNECTION is set
+  // if (process.env.EventGridConnection && process.env.EventGridConnection.startsWith("Endpoint=sb://localhost")) {
+  //   egClient = await createEventGridInstance({
+  //     endpoint: process.env.EventGridConnection__topicEndpointUri,
+  //     key: process.env.EventGridConnection,
+  //   });
+  // }
+  container.register("eventGrid", egClient);
+  console.log("🥳eventGrid initialized");
+});
+
 // register something else...(e.g. telemetry etc)
 (async () => {
   await startup();

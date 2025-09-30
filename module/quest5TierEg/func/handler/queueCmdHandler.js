@@ -4,11 +4,28 @@ const QuestionService = require("../service/questionService");
  * ServiceBus calls CreateQuestion to create a new question.
  * It processes the question creation, updates the command status, and returns the created question.
  */
-async function CreateQuestion(message, context) {
-  const { messageId, correlationId, subject: cmdType } = context.triggerMetadata;
-  const { title, questionText, option, profileId } = message;
+async function CreateQuestion(events, context) {
+  console.log("🌟 CreateQuestion event:", events);
+  console.log("🌟 CreateQuestion context:", context);
+  console.log("🌟 CreateQuestion triggerMetadata:", context.triggerMetadata);
+  const { id, data, subject, eventType } = context.events;
+  const { title, questionText, option, profileId, correlationId } = data;
 
-  await QuestionService.createQuestion(messageId, cmdType, message, correlationId, profileId, title, questionText, option);
+  await QuestionService.createQuestion(
+    id,
+    subject,
+    { title, questionText, option, profileId },
+    correlationId,
+    profileId,
+    title,
+    questionText,
+    option
+  );
+
+  // const { messageId, correlationId, subject: cmdType } = context.triggerMetadata;
+  // const { title, questionText, option, profileId } = message;
+
+  // await QuestionService.createQuestion(messageId, cmdType, message, correlationId, profileId, title, questionText, option);
 }
 
 /**

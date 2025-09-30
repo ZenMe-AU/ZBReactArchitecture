@@ -93,6 +93,8 @@ class CodeDeployer {
     this.queueNames.forEach((queueName) => {
       createServiceBusQueue({ resourceGroupName: this.resourceGroupName, namespaceName: this.serviceBusName, queueName });
     });
+    // Create topic and subscription if any
+
     // Set CORS settings
     if (this.allowedOrigins.length > 0) {
       console.log(`Setting CORS for Function App...`);

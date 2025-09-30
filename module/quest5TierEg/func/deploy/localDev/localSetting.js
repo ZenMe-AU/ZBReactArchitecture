@@ -26,6 +26,10 @@ const customSettings = {
   ServiceBusConnection:
     "Endpoint=sb://localhost;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;",
   ServiceBusConnection__fullyQualifiedNamespace: "localhost",
+  EventGridConnection__topicEndpointUri: "https://createquestion.australiaeast-1.eventgrid.azure.net/api/events",
+  EventGridConnection: "https://createquestion.australiaeast-1.eventgrid.azure.net/api/events",
+  EventGridNameSpaceConnection__topicEndpointUri: "https://hugejunglefowl-egnamespace.australiaeast-1.eventgrid.azure.net",
+  EventGridNameSpaceConnection: "https://hugejunglefowl-egnamespace.australiaeast-1.eventgrid.azure.net",
   // set your local DB details
   DB_USERNAME: "root",
   DB_HOST: "localhost",
