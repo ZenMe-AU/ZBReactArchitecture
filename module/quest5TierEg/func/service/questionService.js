@@ -42,7 +42,7 @@ async function createQuestion(cmdId, cmdType, cmdBody, correlationId, senderId, 
     });
 
     // -------- notify that a new question has been created -------- //
-    // Send Event to questionCreatedEvent service bus queue
+    // Send Event to questionCreatedEvent event grid topic
     const eventBody = {
       aggregateType: AGGREGATE_TYPE.QUESTION,
       aggregateId: question.id,
@@ -98,7 +98,7 @@ async function updateQuestion(cmdId, cmdType, cmdBody, correlationId, senderId, 
     });
     const question = await QuestionRepo.patchQuestionById({ questionId, patchData, transaction }); // update the question with the provided patch data
     // -------- notify that a new question has been updated -------- //
-    // Send Event to questionUpdatedEvent service bus queue
+    // Send Event to questionUpdatedEvent event grid topic
     const eventBody = {
       aggregateType: AGGREGATE_TYPE.QUESTION,
       aggregateId: questionId,
@@ -107,17 +107,17 @@ async function updateQuestion(cmdId, cmdType, cmdBody, correlationId, senderId, 
       causationType: cmdType,
       senderId,
     };
-    // Send the event message to event grid
+    // Send the event message to the s event grid
     const eventMessageId = await sendNamespaceEvent({
       id: cmdId, // use the same messageId as the command for easier tracking, this may change in the future if cmd is not 1:1 with event
       topic: qNameQuestionUpdatedEvent,
       eventType: qNameQuestionUpdatedEvent,
       body: eventBody,
       correlationId,
-      messageId: cmdId, // use the same messageId as the command for easier tracking, this may change in the future if cmd is not 1:1 with event
     });
     // create an event for the question update
     const event = await EventRepo.insertEvent({
+      id: eventMessageId,
       aggregateType: AGGREGATE_TYPE.QUESTION,
       aggregateId: questionId,
       eventType: ACTION_TYPE.UPDATE,
@@ -166,8 +166,26 @@ async function createAnswer(cmdId, cmdType, cmdBody, correlationId, senderId, qu
       ansData: cmdBody,
       transaction,
     });
+    // -------- notify that a new question has been updated -------- //
+    // Send Event to answerCreatedEvent event grid topic
+    const eventBody = {
+      aggregateType: AGGREGATE_TYPE.QUESTION_ANSWER,
+      aggregateId: answer.id,
+      causationId: cmdId,
+      causationType: cmdType,
+      senderId,
+    };
+    // Send the event message to the event grid
+    const eventMessageId = await sendNamespaceEvent({
+      id: cmdId, // use the same messageId as the command for easier tracking, this may change in the future if cmd is not 1:1 with event
+      topic: qNameAnswerCreatedEvent,
+      eventType: qNameAnswerCreatedEvent,
+      body: eventBody,
+      correlationId,
+    });
     // creates an event for the answer creation
     const event = await EventRepo.insertEvent({
+      id: eventMessageId,
       aggregateType: AGGREGATE_TYPE.QUESTION_ANSWER,
       aggregateId: answer.id,
       causationId: cmdId,
@@ -205,15 +223,66 @@ async function sendFollowUp(cmdId, cmdType, cmdBody, correlationId, senderId, qu
     const receiverIds = await QuestionQueryService.getFollowUpReceiver(cmdBody); // filters the receiver IDs based on the answers to the questions
     // shares the question with the specified receiver IDs
     const sharedQuestions = questionIdList.map(async (questionId) => {
-      return await ShareRepo.insertQuestionShare({
+      const result = await ShareRepo.insertQuestionShare({
         questionId,
         senderId,
         receiverIds,
         transaction,
       });
+      result.map(async (r) => {
+        // -------- notify that a new question has been updated -------- //
+        // Send Event to questionSharedEvent event grid topic
+        const eventBody = {
+          aggregateType: AGGREGATE_TYPE.QUESTION_SHARE,
+          aggregateId: r.id,
+          causationId: cmdId,
+          causationType: cmdType,
+          senderId,
+          receiverId: r.receiverProfileId,
+          questionId: r.questionId,
+        };
+        // Send the event message to the event grid
+        const eventMessageId = await sendNamespaceEvent({
+          topic: qNameQuestionSharedEvent,
+          eventType: qNameQuestionSharedEvent,
+          body: eventBody,
+          correlationId,
+        });
+        // creates an event for the question sharing action
+        const event = await EventRepo.insertEvent({
+          id: eventMessageId,
+          aggregateType: AGGREGATE_TYPE.QUESTION_SHARE,
+          aggregateId: r.id,
+          causationId: cmdId,
+          causationType: cmdType,
+          senderId,
+          eventData: eventBody,
+          correlationId,
+          transaction,
+        });
+      });
+      return result;
+    });
+    // Send Event to followUpSentEvent event grid topic
+    const eventBody = {
+      aggregateType: AGGREGATE_TYPE.FOLLOW_UP,
+      aggregateId: null,
+      causationId: cmdId,
+      causationType: cmdType,
+      senderId,
+    };
+
+    // Send the event message to the event grid
+    const eventMessageId = await sendNamespaceEvent({
+      id: cmdId, // use the same messageId as the command for easier tracking, this may change in the future if cmd is not 1:1 with event
+      topic: qNameFollowUpSentEvent,
+      eventType: qNameFollowUpSentEvent,
+      body: eventBody,
+      correlationId,
     });
     // creates an event for the follow-up action
     const event = await EventRepo.insertEvent({
+      id: eventMessageId,
       aggregateType: AGGREGATE_TYPE.FOLLOW_UP,
       aggregateId: null,
       causationId: cmdId,
@@ -255,8 +324,59 @@ async function shareQuestion(cmdId, cmdType, cmdBody, correlationId, senderId, n
       receiverIds,
       transaction,
     });
+
+    sharedQuestions.map(async (questionShare) => {
+      // -------- notify that a new question has been updated -------- //
+      // Send Event to questionSharedEvent event grid topic
+      const eventBody = {
+        aggregateType: AGGREGATE_TYPE.QUESTION_SHARE,
+        aggregateId: questionShare.id,
+        causationId: cmdId,
+        causationType: cmdType,
+        senderId,
+        receiverId: questionShare.receiverProfileId,
+        questionId: questionShare.questionId,
+      };
+      // Send the event message to the event grid
+      const eventMessageId = await sendNamespaceEvent({
+        topic: qNameQuestionSharedEvent,
+        eventType: qNameQuestionSharedEvent,
+        body: eventBody,
+        correlationId,
+      });
+      // creates an event for the question sharing action
+      const event = await EventRepo.insertEvent({
+        id: eventMessageId,
+        aggregateType: AGGREGATE_TYPE.QUESTION_SHARE,
+        aggregateId: questionShare.id,
+        causationId: cmdId,
+        causationType: cmdType,
+        senderId,
+        eventData: eventBody,
+        correlationId,
+        transaction,
+      });
+    });
+    // -------- notify that a new question has been updated -------- //
+    // Send Event to questionSharedEvent event grid topic
+    const eventBody = {
+      aggregateType: AGGREGATE_TYPE.QUESTION_SHARE,
+      aggregateId: null,
+      causationId: cmdId,
+      causationType: cmdType,
+      senderId,
+    };
+    // Send the event message to the event grid
+    const eventMessageId = await sendNamespaceEvent({
+      id: cmdId, // use the same messageId as the command for easier tracking, this may change in the future if cmd is not 1:1 with event
+      topic: qNameQuestionSharedEvent,
+      eventType: qNameQuestionSharedEvent,
+      body: eventBody,
+      correlationId,
+    });
     // creates an event for the question sharing action
     const event = await EventRepo.insertEvent({
+      id: eventMessageId,
       aggregateType: AGGREGATE_TYPE.QUESTION_SHARE,
       aggregateId: null,
       causationId: cmdId,
