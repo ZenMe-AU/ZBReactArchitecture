@@ -62,6 +62,18 @@ register("eventGrid", async () => {
   //   });
   // }
   container.register("eventGrid", egClient);
+  const { createEventGridNamespaceInstance } = require("../eventGrid/connection");
+  const topicNameList = require("../eventGrid/topicNameList");
+  let nsClientSettings = {
+    endpoint: process.env.EventGridNameSpaceConnection__topicEndpointUri,
+    clientId: process.env.EventGridNameSpaceConnection__clientId || null,
+    // key:process.env.EventGridNameSpaceConnection && process.env.EventGridNameSpaceConnection.startsWith("Endpoint=sb://localhost") ? process.env.EventGridNameSpaceConnection : null,
+  };
+  const namespaceClients = {};
+  Object.values(topicNameList).forEach((topic) => {
+    namespaceClients[topic] = createEventGridNamespaceInstance({ ...nsClientSettings, topic });
+  });
+  container.register("eventGridNamespace", namespaceClients);
   console.log("🥳eventGrid initialized");
 });
 

@@ -4,7 +4,7 @@ const { v4: uuidv4 } = require("uuid");
 async function sendEvent({ client, topic, eventType, body, correlationId, messageId }) {
   messageId = messageId ?? uuidv4();
   client = client ?? container.get("eventGrid");
-  console.log("🌟 Sending event to Event Grid:", client);
+  // console.log("🌟 Sending event to Event Grid:", client);
   const event = [
     {
       topic,
@@ -14,7 +14,7 @@ async function sendEvent({ client, topic, eventType, body, correlationId, messag
       subject: eventType,
       data: body,
       time: new Date(),
-      //   extensionAttributes: { correlationId },
+      extensionAttributes: { correlationid: correlationId },
     },
     // {
     //   id: messageId,
@@ -40,6 +40,7 @@ async function sendEvent({ client, topic, eventType, body, correlationId, messag
     //   metadataVersion: "1",
     // },
   ];
+  // console.log("🛫 Event to be sent:", event);
   try {
     await client.send(event);
     return messageId;
@@ -48,23 +49,40 @@ async function sendEvent({ client, topic, eventType, body, correlationId, messag
   }
 }
 
-module.exports = { sendEvent };
+module.exports = { sendEvent, sendNamespaceEvent };
 
-// async function sendEvent() {
-//   const events = [
-//     {
-//       id: "1",
-//       subject: "createQuestion",
-//       eventType: "QuestionCreated",
-//       eventTime: new Date(),
-//       data: { question: "What is Terraform?" },
-//       dataVersion: "1.0",
-//     },
-//   ];
+async function sendNamespaceEvent({ client, topic, source, eventType, body, correlationId, messageId }) {
+  // const { EventGridSenderClient, AzureKeyCredential } = require("@azure/eventgrid-namespaces");
+  // const { DefaultAzureCredential } = require("@azure/identity");
+  // let clientId, key;
+  // let credential = clientId ? new DefaultAzureCredential({ managedIdentityClientId: clientId }) : new DefaultAzureCredential();
+  // if (key) {
+  //   credential = new AzureKeyCredential(key);
+  // }
+  // client = new EventGridSenderClient("https://hugejunglefowl-egnamespace.australiaeast-1.eventgrid.azure.net", credential, topic);
 
-//   await client.sendEvents(events);
-//   console.log("Event sent using Managed Identity!");
-// }
+  client = client ?? container.get("eventGridNamespace")[topic];
+  if (!client) {
+    throw new Error(`Event Grid Namespace client for topic "${topic}" is not initialized.`);
+  }
+  // console.log("🌟 Sending event to Event Grid Namespace:", client);
+  messageId = messageId ?? uuidv4();
+  const event = [
+    {
+      topic,
+      id: messageId,
+      type: topic,
+      source: "/quest5TierEg/" + source,
+      subject: topic,
+      data: body,
+      time: new Date(),
+      extensionAttributes: { correlationid: correlationId },
+    },
+  ];
+  console.log("🛫 Sending event to Event Grid Namespace:", { client, event });
+  await client.sendEvents(event);
+  return messageId;
+}
 
 // module.exports = async function (context, req) {
 //   context.log("Sending event...");
