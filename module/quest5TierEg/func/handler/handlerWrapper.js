@@ -157,6 +157,44 @@ const serviceBusHandler = (fn) => async (message, context) => {
   }
 };
 
+const eventGridHandler = (fn) => async (events, context) => {
+  // await startup();
+  const tracer = trace.getTracer("eventGridTracer");
+  const { invocationId, functionName = "unknown EventGrid", triggerMetadata = {} } = context;
+  const { id, source, type, correlationid: correlationId } = events;
+  // const { messageId } = triggerMetadata;
+  // const { correlationId } = message;
+  console.log("✨✨correlationId:", correlationId);
+  console.log("💁functionName:", functionName);
+
+  const parentCtx = trace.setSpanContext(sContext.active(), buildSpanContext(correlationId));
+  const span = tracer.startSpan(
+    functionName + "-EventGrid",
+    {
+      // kind: SpanKind.CONSUMER,
+      attributes: {
+        "app.invocation_id": invocationId || "unknown invocationId",
+        "app.event_id": id || "unknown eventId",
+        "app.correlation_id": correlationId,
+      },
+    },
+    parentCtx
+  );
+
+  try {
+    await sContext.with(trace.setSpan(parentCtx, span), async () => {
+      const result = await fn(events, context);
+      span.setStatus({ code: SpanStatusCode.OK });
+    });
+  } catch (error) {
+    span.recordException(error);
+    span.setStatus({ code: SpanStatusCode.ERROR, message: error.message || "error" });
+    throw error;
+  } finally {
+    span.end();
+  }
+};
+
 const validate = async (request, schemas) => {
   for (const schema of schemas) {
     const { error, value } = schema.validate(request.clientParams);
@@ -179,4 +217,5 @@ const buildSpanContext = (traceId) => {
 module.exports = {
   requestHandler,
   serviceBusHandler,
+  eventGridHandler,
 };

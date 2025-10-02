@@ -1,5 +1,5 @@
 const { app } = require("@azure/functions");
-const { requestHandler, serviceBusHandler } = require("./handler/handlerWrapper.js");
+const { requestHandler, serviceBusHandler, eventGridHandler } = require("./handler/handlerWrapper.js");
 const apiCmdHandler = require("./handler/apiCmdHandler.js");
 const apiQryHandler = require("./handler/apiQryHandler.js");
 const queueCmdHandler = require("./handler/queueCmdHandler.js");
@@ -105,7 +105,7 @@ app.http("ShareQuestion", {
 });
 
 app.eventGrid("CreateQuestionQueue", {
-  handler: queueCmdHandler.CreateQuestion,
+  handler: eventGridHandler(queueCmdHandler.CreateQuestion),
 });
 // app.serviceBusQueue("SendFollowUpQueue", {
 //   connection: "ServiceBusConnection",
