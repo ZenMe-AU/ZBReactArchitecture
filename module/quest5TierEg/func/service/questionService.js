@@ -17,6 +17,7 @@ const {
   qNameQuestionUpdatedEvent,
   qNameAnswerCreatedEvent,
 } = require("../serviceBus/queueNameList");
+const { sendNamespaceEvent } = require("../eventGrid/function");
 
 async function createQuestion(cmdId, cmdType, cmdBody, correlationId, senderId, questionTitle, questionText, questionOption) {
   let sequelize = container.get("db");
@@ -49,12 +50,13 @@ async function createQuestion(cmdId, cmdType, cmdBody, correlationId, senderId, 
       causationType: cmdType,
       senderId,
     };
-    // Send the event message to the service bus
-    const eventMessageId = await sendMessageToQueue({
-      queueName: qNameQuestionCreatedEvent,
+    // Send the event message to the event grid
+    const eventMessageId = await sendNamespaceEvent({
+      id: cmdId, // use the same messageId as the command for easier tracking, this may change in the future if cmd is not 1:1 with event
+      topic: qNameQuestionCreatedEvent,
+      eventType: qNameQuestionCreatedEvent,
       body: eventBody,
       correlationId,
-      messageId: cmdId, // use the same messageId as the command for easier tracking, this may change in the future if cmd is not 1:1 with event
     });
     // creates an event for the question creation, this is slower than sending to the queue but easier to keep the code in one place
     const event = await EventRepo.insertEvent({
@@ -105,9 +107,11 @@ async function updateQuestion(cmdId, cmdType, cmdBody, correlationId, senderId, 
       causationType: cmdType,
       senderId,
     };
-    // Send the event message to the service bus
-    const eventMessageId = await sendMessageToQueue({
-      queueName: qNameQuestionUpdatedEvent,
+    // Send the event message to event grid
+    const eventMessageId = await sendNamespaceEvent({
+      id: cmdId, // use the same messageId as the command for easier tracking, this may change in the future if cmd is not 1:1 with event
+      topic: qNameQuestionUpdatedEvent,
+      eventType: qNameQuestionUpdatedEvent,
       body: eventBody,
       correlationId,
       messageId: cmdId, // use the same messageId as the command for easier tracking, this may change in the future if cmd is not 1:1 with event

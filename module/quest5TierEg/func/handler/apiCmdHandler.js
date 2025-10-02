@@ -1,7 +1,14 @@
 const { eventGridDomain } = require("../eventGrid/eventGridDomain");
 const { sendMessageToQueue } = require("../serviceBus/function");
 const { v4: uuidv4 } = require("uuid");
-const { sendEvent } = require("../eventGrid/function");
+const { sendEvent, sendNamespaceEvent } = require("../eventGrid/function");
+const {
+  qNameSendFollowUpCmd,
+  qNameShareQuestionCmd,
+  qNameCreateQuestionCmd,
+  qNameUpdateQuestionCmd,
+  qNameCreateAnswerCmd,
+} = require("../eventGrid/topicNameList");
 
 /**
  * @swagger
@@ -63,84 +70,12 @@ const { sendEvent } = require("../eventGrid/function");
  *                   example: true
  */
 async function CreateQuestion(request, context) {
-  // const event = {
-  //   body: {
-  //     ...(request.clientParams ?? {}),
-  //   },
-  //   correlationId: request.correlationId,
-  // };
-
-  const messageId = uuidv4();
-  const topicName = "CreateQuestion";
-  // const event = [
-  //   {
-  //     id: messageId,
-  //     topic: topicName,
-  //     subject: "topicName",
-  //     dataVersion: "1.0",
-  //     eventType: "eventType",
-  //     data: {
-  //       ...(request.clientParams ?? {}),
-  //       correlationId: request.correlationId,
-  //     },
-  //     eventTime: new Date().toISOString(),
-  //     correlationId: request.correlationId,
-  //   },
-  // ];
-  const event = [
-    {
-      id: messageId,
-      topic: topicName,
-      source: "/quest5TierEg/source",
-      type: "eventType",
-      subject: "subject",
-      specversion: "1.0",
-      data: {
-        ...(request.clientParams ?? {}),
-        correlationId: request.correlationId,
-      },
-      time: new Date().toISOString(),
-      // extension: { correlationid: request.correlationId.replace(/-/g, "") },
-    },
-  ];
-  await sendEvent({
-    topic: topicName,
-    eventType: topicName,
-    body: {
-      ...(request.clientParams ?? {}),
-      correlationId: request.correlationId,
-    },
-    correlationId: request.correlationId,
-    messageId,
-  });
-  console.log("🌟 CreateQuestion event:", event);
-  // console.log("🌟 CreateQuestion cloudEvent:", cloudEvent);
-  console.log("🌟 CreateQuestion eventGridDomain:", eventGridDomain);
-  // context.extraOutputs.set(eventGridDomain, event);
-  // const body = request.clientParams ?? {};
-  // const queueName = "createQuestion";
-  // const correlationId = request.correlationId;
-
-  // const messageId = await sendMessageToQueue({ body, queueName, correlationId });
-
-  // const { EventGridSenderClient, EventGridReceiverClient } = require("@azure/eventgrid-namespaces");
-  // const { DefaultAzureCredential } = require("@azure/identity"); // For AAD authentication
-
-  //     // Replace with your actual topic endpoint and access key
-  //     const topicEndpoint = "<YOUR_TOPIC_ENDPOINT>";
-  //     const topicName = "<YOUR_TOPIC_NAME>"; // Required for some client types
-  //     const accessKey = "<YOUR_ACCESS_KEY>";
-  //     const senderClient = new EventGridSenderClient(topicEndpoint, topicName, new DefaultAzureCredential());
-
-  //   await client.send([
-  //     {
-  //       eventType: "QuestionCreated",
-  //       subject: "question/123",
-  //       dataVersion: "1.0",
-  //       data: { title: "Hello from Namespace!" },
-  //     },
-  //   ]);
-
+  const topic = qNameCreateQuestionCmd;
+  const body = {
+    ...(request.clientParams ?? {}),
+  };
+  const correlationId = request.correlationId;
+  const messageId = await sendNamespaceEvent({ topic, eventType: topic, body, correlationId });
   return { return: { messageId } };
 }
 
@@ -225,16 +160,26 @@ async function UpdateQuestion(request, context) {
   //   correlationId: request.correlationId,
   // };
   // context.extraOutputs.set(updateQuestion, messageBody);
+  // const { questionId } = request.params;
+  // const body = {
+  //   patchData: request.clientParams ?? {},
+  //   questionId,
+  //   profileId: request.headers.get("x-profile-id"),
+  // };
+  // const queueName = "updateQuestion";
+  // const correlationId = request.correlationId;
+
+  // const messageId = await sendMessageToQueue({ body, queueName, correlationId });
+
   const { questionId } = request.params;
   const body = {
     patchData: request.clientParams ?? {},
     questionId,
     profileId: request.headers.get("x-profile-id"),
   };
-  const queueName = "updateQuestion";
+  const topic = qNameUpdateQuestionCmd;
   const correlationId = request.correlationId;
-
-  const messageId = await sendMessageToQueue({ body, queueName, correlationId });
+  const messageId = await sendNamespaceEvent({ topic, eventType: topic, body, correlationId });
   return { return: { messageId } };
 }
 
@@ -312,15 +257,24 @@ async function CreateAnswer(request, context) {
   //   correlationId: request.correlationId,
   // };
   // context.extraOutputs.set(createAnswer, messageBody);
+  // const { questionId } = request.params;
+  // const body = {
+  //   ...(request.clientParams ?? {}),
+  //   questionId,
+  // };
+  // const queueName = "createAnswer";
+  // const correlationId = request.correlationId;
+
+  // const messageId = await sendMessageToQueue({ body, queueName, correlationId });
+
   const { questionId } = request.params;
   const body = {
     ...(request.clientParams ?? {}),
     questionId,
   };
-  const queueName = "createAnswer";
+  const topic = qNameCreateAnswerCmd;
   const correlationId = request.correlationId;
-
-  const messageId = await sendMessageToQueue({ body, queueName, correlationId });
+  const messageId = await sendNamespaceEvent({ topic, eventType: topic, body, correlationId });
   return { return: { messageId } };
 }
 
@@ -403,11 +357,16 @@ async function SendFollowUp(request, context) {
   //   correlationId: request.correlationId,
   // };
   // context.extraOutputs.set(sendFollowUp, messageBody);
-  const body = request.clientParams ?? {};
-  const queueName = "sendFollowUp";
-  const correlationId = request.correlationId;
+  // const body = request.clientParams ?? {};
+  // const queueName = "sendFollowUp";
+  // const correlationId = request.correlationId;
 
-  const messageId = await sendMessageToQueue({ body, queueName, correlationId });
+  // const messageId = await sendMessageToQueue({ body, queueName, correlationId });
+
+  const body = request.clientParams ?? {};
+  const topic = qNameSendFollowUpCmd;
+  const correlationId = request.correlationId;
+  const messageId = await sendNamespaceEvent({ topic, eventType: topic, body, correlationId });
   return { return: { messageId } };
 }
 
@@ -482,11 +441,16 @@ async function ShareQuestion(request, context) {
   //   correlationId: request.correlationId,
   // };
   // context.extraOutputs.set(shareQuestion, messageBody);
-  const body = request.clientParams ?? {};
-  const queueName = "sendFollowUp";
-  const correlationId = request.correlationId;
+  // const body = request.clientParams ?? {};
+  // const queueName = "sendFollowUp";
+  // const correlationId = request.correlationId;
 
-  const messageId = await sendMessageToQueue({ body, queueName, correlationId });
+  // const messageId = await sendMessageToQueue({ body, queueName, correlationId });
+
+  const body = request.clientParams ?? {};
+  const topic = qNameShareQuestionCmd;
+  const correlationId = request.correlationId;
+  const messageId = await sendNamespaceEvent({ topic, eventType: topic, body, correlationId });
   return { return: { messageId } };
 }
 
