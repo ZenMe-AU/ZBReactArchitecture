@@ -13,7 +13,7 @@ class QuestionAnswerRepository extends BaseRepository {
       options.lock = transaction.LOCK.UPDATE;
     }
     const { answer: answerText = null, option: optionAnswerList = null, duration, when = null } = ansData;
-    return await this.QuestionAnswer.upsert(
+    const [instance, created] = await this.QuestionAnswer.upsert(
       {
         questionId,
         profileId,
@@ -24,6 +24,7 @@ class QuestionAnswerRepository extends BaseRepository {
       },
       options
     );
+    return instance;
   }
 
   async getAnswerById(answerId) {

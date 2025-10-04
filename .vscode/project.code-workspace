@@ -13,10 +13,6 @@
       "path": "../module/quest5Tier/func"
     },
     {
-      "name": "questionV2/func",
-      "path": "../module/questionV2/func"
-    },
-    {
       "name": "quest3Tier/func",
       "path": "../module/quest3Tier/func"
     },

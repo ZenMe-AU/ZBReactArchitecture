@@ -1,6 +1,8 @@
 import { ApplicationInsights } from "@microsoft/applicationinsights-web";
 import { ReactPlugin } from "@microsoft/applicationinsights-react-js";
 import { ClickAnalyticsPlugin } from "@microsoft/applicationinsights-clickanalytics-js";
+import { getConfig } from "../config/loadConfig";
+// const appInsightsConnectionString = getConfig("APPINSIGHTS_CONNECTION_STRING") || "";
 
 const reactPlugin = new ReactPlugin();
 
@@ -13,7 +15,7 @@ var clickPluginConfig = {
 const appInsights = new ApplicationInsights({
   config: {
     instrumentationKey: "YOUR_INSTRUMENTATION_KEY",
-    connectionString: import.meta.env.VITE_APPINSIGHTS_CONNECTION_STRING ?? "",
+    connectionString: "",
     // enableAutoRouteTracking: true,
     // disableFetchTracking: false,
     // enableRequestHeaderTracking: true,

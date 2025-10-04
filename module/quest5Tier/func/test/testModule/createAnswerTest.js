@@ -9,7 +9,7 @@ const createAnswer = (profileIdLookup, questionIdLookup, testCorrelationId) => {
       body: JSON.stringify({
         profileId: profileIdLookup.getProfileId(a.userId),
         question: a.question,
-        option: a.option,
+        option: [a.option],
         answer: a.answer,
         duration: a.duration,
       }),

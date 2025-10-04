@@ -1,3 +1,6 @@
+# This file does the absolute minimum to initialize an environment for Terraform.
+# Anything that's not critical for Terraform functioning, can be moved to the deployeEnv folder instead.
+
 terraform {
   required_providers {
     azurerm = {
@@ -109,7 +112,7 @@ resource "azurerm_storage_account" "sa" {
 
 # Create a storage container for Terraform state files
 resource "azurerm_storage_container" "tfstatecontianer" {
-  name                  = "tfstatefile"
+  name                  = "terraformState"
   storage_account_id    = azurerm_storage_account.sa.id
   container_access_type = "private"
 }

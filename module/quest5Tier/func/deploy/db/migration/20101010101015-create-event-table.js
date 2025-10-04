@@ -22,6 +22,10 @@ module.exports = {
         allowNull: false,
         type: Sequelize.UUID,
       },
+      causationType: {
+        allowNull: false,
+        type: Sequelize.STRING,
+      },
       correlationId: {
         allowNull: true,
         type: Sequelize.UUID,

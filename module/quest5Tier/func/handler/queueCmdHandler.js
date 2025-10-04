@@ -5,10 +5,10 @@ const QuestionService = require("../service/questionService");
  * It processes the question creation, updates the command status, and returns the created question.
  */
 async function CreateQuestion(message, context) {
-  const { messageId, correlationId, body } = message;
-  const { title, questionText, option, profileId } = body;
+  const { messageId, correlationId, subject: cmdType } = context.triggerMetadata;
+  const { title, questionText, option, profileId } = message;
 
-  await QuestionService.createQuestion(messageId, profileId, body, correlationId, title, questionText, option);
+  await QuestionService.createQuestion(messageId, cmdType, message, correlationId, profileId, title, questionText, option);
 }
 
 /**
@@ -16,10 +16,10 @@ async function CreateQuestion(message, context) {
  * It processes the question update, applies the patch data, and updates the command status.
  */
 async function UpdateQuestion(message, context) {
-  const { messageId, correlationId, body } = message;
-  const { patchData, questionId, profileId } = body;
-  const question = await QuestionService.updateQuestion(messageId, profileId, body, correlationId, questionId, patchData);
-  console.log("🥳UpdateQuestion: ", question);
+  const { messageId, correlationId, subject: cmdType } = context.triggerMetadata;
+  const { patchData, questionId, profileId } = message;
+  const question = await QuestionService.updateQuestion(messageId, cmdType, message, correlationId, profileId, questionId, patchData);
+  // console.log("🥳UpdateQuestion: ", question);
 }
 
 /**
@@ -27,10 +27,10 @@ async function UpdateQuestion(message, context) {
  * It processes the answer creation, updates the command status, and returns the created answer.
  */
 async function CreateAnswer(message, context) {
-  const { messageId, correlationId, body } = message;
-  const { questionId, profileId, answer: answerText = null, option = null, duration } = body;
-  const answer = await QuestionService.createAnswer(messageId, profileId, body, correlationId, questionId);
-  console.log("🥳CreateAnswer: ", answer);
+  const { messageId, correlationId, subject: cmdType } = context.triggerMetadata;
+  const { questionId, profileId, answer: answerText = null, option = null, duration } = message;
+  const answer = await QuestionService.createAnswer(messageId, cmdType, message, correlationId, profileId, questionId);
+  // console.log("🥳CreateAnswer: ", answer);
 }
 
 /**
@@ -38,10 +38,10 @@ async function CreateAnswer(message, context) {
  * It processes the follow-up questions, shares them with the appropriate users, and updates the command status.
  */
 async function SendFollowUp(message, context) {
-  const { messageId, correlationId, body } = message;
-  const { questionIdList, profileId, question: filterData } = body;
-  const sharedQuestions = await QuestionService.sendFollowUp(messageId, profileId, body, correlationId, questionIdList);
-  console.log("🥳SendFollowUp: ", sharedQuestions);
+  const { messageId, correlationId, subject: cmdType } = context.triggerMetadata;
+  const { questionIdList, profileId, question: filterData } = message;
+  const sharedQuestions = await QuestionService.sendFollowUp(messageId, cmdType, message, correlationId, profileId, questionIdList);
+  // console.log("🥳SendFollowUp: ", sharedQuestions);
 }
 
 /**
@@ -49,10 +49,10 @@ async function SendFollowUp(message, context) {
  * It processes the sharing of the question and updates the command status.
  */
 async function ShareQuestion(message, context) {
-  const { messageId, correlationId, body } = message;
-  const { newQuestionId, profileId, receiverIds } = body;
-  const sharedQuestions = await QuestionService.shareQuestion(messageId, profileId, body, correlationId, newQuestionId, receiverIds);
-  console.log("🥳ShareQuestion: ", sharedQuestions);
+  const { messageId, correlationId, subject: cmdType } = context.triggerMetadata;
+  const { newQuestionId, profileId, receiverIds } = message;
+  const sharedQuestions = await QuestionService.shareQuestion(messageId, cmdType, message, correlationId, profileId, newQuestionId, receiverIds);
+  // console.log("🥳ShareQuestion: ", sharedQuestions);
 }
 
 module.exports = {

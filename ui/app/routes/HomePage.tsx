@@ -38,11 +38,8 @@ export default function HomePage({ loaderData }: { loaderData: { isAuthenticated
               minWidth: 200,
             }}
           >
-            <Button component={Link} to="/question" variant="contained">
+            <Button component={Link} to="/quest3Tier" variant="contained">
               Question
-            </Button>
-            <Button component={Link} to="/questionV2" variant="contained">
-              Question V2
             </Button>
             <Button component={Link} to="/quest5Tier" variant="contained">
               Question V3

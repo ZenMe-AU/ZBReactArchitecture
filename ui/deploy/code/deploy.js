@@ -17,7 +17,7 @@ const envFile = resolve(moduleDir, "public", "env.json");
 const apiList = ["profile", "quest5Tier"];
 
 function deploy() {
-  const envType = process.env.TF_VAR_env_type;
+  const envType = process.env.TF_VAR_env_type || "dev";
   const targetEnv = getTargetEnv();
   const accountName = getStorageAccountWebName(targetEnv);
   const appConfigName = getAppConfigName(targetEnv);
@@ -25,7 +25,7 @@ function deploy() {
   try {
     console.log(`Building environment file: ${envFile}`);
     if (!fs.existsSync(envFile)) {
-      fs.writeFileSync(envFile, "", "utf-8");
+      fs.writeFileSync(envFile, "{}", "utf-8");
     }
     // read existing env file
     // const envContent = fs.readFileSync(envFile, "utf-8").trim().split("\n");

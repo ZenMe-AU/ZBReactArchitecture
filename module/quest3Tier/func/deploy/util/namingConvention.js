@@ -8,7 +8,7 @@ function getResourceGroupName(envType, targetEnv) {
   return `${envType}-${targetEnv}`;
 }
 function getStorageAccountName(targetEnv) {
-  return `${targetEnv}`.toLocaleLowerCase();
+  return `${targetEnv}pvt`.toLocaleLowerCase();
 }
 function getAppConfigName(targetEnv) {
   return `${targetEnv}-appconfig`;
