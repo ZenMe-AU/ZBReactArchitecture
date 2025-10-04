@@ -51,7 +51,8 @@ class CodeDeployer {
     ];
     this.queueNames = [];
     this.allowedOrigins = [
-      getAppConfigValueByKeyLabel({ appConfigName: getAppConfigName(this.targetEnv), key: "webEndpoint", label: this.envType }).replace(/\/+$/, ""),
+      // TODO: discuss with jake
+      // getAppConfigValueByKeyLabel({ appConfigName: getAppConfigName(this.targetEnv), key: "webEndpoint", label: this.envType }).replace(/\/+$/, ""),
     ];
   }
 
