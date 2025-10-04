@@ -1,7 +1,8 @@
 
 # Define variables for the environment deployment
 
-# The target environment will automatically load from the environment variable TF_VAR_target_env
+# The target environment; also doubles as the main resource group name.
+# Export via .env as TARGET_ENV and pass to Terraform as TF_VAR_target_env.
 variable "target_env" {
   description = "The target environment for the module"
   type        = string
@@ -24,8 +25,9 @@ variable "function_app_name" {
 }
 
 variable "resource_group_name" {
-  description = "The name of the resource group"
+  description = "Explicit RG name override (defaults to target_env if unset)"
   type        = string
+  default     = ""
 }
 
 variable "storage_account_name" {
@@ -70,6 +72,30 @@ variable "appconfig_name" {
 
 variable "env_type" {
   type = string
+}
+
+variable "parent_domain_name" {
+  description = "Parent DNS zone root (e.g., zenblox.com.au)"
+  type        = string
+  default     = "zenblox.com.au"
+}
+
+variable "dns_resource_group_name" {
+  description = "Resource group containing the public DNS zone"
+  type        = string
+  default     = "root-zenblox"
+}
+
+variable "frontdoor_profile_name" {
+  description = "Existing shared Front Door profile name (created upstream)"
+  type        = string
+  default     = "${var.target_env}-fd-profile"
+}
+
+variable "frontdoor_endpoint_name" {
+  description = "Existing shared Front Door endpoint name"
+  type        = string
+  default     = "${var.target_env}-fd-endpoint"
 }
 
 #-------------------------------------------------#

@@ -111,8 +111,8 @@ resource "azurerm_storage_account" "sa" {
 }
 
 # Create a storage container for Terraform state files
-resource "azurerm_storage_container" "tfstatecontianer" {
-  name                  = "terraformState"
+resource "azurerm_storage_container" "tfstatecontainer" {
+  name                  = "terraformstate"
   storage_account_id    = azurerm_storage_account.sa.id
   container_access_type = "private"
 }
