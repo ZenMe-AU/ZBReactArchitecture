@@ -40,7 +40,7 @@ class EnvironmentDeployer {
     this.backendConfig = backendConfig || {
       resource_group_name: this.resourceGroupName,
       storage_account_name: this.storageAccountName,
-      container_name: "terraformState",
+      container_name: "terraformstate",
       key: `${this.targetEnv}/${this.targetEnv}-${this.moduleName}-terraform.tfstate`,
     };
   }

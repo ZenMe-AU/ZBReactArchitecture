@@ -1,5 +1,13 @@
 // const { sendFollowUp, shareQuestion, createQuestion, updateQuestion, createAnswer } = require("../service/serviceBus");
 const { sendMessageToQueue } = require("../serviceBus/function");
+const {
+  qNameSendFollowUpCmd,
+  qNameShareQuestionCmd,
+  qNameCreateQuestionCmd,
+  qNameUpdateQuestionCmd,
+  qNameCreateAnswerCmd,
+} = require("../serviceBus/queueNameList");
+
 /**
  * @swagger
  * /questionCmd/createQuestion:
@@ -68,7 +76,7 @@ async function CreateQuestion(request, context) {
   // };
   // context.extraOutputs.set(createQuestion, messageBody);
   const body = request.clientParams ?? {};
-  const queueName = "createQuestion";
+  const queueName = qNameCreateQuestionCmd;
   const correlationId = request.correlationId;
 
   const messageId = await sendMessageToQueue({ body, queueName, correlationId });
@@ -162,7 +170,7 @@ async function UpdateQuestion(request, context) {
     questionId,
     profileId: request.headers.get("x-profile-id"),
   };
-  const queueName = "updateQuestion";
+  const queueName = qNameUpdateQuestionCmd;
   const correlationId = request.correlationId;
 
   const messageId = await sendMessageToQueue({ body, queueName, correlationId });
@@ -248,7 +256,7 @@ async function CreateAnswer(request, context) {
     ...(request.clientParams ?? {}),
     questionId,
   };
-  const queueName = "createAnswer";
+  const queueName = qNameCreateAnswerCmd;
   const correlationId = request.correlationId;
 
   const messageId = await sendMessageToQueue({ body, queueName, correlationId });
@@ -335,7 +343,7 @@ async function SendFollowUp(request, context) {
   // };
   // context.extraOutputs.set(sendFollowUp, messageBody);
   const body = request.clientParams ?? {};
-  const queueName = "sendFollowUp";
+  const queueName = qNameSendFollowUpCmd;
   const correlationId = request.correlationId;
 
   const messageId = await sendMessageToQueue({ body, queueName, correlationId });
@@ -414,7 +422,7 @@ async function ShareQuestion(request, context) {
   // };
   // context.extraOutputs.set(shareQuestion, messageBody);
   const body = request.clientParams ?? {};
-  const queueName = "sendFollowUp";
+  const queueName = qNameShareQuestionCmd;
   const correlationId = request.correlationId;
 
   const messageId = await sendMessageToQueue({ body, queueName, correlationId });

@@ -34,6 +34,6 @@ const queueNameList = require("../../serviceBus/queueNameList");
     serviceBusName,
     moduleDir,
   });
-  codeDeployer.queueNames = JSON.stringify(Object.values(queueNameList));
+  codeDeployer.queueNames = Object.values(queueNameList);
   await codeDeployer.run();
 })();
