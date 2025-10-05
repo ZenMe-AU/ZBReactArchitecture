@@ -18,38 +18,33 @@
 # Dynamic naming: target_env comes from TF_VAR_target_env (.env TARGET_ENV).
 # parent_domain_name & dns_resource_group_name are variable-driven to avoid hardcoding.
 
-# Dynamic resource group: assume target_env equals RG name (from .env TARGET_ENV)
-data "azurerm_resource_group" "main_resource" { name = var.target_env }
-
-# DNS resource group (variable driven)
-data "azurerm_resource_group" "dns_resource" { name = var.dns_resource_group_name }
 
 data "azurerm_dns_zone" "main_dns_zone" {
   # Load the authoritative DNS zone where CNAME + TXT will be created
   name                = var.parent_domain_name
-  resource_group_name = data.azurerm_resource_group.dns_resource.name
+  resource_group_name = var.dns_resource_group_name
 }
 
 # Function App (use variable for name)
 data "azurerm_linux_function_app" "quest5tier_func" {
   name                = var.function_app_name
-  resource_group_name = data.azurerm_resource_group.main_resource.name
+  resource_group_name = var.resource_group_name
 }
 
 # Reuse existing Front Door profile & endpoint (supplied by variables)
 data "azurerm_cdn_frontdoor_profile" "shared_profile" {
   name                = var.frontdoor_profile_name
-  resource_group_name = data.azurerm_resource_group.main_resource.name
+  resource_group_name = var.resource_group_name
 }
 data "azurerm_cdn_frontdoor_endpoint" "shared_endpoint" {
   name                = var.frontdoor_endpoint_name
   profile_name        = data.azurerm_cdn_frontdoor_profile.shared_profile.name
-  resource_group_name = data.azurerm_resource_group.main_resource.name
+  resource_group_name = var.resource_group_name
 }
 
 # Origin Group for the Function App
 resource "azurerm_cdn_frontdoor_origin_group" "quest5tier_fd_origin_group" {
-  name                     = "quest5tier-og"
+  name                     = "${var.function_app_name}-og"
   cdn_frontdoor_profile_id = data.azurerm_cdn_frontdoor_profile.shared_profile.id
   session_affinity_enabled = false
 
@@ -70,12 +65,12 @@ resource "azurerm_cdn_frontdoor_origin_group" "quest5tier_fd_origin_group" {
 # Origin pointing to Function App
 resource "azurerm_cdn_frontdoor_origin" "quest5tier_fd_origin" {
   # Single origin = Function App default hostname (public). Consider locking down later with ACLs or Premium + Private Link if needed.
-  name                          = "quest5tier-orig"
+  name                          = "${var.function_app_name}-orig"
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.quest5tier_fd_origin_group.id
 
   enabled                        = true
-  host_name                     = data.azurerm_linux_function_app.quest5tier_func.default_hostname
-  origin_host_header            = data.azurerm_linux_function_app.quest5tier_func.default_hostname
+  host_name                     = module.function_app.default_hostname
+  origin_host_header            = module.function_app.default_hostname
   https_port                    = 443
   certificate_name_check_enabled = true
 }
@@ -83,18 +78,18 @@ resource "azurerm_cdn_frontdoor_origin" "quest5tier_fd_origin" {
 # Custom Domain for API (following UI pattern)
 resource "azurerm_cdn_frontdoor_custom_domain" "quest5tier_custom_domain" {
   # Creates a managed TLS binding for quest5tier-api-<env>.<domain>
-  name                     = "quest5tier-domain"
+  name                     = "${var.function_app_name}-domain"
   cdn_frontdoor_profile_id = data.azurerm_cdn_frontdoor_profile.shared_profile.id
   dns_zone_id              = data.azurerm_dns_zone.main_dns_zone.id
-  host_name                = lower("quest5tier-api-${var.target_env}.${var.parent_domain_name}")
+  host_name                = lower("${var.function_app_name}-api-${var.target_env}.${var.parent_domain_name}")
   tls { certificate_type = "ManagedCertificate" }
 }
 
 # DNS TXT record for domain validation (following UI pattern)
 resource "azurerm_dns_txt_record" "quest5tier_dns_validation" {
-  name                = "_dnsauth.quest5tier-api-${var.target_env}"
+  name                = "_dnsauth.${var.function_app_name}-api-${var.target_env}"
   zone_name           = data.azurerm_dns_zone.main_dns_zone.name
-  resource_group_name = data.azurerm_resource_group.dns_resource.name
+  resource_group_name = var.dns_resource_group_name
   ttl                 = 3600
 
   record {
@@ -104,7 +99,7 @@ resource "azurerm_dns_txt_record" "quest5tier_dns_validation" {
 
 # DNS CNAME record pointing to Front Door endpoint (following UI pattern)
 resource "azurerm_dns_cname_record" "quest5tier_cname_record" {
-  name                = "quest5tier-api-${var.target_env}"
+  name                = "${var.function_app_name}-api-${var.target_env}"
   zone_name           = data.azurerm_dns_zone.main_dns_zone.name
   resource_group_name = data.azurerm_resource_group.dns_resource.name
   ttl                 = 3600
@@ -114,7 +109,7 @@ resource "azurerm_dns_cname_record" "quest5tier_cname_record" {
 # Rules Engine for security and routing (following UI pattern)
 resource "azurerm_cdn_frontdoor_rule_set" "quest5tier_fd_rules" {
   # Container for one or more rules (we currently use a single redirect rule)
-  name                     = "quest5tierrules"
+  name                     = "${var.function_app_name}-ruleset"
   cdn_frontdoor_profile_id = data.azurerm_cdn_frontdoor_profile.shared_profile.id
 }
 
@@ -123,7 +118,7 @@ resource "azurerm_cdn_frontdoor_rule" "quest5tier_enforce_custom_host" {
   # Redirect any request whose Host header != canonical custom domain
   depends_on = [azurerm_dns_txt_record.quest5tier_dns_validation, azurerm_dns_cname_record.quest5tier_cname_record]
 
-  name                      = "quest5tierEnforceHost"
+  name                      = "${var.function_app_name}EnforceHost"
   cdn_frontdoor_rule_set_id = azurerm_cdn_frontdoor_rule_set.quest5tier_fd_rules.id
   order                     = 1
   behavior_on_match         = "Continue"
@@ -132,7 +127,7 @@ resource "azurerm_cdn_frontdoor_rule" "quest5tier_enforce_custom_host" {
     host_name_condition {
       operator          = "Equal"
       negate_condition  = true
-      match_values      = [lower("quest5tier-api-${var.target_env}.${var.parent_domain_name}")]
+      match_values      = [lower("${var.function_app_name}-api-${var.target_env}.${var.parent_domain_name}")]
       transforms        = []
     }
   }
@@ -141,7 +136,7 @@ resource "azurerm_cdn_frontdoor_rule" "quest5tier_enforce_custom_host" {
     url_redirect_action {
       redirect_type        = "PermanentRedirect"
       redirect_protocol    = "Https"
-      destination_hostname = lower("quest5tier-api-${var.target_env}.${var.parent_domain_name}")
+      destination_hostname = lower("${var.function_app_name}-api-${var.target_env}.${var.parent_domain_name}")
       destination_path     = "/{path}"
       destination_fragment = "{fragment}"
       query_string         = "{query_string}"
@@ -154,7 +149,7 @@ resource "azurerm_cdn_frontdoor_route" "quest5tier_fd_route" {
   # Binds the custom domain + origin group to the shared endpoint and applies the rule set.
   depends_on = [azurerm_dns_txt_record.quest5tier_dns_validation, azurerm_dns_cname_record.quest5tier_cname_record]
 
-  name                          = "quest5tier-route"
+  name                          = "${var.function_app_name}-route"
   cdn_frontdoor_endpoint_id     = data.azurerm_cdn_frontdoor_endpoint.shared_endpoint.id
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.quest5tier_fd_origin_group.id
   cdn_frontdoor_origin_ids      = [azurerm_cdn_frontdoor_origin.quest5tier_fd_origin.id]

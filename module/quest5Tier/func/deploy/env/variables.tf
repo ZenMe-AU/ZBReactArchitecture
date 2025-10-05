@@ -89,13 +89,11 @@ variable "dns_resource_group_name" {
 variable "frontdoor_profile_name" {
   description = "Existing shared Front Door profile name (created upstream)"
   type        = string
-  default     = "${var.target_env}-fd-profile"
 }
 
 variable "frontdoor_endpoint_name" {
   description = "Existing shared Front Door endpoint name"
   type        = string
-  default     = "${var.target_env}-fd-endpoint"
 }
 
 #-------------------------------------------------#
