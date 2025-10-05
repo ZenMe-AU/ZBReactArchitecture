@@ -1,8 +1,8 @@
 # Outputs for quest5tier Front Door configuration
 
 output "quest5tier_frontdoor_endpoint_hostname" {
-  description = "The hostname of the Front Door endpoint"
-  value       = azurerm_cdn_frontdoor_endpoint.quest5tier_fd_endpoint.host_name
+  description = "The hostname of the shared Front Door endpoint"
+  value       = data.azurerm_cdn_frontdoor_endpoint.shared_endpoint.host_name
 }
 
 output "quest5tier_custom_domain_url" {
@@ -16,11 +16,11 @@ output "quest5tier_function_app_hostname" {
 }
 
 output "quest5tier_frontdoor_profile_id" {
-  description = "The ID of the Front Door profile"
-  value       = azurerm_cdn_frontdoor_profile.quest5tier_fd_profile.id
+  description = "The ID of the shared Front Door profile"
+  value       = data.azurerm_cdn_frontdoor_profile.shared_profile.id
 }
 
 output "quest5tier_frontdoor_identity_principal_id" {
-  description = "The principal ID of the Front Door managed identity"
-  value       = azurerm_cdn_frontdoor_profile.quest5tier_fd_profile.identity[0].principal_id
+  description = "The principal ID of the shared Front Door managed identity (null if not exposed by data source)"
+  value       = try(data.azurerm_cdn_frontdoor_profile.shared_profile.identity[0].principal_id, null)
 }

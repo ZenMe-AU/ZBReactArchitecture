@@ -101,7 +101,7 @@ resource "azurerm_dns_txt_record" "quest5tier_dns_validation" {
 resource "azurerm_dns_cname_record" "quest5tier_cname_record" {
   name                = "${var.function_app_name}-api-${var.target_env}"
   zone_name           = data.azurerm_dns_zone.main_dns_zone.name
-  resource_group_name = data.azurerm_resource_group.dns_resource.name
+  resource_group_name = var.resource_group_name
   ttl                 = 3600
   record              = data.azurerm_cdn_frontdoor_endpoint.shared_endpoint.host_name
 }
