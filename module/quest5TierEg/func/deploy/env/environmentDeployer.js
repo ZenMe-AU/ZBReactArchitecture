@@ -1,5 +1,5 @@
-const { createInterface } = require("readline");
-const { terraformInit, terraformPlan, terraformApply } = require("./terraformCli");
+const fs = require("fs");
+const { terraformInit, terraformPlan, terraformApply, terraformImport } = require("./terraformCli");
 const {
   getFunctionAppName,
   getResourceGroupName,
@@ -12,8 +12,9 @@ const {
   getModuleStorageAccountContainerName,
   getPgServerName,
   getStorageAccountWebName,
+  getEventGridName,
 } = require("../util/namingConvention");
-const { getSubscriptionId } = require("../util/azureCli");
+const { getSubscriptionId, getEventGridNamespaceId } = require("../util/azureCli");
 
 class EnvironmentDeployer {
   constructor({ envType, targetEnv, moduleName, dbName, backendConfig, logLevel = "", autoApprove = false }) {
@@ -36,16 +37,18 @@ class EnvironmentDeployer {
     this.pgServerName = getPgServerName(this.targetEnv);
     this.storageAccountWebName = getStorageAccountWebName(this.targetEnv);
     this.appConfigName = getAppConfigName(this.targetEnv);
+    this.eventGridName = getEventGridName(this.targetEnv);
 
     this.backendConfig = backendConfig || {
       resource_group_name: this.resourceGroupName,
       storage_account_name: this.storageAccountName,
-      container_name: "tfstatefile",
+      container_name: "tfstatefile", // TODO:need to be updated to "terraformstate"
       key: `${this.targetEnv}/${this.targetEnv}-${this.moduleName}-terraform.tfstate`,
     };
   }
 
   run() {
+    process.env.TF_VAR_env_type = this.envType;
     process.env.TF_VAR_target_env = this.targetEnv;
     process.env.TF_VAR_module_name = this.moduleName;
     process.env.TF_VAR_subscription_id = this.subscriptionId;
@@ -63,8 +66,18 @@ class EnvironmentDeployer {
     process.env.TF_VAR_pg_server_name = this.pgServerName;
     process.env.TF_VAR_storage_account_web_name = this.storageAccountWebName;
     process.env.TF_VAR_appconfig_name = this.appConfigName;
+    process.env.TF_VAR_event_grid_name = this.eventGridName;
 
     terraformInit({ backendConfig: this.backendConfig });
+    if (this.#hasEventGridModule()) {
+      try {
+        const eventGridId = getEventGridNamespaceId({ eventGridNamespaceName: this.eventGridName, resourceGroupName: this.resourceGroupName });
+        console.log("Importing existing Event Grid Namespace with ID:", eventGridId);
+        terraformImport("module.event_grid.azurerm_eventgrid_namespace.egns", eventGridId);
+      } catch (error) {
+        console.log("Event Grid Namespace not found. It will be created.");
+      }
+    }
     terraformApply(this.autoApprove);
     // terraformPlan();
 
@@ -81,6 +94,18 @@ class EnvironmentDeployer {
     //     }
     //   });
     // }
+  }
+
+  // private method
+  #hasEventGridModule() {
+    const fileName = "./main.tf";
+    console.log("Checking for Event Grid module in", fileName);
+    if (fs.existsSync(fileName)) {
+      const content = fs.readFileSync(fileName, "utf8");
+      const regex = /module\s+"event_grid"\s*{[^}]*source\s*=\s*["']\.\/eventGrid["'][^}]*}/s;
+      return regex.test(content);
+    }
+    return false;
   }
 }
 

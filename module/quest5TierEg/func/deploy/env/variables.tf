@@ -72,6 +72,11 @@ variable "env_type" {
   type = string
 }
 
+variable "event_grid_name" {
+  description = "The name of the event grid"
+  type        = string
+}
+
 #-------------------------------------------------#
 # Fetch existing resources
 

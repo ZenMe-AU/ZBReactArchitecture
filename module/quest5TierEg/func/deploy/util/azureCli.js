@@ -272,6 +272,34 @@ function addPgServerExtensionsList({ resourceGroup, serverName, subscriptionId, 
   --value ${extensionNames.join(",")}`);
 }
 
+/*
+ * Get Event Grid Namespace ID
+ */
+function getEventGridNamespaceId({ resourceGroupName, eventGridNamespaceName }) {
+  try {
+    return execSync(`az eventgrid namespace show -n ${eventGridNamespaceName} -g ${resourceGroupName} --query id -o tsv`, {
+      encoding: "utf8",
+    }).trim();
+  } catch (error) {
+    throw new Error("Could not retrieve Event Grid Namespace ID." + error.message);
+  }
+}
+
+function createEventGridTopic({ resourceGroupName, eventGridNamespaceName, topicName }) {
+  try {
+    execSync(`az eventgrid namespace topic create -g ${resourceGroupName} --namespace-name ${eventGridNamespaceName} -n ${topicName}`, {
+      stdio: "inherit",
+    });
+  } catch (error) {
+    throw new Error("Could not create Event Grid Topic." + error.message);
+  }
+}
+
+// az eventgrid event-subscription create \
+//   --name CreateQuestionSub \
+//   --source-resource-id /subscriptions/<SUBSCRIPTION_ID>/resourceGroups/my-rg/providers/Microsoft.EventGrid/namespaces/test-egnamespace/topics/CreateQuestionTopic \
+//   --endpoint https://$FUNC_HOSTNAME/runtime/webhooks/eventgrid?functionName=CreateQuestionQueue&code=$FUNC_KEY
+
 module.exports = {
   getSubscriptionId,
   getObjectId,
@@ -293,4 +321,6 @@ module.exports = {
   addPgServerExtensionsList,
   isMemberOfAadGroup,
   isStorageAccountNameAvailable,
+  getEventGridNamespaceId,
+  createEventGridTopic,
 };

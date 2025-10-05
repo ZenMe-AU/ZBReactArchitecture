@@ -10,6 +10,7 @@ const localSettingTemplate = {
   IsEncrypted: false,
   Values: {
     AzureWebJobsStorage: "",
+    AzureWebJobsSecretStorageType: "Files",
     FUNCTIONS_WORKER_RUNTIME: "node",
     FUNCTIONS_EXTENSION_VERSION: "~4",
   },

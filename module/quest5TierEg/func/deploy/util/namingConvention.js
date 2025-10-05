@@ -67,6 +67,9 @@ function getDbSchemaAdminRoleName(moduleName) {
 function getDbSchemaAdminName(moduleName) {
   return `${moduleName}-dbschemaadmins`;
 }
+function getEventGridName(targetEnv) {
+  return `${targetEnv}-egns`;
+}
 
 module.exports = {
   getResourceGroupName,
@@ -88,4 +91,5 @@ module.exports = {
   getRoRoleName,
   getDbSchemaAdminRoleName,
   getDbSchemaAdminName,
+  getEventGridName,
 };

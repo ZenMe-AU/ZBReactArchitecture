@@ -3,6 +3,7 @@ const { register, startup } = require("./diRegistry");
 const container = require("./diContainer");
 
 // register db
+console.log("register db");
 register("db", async () => {
   const { createDatabaseInstance } = require("../repository/model/connection");
   const { createModelsLoader } = require("../repository/model/loader/index");
@@ -29,6 +30,7 @@ register("db", async () => {
 });
 
 // register serviceBus
+console.log("register serviceBus");
 register("serviceBus", async () => {
   const { createServiceBusInstance } = require("../serviceBus/connection");
   let sbClient = await createServiceBusInstance({
@@ -47,33 +49,23 @@ register("serviceBus", async () => {
 });
 
 // register eventGrid
+console.log("register eventGrid");
 register("eventGrid", async () => {
-  const { createEventGridInstance } = require("../eventGrid/connection");
-
-  let egClient = createEventGridInstance({
-    endpoint: process.env.EventGridConnection__topicEndpointUri,
-    clientId: process.env.EventGridConnection__clientId || null,
-  });
-  // for local development, use connection string if EVENT_GRID_CONNECTION is set
-  // if (process.env.EventGridConnection && process.env.EventGridConnection.startsWith("Endpoint=sb://localhost")) {
-  //   egClient = await createEventGridInstance({
-  //     endpoint: process.env.EventGridConnection__topicEndpointUri,
-  //     key: process.env.EventGridConnection,
-  //   });
-  // }
-  container.register("eventGrid", egClient);
-  const { createEventGridNamespaceInstance } = require("../eventGrid/connection");
+  const eventGridClientType = "namespace"; // standard or namespace
+  const { eventGridFactory } = require("../eventGrid/clientFactory");
   const topicNameList = require("../eventGrid/topicNameList");
-  let nsClientSettings = {
+
+  let clientSettings = {
+    type: eventGridClientType,
     endpoint: process.env.EventGridNameSpaceConnection__topicEndpointUri,
     clientId: process.env.EventGridNameSpaceConnection__clientId || null,
     // key:process.env.EventGridNameSpaceConnection && process.env.EventGridNameSpaceConnection.startsWith("Endpoint=sb://localhost") ? process.env.EventGridNameSpaceConnection : null,
   };
-  const namespaceClients = {};
+  const clients = {};
   Object.values(topicNameList).forEach((topic) => {
-    namespaceClients[topic] = createEventGridNamespaceInstance({ ...nsClientSettings, topic });
+    clients[topic] = eventGridFactory.getClient({ ...clientSettings, topic });
   });
-  container.register("eventGridNamespace", namespaceClients);
+  container.register("eventGrid", clients);
   console.log("🥳eventGrid initialized");
 });
 

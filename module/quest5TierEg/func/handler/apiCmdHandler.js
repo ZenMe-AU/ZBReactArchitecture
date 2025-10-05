@@ -1,7 +1,4 @@
-const { eventGridDomain } = require("../eventGrid/eventGridDomain");
-const { sendMessageToQueue } = require("../serviceBus/function");
-const { v4: uuidv4 } = require("uuid");
-const { sendEvent, sendNamespaceEvent } = require("../eventGrid/function");
+const { sendEvent } = require("../eventGrid/function");
 const {
   qNameSendFollowUpCmd,
   qNameShareQuestionCmd,
@@ -75,7 +72,7 @@ async function CreateQuestion(request, context) {
     ...(request.clientParams ?? {}),
   };
   const correlationId = request.correlationId;
-  const messageId = await sendNamespaceEvent({ topic, eventType: topic, body, correlationId });
+  const messageId = await sendEvent({ topic, eventType: topic, body, correlationId });
   return { return: { messageId } };
 }
 
@@ -179,7 +176,7 @@ async function UpdateQuestion(request, context) {
   };
   const topic = qNameUpdateQuestionCmd;
   const correlationId = request.correlationId;
-  const messageId = await sendNamespaceEvent({ topic, eventType: topic, body, correlationId });
+  const messageId = await sendEvent({ topic, eventType: topic, body, correlationId });
   return { return: { messageId } };
 }
 
@@ -274,7 +271,7 @@ async function CreateAnswer(request, context) {
   };
   const topic = qNameCreateAnswerCmd;
   const correlationId = request.correlationId;
-  const messageId = await sendNamespaceEvent({ topic, eventType: topic, body, correlationId });
+  const messageId = await sendEvent({ topic, eventType: topic, body, correlationId });
   return { return: { messageId } };
 }
 
@@ -366,7 +363,7 @@ async function SendFollowUp(request, context) {
   const body = request.clientParams ?? {};
   const topic = qNameSendFollowUpCmd;
   const correlationId = request.correlationId;
-  const messageId = await sendNamespaceEvent({ topic, eventType: topic, body, correlationId });
+  const messageId = await sendEvent({ topic, eventType: topic, body, correlationId });
   return { return: { messageId } };
 }
 
@@ -450,7 +447,7 @@ async function ShareQuestion(request, context) {
   const body = request.clientParams ?? {};
   const topic = qNameShareQuestionCmd;
   const correlationId = request.correlationId;
-  const messageId = await sendNamespaceEvent({ topic, eventType: topic, body, correlationId });
+  const messageId = await sendEvent({ topic, eventType: topic, body, correlationId });
   return { return: { messageId } };
 }
 

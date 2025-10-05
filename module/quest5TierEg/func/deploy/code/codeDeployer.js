@@ -51,7 +51,7 @@ class CodeDeployer {
     ];
     this.queueNames = [];
     this.allowedOrigins = [
-      getAppConfigValueByKeyLabel({ appConfigName: getAppConfigName(this.targetEnv), key: "webEndpoint", label: this.envType }).replace(/\/+$/, ""),
+      // getAppConfigValueByKeyLabel({ appConfigName: getAppConfigName(this.targetEnv), key: "webEndpoint", label: this.envType }).replace(/\/+$/, ""),
     ];
   }
 
@@ -83,16 +83,17 @@ class CodeDeployer {
       appSettingKeys: this.deleteAppSettings,
     });
     // Assign roles to the Function App
-    this.roleAssignments.forEach(({ assignee = functionAppPrincipalId, role, scope }) => {
+    this.roleAssignments?.forEach(({ assignee = functionAppPrincipalId, role, scope }) => {
       assignRole({ assignee, role, scope });
     });
     if (this.queueNames.length > 0) {
       console.log(`Creating Service Bus Queues...`);
+
+      // Create Service Bus Queues if any
+      this.queueNames?.forEach((queueName) => {
+        createServiceBusQueue({ resourceGroupName: this.resourceGroupName, namespaceName: this.serviceBusName, queueName });
+      });
     }
-    // Create Service Bus Queues if any
-    this.queueNames.forEach((queueName) => {
-      createServiceBusQueue({ resourceGroupName: this.resourceGroupName, namespaceName: this.serviceBusName, queueName });
-    });
     // Create topic and subscription if any
 
     // Set CORS settings

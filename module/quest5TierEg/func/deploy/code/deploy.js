@@ -2,7 +2,7 @@ const { resolve } = require("path");
 const { getTargetEnv, getModuleName } = require("../util/envSetup");
 const { getResourceGroupName, getServiceBusName, getFunctionAppName, getStorageAccountName } = require("../util/namingConvention");
 const { getSubscriptionId } = require("../util/azureCli");
-const CodeDeployer = require("./CodeDeployer");
+const CodeDeployer = require("./codeDeployer");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
 const queueNameList = require("../../serviceBus/queueNameList");
@@ -34,6 +34,6 @@ const queueNameList = require("../../serviceBus/queueNameList");
     serviceBusName,
     moduleDir,
   });
-  codeDeployer.queueNames = JSON.stringify(Object.values(queueNameList));
+  // codeDeployer.queueNames = Object.values(queueNameList);
   await codeDeployer.run();
 })();

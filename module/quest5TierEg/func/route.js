@@ -5,7 +5,7 @@ const apiQryHandler = require("./handler/apiQryHandler.js");
 const queueCmdHandler = require("./handler/queueCmdHandler.js");
 const sendFollowUpCmdSchema = require("./schema/sendFollowUpCmdSchema");
 const shareQuestionCmdSchema = require("./schema/shareQuestionCmdSchema");
-const { eventGridDomain } = require("./eventGrid/eventGridDomain");
+const { eventGridDomain } = require("./eventGrid/output.js");
 
 app.http("GetQuestion", {
   route: "questionQry/getQuestion/{questionId}",

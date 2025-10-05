@@ -21,4 +21,26 @@ function terraformApply(autoApprove = false, planfile = "") {
   execSync(`terraform apply ${args} ${planfile}`, { stdio: "inherit", shell: true });
 }
 
-module.exports = { terraformInit, terraformPlan, terraformApply };
+function terraformImport(resource, id) {
+  if (!id) return;
+  if (isImported(resource)) {
+    return;
+  }
+  execSync(`terraform import ${resource} ${id}`, { stdio: "inherit" });
+}
+
+function isImported(resource) {
+  try {
+    execSync(`terraform state show '${resource}'`, { stdio: "ignore" });
+    console.log(`Resource already managed by Terraform: ${resource}`);
+    return true;
+  } catch {
+    return false;
+  }
+}
+module.exports = {
+  terraformInit,
+  terraformPlan,
+  terraformApply,
+  terraformImport,
+};
