@@ -74,11 +74,6 @@ variable "env_type" {
   type = string
 }
 
-variable "parent_domain_name" {
-  description = "Parent DNS zone root (e.g., zenblox.com.au)"
-  type        = string
-  default     = "zenblox.com.au"
-}
 
 variable "dns_resource_group_name" {
   description = "Resource group containing the public DNS zone"
