@@ -17,7 +17,7 @@ function terraformPlan() {
 }
 
 function terraformApply() {
-  execSync("terraform apply -auto-approve planfile", { stdio: "inherit", shell: true });
+  execSync("terraform apply -auto-approve", { stdio: "inherit", shell: true });
 }
 
 module.exports = { terraformInit, terraformPlan, terraformApply };
