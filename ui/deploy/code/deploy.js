@@ -47,7 +47,8 @@ function deploy() {
         });
         envMap.set(`${module.toUpperCase()}_DOMAIN`, `https://${value}`);
       } catch (err) {
-        console.error(`Failed to fetch ${module}:`, err);
+        // console.error(`Failed to fetch ${module}:`, err);
+        console.warn(`Warning: Failed to fetch ${module} domain from App Config.`);
       }
     });
 
