@@ -65,6 +65,17 @@ function deploy() {
     execSync("pnpm install", { stdio: "inherit", cwd: moduleDir });
     execSync("pnpm run build", { stdio: "inherit", cwd: moduleDir });
 
+    const storageAccountID = execSync(`az storage account show --name ${accountName} --query id --output tsv`, { encoding: "utf8", }).trim();
+    const principalName = execSync("az account show --query user.name --output tsv", { encoding: "utf8", }).trim();
+    console.log(`Storage Account ID: ${storageAccountID}`);
+    console.log(`Principal Name: ${principalName}`);
+    const roleAssignment = execSync(`az role assignment list --scope ${storageAccountID} --query "[?roleDefinitionName=='Storage Blob Data Contributor' && principalName=='${principalName}']"`, { encoding: "utf8", }).trim();
+    console.log("Role Assignment:", roleAssignment.toString());
+
+    if (!roleAssignment) {
+      console.error("The current user does not have 'Storage Blob Data Contributor' role on the storage account. Please activate the role and try again.");
+      return;
+    }
     console.log(`Deleting old blobs from account-name ${accountName}`);
     try {
       execSync(`az storage blob delete-batch --account-name ${accountName} --source "\\$web" --auth-mode login`, { stdio: "inherit", shell: true });

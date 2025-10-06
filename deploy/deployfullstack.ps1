@@ -127,8 +127,6 @@ if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 # Deploy modules by looping through their paths
 $modules = @(
-    "profile",
-    "quest5Tier"
 )
 foreach ($modulePath in $modules) {
     Write-Output "Deploy the $modulePath module"
