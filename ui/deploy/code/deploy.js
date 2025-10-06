@@ -75,6 +75,7 @@ function deploy() {
 
     console.log("Uploading new blobs...");
     execSync(`az storage blob upload-batch --account-name ${accountName} -d "\\$web" -s "${distPath}" --auth-mode login`, {
+    execSync(`az storage blob upload-batch --account-name ${accountName} -d "\\$web" -s "${distPath}" --auth-mode login`, {
       stdio: "inherit",
       shell: true,
       cwd: moduleDir,
