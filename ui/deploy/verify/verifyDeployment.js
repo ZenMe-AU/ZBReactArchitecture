@@ -6,7 +6,7 @@ import { getAppConfigValueByKeyLabel } from "../../../module/shared/func/deploy/
 
 (async () => {
   try {
-    const envType = process.env.TF_VAR_env_type;
+    const envType = process.env.TF_VAR_env_type || "dev";
     const targetEnv = getTargetEnv();
     const storageAccountName = getStorageAccountWebName(targetEnv);
     const resourceGroupName = getResourceGroupName(envType, targetEnv);
