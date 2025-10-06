@@ -42,3 +42,9 @@ Write-Output "Deploy the application code"
 Set-Location $env:UI_FOLDER\deploy\code
 node ./deploy.js
 if ($LASTEXITCODE -ne 0) { Write-Warning "Deploy ui code failed" }
+
+# Verify the deployment
+Write-Output "Verifying the deployment..."
+Set-Location $env:UI_FOLDER\deploy\verify
+node ./verifyDeployment.js
+if ($LASTEXITCODE -ne 0) { Write-Warning "Verify deployment failed" }

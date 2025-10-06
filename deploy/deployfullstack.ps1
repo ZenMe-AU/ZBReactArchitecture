@@ -143,6 +143,6 @@ Set-Location $env:ROOT_FOLDER\ui\deploy\
 ./deployUi.ps1
 if ($LASTEXITCODE -ne 0) { Write-Warning "UI deployment failed" }
 
-#TODO: Run verification test to confirm the deployment succeeded.
-node ./verify/verifyDeployment.js
-if ($LASTEXITCODE -ne 0) { Write-Warning "Deploy Function App code failed" }
+# #TODO: Run verification test to confirm the deployment succeeded.
+# node ./verify/verifyDeployment.js
+# if ($LASTEXITCODE -ne 0) { Write-Warning "Deploy Function App code failed" }
