@@ -7,13 +7,7 @@ resource "azurerm_storage_account" "website" {
   account_replication_type = "LRS"
 }
 
-# Reference existing storage container for static web content
-data "azurerm_storage_container" "static_content" {
-  name                 = "$web"
-  storage_account_name = azurerm_storage_account.website.name
-}
-
-# Enable static website hosting on the storage account
+# Enable static website hosting on the storage account, this will automatically create a $web container
 resource "azurerm_storage_account_static_website" "website" {
   storage_account_id = azurerm_storage_account.website.id
   index_document     = "index.html"

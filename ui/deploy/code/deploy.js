@@ -65,11 +65,16 @@ function deploy() {
     execSync("pnpm install", { stdio: "inherit", cwd: moduleDir });
     execSync("pnpm run build", { stdio: "inherit", cwd: moduleDir });
 
-    console.log("Deleting old blobs...");
-    execSync(`az storage blob delete-batch --account-name ${accountName} --source "\\$web"`, { stdio: "inherit", shell: true });
+    console.log(`Deleting old blobs from account-name ${accountName}`);
+    try {
+      execSync(`az storage blob delete-batch --account-name ${accountName} --source "\\$web" --auth-mode login`, { stdio: "inherit", shell: true });
+    } catch (err) {
+      console.error("Failed to delete old blobs:", err.message);
+      // Optionally, you can exit or continue based on your requirements
+    }
 
     console.log("Uploading new blobs...");
-    execSync(`az storage blob upload-batch --account-name ${accountName} -d "\\$web" -s "${distPath}"`, {
+    execSync(`az storage blob upload-batch --account-name ${accountName} -d "\\$web" -s "${distPath}" --auth-mode login`, {
       stdio: "inherit",
       shell: true,
       cwd: moduleDir,
