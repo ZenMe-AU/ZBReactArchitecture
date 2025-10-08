@@ -5,7 +5,7 @@ const { getSubscriptionId } = require("../util/azureCli");
 const CodeDeployer = require("./codeDeployer");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
-const queueNameList = require("../../serviceBus/queueNameList");
+const topicNameList = require("../../eventGrid/topicNameList");
 
 (async () => {
   let targetEnv, moduleName, subscriptionId, envType;
@@ -34,6 +34,6 @@ const queueNameList = require("../../serviceBus/queueNameList");
     serviceBusName,
     moduleDir,
   });
-  // codeDeployer.queueNames = Object.values(queueNameList);
+  codeDeployer.topicNames = Object.values(topicNameList);
   await codeDeployer.run();
 })();

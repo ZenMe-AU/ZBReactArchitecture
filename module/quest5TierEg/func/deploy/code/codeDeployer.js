@@ -12,9 +12,10 @@ const {
   getIdentityClientId,
   getAppConfigValueByKeyLabel,
   setFunctionAppCors,
+  createEventGridTopic,
 } = require("../util/azureCli.js");
 const { npmInstall, npmPrune, zipDir } = require("./cli.js");
-const { getIdentityName, getAppConfigName } = require("../util/namingConvention.js");
+const { getIdentityName, getAppConfigName, getEventGridName } = require("../util/namingConvention.js");
 
 class CodeDeployer {
   constructor({ envType, targetEnv, moduleName, subscriptionId, functionAppName, resourceGroupName, storageAccountName, serviceBusName, moduleDir }) {
@@ -26,17 +27,12 @@ class CodeDeployer {
     this.resourceGroupName = resourceGroupName;
     this.storageAccountName = storageAccountName;
     this.serviceBusName = serviceBusName;
+    this.eventGridName = getEventGridName(targetEnv);
     this.moduleDir = moduleDir;
 
     this.distPath = "dist/dist.zip";
     this.excludeList = ["dist/*", ".vscode/*", ".git/*", "local.settings.json", "local.settings.json.template", "deploy/*"];
     this.appSettings = {
-      ServiceBusConnection__fullyQualifiedNamespace: `${this.serviceBusName}.servicebus.windows.net`,
-      ServiceBusConnection__credential: "managedidentity",
-      ServiceBusConnection__clientId: getIdentityClientId({
-        identityName: getIdentityName(this.targetEnv),
-        resourceGroupName: this.resourceGroupName,
-      }),
       // JWT_SECRET: getAppConfigValueByKeyLabel({ appConfigName: getAppConfigName(this.targetEnv), key: "jwtSecret", label: this.envType }),
       JWT_SECRET: "bb64c67554381aff324d26669540f591e02e3e993ce85c2d1ed2962e22411634",
     };
@@ -71,17 +67,6 @@ class CodeDeployer {
       functionAppName: this.functionAppName,
       resourceGroupName: this.resourceGroupName,
     });
-    // Settings Env Var for the Function App
-    setFunctionAppSetting({
-      functionAppName: this.functionAppName,
-      resourceGroupName: this.resourceGroupName,
-      appSettings: this.appSettings,
-    });
-    deleteFunctionAppSetting({
-      functionAppName: this.functionAppName,
-      resourceGroupName: this.resourceGroupName,
-      appSettingKeys: this.deleteAppSettings,
-    });
     // Assign roles to the Function App
     this.roleAssignments?.forEach(({ assignee = functionAppPrincipalId, role, scope }) => {
       assignRole({ assignee, role, scope });
@@ -95,7 +80,34 @@ class CodeDeployer {
       });
     }
     // Create topic and subscription if any
-
+    if (this.topicNames.length > 0) {
+      console.log(`Creating Event Grid Topics...`);
+      // TODO: get the Event Grid Topic Endpoint URI
+      this.appSettings = {
+        ...this.appSettings,
+        EventGridNameSpaceConnection__topicEndpointUri: `${this.eventGridName}.australiaeast-1.eventgrid.azure.net`,
+        EventGridNameSpaceConnection__credential: "managedidentity",
+        EventGridNameSpaceConnection__clientId: getIdentityClientId({
+          identityName: getIdentityName(this.targetEnv),
+          resourceGroupName: this.resourceGroupName,
+        }),
+      };
+      // Create Event Grid Topics if any
+      this.topicNames?.forEach((topicName) => {
+        createEventGridTopic({ resourceGroupName: this.resourceGroupName, eventGridNamespaceName: this.eventGridName, topicName });
+      });
+    }
+    // Settings Env Var for the Function App
+    setFunctionAppSetting({
+      functionAppName: this.functionAppName,
+      resourceGroupName: this.resourceGroupName,
+      appSettings: this.appSettings,
+    });
+    deleteFunctionAppSetting({
+      functionAppName: this.functionAppName,
+      resourceGroupName: this.resourceGroupName,
+      appSettingKeys: this.deleteAppSettings,
+    });
     // Set CORS settings
     if (this.allowedOrigins.length > 0) {
       console.log(`Setting CORS for Function App...`);
