@@ -2,10 +2,11 @@
 import fs from "fs";
 import { getTargetEnv } from "../../../module/shared/func/deploy/util/envSetup.js";
 import { getAppConfigValueByKeyLabel } from "../../../module/shared/func/deploy/util/azureCli.js";
-import { execSync } from "child_process";
+import { execSync, execFileSync, spawn } from "child_process";
 import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
 import { getStorageAccountWebName, getFunctionAppName, getAppConfigName } from "../../../module/shared/func/deploy/util/namingConvention.js";
+import { readdirSync, statSync } from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -14,16 +15,25 @@ const moduleDir = resolve(__dirname, "..", "..");
 const distPath = resolve(moduleDir, "dist", "client");
 
 const envFile = resolve(moduleDir, "public", "env.json");
-const apiList = ["profile", "quest5Tier"];
 
-function deploy() {
+const apiDir = resolve(moduleDir, "..", "module");
+let apiList = [];
+if (fs.existsSync(apiDir)) {
+  apiList = readdirSync(apiDir).filter((name) => {
+    const fullPath = resolve(apiDir, name);
+    return statSync(fullPath).isDirectory();
+  });
+}
+
+async function deploy() {
   const envType = process.env.TF_VAR_env_type || "dev";
   const targetEnv = getTargetEnv();
   const accountName = getStorageAccountWebName(targetEnv);
   const appConfigName = getAppConfigName(targetEnv);
 
   try {
-    console.log(`Building environment file: ${envFile}`);
+    console.log(`Start: Deploying static web to storage account`);
+    console.log(`Step 1: Creating environment file: ${envFile}`);
     if (!fs.existsSync(envFile)) {
       fs.writeFileSync(envFile, "{}", "utf-8");
     }
@@ -61,11 +71,15 @@ function deploy() {
     const jsonContent = JSON.stringify(envObject, null, 2);
 
     fs.writeFileSync(envFile, jsonContent, "utf-8");
-    console.log("Building project...");
+
+    console.log("Step 2: Building project.");
 
     execSync("pnpm install", { stdio: "inherit", cwd: moduleDir });
     execSync("pnpm run build", { stdio: "inherit", cwd: moduleDir });
+    // await runCommand("pnpm install", { label: "Installing dependencies", cwd: moduleDir });
+    // await runCommand("pnpm run build", { label: "Building project", cwd: moduleDir });
 
+    console.log("Step 3: Checking storage account access permissions.");
     const storageAccountID = execSync(`az storage account show --name ${accountName} --query id --output tsv`, { encoding: "utf8" }).trim();
     const principalName = execSync("az account show --query user.name --output tsv", { encoding: "utf8" }).trim();
     // console.log(`Storage Account ID: ${storageAccountID}`);
@@ -77,31 +91,158 @@ function deploy() {
     const roleAssignmentObj = JSON.parse(roleAssignment || "[]");
     // console.log("Role Assignment:", roleAssignmentObj, typeof roleAssignmentObj);
     if (!roleAssignmentObj?.length > 0) {
-      console.error(
+      // console.error(
+      //   "Failed: The current user does not have 'Storage Blob Data Contributor' role on the storage account. Please activate the role and try again."
+      // );
+      throw new Error(
         "The current user does not have 'Storage Blob Data Contributor' role on the storage account. Please activate the role and try again."
       );
-      return;
     }
-    console.log(`Deleting old blobs from account-name ${accountName}`);
+
+    console.log("Step 4: Checking container $web existence.");
+    let isExisting = false;
     try {
-      execSync(`az storage blob delete-batch --account-name ${accountName} --source "\$web" --auth-mode login`, { stdio: "inherit", shell: true });
+      const output = execFileSync(
+        "az",
+        ["storage", "container", "exists", "--name", "$web", "--account-name", accountName, "--auth-mode", "login", "--query", "exists", "-o", "tsv"],
+        {
+          encoding: "utf8",
+        }
+      );
+      isExisting = output.toString().trim() === "true";
     } catch (err) {
-      console.error("Failed to delete old blobs:", err.message);
+      // console.error("Failed to check container existence:", err.message)
+    }
+    if (!isExisting) {
+      throw new Error("Container $web does not exist in the storage account.");
+    }
+
+    console.log(`Step 5: Deleting old blobs from account-name ${accountName}`);
+    try {
+      // execSync(`az storage blob delete-batch --account-name ${accountName} --source '$web' --auth-mode login`, { stdio: "inherit", shell: true });
+      execFileSync("az", ["storage", "blob", "delete-batch", "--account-name", accountName, "--source", "$web", "--auth-mode", "login"], {
+        stdio: "inherit",
+      });
+    } catch (err) {
+      // console.error("Failed to delete old blobs:", err.message);
+      throw new Error("Failed to delete old blobs.");
       // Optionally, you can exit or continue based on your requirements
     }
 
-    console.log("Uploading new blobs...");
-    execSync(`az storage blob upload-batch --account-name ${accountName} -d "\$web" -s "${distPath}" --auth-mode login`, {
-      stdio: "inherit",
-      shell: true,
-      cwd: moduleDir,
-    });
+    console.log("Step 6: Uploading new blobs.");
+    try {
+      // execSync(`az storage blob upload-batch --account-name ${accountName} -d '$web' -s "${distPath}" --auth-mode login`, {
+      //   stdio: "inherit",
+      //   shell: true,
+      //   cwd: moduleDir,
+      // });
+      execFileSync("az", ["storage", "blob", "upload-batch", "--account-name", accountName, "-d", "$web", "-s", distPath, "--auth-mode", "login"], {
+        stdio: "inherit",
+        cwd: moduleDir,
+      });
+    } catch (err) {
+      // console.error("Failed to upload blobs:", err.message);
+      throw new Error("Failed to upload blobs.");
+    }
 
-    console.log("Deployment completed successfully.");
+    console.log("End: Deployment completed successfully.");
   } catch (err) {
-    console.error("Deployment failed:", err.message);
+    console.error("Error:", err.message);
     process.exit(1);
   }
 }
 
 deploy();
+
+/**
+ * Runs a shell command quietly, showing only start/success messages
+ * unless the command fails.
+ *
+ * @param {string} command
+ * @param {object} [options]
+ * @param {string} [options.label]
+ * @returns {Promise<void>}
+ */
+async function runCommand(command, options = {}) {
+  const { label = command } = options;
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, {
+      shell: true,
+      stdio: ["ignore", "pipe", "pipe"], // isolate stdout/stderr
+      cwd: options.cwd || process.cwd(),
+    });
+
+    let stdoutData = "";
+    let stderrData = "";
+
+    child.stdout.on("data", (data) => (stdoutData += data.toString()));
+    child.stderr.on("data", (data) => (stderrData += data.toString()));
+
+    child.on("error", (err) => {
+      console.error(`Failed to start: ${label}`);
+      reject(err);
+    });
+
+    child.on("close", (code) => {
+      if (code === 0) {
+        // console.log(`Success: ${label}\n`);
+        resolve();
+      } else {
+        // console.log(`Error: ${label} (code ${code})\n`);
+        if (stdoutData.trim()) console.log(stdoutData);
+        if (stderrData.trim()) console.error(stderrData);
+        reject(new Error(`Command failed: ${label}`));
+      }
+    });
+  });
+}
+
+// /**
+//  * @param {string} command
+//  * @param {object} [options]
+//  * @param {string} [options.label]
+//  * @returns {Promise<void>}
+//  */
+// async function runCommand(command, options = {}) {
+//   const { label = command } = options;
+
+//   console.log(`Start: ${label}\n`);
+
+//   return new Promise((resolve, reject) => {
+//     const child = spawn(command, {
+//       shell: true,
+//       stdio: ["inherit", "pipe", "pipe"],
+//     });
+
+//     let outputBuffer = "";
+
+//     const writeAndCount = (data) => {
+//       const text = data.toString();
+//       // if (text.trim().startsWith(">")) return;
+//       process.stdout.write(text);
+//       outputBuffer += text;
+//     };
+
+//     child.stdout.on("data", writeAndCount);
+//     child.stderr.on("data", writeAndCount);
+
+//     child.on("error", (err) => {
+//       console.error(`Failed to start: ${command}`);
+//       reject(err);
+//     });
+
+//     child.on("close", (code) => {
+//       const lineCount = (outputBuffer.match(/\n/g) || []).length + 2;
+//       readline.moveCursor(process.stdout, 0, -lineCount);
+//       readline.clearScreenDown(process.stdout);
+
+//       if (code === 0) {
+//         console.log(`Success: ${label}\n`);
+//         resolve();
+//       } else {
+//         console.log(`Error: ${label} (code ${code})\n`);
+//         reject(new Error(`Command failed: ${label}`));
+//       }
+//     });
+//   });
+// }
