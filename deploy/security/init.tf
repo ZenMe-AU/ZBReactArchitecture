@@ -28,6 +28,19 @@ variable "env_type" {
   }
 }
 
+# Parent DNS settings
+variable "parent_domain_name" {
+  description = "Parent domain name (e.g., zenblox.com.au) for custom domains"
+  type        = string
+  default     = "zenblox.com.au"
+}
+
+variable "dns_resource_group_name" {
+  description = "Resource group name that contains the DNS zone"
+  type        = string
+  default     = "root-zenblox"
+}
+
 variable "target_env" {
   description = "Target environment name for deployment, this must be globally unique on Azure"
   type        = string

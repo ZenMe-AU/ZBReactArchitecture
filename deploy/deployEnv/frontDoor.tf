@@ -12,13 +12,14 @@ resource "azurerm_cdn_frontdoor_profile" "fd_profile" {
 }
 
 # Resource group and DNS zone for the public domain
+# DNS resource group and zone are Terraform-managed but fully parameterized
 resource "azurerm_resource_group" "dns_rg" {
-  name     = "root-zenblox"
+  name     = var.dns_resource_group_name
   location = data.azurerm_resource_group.rg.location
 }
 
 resource "azurerm_dns_zone" "dns_zone" {
-  name                = "zenblox.com.au"
+  name                = var.parent_domain_name
   resource_group_name = azurerm_resource_group.dns_rg.name
 }
 
@@ -33,7 +34,7 @@ resource "azurerm_cdn_frontdoor_endpoint" "fd_endpoint" {
 resource "azurerm_cdn_frontdoor_custom_domain" "custom_domain" {
   name                        = "${var.target_env}-dns"
   cdn_frontdoor_profile_id    = azurerm_cdn_frontdoor_profile.fd_profile.id
-  host_name                   = lower("${var.target_env}.zenblox.com.au")
+  host_name                   = lower("${var.target_env}.${azurerm_dns_zone.dns_zone.name}")
   tls {
     certificate_type = "ManagedCertificate"
     }
@@ -57,6 +58,15 @@ resource "azurerm_dns_cname_record" "cname_record" {
   resource_group_name = azurerm_resource_group.dns_rg.name
   ttl                 = 3600
   record              = azurerm_cdn_frontdoor_endpoint.fd_endpoint.host_name
+}
+
+# Publish the frontend custom domain host to App Configuration for runtime use by UI
+resource "azurerm_app_configuration_key" "frontend_custom_domain_host" {
+  configuration_store_id = data.azurerm_app_configuration.appconfig.id
+  key                    = "Frontend:CustomDomainHost"
+  label                  = var.env_type
+  value                  = lower("${var.target_env}.${azurerm_dns_zone.dns_zone.name}")
+  depends_on             = [azurerm_cdn_frontdoor_custom_domain.custom_domain]
 }
 
 # Helpful outputs for DNS delegation and verification

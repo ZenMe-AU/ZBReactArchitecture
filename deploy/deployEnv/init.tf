@@ -76,6 +76,25 @@ output "appconfig_name" {
   description = "value of app configuration name"
 }
 
+# Parent DNS settings to avoid hardcoding domain and RG names
+variable "parent_domain_name" {
+  description = "Parent domain name (e.g., zenblox.com.au) for custom domains"
+  type        = string
+}
+output "parent_domain_name" {
+  value       = var.parent_domain_name
+  description = "value of parent domain name"
+}
+
+variable "dns_resource_group_name" {
+  description = "Resource group name that will contain the DNS zone"
+  type        = string
+}
+output "dns_resource_group_name" {
+  value       = var.dns_resource_group_name
+  description = "value of DNS resource group name"
+}
+
 data "azurerm_resource_group" "rg" {
   name = var.resource_group_name
 }

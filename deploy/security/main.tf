@@ -84,7 +84,7 @@ resource "azurerm_cdn_frontdoor_origin_group" "fd_origin_group" {
 resource "azurerm_cdn_frontdoor_custom_domain" "custom_domain" {
   name                        = "${var.target_env}-dns"
   cdn_frontdoor_profile_id    = azurerm_cdn_frontdoor_profile.fd_profile.id
-  host_name                   = lower("${var.target_env}.zenblox.com.au")
+  host_name                   = lower("${var.target_env}.${var.parent_domain_name}")
   tls {
     certificate_type = "ManagedCertificate"
     }
@@ -92,8 +92,8 @@ resource "azurerm_cdn_frontdoor_custom_domain" "custom_domain" {
 #creates dns validation:
 resource "azurerm_dns_txt_record" "dns_validation" {
   name                = "_dnsauth.${var.target_env}"
-  zone_name           = "zenblox.com.au"
-  resource_group_name = "root-zenblox"
+  zone_name           = var.parent_domain_name
+  resource_group_name = var.dns_resource_group_name
   ttl                 = 3600
   record {
     value = azurerm_cdn_frontdoor_custom_domain.custom_domain.validation_token
@@ -114,7 +114,7 @@ resource "azurerm_cdn_frontdoor_rule" "enforce_custom_host" {
   conditions {
     host_name_condition {
       operator          = "Equal"
-      match_values      = [lower("${var.target_env}.zenblox.com.au")]
+      match_values      = [lower("${var.target_env}.${var.parent_domain_name}")]
       negate_condition  = true
       transforms        = []
     }
@@ -123,7 +123,7 @@ resource "azurerm_cdn_frontdoor_rule" "enforce_custom_host" {
   actions {
     url_redirect_action {
       redirect_type      = "PermanentRedirect"  # 308
-      destination_hostname = lower("${var.target_env}.zenblox.com.au")
+      destination_hostname = lower("${var.target_env}.${var.parent_domain_name}")
       destination_path   = "/{path}"
       destination_fragment = "{fragment}"
       query_string       = "{query_string}"
@@ -135,8 +135,8 @@ resource "azurerm_cdn_frontdoor_rule" "enforce_custom_host" {
 # creates cname record to point to front door endpoint
 resource "azurerm_dns_cname_record" "cname_record" {
   name                = var.target_env
-  zone_name           = "zenblox.com.au"
-  resource_group_name = "root-zenblox"
+  zone_name           = var.parent_domain_name
+  resource_group_name = var.dns_resource_group_name
   ttl                 = 3600
   record              = azurerm_cdn_frontdoor_endpoint.fd_endpoint.host_name
 }

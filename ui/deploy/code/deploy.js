@@ -46,7 +46,7 @@ async function deploy() {
     // });
     const envContent = JSON.parse(fs.readFileSync(envFile, "utf-8"));
     const envMap = new Map(Object.entries(envContent));
-    // fetch api domain from app config
+    // Fetch API domains from App Config
     apiList.forEach((module) => {
       try {
         const key = `FunctionAppHost:${getFunctionAppName(targetEnv, module)}`;
@@ -61,6 +61,36 @@ async function deploy() {
         console.warn(`Warning: Failed to fetch ${module} domain from App Config.`);
       }
     });
+    
+    // Fetch Frontend custom domain host from App Config and expose to client
+    try {
+      const key = `Frontend:CustomDomainHost`;
+      const value = getAppConfigValueByKeyLabel({
+        appConfigName,
+        key,
+        label: envType,
+      });
+      if (value) {
+        envMap.set("FRONTEND_CUSTOM_DOMAIN_HOST", String(value));
+      }
+    } catch (err) {
+      console.warn("Warning: Failed to fetch Frontend:CustomDomainHost from App Config.");
+    }
+
+    // Fetch Frontend custom domain host from App Config and expose to client
+    try {
+      const frontKey = `Frontend:CustomDomainHost`;
+      const frontHost = getAppConfigValueByKeyLabel({
+        appConfigName,
+        key: frontKey,
+        label: envType,
+      });
+      if (frontHost) {
+        envMap.set("FRONTEND_CUSTOM_DOMAIN_HOST", frontHost);
+      }
+    } catch (err) {
+      console.warn("Warning: Failed to fetch Frontend:CustomDomainHost from App Config.");
+    }
 
     // writing back to envFile
     // const newEnvContent = Array.from(envMap.entries())
@@ -72,7 +102,7 @@ async function deploy() {
 
     fs.writeFileSync(envFile, jsonContent, "utf-8");
 
-    console.log("Step 2: Building project.");
+  console.log("Step 2: Building project.");
 
     execSync("pnpm install", { stdio: "inherit", cwd: moduleDir });
     execSync("pnpm run build", { stdio: "inherit", cwd: moduleDir });

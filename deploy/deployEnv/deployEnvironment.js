@@ -122,6 +122,12 @@ function initEnvironment() {
   process.env.TF_VAR_appconfig_name = appConfigName;
   console.log(`Setting appconfig_name to: ${process.env.TF_VAR_appconfig_name}`);
 
+  // DNS variables (parameterized to avoid hardcoded values in Terraform)
+  process.env.TF_VAR_parent_domain_name = process.env.TF_VAR_parent_domain_name || "zenblox.com.au";
+  console.log(`Setting parent_domain_name to: ${process.env.TF_VAR_parent_domain_name}`);
+  process.env.TF_VAR_dns_resource_group_name = process.env.TF_VAR_dns_resource_group_name || "root-zenblox";
+  console.log(`Setting dns_resource_group_name to: ${process.env.TF_VAR_dns_resource_group_name}`);
+
   process.env.TF_VAR_log_analytics_workspace_name = getLogAnalyticsWorkspaceName(targetEnv);
   console.log(`Setting log_analytics_workspace_name to: ${process.env.TF_VAR_log_analytics_workspace_name}`);
   process.env.TF_VAR_service_bus_name = getServiceBusName(targetEnv);
