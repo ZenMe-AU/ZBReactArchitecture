@@ -81,10 +81,10 @@ resource "azurerm_cdn_frontdoor_route" "fd_route" {
   cdn_frontdoor_origin_group_id     = azurerm_cdn_frontdoor_origin_group.ui_fdog.id
   cdn_frontdoor_rule_set_ids        = [azurerm_cdn_frontdoor_rule_set.fd_rules.id]
   patterns_to_match                 = ["/*"]
-  supported_protocols               = ["Https"]
+  supported_protocols               = ["Http", "Https"]
   forwarding_protocol               = "HttpsOnly"
   link_to_default_domain            = true
-  https_redirect_enabled            = false
+  https_redirect_enabled            = true
   cdn_frontdoor_custom_domain_ids = [data.azurerm_cdn_frontdoor_custom_domain.ui_custom_domain.id] # Associate the custom domain with the Front Door endpoint
   # No depends_on needed since we're referencing existing DNS records via data sources
 }

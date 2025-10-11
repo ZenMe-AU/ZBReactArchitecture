@@ -99,47 +99,46 @@ async function deploy() {
       );
     }
 
-    console.log("Step 4: Checking container $web existence.");
-    let isExisting = false;
+    // Step 3.5: Ensure Static Website is enabled (idempotent)
     try {
-      const output = execFileSync(
-        "az",
-        ["storage", "container", "exists", "--name", "$web", "--account-name", accountName, "--auth-mode", "login", "--query", "exists", "-o", "tsv"],
-        {
-          encoding: "utf8",
-        }
+      execSync(
+        `az storage blob service-properties update --account-name ${accountName} --static-website --index-document index.html -o none`,
+        { stdio: "ignore", shell: true }
       );
-      isExisting = output.toString().trim() === "true";
-    } catch (err) {
-      // console.error("Failed to check container existence:", err.message)
+    } catch (_) {
+      // Non-fatal; continue
     }
-    if (!isExisting) {
-      throw new Error("Container $web does not exist in the storage account.");
+
+    console.log("Step 4: Ensuring container $web exists.");
+    try {
+      execSync(
+        `az storage container create --name $web --account-name ${accountName} --auth-mode login -o none`,
+        { stdio: "ignore", shell: true }
+      );
+    } catch (_) {
+      // Non-fatal; proceed to delete/upload which will surface real issues if any
     }
 
     console.log(`Step 5: Deleting old blobs from account-name ${accountName}`);
     try {
-      // execSync(`az storage blob delete-batch --account-name ${accountName} --source '$web' --auth-mode login`, { stdio: "inherit", shell: true });
-      execFileSync("az", ["storage", "blob", "delete-batch", "--account-name", accountName, "--source", "$web", "--auth-mode", "login"], {
-        stdio: "inherit",
-      });
+      execSync(
+        `az storage blob delete-batch --account-name ${accountName} --source $web --auth-mode login`,
+        { stdio: "inherit", shell: true }
+      );
     } catch (err) {
-      // console.error("Failed to delete old blobs:", err.message);
-      throw new Error("Failed to delete old blobs.");
-      // Optionally, you can exit or continue based on your requirements
+      console.warn("Warning: Failed to delete old blobs (continuing).", err?.message || String(err));
     }
 
     console.log("Step 6: Uploading new blobs.");
     try {
-      // execSync(`az storage blob upload-batch --account-name ${accountName} -d '$web' -s "${distPath}" --auth-mode login`, {
-      //   stdio: "inherit",
-      //   shell: true,
-      //   cwd: moduleDir,
-      // });
-      execFileSync("az", ["storage", "blob", "upload-batch", "--account-name", accountName, "-d", "$web", "-s", distPath, "--auth-mode", "login"], {
-        stdio: "inherit",
-        cwd: moduleDir,
-      });
+      execSync(
+        `az storage blob upload-batch --account-name ${accountName} -d $web -s "${distPath}" --auth-mode login`,
+        {
+          stdio: "inherit",
+          shell: true,
+          cwd: moduleDir,
+        }
+      );
     } catch (err) {
       // console.error("Failed to upload blobs:", err.message);
       throw new Error("Failed to upload blobs.");

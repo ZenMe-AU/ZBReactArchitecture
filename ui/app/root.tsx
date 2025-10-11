@@ -50,6 +50,24 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         {/* <link rel="stylesheet" href={appStylesHref} /> */}
         {/* <link rel="stylesheet" href={bootstrapHref} /> */}
+        {/* Client-side redirect: if users hit the static website origin directly, redirect to Front Door custom domain */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var targetHost = 'constitutionalegret.zenblox.com.au';
+                  var h = window.location.hostname || '';
+                  var isStaticWebsite = /\.web\.core\.windows\.net$/i.test(h);
+                  if (isStaticWebsite && h.toLowerCase() !== targetHost.toLowerCase()) {
+                    var dest = 'https://' + targetHost + window.location.pathname + window.location.search + window.location.hash;
+                    window.location.replace(dest);
+                  }
+                } catch (e) { /* noop */ }
+              })();
+            `,
+          }}
+        />
       </head>
       <body>
         {children}

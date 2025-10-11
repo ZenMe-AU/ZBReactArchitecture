@@ -11,6 +11,17 @@ resource "azurerm_cdn_frontdoor_profile" "fd_profile" {
   }
 }
 
+# Resource group and DNS zone for the public domain
+resource "azurerm_resource_group" "dns_rg" {
+  name     = "root-zenblox"
+  location = data.azurerm_resource_group.rg.location
+}
+
+resource "azurerm_dns_zone" "dns_zone" {
+  name                = "zenblox.com.au"
+  resource_group_name = azurerm_resource_group.dns_rg.name
+}
+
 # Main entry point into Front Door
 resource "azurerm_cdn_frontdoor_endpoint" "fd_endpoint" {
   name                     = "${var.target_env}-fd-endpoint"
@@ -31,8 +42,8 @@ resource "azurerm_cdn_frontdoor_custom_domain" "custom_domain" {
 # Enable custom domain by adding txt record to dns zone
 resource "azurerm_dns_txt_record" "dns_validation" {
   name                = "_dnsauth.${var.target_env}"
-  zone_name           = "zenblox.com.au"
-  resource_group_name = "root-zenblox"
+  zone_name           = azurerm_dns_zone.dns_zone.name
+  resource_group_name = azurerm_resource_group.dns_rg.name
   ttl                 = 3600
   record {
     value = azurerm_cdn_frontdoor_custom_domain.custom_domain.validation_token
@@ -42,9 +53,30 @@ resource "azurerm_dns_txt_record" "dns_validation" {
 # creates cname record to point to front door endpoint
 resource "azurerm_dns_cname_record" "cname_record" {
   name                = var.target_env
-  zone_name           = "zenblox.com.au"
-  resource_group_name = "root-zenblox"
+  zone_name           = azurerm_dns_zone.dns_zone.name
+  resource_group_name = azurerm_resource_group.dns_rg.name
   ttl                 = 3600
   record              = azurerm_cdn_frontdoor_endpoint.fd_endpoint.host_name
+}
+
+# Helpful outputs for DNS delegation and verification
+output "dns_zone_name" {
+  value       = azurerm_dns_zone.dns_zone.name
+  description = "DNS zone managed by Terraform"
+}
+
+output "dns_zone_name_servers" {
+  value       = azurerm_dns_zone.dns_zone.name_servers
+  description = "Azure DNS nameservers to delegate at your domain registrar"
+}
+
+output "frontdoor_endpoint_host" {
+  value       = azurerm_cdn_frontdoor_endpoint.fd_endpoint.host_name
+  description = "Front Door endpoint hostname used by the CNAME"
+}
+
+output "custom_domain_txt_name" {
+  value       = "_dnsauth.${var.target_env}.${azurerm_dns_zone.dns_zone.name}"
+  description = "TXT record name used for Front Door certificate validation"
 }
 
