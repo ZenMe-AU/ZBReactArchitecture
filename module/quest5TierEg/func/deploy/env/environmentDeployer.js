@@ -38,6 +38,7 @@ class EnvironmentDeployer {
     this.storageAccountWebName = getStorageAccountWebName(this.targetEnv);
     this.appConfigName = getAppConfigName(this.targetEnv);
     this.eventGridName = getEventGridName(this.targetEnv);
+    this.eventGridTopicNameList = [];
 
     this.backendConfig = backendConfig || {
       resource_group_name: this.resourceGroupName,
@@ -67,7 +68,7 @@ class EnvironmentDeployer {
     process.env.TF_VAR_storage_account_web_name = this.storageAccountWebName;
     process.env.TF_VAR_appconfig_name = this.appConfigName;
     process.env.TF_VAR_event_grid_name = this.eventGridName;
-
+    process.env.TF_VAR_event_grid_topic_list = JSON.stringify(this.eventGridTopicNameList);
     terraformInit({ backendConfig: this.backendConfig });
     if (this.#hasEventGridModule()) {
       try {

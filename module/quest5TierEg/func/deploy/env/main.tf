@@ -35,3 +35,11 @@ module "event_grid" {
   resource_group_location = data.azurerm_resource_group.main_rg.location
   env_type                = var.env_type
 }
+
+module "event_grid_topic" {
+  source                  = "./eventGridTopic"
+  event_grid_topic_list   = var.event_grid_topic_list
+  resource_group_name     = data.azurerm_resource_group.main_rg.name
+  resource_group_location = data.azurerm_resource_group.main_rg.location
+  env_type                = var.env_type
+}

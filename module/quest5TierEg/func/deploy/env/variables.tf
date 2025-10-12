@@ -77,6 +77,11 @@ variable "event_grid_name" {
   type        = string
 }
 
+variable "event_grid_topic_list" {
+  description = "List of Event Grid topic names."
+  type        = list(string)
+}
+
 #-------------------------------------------------#
 # Fetch existing resources
 
