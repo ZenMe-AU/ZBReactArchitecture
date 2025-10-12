@@ -1,5 +1,17 @@
 const container = require("../di/diContainer");
 const { v4: uuidv4 } = require("uuid");
+const {
+  qNameSendFollowUpCmd,
+  qNameShareQuestionCmd,
+  qNameCreateQuestionCmd,
+  qNameUpdateQuestionCmd,
+  qNameCreateAnswerCmd,
+  qNameFollowUpSentEvent,
+  qNameQuestionSharedEvent,
+  qNameQuestionCreatedEvent,
+  qNameQuestionUpdatedEvent,
+  qNameAnswerCreatedEvent,
+} = require("../eventGrid/topicNameList");
 
 /**
  * Send a CloudEvent using either a provided client or one from the container.
@@ -8,12 +20,11 @@ const { v4: uuidv4 } = require("uuid");
  * @param {Object} [params.client] - An EventGrid client (from factory).
  * @param {string} params.topic - The topic name (required if no client is passed).
  * @param {string} params.source - The source of the event.
- * @param {string} params.eventType - The event type.
  * @param {Object} params.body - Event payload data.
  * @param {string} [params.correlationId] - Optional correlation ID.
  * @param {string} [params.messageId] - Optional custom message ID.
  */
-async function sendEvent({ client, topic, source, eventType, body, correlationId, messageId }) {
+async function sendEvent({ client, topic, source, body, correlationId, messageId }) {
   client = client ?? container.get("eventGrid")[topic];
   if (!client) {
     throw new Error(`Event Grid client for topic "${topic}" is not initialized.`);
@@ -25,9 +36,8 @@ async function sendEvent({ client, topic, source, eventType, body, correlationId
     {
       // topic,
       id: messageId,
-      type: topic,
-      source: "/quest5TierEg/" + topic,
-      subject: topic,
+      type: topic, // TODO: define namespace for the types in this module
+      source,
       data: body,
       time: new Date(),
       extensionAttributes: { correlationid: correlationId },
@@ -37,7 +47,52 @@ async function sendEvent({ client, topic, source, eventType, body, correlationId
   return messageId;
 }
 
-module.exports = { sendEvent };
+async function sendSendFollowUpCmd({ source, body, correlationId }) {
+  return sendEvent({ topic: qNameSendFollowUpCmd, source, body, correlationId });
+}
+async function sendShareQuestionCmd({ source, body, correlationId }) {
+  return sendEvent({ topic: qNameShareQuestionCmd, source, body, correlationId });
+}
+async function sendCreateQuestionCmd({ source, body, correlationId }) {
+  return sendEvent({ topic: qNameCreateQuestionCmd, source, body, correlationId });
+}
+async function sendUpdateQuestionCmd({ source, body, correlationId }) {
+  return sendEvent({ topic: qNameUpdateQuestionCmd, source, body, correlationId });
+}
+async function sendCreateAnswerCmd({ source, body, correlationId }) {
+  return sendEvent({ topic: qNameCreateAnswerCmd, source, body, correlationId });
+}
+async function sendFollowUpSentEvent({ source, body, correlationId, messageId }) {
+  return sendEvent({ topic: qNameFollowUpSentEvent, source, body, correlationId, messageId });
+}
+async function sendFollowUpSentEvent({ source, body, correlationId, messageId }) {
+  return sendEvent({ topic: qNameFollowUpSentEvent, source, body, correlationId, messageId });
+}
+async function sendQuestionSharedEvent({ source, body, correlationId, messageId }) {
+  return sendEvent({ topic: qNameQuestionSharedEvent, source, body, correlationId, messageId });
+}
+async function sendQuestionCreatedEvent({ source, body, correlationId, messageId }) {
+  return sendEvent({ topic: qNameQuestionCreatedEvent, source, body, correlationId, messageId });
+}
+async function sendQuestionUpdatedEvent({ source, body, correlationId, messageId }) {
+  return sendEvent({ topic: qNameQuestionUpdatedEvent, source, body, correlationId, messageId });
+}
+async function sendAnswerCreatedEvent({ source, body, correlationId, messageId }) {
+  return sendEvent({ topic: qNameAnswerCreatedEvent, source, body, correlationId, messageId });
+}
+
+module.exports = {
+  sendSendFollowUpCmd,
+  sendShareQuestionCmd,
+  sendCreateQuestionCmd,
+  sendUpdateQuestionCmd,
+  sendCreateAnswerCmd,
+  sendFollowUpSentEvent,
+  sendQuestionSharedEvent,
+  sendQuestionCreatedEvent,
+  sendQuestionUpdatedEvent,
+  sendAnswerCreatedEvent,
+};
 
 // async function sendEvent({ client, topic, eventType, body, correlationId, messageId }) {
 //   messageId = messageId ?? uuidv4();

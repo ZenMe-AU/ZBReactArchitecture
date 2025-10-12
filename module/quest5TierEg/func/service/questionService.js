@@ -9,15 +9,13 @@ const ACTION_TYPE = require("../enum/actionType");
 const STATUS = require("../enum/status");
 const container = require("../di/diContainer");
 const QuestionQueryService = require("./questionQueryService");
-const { sendMessageToQueue } = require("../serviceBus/function");
 const {
-  qNameFollowUpSentEvent,
-  qNameQuestionSharedEvent,
-  qNameQuestionCreatedEvent,
-  qNameQuestionUpdatedEvent,
-  qNameAnswerCreatedEvent,
-} = require("../serviceBus/queueNameList");
-const { sendNamespaceEvent } = require("../eventGrid/function");
+  sendFollowUpSentEvent,
+  sendQuestionSharedEvent,
+  sendQuestionCreatedEvent,
+  sendQuestionUpdatedEvent,
+  sendAnswerCreatedEvent,
+} = require("../eventGrid/eventGrid");
 
 async function createQuestion(cmdId, cmdType, cmdBody, correlationId, senderId, questionTitle, questionText, questionOption) {
   let sequelize = container.get("db");
@@ -51,10 +49,9 @@ async function createQuestion(cmdId, cmdType, cmdBody, correlationId, senderId, 
       senderId,
     };
     // Send the event message to the event grid
-    const eventMessageId = await sendNamespaceEvent({
-      id: cmdId, // use the same messageId as the command for easier tracking, this may change in the future if cmd is not 1:1 with event
-      topic: qNameQuestionCreatedEvent,
-      eventType: qNameQuestionCreatedEvent,
+    const eventMessageId = await sendQuestionCreatedEvent({
+      messageId: cmdId, // use the same messageId as the command for easier tracking, this may change in the future if cmd is not 1:1 with event
+      source: createQuestion.name,
       body: eventBody,
       correlationId,
     });
@@ -108,10 +105,9 @@ async function updateQuestion(cmdId, cmdType, cmdBody, correlationId, senderId, 
       senderId,
     };
     // Send the event message to the s event grid
-    const eventMessageId = await sendNamespaceEvent({
-      id: cmdId, // use the same messageId as the command for easier tracking, this may change in the future if cmd is not 1:1 with event
-      topic: qNameQuestionUpdatedEvent,
-      eventType: qNameQuestionUpdatedEvent,
+    const eventMessageId = await sendQuestionUpdatedEvent({
+      messageId: cmdId, // use the same messageId as the command for easier tracking, this may change in the future if cmd is not 1:1 with event
+      source: updateQuestion.name,
       body: eventBody,
       correlationId,
     });
@@ -176,10 +172,9 @@ async function createAnswer(cmdId, cmdType, cmdBody, correlationId, senderId, qu
       senderId,
     };
     // Send the event message to the event grid
-    const eventMessageId = await sendNamespaceEvent({
-      id: cmdId, // use the same messageId as the command for easier tracking, this may change in the future if cmd is not 1:1 with event
-      topic: qNameAnswerCreatedEvent,
-      eventType: qNameAnswerCreatedEvent,
+    const eventMessageId = await sendAnswerCreatedEvent({
+      messageId: cmdId, // use the same messageId as the command for easier tracking, this may change in the future if cmd is not 1:1 with event
+      source: createAnswer.name,
       body: eventBody,
       correlationId,
     });
@@ -242,9 +237,8 @@ async function sendFollowUp(cmdId, cmdType, cmdBody, correlationId, senderId, qu
           questionId: r.questionId,
         };
         // Send the event message to the event grid
-        const eventMessageId = await sendNamespaceEvent({
-          topic: qNameQuestionSharedEvent,
-          eventType: qNameQuestionSharedEvent,
+        const eventMessageId = await sendQuestionSharedEvent({
+          source: sendFollowUp.name,
           body: eventBody,
           correlationId,
         });
@@ -273,10 +267,9 @@ async function sendFollowUp(cmdId, cmdType, cmdBody, correlationId, senderId, qu
     };
 
     // Send the event message to the event grid
-    const eventMessageId = await sendNamespaceEvent({
-      id: cmdId, // use the same messageId as the command for easier tracking, this may change in the future if cmd is not 1:1 with event
-      topic: qNameFollowUpSentEvent,
-      eventType: qNameFollowUpSentEvent,
+    const eventMessageId = await sendFollowUpSentEvent({
+      messageId: cmdId, // use the same messageId as the command for easier tracking, this may change in the future if cmd is not 1:1 with event
+      source: sendFollowUp.name,
       body: eventBody,
       correlationId,
     });
@@ -338,9 +331,8 @@ async function shareQuestion(cmdId, cmdType, cmdBody, correlationId, senderId, n
         questionId: questionShare.questionId,
       };
       // Send the event message to the event grid
-      const eventMessageId = await sendNamespaceEvent({
-        topic: qNameQuestionSharedEvent,
-        eventType: qNameQuestionSharedEvent,
+      const eventMessageId = await sendQuestionSharedEvent({
+        source: shareQuestion.name,
         body: eventBody,
         correlationId,
       });
@@ -367,10 +359,9 @@ async function shareQuestion(cmdId, cmdType, cmdBody, correlationId, senderId, n
       senderId,
     };
     // Send the event message to the event grid
-    const eventMessageId = await sendNamespaceEvent({
-      id: cmdId, // use the same messageId as the command for easier tracking, this may change in the future if cmd is not 1:1 with event
-      topic: qNameQuestionSharedEvent,
-      eventType: qNameQuestionSharedEvent,
+    const eventMessageId = await sendQuestionSharedEvent({
+      messageId: cmdId, // use the same messageId as the command for easier tracking, this may change in the future if cmd is not 1:1 with event
+      source: shareQuestion.name,
       body: eventBody,
       correlationId,
     });
