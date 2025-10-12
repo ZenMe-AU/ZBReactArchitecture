@@ -285,6 +285,22 @@ function getEventGridNamespaceId({ resourceGroupName, eventGridNamespaceName }) 
   }
 }
 
+/*
+ * Get Event Grid Namespace Hostname
+ */
+function getEventGridNamespaceHostname({ resourceGroupName, eventGridNamespaceName }) {
+  try {
+    return execSync(
+      `az eventgrid namespace show -n ${eventGridNamespaceName} -g ${resourceGroupName} --query "topicsConfiguration.hostname" -o tsv`,
+      {
+        encoding: "utf8",
+      }
+    ).trim();
+  } catch (error) {
+    throw new Error("Could not retrieve Event Grid Namespace Hostname." + error.message);
+  }
+}
+
 function createEventGridTopic({ resourceGroupName, eventGridNamespaceName, topicName }) {
   try {
     execSync(`az eventgrid namespace topic create -g ${resourceGroupName} --namespace-name ${eventGridNamespaceName} -n ${topicName}`, {
@@ -292,6 +308,19 @@ function createEventGridTopic({ resourceGroupName, eventGridNamespaceName, topic
     });
   } catch (error) {
     throw new Error("Could not create Event Grid Topic." + error.message);
+  }
+}
+
+function getEventGridTopicList({ resourceGroupName, eventGridNamespaceName }) {
+  try {
+    return execSync(
+      `az eventgrid namespace topic list -g ${resourceGroupName} --namespace-name ${eventGridNamespaceName} --query "[].name" -o json`,
+      {
+        encoding: "utf8",
+      }
+    ).trim();
+  } catch (error) {
+    throw new Error("Could not list Event Grid Topics." + error.message);
   }
 }
 
@@ -322,5 +351,7 @@ module.exports = {
   isMemberOfAadGroup,
   isStorageAccountNameAvailable,
   getEventGridNamespaceId,
+  getEventGridNamespaceHostname,
   createEventGridTopic,
+  getEventGridTopicList,
 };

@@ -13,6 +13,8 @@ const {
   getAppConfigValueByKeyLabel,
   setFunctionAppCors,
   createEventGridTopic,
+  getEventGridNamespaceHostname,
+  getEventGridTopicList,
 } = require("../util/azureCli.js");
 const { npmInstall, npmPrune, zipDir } = require("./cli.js");
 const { getIdentityName, getAppConfigName, getEventGridName } = require("../util/namingConvention.js");
@@ -80,22 +82,42 @@ class CodeDeployer {
       });
     }
     // Create topic and subscription if any
-    if (this.topicNames.length > 0) {
+    if (this.topicNames?.length > 0) {
       console.log(`Creating Event Grid Topics...`);
       // TODO: get the Event Grid Topic Endpoint URI
       this.appSettings = {
         ...this.appSettings,
-        EventGridNameSpaceConnection__topicEndpointUri: `${this.eventGridName}.australiaeast-1.eventgrid.azure.net`,
+        EventGridNameSpaceConnection__topicEndpointUri: getEventGridNamespaceHostname({
+          resourceGroupName: this.resourceGroupName,
+          eventGridNamespaceName: this.eventGridName,
+        }),
         EventGridNameSpaceConnection__credential: "managedidentity",
         EventGridNameSpaceConnection__clientId: getIdentityClientId({
           identityName: getIdentityName(this.targetEnv),
           resourceGroupName: this.resourceGroupName,
         }),
       };
-      // Create Event Grid Topics if any
-      this.topicNames?.forEach((topicName) => {
-        createEventGridTopic({ resourceGroupName: this.resourceGroupName, eventGridNamespaceName: this.eventGridName, topicName });
+      const existingTopics = getEventGridTopicList({
+        resourceGroupName: this.resourceGroupName,
+        eventGridNamespaceName: this.eventGridName,
       });
+      const existingTopicArray = JSON.parse(existingTopics ?? "[]");
+      // Create Event Grid Topics if any
+      await Promise.all(
+        this.topicNames
+          .filter((t) => !existingTopicArray.includes(t))
+          .map((topicName) => {
+            try {
+              createEventGridTopic({
+                resourceGroupName: this.resourceGroupName,
+                eventGridNamespaceName: this.eventGridName,
+                topicName,
+              });
+            } catch (err) {
+              console.error(`Failed to create topic ${topicName}:`, err.message);
+            }
+          })
+      );
     }
     // Settings Env Var for the Function App
     setFunctionAppSetting({
