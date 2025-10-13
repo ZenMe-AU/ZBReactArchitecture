@@ -30,7 +30,7 @@ $env:TF_VAR_env_type = $type
 Write-Output "TF_VAR_env_type was set to $env:TF_VAR_env_type"
 
 # set a root folder environment variable to one folder above the current folder.
-$env:ROOT_FOLDER = Resolve-Path -Path ".."
+$env:ROOT_FOLDER = Resolve-Path -Path "..\.."
 Write-Output "Set ROOT_FOLDER to $env:ROOT_FOLDER"
 Set-Location $env:ROOT_FOLDER
 
@@ -85,62 +85,28 @@ if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
     Write-Output "pnpm is already installed."
 }
 
-# Ensure Terraform is installed
-$terraformInstalled = Get-Command terraform -ErrorAction SilentlyContinue
+# get TARGET_ENV from environment variable or $env:ROOT_FOLDER\.env file
+try {
+    $envFilePath = Join-Path -Path ($env:ROOT_FOLDER) -ChildPath "\deploy\.env"
+    $envFilePath = Resolve-Path $envFilePath -ErrorAction Stop
+    if (Test-Path $envFilePath) {
+        $envContent = Get-Content $envFilePath -Raw
+        $match = [regex]::Match($envContent, "^TARGET_ENV=(.+)$", [System.Text.RegularExpressions.RegexOptions]::Multiline)
+        if ($match.Success) {
+            $script:TARGET_ENV = $match.Groups[1].Value.Trim()
+            Write-Output "Loaded TARGET_ENV from .env: $($script:TARGET_ENV)"
+        }
+    }
+} catch {}
 
-if (-not $terraformInstalled) {
-    if ($IsWindows) {
-        Write-Output "Terraform not found. Installing Terraform using winget..."
-        winget install HashiCorp.Terraform -e --silent
-    } elseif ($IsMacOS) {
-        Write-Output "Terraform not found. Installing Terraform using Homebrew..."
-        brew tap hashicorp/tap
-        brew install hashicorp/tap/terraform
-    } else {
-        Write-Warning "Unsupported OS for automatic Terraform installation. Please install Terraform manually."
-        exit 1
-    }
-    # Re-check installation
-    $terraformInstalled = Get-Command terraform -ErrorAction SilentlyContinue
-    if (-not $terraformInstalled) {
-        Write-Error "Terraform installation failed. Please install it manually. Visit https://www.terraform.io/downloads.html for instructions."
-        exit 1
-    }
-} else {
-    Write-Output "Terraform is already installed."
+if (-not $script:TARGET_ENV) {
+    throw "Error loading TARGET_ENV"
 }
 
-# Install dependencies
-pnpm install
+$script:ResourceGroupName = "${env:TF_VAR_env_type}-${script:TARGET_ENV}"
+Write-Output "Resource group to delete: $script:ResourceGroupName"
 
-#Initialise the resource group that will contain all components and setup minimal components to support the Terraform backend.
-Write-Output "Initialise the resource group that will contain all components and setup minimal components to support the Terraform backend."
-Set-Location $env:ROOT_FOLDER\deploy\initEnv
-node ./initEnvironment.js  --auto-approve
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+# Delete the resource group and all resources in it.
+az group delete --name $script:ResourceGroupName
 
-#Deploy the main environment, databases, securitye, etc.
-Write-Output "Deploy the main environment, databases, security, etc."
-Set-Location $env:ROOT_FOLDER\deploy\deployEnv
-node ./deployEnvironment.js --auto-approve
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-# Deploy modules by looping through their paths
-$modules = @(
-)
-foreach ($modulePath in $modules) {
-    Write-Output "Deploy the $modulePath module"
-    Set-Location  $env:ROOT_FOLDER\module\$modulePath\func\deploy
-    ./deployModule.ps1
-    if ($LASTEXITCODE -ne 0) { Write-Warning "Module $modulePath deployment failed" }
-}
-
-#Deploy the UI module
-Write-Output "Deploy the UI module"
-Set-Location $env:ROOT_FOLDER\ui\deploy\
-./deployUi.ps1
-if ($LASTEXITCODE -ne 0) { Write-Warning "UI deployment failed" }
-
-# #TODO: Run verification test to confirm the deployment succeeded.
-# node ./verify/verifyDeployment.js
-# if ($LASTEXITCODE -ne 0) { Write-Warning "Deploy Function App code failed" }
+Write-Output "Resource group $script:ResourceGroupName and all its resources have been deleted."
