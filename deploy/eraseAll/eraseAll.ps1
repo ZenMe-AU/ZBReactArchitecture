@@ -109,4 +109,10 @@ Write-Output "Resource group to delete: $script:ResourceGroupName"
 # Delete the resource group and all resources in it.
 az group delete --name $script:ResourceGroupName
 
-Write-Output "Resource group $script:ResourceGroupName and all its resources have been deleted."
+# Delete the local terraform variables
+Write-Output "Delete the local terraform variables."
+Set-Location $env:ROOT_FOLDER\deploy\eraseAll
+node ./cleanTerraformTemp.js
+if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+Write-Output "Finished deleting Resource group $script:ResourceGroupName and all its resources."

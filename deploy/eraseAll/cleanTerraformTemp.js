@@ -1,57 +1,32 @@
 #!/usr/bin/env node
 import fs from "fs";
 import path from "path";
-import { glob } from "glob";
+import { fileURLToPath } from "url";
+import { execSync } from "child_process";
 
-const startDir = path.join(process.cwd(), "..");
-const targetDirs = ["deploy", "module/*/func/deploy", "ui/deploy"];
-const skipDirs = [".terraform", "node_modules", ".git", "dist"];
-const deleteFiles = [".terraform.lock.hcl", "terraform.tfstate.backup", "planfile", "terraform.tfstate", ".env"];
+// Resolve repo root relative to this script's location (deploy/eraseAll)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const startDir = path.resolve(__dirname, "..", "..");
 
-function cleanDir(targetDir) {
-  if (!fs.existsSync(targetDir)) return;
-  const entries = fs.readdirSync(targetDir, { withFileTypes: true });
-  for (const entry of entries) {
-    const fullPath = path.join(targetDir, entry.name);
-    if (entry.isFile() && deleteFiles.includes(entry.name)) {
-      fs.unlinkSync(fullPath);
-      console.log(`Removed file: ${fullPath}`);
-    } else if (entry.isDirectory() && deleteFiles.includes(entry.name)) {
-      removeRecursive(fullPath);
-    } else if (entry.isDirectory()) {
-      if (skipDirs.includes(entry.name)) {
-        console.log(`Skip directory: ${entry.name}`);
-        continue;
-      }
-      cleanDir(fullPath);
-    }
-  }
+console.log(`Starting cleaning Terraform temp files via PowerShell at base: ${startDir}`);
+
+const psScript = path.resolve(__dirname, "cleanTerraformTempfiles.ps1");
+if (!fs.existsSync(psScript)) {
+  console.error(`PowerShell cleaner not found: ${psScript}`);
+  process.exit(1);
 }
 
-function removeRecursive(targetPath) {
-  if (fs.existsSync(targetPath)) {
-    if (fs.lstatSync(targetPath).isDirectory()) {
-      fs.readdirSync(targetPath).forEach((entry) => {
-        const curPath = path.join(targetPath, entry);
-        removeRecursive(curPath);
-      });
-      fs.rmdirSync(targetPath);
-      console.log(`Removed directory: ${targetPath}`);
-    } else {
-      fs.unlinkSync(targetPath);
-      console.log(`Removed file: ${targetPath}`);
-    }
-  }
-}
-
-function cleanTerraformTemp(baseDir) {
-  targetDirs.forEach((pattern) => {
-    const resolvedPattern = path.join(baseDir, pattern);
-    const dirs = glob.sync(resolvedPattern, { nodir: false });
-    dirs.forEach((dir) => cleanDir(dir));
+try {
+  console.log(`Invoking PowerShell cleaner: ${psScript}`);
+  execSync(`powershell -ExecutionPolicy Bypass -File "${psScript}"`, {
+    stdio: "inherit",
+    cwd: startDir,
+    shell: true,
   });
+  console.log("PowerShell cleanup completed.");
+  console.log("Done!");
+} catch (err) {
+  console.error(`PowerShell cleanup failed: ${err?.message ?? err}`);
+  process.exit(1);
 }
-
-console.log(`Starting cleaning Terraform temp files...`);
-cleanTerraformTemp(startDir);
-console.log("Done!");
