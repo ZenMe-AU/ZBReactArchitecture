@@ -125,7 +125,34 @@ function initEnvironment() {
   // DNS variables (parameterized to avoid hardcoded values in Terraform)
   process.env.TF_VAR_parent_domain_name = process.env.TF_VAR_parent_domain_name || "zenblox.com.au";
   console.log(`Setting parent_domain_name to: ${process.env.TF_VAR_parent_domain_name}`);
-  process.env.TF_VAR_dns_resource_group_name = process.env.TF_VAR_dns_resource_group_name || targetEnv;
+  // Determine DNS resource group: prefer explicit env var; otherwise auto-detect by zone name; fallback to sensible default
+  try {
+    if (!process.env.TF_VAR_dns_resource_group_name) {
+      const zone = process.env.TF_VAR_parent_domain_name;
+      // Query all DNS zones and find the RG for the specified zone name
+      const rg = execSync(
+        `az network dns zone list --query "[?name=='${zone}'].resourceGroup | [0]" -o tsv`,
+        { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], shell: true }
+      )
+        .toString()
+        .trim();
+      if (rg) {
+        process.env.TF_VAR_dns_resource_group_name = rg;
+        console.log(`Auto-detected dns_resource_group_name: ${rg}`);
+      } else {
+        // Fallback: commonly used RG for shared DNS zones
+        process.env.TF_VAR_dns_resource_group_name = "root-zenblox";
+        console.warn(
+          `Could not auto-detect DNS RG for zone '${zone}'. Defaulting to: ${process.env.TF_VAR_dns_resource_group_name}`
+        );
+      }
+    }
+  } catch (e) {
+    process.env.TF_VAR_dns_resource_group_name = process.env.TF_VAR_dns_resource_group_name || "root-zenblox";
+    console.warn(
+      `Warning: DNS RG auto-detect failed. Using dns_resource_group_name=${process.env.TF_VAR_dns_resource_group_name}`
+    );
+  }
   console.log(`Setting dns_resource_group_name to: ${process.env.TF_VAR_dns_resource_group_name}`);
 
   // Auto-detect existing DNS records and avoid managing them if already present
