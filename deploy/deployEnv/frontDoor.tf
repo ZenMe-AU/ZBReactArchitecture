@@ -12,15 +12,14 @@ resource "azurerm_cdn_frontdoor_profile" "fd_profile" {
 }
 
 # Resource group and DNS zone for the public domain
-# DNS resource group and zone are Terraform-managed but fully parameterized
-resource "azurerm_resource_group" "dns_rg" {
-  name     = var.dns_resource_group_name
-  location = data.azurerm_resource_group.rg.location
+# Use existing DNS resource group and zone instead of creating them
+data "azurerm_resource_group" "dns_rg" {
+  name = var.dns_resource_group_name
 }
 
-resource "azurerm_dns_zone" "dns_zone" {
+data "azurerm_dns_zone" "dns_zone" {
   name                = var.parent_domain_name
-  resource_group_name = azurerm_resource_group.dns_rg.name
+  resource_group_name = data.azurerm_resource_group.dns_rg.name
 }
 
 # Main entry point into Front Door
@@ -34,7 +33,7 @@ resource "azurerm_cdn_frontdoor_endpoint" "fd_endpoint" {
 resource "azurerm_cdn_frontdoor_custom_domain" "custom_domain" {
   name                        = "${var.target_env}-dns"
   cdn_frontdoor_profile_id    = azurerm_cdn_frontdoor_profile.fd_profile.id
-  host_name                   = lower("${var.target_env}.${azurerm_dns_zone.dns_zone.name}")
+  host_name                   = lower("${var.target_env}.${data.azurerm_dns_zone.dns_zone.name}")
   tls {
     certificate_type = "ManagedCertificate"
     }
@@ -42,9 +41,10 @@ resource "azurerm_cdn_frontdoor_custom_domain" "custom_domain" {
 
 # Enable custom domain by adding txt record to dns zone
 resource "azurerm_dns_txt_record" "dns_validation" {
+  count               = var.manage_dns_txt_validation ? 1 : 0
   name                = "_dnsauth.${var.target_env}"
-  zone_name           = azurerm_dns_zone.dns_zone.name
-  resource_group_name = azurerm_resource_group.dns_rg.name
+  zone_name           = data.azurerm_dns_zone.dns_zone.name
+  resource_group_name = data.azurerm_resource_group.dns_rg.name
   ttl                 = 3600
   record {
     value = azurerm_cdn_frontdoor_custom_domain.custom_domain.validation_token
@@ -53,9 +53,10 @@ resource "azurerm_dns_txt_record" "dns_validation" {
 
 # creates cname record to point to front door endpoint
 resource "azurerm_dns_cname_record" "cname_record" {
+  count               = var.manage_dns_cname ? 1 : 0
   name                = var.target_env
-  zone_name           = azurerm_dns_zone.dns_zone.name
-  resource_group_name = azurerm_resource_group.dns_rg.name
+  zone_name           = data.azurerm_dns_zone.dns_zone.name
+  resource_group_name = data.azurerm_resource_group.dns_rg.name
   ttl                 = 3600
   record              = azurerm_cdn_frontdoor_endpoint.fd_endpoint.host_name
 }
@@ -65,18 +66,19 @@ resource "azurerm_app_configuration_key" "frontend_custom_domain_host" {
   configuration_store_id = data.azurerm_app_configuration.appconfig.id
   key                    = "Frontend:CustomDomainHost"
   label                  = var.env_type
-  value                  = lower("${var.target_env}.${azurerm_dns_zone.dns_zone.name}")
+  value                  = lower("${var.target_env}.${data.azurerm_dns_zone.dns_zone.name}")
+  # The key only needs the custom domain to exist; TXT record may be managed externally
   depends_on             = [azurerm_cdn_frontdoor_custom_domain.custom_domain]
 }
 
 # Helpful outputs for DNS delegation and verification
 output "dns_zone_name" {
-  value       = azurerm_dns_zone.dns_zone.name
+  value       = data.azurerm_dns_zone.dns_zone.name
   description = "DNS zone managed by Terraform"
 }
 
 output "dns_zone_name_servers" {
-  value       = azurerm_dns_zone.dns_zone.name_servers
+  value       = data.azurerm_dns_zone.dns_zone.name_servers
   description = "Azure DNS nameservers to delegate at your domain registrar"
 }
 
@@ -86,7 +88,7 @@ output "frontdoor_endpoint_host" {
 }
 
 output "custom_domain_txt_name" {
-  value       = "_dnsauth.${var.target_env}.${azurerm_dns_zone.dns_zone.name}"
+  value       = "_dnsauth.${var.target_env}.${data.azurerm_dns_zone.dns_zone.name}"
   description = "TXT record name used for Front Door certificate validation"
 }
 

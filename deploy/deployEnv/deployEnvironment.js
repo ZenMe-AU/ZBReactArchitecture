@@ -128,6 +128,60 @@ function initEnvironment() {
   process.env.TF_VAR_dns_resource_group_name = process.env.TF_VAR_dns_resource_group_name || targetEnv;
   console.log(`Setting dns_resource_group_name to: ${process.env.TF_VAR_dns_resource_group_name}`);
 
+  // Auto-detect existing DNS records and avoid managing them if already present
+  try {
+    const dnsRg = process.env.TF_VAR_dns_resource_group_name;
+    const zone = process.env.TF_VAR_parent_domain_name;
+    const txtName = `_dnsauth.${targetEnv}`;
+    const cnameName = `${targetEnv}`;
+
+    let txtExists = false;
+    try {
+      execSync(
+        `az network dns record-set txt show --resource-group ${dnsRg} --zone-name ${zone} --name ${txtName} -o none`,
+        { stdio: ["ignore", "ignore", "ignore"], shell: true }
+      );
+      txtExists = true;
+    } catch {}
+
+    let cnameExists = false;
+    try {
+      execSync(
+        `az network dns record-set cname show --resource-group ${dnsRg} --zone-name ${zone} --name ${cnameName} -o none`,
+        { stdio: ["ignore", "ignore", "ignore"], shell: true }
+      );
+      cnameExists = true;
+    } catch {}
+
+    if (txtExists) {
+      process.env.TF_VAR_manage_dns_txt_validation = "false";
+      console.log(
+        `Detected existing DNS TXT record ${txtName}.${zone}; will not manage it (manage_dns_txt_validation=false).`
+      );
+    } else {
+      process.env.TF_VAR_manage_dns_txt_validation = process.env.TF_VAR_manage_dns_txt_validation || "true";
+      console.log(
+        `DNS TXT record ${txtName}.${zone} not found; Terraform will create/manage it (manage_dns_txt_validation=${process.env.TF_VAR_manage_dns_txt_validation}).`
+      );
+    }
+
+    if (cnameExists) {
+      process.env.TF_VAR_manage_dns_cname = "false";
+      console.log(
+        `Detected existing DNS CNAME record ${cnameName}.${zone}; will not manage it (manage_dns_cname=false).`
+      );
+    } else {
+      process.env.TF_VAR_manage_dns_cname = process.env.TF_VAR_manage_dns_cname || "true";
+      console.log(
+        `DNS CNAME record ${cnameName}.${zone} not found; Terraform will create/manage it (manage_dns_cname=${process.env.TF_VAR_manage_dns_cname}).`
+      );
+    }
+  } catch (e) {
+    console.warn(
+      "Warning: Unable to auto-detect existing DNS records. Proceeding with defaults. You can override via TF_VAR_manage_dns_txt_validation / TF_VAR_manage_dns_cname."
+    );
+  }
+
   process.env.TF_VAR_log_analytics_workspace_name = getLogAnalyticsWorkspaceName(targetEnv);
   console.log(`Setting log_analytics_workspace_name to: ${process.env.TF_VAR_log_analytics_workspace_name}`);
   process.env.TF_VAR_service_bus_name = getServiceBusName(targetEnv);

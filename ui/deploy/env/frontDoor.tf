@@ -55,13 +55,6 @@ resource "azurerm_cdn_frontdoor_rule_set" "fd_rules" {
   cdn_frontdoor_profile_id  = data.azurerm_cdn_frontdoor_profile.fd_profile.id
 }
 
-# Reference existing CNAME record that points to front door endpoint
-data "azurerm_dns_cname_record" "cname_record" {
-  name                = var.target_env
-  zone_name           = var.parent_domain_name
-  resource_group_name = data.azurerm_resource_group.dns_resource.name
-}
-
 # Origin to point to the static website that is being published by Front Door
 resource "azurerm_cdn_frontdoor_origin" "ui_fdo" {
   name                          = "${var.target_env}-ui-fdog"

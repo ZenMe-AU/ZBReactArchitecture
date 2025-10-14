@@ -95,6 +95,27 @@ output "dns_resource_group_name" {
   description = "value of DNS resource group name"
 }
 
+# Control whether Terraform should manage DNS records. Useful if records already exist.
+variable "manage_dns_txt_validation" {
+  description = "Whether to create/manage the DNS TXT validation record (_dnsauth.<env>). Set to false to use an existing record."
+  type        = bool
+  default     = true
+}
+output "manage_dns_txt_validation" {
+  value       = var.manage_dns_txt_validation
+  description = "flag for managing DNS TXT validation record"
+}
+
+variable "manage_dns_cname" {
+  description = "Whether to create/manage the DNS CNAME record (<env> -> Front Door). Set to false to use an existing record."
+  type        = bool
+  default     = true
+}
+output "manage_dns_cname" {
+  value       = var.manage_dns_cname
+  description = "flag for managing DNS CNAME record"
+}
+
 data "azurerm_resource_group" "rg" {
   name = var.resource_group_name
 }
