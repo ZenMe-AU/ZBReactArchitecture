@@ -1,4 +1,3 @@
-const { SendFollowUpCmd } = require("../../../../api/src/module/question/handler");
 const {
   sendSendFollowUpCmd,
   sendShareQuestionCmd,
