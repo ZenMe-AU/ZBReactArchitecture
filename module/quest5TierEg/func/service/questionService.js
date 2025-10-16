@@ -16,6 +16,8 @@ const {
   sendQuestionUpdatedEvent,
   sendAnswerCreatedEvent,
 } = require("../eventGrid/eventGrid");
+const { join, resolve, relative, basename } = require("path");
+const fs = require("fs");
 
 async function createQuestion(cmdId, cmdType, cmdBody, correlationId, senderId, questionTitle, questionText, questionOption) {
   let sequelize = container.get("db");
@@ -51,7 +53,7 @@ async function createQuestion(cmdId, cmdType, cmdBody, correlationId, senderId, 
     // Send the event message to the event grid
     const eventMessageId = await sendQuestionCreatedEvent({
       messageId: cmdId, // use the same messageId as the command for easier tracking, this may change in the future if cmd is not 1:1 with event
-      source: createQuestion.name,
+      source: getFilePath() + "::" + createQuestion.name,
       body: eventBody,
       correlationId,
     });
@@ -107,7 +109,7 @@ async function updateQuestion(cmdId, cmdType, cmdBody, correlationId, senderId, 
     // Send the event message to the s event grid
     const eventMessageId = await sendQuestionUpdatedEvent({
       messageId: cmdId, // use the same messageId as the command for easier tracking, this may change in the future if cmd is not 1:1 with event
-      source: updateQuestion.name,
+      source: getFilePath() + "::" + updateQuestion.name,
       body: eventBody,
       correlationId,
     });
@@ -174,7 +176,7 @@ async function createAnswer(cmdId, cmdType, cmdBody, correlationId, senderId, qu
     // Send the event message to the event grid
     const eventMessageId = await sendAnswerCreatedEvent({
       messageId: cmdId, // use the same messageId as the command for easier tracking, this may change in the future if cmd is not 1:1 with event
-      source: createAnswer.name,
+      source: getFilePath() + "::" + createAnswer.name,
       body: eventBody,
       correlationId,
     });
@@ -238,7 +240,7 @@ async function sendFollowUp(cmdId, cmdType, cmdBody, correlationId, senderId, qu
         };
         // Send the event message to the event grid
         const eventMessageId = await sendQuestionSharedEvent({
-          source: sendFollowUp.name,
+          source: getFilePath() + "::" + sendFollowUp.name,
           body: eventBody,
           correlationId,
         });
@@ -269,7 +271,7 @@ async function sendFollowUp(cmdId, cmdType, cmdBody, correlationId, senderId, qu
     // Send the event message to the event grid
     const eventMessageId = await sendFollowUpSentEvent({
       messageId: cmdId, // use the same messageId as the command for easier tracking, this may change in the future if cmd is not 1:1 with event
-      source: sendFollowUp.name,
+      source: getFilePath() + "::" + sendFollowUp.name,
       body: eventBody,
       correlationId,
     });
@@ -332,7 +334,7 @@ async function shareQuestion(cmdId, cmdType, cmdBody, correlationId, senderId, n
       };
       // Send the event message to the event grid
       const eventMessageId = await sendQuestionSharedEvent({
-        source: shareQuestion.name,
+        source: getFilePath() + "::" + shareQuestion.name,
         body: eventBody,
         correlationId,
       });
@@ -361,7 +363,7 @@ async function shareQuestion(cmdId, cmdType, cmdBody, correlationId, senderId, n
     // Send the event message to the event grid
     const eventMessageId = await sendQuestionSharedEvent({
       messageId: cmdId, // use the same messageId as the command for easier tracking, this may change in the future if cmd is not 1:1 with event
-      source: shareQuestion.name,
+      source: getFilePath() + "::" + shareQuestion.name,
       body: eventBody,
       correlationId,
     });
@@ -388,6 +390,24 @@ async function shareQuestion(cmdId, cmdType, cmdBody, correlationId, senderId, n
   });
 }
 
+let cachedFilePath = null;
+function getFilePath() {
+  if (cachedFilePath) return cachedFilePath;
+  let currentDir = __dirname;
+  const found = [];
+  while (found.length < 2) {
+    const pkgPath = resolve(currentDir, "package.json");
+    if (fs.existsSync(pkgPath)) {
+      found.push(currentDir);
+    }
+    const parent = resolve(currentDir, "..");
+    if (parent === currentDir) {
+      found.push(currentDir);
+    }
+    currentDir = parent;
+  }
+  return (cachedFilePath = join(basename(found[1]), relative(found[1], __filename)));
+}
 module.exports = {
   createQuestion,
   updateQuestion,
