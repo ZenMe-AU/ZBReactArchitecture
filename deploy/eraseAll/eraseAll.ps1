@@ -29,7 +29,7 @@ if (-not $type -or $type -notin $validTypes) {
 $env:TF_VAR_env_type = $type
 Write-Output "TF_VAR_env_type was set to $env:TF_VAR_env_type"
 
-# set a root folder environment variable to one folder above the current folder.
+# Set ROOT_FOLDER environment variable
 $env:ROOT_FOLDER = Resolve-Path -Path "..\.."
 Write-Output "Set ROOT_FOLDER to $env:ROOT_FOLDER"
 Set-Location $env:ROOT_FOLDER
@@ -86,6 +86,7 @@ if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
 }
 
 # get TARGET_ENV from environment variable or $env:ROOT_FOLDER\.env file
+$TARGET_ENV = $null
 try {
     $envFilePath = Join-Path -Path ($env:ROOT_FOLDER) -ChildPath "\deploy\.env"
     $envFilePath = Resolve-Path $envFilePath -ErrorAction Stop
@@ -93,26 +94,27 @@ try {
         $envContent = Get-Content $envFilePath -Raw
         $match = [regex]::Match($envContent, "^TARGET_ENV=(.+)$", [System.Text.RegularExpressions.RegexOptions]::Multiline)
         if ($match.Success) {
-            $script:TARGET_ENV = $match.Groups[1].Value.Trim()
-            Write-Output "Loaded TARGET_ENV from .env: $($script:TARGET_ENV)"
+            $TARGET_ENV = $match.Groups[1].Value.Trim()
+            Write-Output "Loaded TARGET_ENV from .env: $($TARGET_ENV)"
         }
     }
 } catch {}
 
-if (-not $script:TARGET_ENV) {
-    throw "Error loading TARGET_ENV"
+if ($null -eq $TARGET_ENV) {
+    throw "Error loading TARGET_ENV"    
+}
+else {
+    $script:ResourceGroupName = "${env:TF_VAR_env_type}-${TARGET_ENV}"
+    Write-Output "Resource group to delete: $script:ResourceGroupName"
+
+    # Delete the resource group and all resources in it.
+    az group delete --name $script:ResourceGroupName
+
+    # Delete the local terraform variables
+    Write-Output "Delete the local terraform variables."
+    Set-Location $env:ROOT_FOLDER\deploy\eraseAll
+    ./cleanTerraformTempfiles.ps1
+
+    Write-Output "Finished deleting Resource group $script:ResourceGroupName and all its resources."
 }
 
-$script:ResourceGroupName = "${env:TF_VAR_env_type}-${script:TARGET_ENV}"
-Write-Output "Resource group to delete: $script:ResourceGroupName"
-
-# Delete the resource group and all resources in it.
-az group delete --name $script:ResourceGroupName
-
-# Delete the local terraform variables
-Write-Output "Delete the local terraform variables."
-Set-Location $env:ROOT_FOLDER\deploy\eraseAll
-node ./cleanTerraformTemp.js
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-Write-Output "Finished deleting Resource group $script:ResourceGroupName and all its resources."

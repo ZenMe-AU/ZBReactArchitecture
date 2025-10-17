@@ -6,13 +6,37 @@
 $ErrorActionPreference = "Continue"
 Write-Host "Starting cleaning Terraform temp files..."
 $startDir = Resolve-Path -Path ..\.. # One level up from current directory
-Remove-Item -LiteralPath (Join-Path $startDir 'deploy\.env') -Force -ErrorAction SilentlyContinue
-Remove-Item -LiteralPath (Join-Path $startDir 'deploy\deployEnv\.terraform.lock.hcl') -Force -ErrorAction SilentlyContinue
-Remove-Item -LiteralPath (Join-Path $startDir 'deploy\initEnv\.terraform.lock.hcl') -Force -ErrorAction SilentlyContinue
-Remove-Item -LiteralPath (Join-Path $startDir 'deploy\initEnv\terraform.tfstate.backup') -Force -ErrorAction SilentlyContinue
-Remove-Item -LiteralPath (Join-Path $startDir 'deploy\initEnv\terraform.tfstate') -Force -ErrorAction SilentlyContinue
-Remove-Item -LiteralPath (Join-Path $startDir 'ui\deploy\env\planfile') -Force -ErrorAction SilentlyContinue
-Remove-Item -LiteralPath (Join-Path $startDir 'module\profile\func\deploy\env\planfile') -Force -ErrorAction SilentlyContinue
+function Remove-FileIfExists {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$StartPath
+        ,
+        [Parameter(Mandatory = $true)]
+        [string]$SubPath
+    )
+    $Path = Join-Path $StartPath $SubPath
+
+    if (-not (Test-Path -LiteralPath $Path)) {
+        #Write-Host "File not found, skipping: $Path"
+        return
+    }
+
+    try {
+        Remove-Item -LiteralPath $Path -Force -ErrorAction Stop
+        Write-Host "Deleted: $Path"
+    } catch {
+        Write-Error "Failed to delete '$Path': $($_.Exception.Message)"
+    }
+}
+
+
+Remove-FileIfExists -StartPath $startDir -SubPath 'deploy\.env'
+Remove-FileIfExists -StartPath $startDir -SubPath 'deploy\deployEnv\.terraform.lock.hcl'
+Remove-FileIfExists -StartPath $startDir -SubPath 'deploy\initEnv\.terraform.lock.hcl'
+Remove-FileIfExists -StartPath $startDir -SubPath 'deploy\initEnv\terraform.tfstate.backup'
+Remove-FileIfExists -StartPath $startDir -SubPath 'deploy\initEnv\terraform.tfstate'
+Remove-FileIfExists -StartPath $startDir -SubPath 'ui\deploy\env\planfile'
+Remove-FileIfExists -StartPath $startDir -SubPath 'module\profile\func\deploy\env\planfile'
 # Remove-Item "$startDir\deploy\deployEnv\.terraform.lock.hcl"
 # Remove-Item "$startDir\deploy\deployEnv\.terraform.lock.hcl"
 
