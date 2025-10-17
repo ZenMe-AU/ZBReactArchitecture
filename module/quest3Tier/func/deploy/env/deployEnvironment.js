@@ -8,7 +8,7 @@ const moduleDir = resolve(__dirname, "..", "..", "..");
   let logLevel, targetEnv, moduleName, envType;
   // logLevel = "DEBUG";
   try {
-    envType = process.env.TF_VAR_env_type;
+    envType = process.env.TF_VAR_env_type || "dev";
     targetEnv = getTargetEnv();
     moduleName = getModuleName(moduleDir);
   } catch (err) {
