@@ -1,7 +1,14 @@
 const { resolve } = require("path");
 const { getTargetEnv, getModuleName } = require("../util/envSetup.js");
-const { getDbAdminName, getPgHost, getServiceBusHost, getAppInsightsName, getResourceGroupName } = require("../util/namingConvention.js");
-const { getAppInsightsConnectionString } = require("../util/azureCli.js");
+const {
+  getDbAdminName,
+  getPgHost,
+  getServiceBusHost,
+  getAppInsightsName,
+  getResourceGroupName,
+  getEventGridName,
+} = require("../util/namingConvention.js");
+const { getAppInsightsConnectionString, getEventGridDomainEndpoint } = require("../util/azureCli.js");
 const fs = require("fs");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
@@ -27,10 +34,10 @@ const customSettings = {
   ServiceBusConnection:
     "Endpoint=sb://localhost;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;",
   ServiceBusConnection__fullyQualifiedNamespace: "localhost",
-  EventGridConnection__topicEndpointUri: "https://createquestion.australiaeast-1.eventgrid.azure.net/api/events",
-  EventGridConnection: "https://createquestion.australiaeast-1.eventgrid.azure.net/api/events",
-  EventGridNameSpaceConnection__topicEndpointUri: "https://hugejunglefowl-egnamespace.australiaeast-1.eventgrid.azure.net",
-  EventGridNameSpaceConnection: "https://hugejunglefowl-egnamespace.australiaeast-1.eventgrid.azure.net",
+  // EventGridConnection__topicEndpointUri: "https://conceptualskink-eg.australiaeast-1.eventgrid.azure.net/api/events",
+  // EventGridConnection: "https://conceptualskink-eg.australiaeast-1.eventgrid.azure.net/api/events",
+  // EventGridNameSpaceConnection__topicEndpointUri: "https://hugejunglefowl-egnamespace.australiaeast-1.eventgrid.azure.net",
+  // EventGridNameSpaceConnection: "https://hugejunglefowl-egnamespace.australiaeast-1.eventgrid.azure.net",
   // set your local DB details
   DB_USERNAME: "root",
   DB_HOST: "localhost",
@@ -58,6 +65,10 @@ const customSettings = {
         resourceGroupName: getResourceGroupName(envType, targetEnv),
       }),
       ServiceBusConnection__fullyQualifiedNamespace: getServiceBusHost(targetEnv),
+      EventGridConnection__topicEndpointUri: getEventGridDomainEndpoint({
+        resourceGroupName: getResourceGroupName(envType, targetEnv),
+        eventGridDomainName: getEventGridName(targetEnv),
+      }),
       DB_USERNAME: getDbAdminName(envType),
       DB_DATABASE: moduleName,
       DB_HOST: getPgHost(targetEnv),

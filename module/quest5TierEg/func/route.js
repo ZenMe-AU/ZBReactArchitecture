@@ -104,35 +104,22 @@ app.http("ShareQuestion", {
   }),
 });
 
+app.eventGrid("SendFollowUpQueue", {
+  handler: eventGridHandler(queueCmdHandler.SendFollowUp),
+});
+
+app.eventGrid("ShareQuestionQueue", {
+  handler: eventGridHandler(queueCmdHandler.ShareQuestion),
+});
+
 app.eventGrid("CreateQuestionQueue", {
   handler: eventGridHandler(queueCmdHandler.CreateQuestion),
 });
-// app.serviceBusQueue("SendFollowUpQueue", {
-//   connection: "ServiceBusConnection",
-//   queueName: "sendFollowUp",
-//   handler: serviceBusHandler(queueCmdHandler.SendFollowUp),
-// });
 
-// app.serviceBusQueue("ShareQuestionQueue", {
-//   connection: "ServiceBusConnection",
-//   queueName: "shareQuestion",
-//   handler: serviceBusHandler(queueCmdHandler.ShareQuestion),
-// });
+app.eventGrid("UpdateQuestionQueue", {
+  handler: eventGridHandler(queueCmdHandler.UpdateQuestion),
+});
 
-// app.serviceBusQueue("CreateQuestionQueue", {
-//   connection: "ServiceBusConnection",
-//   queueName: "createQuestion",
-//   handler: serviceBusHandler(queueCmdHandler.CreateQuestion),
-// });
-
-// app.serviceBusQueue("UpdateQuestionQueue", {
-//   connection: "ServiceBusConnection",
-//   queueName: "updateQuestion",
-//   handler: serviceBusHandler(queueCmdHandler.UpdateQuestion),
-// });
-
-// app.serviceBusQueue("CreateAnswerQueue", {
-//   connection: "ServiceBusConnection",
-//   queueName: "createAnswer",
-//   handler: serviceBusHandler(queueCmdHandler.CreateAnswer),
-// });
+app.eventGrid("CreateAnswerQueue", {
+  handler: eventGridHandler(queueCmdHandler.CreateAnswer),
+});

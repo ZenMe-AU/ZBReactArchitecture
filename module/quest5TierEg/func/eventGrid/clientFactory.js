@@ -21,7 +21,7 @@ class EventGridClientFactory {
    * @param {string} [options.topic] - Namespace topic (required for namespace type).
    * @param {string} [options.clientId] - Managed Identity clientId (optional).
    * @param {string} [options.key] - Access Key (optional).
-   * @param {string} [options.type=standard] - "standard" or "namespace".
+   * @param {string} [options.type=standard] - "standard" or "namespace" or "domain".
    */
   getClient({ endpoint, topic, clientId = null, key = null, type = "standard" }) {
     // === Required fields check ===
@@ -58,7 +58,6 @@ class EventGridClientFactory {
       rawClient = new EventGridPublisherClient(endpoint, "CloudEvent", credential);
       this.log(`Created standard client for endpoint=${endpoint}`, rawClient);
     }
-
     // === Wrap client to unify sendEvents method ===
     const clientWrapper = {
       type,
@@ -68,6 +67,10 @@ class EventGridClientFactory {
       sendEvents: async (events) => {
         if (!events || !Array.isArray(events) || events.length === 0) {
           throw new Error("sendEvents requires a non-empty array of events");
+        }
+        if (type === "domain") {
+          let moduleName = "quest5TierEg"; // TODO: make moduleName dynamic if needed
+          events = events.map((event) => ({ ...event, source: topic + "-" + moduleName }));
         }
         this.log(`Sending events to Event Grid `, events, rawClient);
         return type === "namespace" ? rawClient.sendEvents(events) : rawClient.send(events);

@@ -51,15 +51,15 @@ register("db", async () => {
 // register eventGrid
 console.log("register eventGrid");
 register("eventGrid", async () => {
-  const eventGridClientType = "namespace"; // standard or namespace
+  const eventGridClientType = "domain"; // standard or namespace or domain
   const { eventGridFactory } = require("../eventGrid/clientFactory");
   const topicNameList = require("../eventGrid/topicNameList");
 
   let clientSettings = {
     type: eventGridClientType,
-    endpoint: process.env.EventGridNameSpaceConnection__topicEndpointUri,
-    clientId: process.env.EventGridNameSpaceConnection__clientId || null,
-    // key:process.env.EventGridNameSpaceConnection && process.env.EventGridNameSpaceConnection.startsWith("Endpoint=sb://localhost") ? process.env.EventGridNameSpaceConnection : null,
+    endpoint: process.env.EventGridConnection__topicEndpointUri,
+    clientId: process.env.EventGridConnection__clientId || null,
+    // key:process.env.EventGridConnection && process.env.EventGridConnection.startsWith("Endpoint=sb://localhost") ? process.env.EventGridConnection : null,
   };
   const clients = {};
   Object.values(topicNameList).forEach((topic) => {
