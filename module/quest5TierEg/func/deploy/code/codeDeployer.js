@@ -13,7 +13,7 @@ const {
   getAppConfigValueByKeyLabel,
   setFunctionAppCors,
   createEventGridTopic,
-  getEventGridNamespaceHostname,
+  getEventGridDomainEndpoint,
   getEventGridTopicList,
 } = require("../util/azureCli.js");
 const { npmInstall, npmPrune, zipDir } = require("./cli.js");
@@ -84,40 +84,40 @@ class CodeDeployer {
     // Create topic and subscription if any
     if (this.topicNames?.length > 0) {
       console.log(`Creating Event Grid Topics...`);
-      // TODO: get the Event Grid Topic Endpoint URI
       this.appSettings = {
         ...this.appSettings,
-        EventGridNameSpaceConnection__topicEndpointUri: getEventGridNamespaceHostname({
+        EventGridConnection__topicEndpointUri: getEventGridDomainEndpoint({
           resourceGroupName: this.resourceGroupName,
-          eventGridNamespaceName: this.eventGridName,
+          eventGridDomainName: this.eventGridName,
         }),
-        EventGridNameSpaceConnection__credential: "managedidentity",
-        EventGridNameSpaceConnection__clientId: getIdentityClientId({
+        EventGridConnection__credential: "managedidentity",
+        EventGridConnection__clientId: getIdentityClientId({
           identityName: getIdentityName(this.targetEnv),
           resourceGroupName: this.resourceGroupName,
         }),
       };
-      const existingTopics = getEventGridTopicList({
-        resourceGroupName: this.resourceGroupName,
-        eventGridNamespaceName: this.eventGridName,
-      });
-      const existingTopicArray = JSON.parse(existingTopics ?? "[]");
-      // Create Event Grid Topics if any
-      await Promise.all(
-        this.topicNames
-          .filter((t) => !existingTopicArray.includes(t))
-          .map((topicName) => {
-            try {
-              createEventGridTopic({
-                resourceGroupName: this.resourceGroupName,
-                eventGridNamespaceName: this.eventGridName,
-                topicName,
-              });
-            } catch (err) {
-              console.error(`Failed to create topic ${topicName}:`, err.message);
-            }
-          })
-      );
+      // // Get Event Grid Namespace Topic List
+      // const existingTopics = getEventGridTopicList({
+      //   resourceGroupName: this.resourceGroupName,
+      //   eventGridNamespaceName: this.eventGridName,
+      // });
+      // const existingTopicArray = JSON.parse(existingTopics ?? "[]");
+      // // Create Event Grid Topics if any
+      // await Promise.all(
+      //   this.topicNames
+      //     .filter((t) => !existingTopicArray.includes(t))
+      //     .map((topicName) => {
+      //       try {
+      //         createEventGridTopic({
+      //           resourceGroupName: this.resourceGroupName,
+      //           eventGridNamespaceName: this.eventGridName,
+      //           topicName,
+      //         });
+      //       } catch (err) {
+      //         console.error(`Failed to create topic ${topicName}:`, err.message);
+      //       }
+      //     })
+      // );
     }
     // Settings Env Var for the Function App
     setFunctionAppSetting({
