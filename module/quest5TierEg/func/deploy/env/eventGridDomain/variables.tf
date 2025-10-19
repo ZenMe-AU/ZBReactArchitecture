@@ -15,6 +15,14 @@ variable "event_grid_topic_list" {
   type        = list(string)
 }
 
+variable "user_assigned_identity_id" {
+  type = string
+}
+
+variable "module_name" {
+  type = string
+}
+
 variable "env_type" {
   type = string
 }

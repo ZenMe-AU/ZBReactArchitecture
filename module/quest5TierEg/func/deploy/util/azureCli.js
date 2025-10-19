@@ -286,6 +286,19 @@ function getEventGridNamespaceId({ resourceGroupName, eventGridNamespaceName }) 
 }
 
 /*
+ * Get Event Grid Domain ID
+ */
+function getEventGridDomainId({ resourceGroupName, eventGridDomainName }) {
+  try {
+    return execSync(`az eventgrid domain show -n ${eventGridDomainName} -g ${resourceGroupName} --query id -o tsv`, {
+      encoding: "utf8",
+    }).trim();
+  } catch (error) {
+    throw new Error("Could not retrieve Event Grid Domain ID." + error.message);
+  }
+}
+
+/*
  * Get Event Grid Namespace Hostname
  */
 function getEventGridNamespaceHostname({ resourceGroupName, eventGridNamespaceName }) {
@@ -298,6 +311,19 @@ function getEventGridNamespaceHostname({ resourceGroupName, eventGridNamespaceNa
     ).trim();
   } catch (error) {
     throw new Error("Could not retrieve Event Grid Namespace Hostname." + error.message);
+  }
+}
+
+/*
+ * Get Event Grid Domain Endpoint
+ */
+function getEventGridDomainEndpoint({ resourceGroupName, eventGridDomainName }) {
+  try {
+    return execSync(`az eventgrid domain show -n ${eventGridDomainName} -g ${resourceGroupName} --query endpoint -o tsv`, {
+      encoding: "utf8",
+    }).trim();
+  } catch (error) {
+    throw new Error("Could not retrieve Event Grid Domain Endpoint." + error.message);
   }
 }
 
@@ -351,7 +377,9 @@ module.exports = {
   isMemberOfAadGroup,
   isStorageAccountNameAvailable,
   getEventGridNamespaceId,
+  getEventGridDomainId,
   getEventGridNamespaceHostname,
+  getEventGridDomainEndpoint,
   createEventGridTopic,
   getEventGridTopicList,
 };

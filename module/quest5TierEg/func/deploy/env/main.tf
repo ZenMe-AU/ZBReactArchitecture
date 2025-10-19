@@ -28,27 +28,21 @@ module "database" {
   postgresql_server_id = data.azurerm_postgresql_flexible_server.main_server.id
 }
 
-module "event_grid" {
-  source                  = "./eventGrid"
-  event_grid_name         = var.event_grid_name
-  resource_group_name     = data.azurerm_resource_group.main_rg.name
-  resource_group_location = data.azurerm_resource_group.main_rg.location
-  env_type                = var.env_type
-}
-
-module "event_grid_topic" {
-  source                  = "./eventGridTopic"
-  event_grid_topic_list   = var.event_grid_topic_list
-  resource_group_name     = data.azurerm_resource_group.main_rg.name
-  resource_group_location = data.azurerm_resource_group.main_rg.location
-  env_type                = var.env_type
-}
+# module "event_grid_topic" {
+#   source                  = "./eventGridTopic"
+#   event_grid_topic_list   = var.event_grid_topic_list
+#   resource_group_name     = data.azurerm_resource_group.main_rg.name
+#   resource_group_location = data.azurerm_resource_group.main_rg.location
+#   env_type                = var.env_type
+# }
 
 module "event_grid_domain" {
-  source                  = "./eventGridDomain"
-  event_grid_name         = var.event_grid_name
-  event_grid_topic_list   = var.event_grid_topic_list
-  resource_group_name     = data.azurerm_resource_group.main_rg.name
-  resource_group_location = data.azurerm_resource_group.main_rg.location
-  env_type                = var.env_type
+  source                    = "./eventGridDomain"
+  event_grid_name           = var.event_grid_name
+  event_grid_topic_list     = var.event_grid_topic_list
+  resource_group_name       = data.azurerm_resource_group.main_rg.name
+  resource_group_location   = data.azurerm_resource_group.main_rg.location
+  user_assigned_identity_id = data.azurerm_user_assigned_identity.uai.id
+  module_name               = var.module_name
+  env_type                  = var.env_type
 }

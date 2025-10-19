@@ -14,7 +14,7 @@ const {
   getStorageAccountWebName,
   getEventGridName,
 } = require("../util/namingConvention");
-const { getSubscriptionId, getEventGridNamespaceId } = require("../util/azureCli");
+const { getSubscriptionId, getEventGridDomainId } = require("../util/azureCli");
 
 class EnvironmentDeployer {
   constructor({ envType, targetEnv, moduleName, dbName, backendConfig, logLevel = "", autoApprove = false }) {
@@ -72,12 +72,20 @@ class EnvironmentDeployer {
     terraformInit({ backendConfig: this.backendConfig });
     if (this.#hasEventGridModule()) {
       try {
-        const eventGridId = getEventGridNamespaceId({ eventGridNamespaceName: this.eventGridName, resourceGroupName: this.resourceGroupName });
-        console.log("Importing existing Event Grid Namespace with ID:", eventGridId);
-        terraformImport("module.event_grid.azurerm_eventgrid_namespace.egns", eventGridId);
+        const eventGridId = getEventGridDomainId({ eventGridDomainName: this.eventGridName, resourceGroupName: this.resourceGroupName });
+        console.log("Importing existing Event Grid Domain with ID:", eventGridId);
+        terraformImport("module.event_grid_domain.azurerm_eventgrid_domain.egdomain", eventGridId);
       } catch (error) {
-        console.log("Event Grid Namespace not found. It will be created.");
+        console.log("Event Grid Domain not found. It will be created.");
       }
+      // event grid module exists
+      // try {
+      //   const eventGridId = getEventGridNamespaceId({ eventGridNamespaceName: this.eventGridName, resourceGroupName: this.resourceGroupName });
+      //   console.log("Importing existing Event Grid Namespace with ID:", eventGridId);
+      //   terraformImport("module.event_grid.azurerm_eventgrid_namespace.egns", eventGridId);
+      // } catch (error) {
+      //   console.log("Event Grid Namespace not found. It will be created.");
+      // }
     }
     terraformApply(this.autoApprove);
     // terraformPlan();
@@ -103,7 +111,7 @@ class EnvironmentDeployer {
     console.log("Checking for Event Grid module in", fileName);
     if (fs.existsSync(fileName)) {
       const content = fs.readFileSync(fileName, "utf8");
-      const regex = /module\s+"event_grid"\s*{[^}]*source\s*=\s*["']\.\/eventGrid["'][^}]*}/s;
+      const regex = /module\s+"event_grid_domain"\s*{[^}]*source\s*=\s*["']\.\/eventGridDomain["'][^}]*}/s;
       return regex.test(content);
     }
     return false;

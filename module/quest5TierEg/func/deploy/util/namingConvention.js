@@ -68,7 +68,7 @@ function getDbSchemaAdminName(moduleName) {
   return `${moduleName}-dbschemaadmins`;
 }
 function getEventGridName(targetEnv) {
-  return `${targetEnv}-egns`;
+  return `${targetEnv}-eg`;
 }
 
 module.exports = {
