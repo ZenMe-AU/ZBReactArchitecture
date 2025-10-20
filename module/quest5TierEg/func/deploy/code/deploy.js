@@ -3,9 +3,13 @@ const { getTargetEnv, getModuleName } = require("../util/envSetup");
 const { getResourceGroupName, getServiceBusName, getFunctionAppName, getStorageAccountName } = require("../util/namingConvention");
 const { getSubscriptionId } = require("../util/azureCli");
 const CodeDeployer = require("./codeDeployer");
+const funcMetaData = require("../../funcMetaData.js");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
-const topicNameList = require("../../eventGrid/topicNameList");
+const topicNameList = funcMetaData.commands.map(({ cmdQueueName, eventQueueName, queueFuncName }) => [
+  { queueName: cmdQueueName, funcName: queueFuncName },
+  // { queueName: eventQueueName },
+]);
 
 (async () => {
   let targetEnv, moduleName, subscriptionId, envType;
@@ -34,6 +38,6 @@ const topicNameList = require("../../eventGrid/topicNameList");
     serviceBusName,
     moduleDir,
   });
-  codeDeployer.topicNames = Object.values(topicNameList);
+  codeDeployer.topicNames = topicNameList.flat();
   await codeDeployer.run();
 })();
