@@ -14,3 +14,7 @@ variable "event_grid_topic_list" {
 variable "env_type" {
   type = string
 }
+
+variable "event_grid_name" {
+  type = string
+}

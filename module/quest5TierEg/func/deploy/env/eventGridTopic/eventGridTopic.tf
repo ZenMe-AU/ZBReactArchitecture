@@ -2,8 +2,7 @@
 # Traditional Event Grid Topic
 # -------------------------
 resource "azurerm_eventgrid_topic" "egtopic" {
-  for_each            = toset(var.event_grid_topic_list)
-  name                = each.key
+  name                = var.event_grid_name
   location            = var.resource_group_location
   resource_group_name = var.resource_group_name
   input_schema        = "CloudEventSchemaV1_0"

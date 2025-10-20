@@ -74,7 +74,7 @@ class EnvironmentDeployer {
       try {
         const eventGridId = getEventGridDomainId({ eventGridDomainName: this.eventGridName, resourceGroupName: this.resourceGroupName });
         console.log("Importing existing Event Grid Domain with ID:", eventGridId);
-        terraformImport("module.event_grid_domain.azurerm_eventgrid_domain.egdomain", eventGridId);
+        terraformImport("module.event_grid.azurerm_eventgrid_topic.egtopic", eventGridId);
       } catch (error) {
         console.log("Event Grid Domain not found. It will be created.");
       }
@@ -111,7 +111,7 @@ class EnvironmentDeployer {
     console.log("Checking for Event Grid module in", fileName);
     if (fs.existsSync(fileName)) {
       const content = fs.readFileSync(fileName, "utf8");
-      const regex = /module\s+"event_grid_domain"\s*{[^}]*source\s*=\s*["']\.\/eventGridDomain["'][^}]*}/s;
+      const regex = /module\s+"event_grid"\s*{[^}]*source\s*=\s*["']\.\/eventGridTopic["'][^}]*}/s;
       return regex.test(content);
     }
     return false;
