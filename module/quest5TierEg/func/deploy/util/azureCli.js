@@ -327,6 +327,19 @@ function getEventGridDomainEndpoint({ resourceGroupName, eventGridDomainName }) 
   }
 }
 
+/*
+ * Get Event Grid topic Endpoint
+ */
+function getEventGridTopicEndpoint({ resourceGroupName, eventGridName }) {
+  try {
+    return execSync(`az eventgrid topic show -n ${eventGridName} -g ${resourceGroupName} --query endpoint -o tsv`, {
+      encoding: "utf8",
+    }).trim();
+  } catch (error) {
+    throw new Error("Could not retrieve Event Grid Topic Endpoint." + error.message);
+  }
+}
+
 function createEventGridTopic({ resourceGroupName, eventGridNamespaceName, topicName }) {
   try {
     execSync(`az eventgrid namespace topic create -g ${resourceGroupName} --namespace-name ${eventGridNamespaceName} -n ${topicName}`, {
@@ -350,6 +363,15 @@ function getEventGridTopicList({ resourceGroupName, eventGridNamespaceName }) {
   }
 }
 
+function getEventGridSubscriptionList({ resourceGroupName, eventGridName }) {
+  try {
+    return execSync(`az eventgrid topic event-subscription list -g ${resourceGroupName} --topic-name ${eventGridName} --query "[].name" -o json`, {
+      encoding: "utf8",
+    }).trim();
+  } catch (error) {
+    throw new Error("Could not list Event Grid Subscriptions." + error.message);
+  }
+}
 // az eventgrid event-subscription create \
 //   --name CreateQuestionSub \
 //   --source-resource-id /subscriptions/<SUBSCRIPTION_ID>/resourceGroups/my-rg/providers/Microsoft.EventGrid/namespaces/test-egnamespace/topics/CreateQuestionTopic \
@@ -380,6 +402,8 @@ module.exports = {
   getEventGridDomainId,
   getEventGridNamespaceHostname,
   getEventGridDomainEndpoint,
+  getEventGridTopicEndpoint,
   createEventGridTopic,
   getEventGridTopicList,
+  getEventGridSubscriptionList,
 };

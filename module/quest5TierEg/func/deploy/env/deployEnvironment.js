@@ -3,7 +3,6 @@ const { getTargetEnv, getModuleName } = require("../util/envSetup.js");
 const EnvironmentDeployer = require("./environmentDeployer.js");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
-const topicNameList = require("../../eventGrid/topicNameList");
 
 (async () => {
   let logLevel, targetEnv, moduleName, envType;
@@ -18,6 +17,5 @@ const topicNameList = require("../../eventGrid/topicNameList");
   }
   const autoApprove = process.argv.includes("--auto-approve");
   const envDeployer = new EnvironmentDeployer({ envType, targetEnv, moduleName, logLevel, autoApprove });
-  envDeployer.eventGridTopicNameList = Object.values(topicNameList);
   envDeployer.run();
 })();

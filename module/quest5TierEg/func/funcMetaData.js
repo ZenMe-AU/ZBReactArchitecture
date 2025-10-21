@@ -1,4 +1,4 @@
-const { requestHandler, serviceBusHandler, eventGridHandler } = require("./handler/handlerWrapper.js");
+const { requestHandler, eventGridHandler } = require("./handler/handlerWrapper.js");
 const apiCmdHandler = require("./handler/apiCmdHandler.js");
 const apiQryHandler = require("./handler/apiQryHandler.js");
 const queueCmdHandler = require("./handler/queueCmdHandler.js");
@@ -66,15 +66,15 @@ class GetFollowUpEventList {
 }
 
 class CreateQuestionCmd {
-  static funcName = "CreateQuestion";
-  static route = "questionCmd/createQuestion";
-  static methods = ["POST"];
-  static authLevel = "anonymous";
-  static handler = requestHandler(apiCmdHandler.CreateQuestion);
-  static queueFuncName = "CreateQuestionQueue";
-  static queueHandler = eventGridHandler(queueCmdHandler.CreateQuestion);
-  static cmdQueueName = "createQuestionCmd";
-  static eventQueueName = "questionCreatedEvent";
+  static funcName = "CreateQuestion"; //azure function name
+  static route = "questionCmd/createQuestion"; //api path
+  static methods = ["POST"]; //api http method
+  static authLevel = "anonymous"; //azure function auth level
+  static handler = requestHandler(apiCmdHandler.CreateQuestion); //azure function handler
+  static queueFuncName = "CreateQuestionQueue"; //event subscription azure function name
+  static queueHandler = eventGridHandler(queueCmdHandler.CreateQuestion); //event subscription azure function handler
+  static subscriptionFilter = "createQuestionCmd"; //event subscription name and filter
+  static eventQueueName = "questionCreatedEvent"; //event to publish when command is processed
 }
 
 class UpdateQuestionCmd {
@@ -85,7 +85,7 @@ class UpdateQuestionCmd {
   static handler = requestHandler(apiCmdHandler.UpdateQuestion);
   static queueFuncName = "UpdateQuestionQueue";
   static queueHandler = eventGridHandler(queueCmdHandler.UpdateQuestion);
-  static cmdQueueName = "updateQuestionCmd";
+  static subscriptionFilter = "updateQuestionCmd";
   static eventQueueName = "questionUpdatedEvent";
 }
 
@@ -97,7 +97,7 @@ class CreateAnswerCmd {
   static handler = requestHandler(apiCmdHandler.CreateAnswer);
   static queueFuncName = "CreateAnswerQueue";
   static queueHandler = eventGridHandler(queueCmdHandler.CreateAnswer);
-  static cmdQueueName = "createAnswerCmd";
+  static subscriptionFilter = "createAnswerCmd";
   static eventQueueName = "answerCreatedEvent";
 }
 
@@ -111,7 +111,7 @@ class SendFollowUpCmd {
   });
   static queueFuncName = "SendFollowUpQueue";
   static queueHandler = eventGridHandler(queueCmdHandler.SendFollowUp);
-  static cmdQueueName = "sendFollowUpCmd";
+  static subscriptionFilter = "sendFollowUpCmd";
   static eventQueueName = "followUpSentEvent";
 }
 
@@ -125,7 +125,7 @@ class ShareQuestionCmd {
   });
   static queueFuncName = "ShareQuestionQueue";
   static queueHandler = eventGridHandler(queueCmdHandler.ShareQuestion);
-  static cmdQueueName = "shareQuestionCmd";
+  static subscriptionFilter = "shareQuestionCmd";
   static eventQueueName = "questionSharedEvent";
 }
 
@@ -144,6 +144,15 @@ module.exports = class ListFunctions {
     const all = [...this.queries, ...this.commands];
     this.allFunctions = Object.freeze(Object.fromEntries(all.map((fn) => [fn.name, fn])));
   }
+
+  //   static #cachedAllFunctions = null;
+  //   static get allFunctions() {
+  //     if (!this.#cachedAllFunctions) {
+  //       const all = [...this.queries, ...this.commands];
+  //       this.#cachedAllFunctions = Object.freeze(Object.fromEntries(all.map((fn) => [fn.name, fn])));
+  //     }
+  //     return this.#cachedAllFunctions;
+  //   }
 };
 
 // class ListFunctions {

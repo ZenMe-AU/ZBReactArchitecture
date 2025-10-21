@@ -6,10 +6,12 @@ const CodeDeployer = require("./codeDeployer");
 const funcMetaData = require("../../funcMetaData.js");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
-const topicNameList = funcMetaData.commands.map(({ cmdQueueName, eventQueueName, queueFuncName }) => [
-  { queueName: cmdQueueName, funcName: queueFuncName },
-  // { queueName: eventQueueName },
-]);
+const subscriptionList = funcMetaData.commands
+  .map(({ subscriptionFilter: subscriptionFilter, eventQueueName, queueFuncName }) => [
+    { queueName: subscriptionFilter, funcName: queueFuncName },
+    // { queueName: eventQueueName },
+  ])
+  .flat();
 
 (async () => {
   let targetEnv, moduleName, subscriptionId, envType;
@@ -38,6 +40,6 @@ const topicNameList = funcMetaData.commands.map(({ cmdQueueName, eventQueueName,
     serviceBusName,
     moduleDir,
   });
-  codeDeployer.topicNames = topicNameList.flat();
+  codeDeployer.eventSubscriptionList = subscriptionList;
   await codeDeployer.run();
 })();

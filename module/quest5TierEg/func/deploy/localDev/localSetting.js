@@ -8,12 +8,14 @@ const {
   getResourceGroupName,
   getEventGridName,
 } = require("../util/namingConvention.js");
-const { getAppInsightsConnectionString, getEventGridDomainEndpoint } = require("../util/azureCli.js");
+const { getAppInsightsConnectionString, getEventGridTopicEndpoint } = require("../util/azureCli.js");
 const fs = require("fs");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
 const localPort = 7076;
 const localSettingTemplate = {
+  _comment:
+    "The local.settings.json file is loaded by Azure Functions Core Tools when you run your Azure Functions project locally (for example, using func start or the Functions Host task in VS Code). The settings under the Values section are set as environment variables for your local function app. This file is only used for local development and is not uploaded or used when you deploy your function app to Azure—you must configure equivalent settings in the Azure portal or your deployment pipeline.",
   IsEncrypted: false,
   Values: {
     AzureWebJobsStorage: "",
@@ -34,7 +36,7 @@ const customSettings = {
   ServiceBusConnection:
     "Endpoint=sb://localhost;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;",
   ServiceBusConnection__fullyQualifiedNamespace: "localhost",
-  // EventGridConnection__topicEndpointUri: "https://conceptualskink-eg.australiaeast-1.eventgrid.azure.net/api/events",
+  EventGridConnection__topicEndpointUri: "http://localhost:" + localPort,
   // EventGridConnection: "https://conceptualskink-eg.australiaeast-1.eventgrid.azure.net/api/events",
   // EventGridNameSpaceConnection__topicEndpointUri: "https://hugejunglefowl-egnamespace.australiaeast-1.eventgrid.azure.net",
   // EventGridNameSpaceConnection: "https://hugejunglefowl-egnamespace.australiaeast-1.eventgrid.azure.net",
@@ -65,9 +67,9 @@ const customSettings = {
         resourceGroupName: getResourceGroupName(envType, targetEnv),
       }),
       ServiceBusConnection__fullyQualifiedNamespace: getServiceBusHost(targetEnv),
-      EventGridConnection__topicEndpointUri: getEventGridDomainEndpoint({
+      EventGridConnection__topicEndpointUri: getEventGridTopicEndpoint({
         resourceGroupName: getResourceGroupName(envType, targetEnv),
-        eventGridDomainName: getEventGridName(targetEnv),
+        eventGridName: getEventGridName(targetEnv),
       }),
       DB_USERNAME: getDbAdminName(envType),
       DB_DATABASE: moduleName,

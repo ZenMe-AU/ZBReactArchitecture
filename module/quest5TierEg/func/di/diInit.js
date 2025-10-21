@@ -51,9 +51,10 @@ register("db", async () => {
 // register eventGrid
 console.log("register eventGrid");
 register("eventGrid", async () => {
-  const eventGridClientType = "domain"; // standard or namespace or domain
-  const { eventGridFactory } = require("../eventGrid/clientFactory");
-  const topicNameList = require("../eventGrid/topicNameList");
+  const eventGridClientType = process.env.EventQueueType; // standard or namespace or domain
+  const eventGridFactory = require("../eventGrid/clientFactory");
+  // const topicNameList = require("../eventGrid/topicNameList");
+  // const funcMetaData = require("../funcMetaData.js");
 
   let clientSettings = {
     type: eventGridClientType,
@@ -61,11 +62,12 @@ register("eventGrid", async () => {
     clientId: process.env.EventGridConnection__clientId || null,
     // key:process.env.EventGridConnection && process.env.EventGridConnection.startsWith("Endpoint=sb://localhost") ? process.env.EventGridConnection : null,
   };
-  const clients = {};
-  Object.values(topicNameList).forEach((topic) => {
-    clients[topic] = eventGridFactory.getClient({ ...clientSettings, topic });
-  });
-  container.register("eventGrid", clients);
+  // const clients = {};
+  // Object.values(topicNameList).forEach((topic) => {
+  //   clients[topic] = eventGridFactory.getClient({ ...clientSettings, topic });
+  // });
+  const client = eventGridFactory.getClient({ ...clientSettings });
+  container.register("eventGrid", client);
   console.log("🥳eventGrid initialized");
 });
 
