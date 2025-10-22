@@ -36,6 +36,7 @@ const customSettings = {
   ServiceBusConnection:
     "Endpoint=sb://localhost;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;",
   ServiceBusConnection__fullyQualifiedNamespace: "localhost",
+  EventQueueType: "eventEmitter",
   EventGridConnection__topicEndpointUri: "http://localhost:" + localPort,
   // EventGridConnection: "https://conceptualskink-eg.australiaeast-1.eventgrid.azure.net/api/events",
   // EventGridNameSpaceConnection__topicEndpointUri: "https://hugejunglefowl-egnamespace.australiaeast-1.eventgrid.azure.net",

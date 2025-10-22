@@ -37,6 +37,10 @@ class EventGridClientFactory {
         const clientWebhook = require("./clientWebhook");
         clientWrapper = new clientWebhook({ endpoint, clientId });
         break;
+      case "eventEmitter":
+        const clientEventEmitter = require("./clientEventEmitter");
+        clientWrapper = new clientEventEmitter({ endpoint });
+        break;
       case "eventGridTopic":
       default:
         const clientEventGridTopic = require("./clientEventGridTopic");
