@@ -1,4 +1,4 @@
-@rem For Windows, this script allows powershell script execution and launches the powershell script.
+@rem For Windows, this script enables powershell script execution and launches the powershell script.
 
 powershell Set-ExecutionPolicy -Scope CurrentUser RemoteSigned;
 powershell Get-ExecutionPolicy -List
