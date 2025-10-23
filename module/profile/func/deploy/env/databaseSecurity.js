@@ -19,7 +19,7 @@ function getPgHost(targetEnv) {
 }
 (async () => {
   //basic environment setup
-  const envType = process.env.TF_VAR_env_type;
+  const envType = process.env.TF_VAR_env_type || "dev";
   const targetEnv = getTargetEnv();
   const moduleName = getModuleName(resolve(__dirname, "..", "..", ".."));
   const functionAppName = getFunctionAppName(targetEnv, moduleName);
