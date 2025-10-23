@@ -31,7 +31,7 @@ export async function clientLoader({ params }: { params: { id: string } }) {
 
   const question = await getQuestionById(id);
   if (question.profileId === localStorage.getItem("profileId")) {
-    return redirect(`/question/${id}`);
+    return redirect(`/quest3Tier/${id}`);
   }
 
   return { question };
@@ -55,7 +55,7 @@ function QuestionDetailAdd({ loaderData }: { loaderData: { question: Question } 
   //       setQuestionData(data);
   //       setEditedData(data); // Initialize editing data
   //       if (data.profileId == localStorage.getItem("profileId")) {
-  //         navigate(`/question/${id}`, { replace: true });
+  //         navigate(`/quest3Tier/${id}`, { replace: true });
   //       }
   //     } catch (error) {
   //       console.error("Error fetching question:", error);

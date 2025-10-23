@@ -1,4 +1,4 @@
-const BaseRepository = require("@zenmechat/shared/repository/baseRepository");
+const BaseRepository = require("./baseRepository");
 
 class AttributeRepo extends BaseRepository {
   constructor() {

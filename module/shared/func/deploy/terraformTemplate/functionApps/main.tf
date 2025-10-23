@@ -41,6 +41,9 @@ resource "azurerm_function_app_flex_consumption" "fa" {
     AzureWebJobsStorage__queueServiceUri = "https://${var.storage_account_name}.queue.core.windows.net/"
     AzureWebJobsStorage__tableServiceUri = "https://${var.storage_account_name}.table.core.windows.net/"
     AzureWebJobsStorage__blobServiceUri  = "https://${var.storage_account_name}.blob.core.windows.net/"
+    DB_USERNAME                          = var.db_username
+    DB_DATABASE                          = var.db_database
+    DB_HOST                              = var.db_host
   }
 
   site_config {

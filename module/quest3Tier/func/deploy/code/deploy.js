@@ -13,14 +13,14 @@ const { resolve } = require("path");
 const { getTargetEnv, getModuleName } = require("../util/envSetup");
 const { getResourceGroupName, getServiceBusName, getFunctionAppName, getStorageAccountName } = require("../util/namingConvention");
 const { getSubscriptionId } = require("../util/azureCli");
-const CodeDeployer = require("../template/CodeDeployer");
+const CodeDeployer = require("./CodeDeployer");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
 
 (async () => {
   let targetEnv, moduleName, subscriptionId, envType;
   try {
-    envType = process.env.TF_VAR_env_type;
+    envType = process.env.TF_VAR_env_type || "dev";
     targetEnv = getTargetEnv();
     moduleName = getModuleName(moduleDir);
     subscriptionId = getSubscriptionId();
