@@ -169,7 +169,7 @@ function FollowUpQuestion() {
       setSubmitting(true);
       const response = await sendFollowUpQuestion(id, filterData, followUpQuestionId ?? "", saveFilter);
       console.log("Response:", response);
-      // navigate(`/question/${id}`, { replace: true });
+      // navigate(`/quest3Tier/${id}`, { replace: true });
     } catch (error) {
       console.error("Error send follow up question:", error); // Log error if any
     } finally {
