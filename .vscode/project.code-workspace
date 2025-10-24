@@ -35,7 +35,8 @@
       "node_modules/": false
     },
     "jest.runMode": "on-demand",
-    "jest.disabledWorkspaceFolders": ["ROOT"]
+    "jest.disabledWorkspaceFolders": ["ROOT"],
+    "powershell.cwd": "ROOT"
   },
   "launch": {
     "version": "0.2.0",

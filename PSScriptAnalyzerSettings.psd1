@@ -31,6 +31,6 @@
         'PSAvoidUsingComputerNameHardcoded' = @{ Enabled = $true }
         'PSAvoidUsingUsernameAndPasswordParams' = @{ Enabled = $true }
     }
-    # Exclude test and node_modules folders
-    ExcludePaths = @('*/node_modules/*')
+    # Custom rule to flag files missing Set-StrictMode
+    CustomRulePath = @('.codingstandards/PSRequireSetStrictMode.psm1')
 }

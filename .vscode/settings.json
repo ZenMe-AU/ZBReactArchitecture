@@ -10,10 +10,11 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
+  "powershell.scriptAnalysis.settingsPath": "PSScriptAnalyzerSettings.psd1",
+  "powershell.scriptAnalysis.enable": true,
   "eslint.enable": true,
   "eslint.lintTask.enable": true,
   "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
-
   "eslint.workingDirectories": [
     "../",
     "../ui",
