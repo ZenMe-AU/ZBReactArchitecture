@@ -30,6 +30,7 @@ async function deploy() {
   const targetEnv = getTargetEnv();
   const accountName = getStorageAccountWebName(targetEnv);
   const appConfigName = getAppConfigName(targetEnv);
+  const useShell = process.platform === "win32";
 
   try {
     console.log(`Start: Deploying static web to storage account`);
@@ -61,7 +62,7 @@ async function deploy() {
         console.warn(`Warning: Failed to fetch ${module} domain from App Config.`);
       }
     });
-    
+
     // Fetch Frontend custom domain host from App Config and expose to client
     try {
       const key = `Frontend:CustomDomainHost`;
@@ -102,7 +103,7 @@ async function deploy() {
 
     fs.writeFileSync(envFile, jsonContent, "utf-8");
 
-  console.log("Step 2: Building project.");
+    console.log("Step 2: Building project.");
 
     execSync("pnpm install", { stdio: "inherit", cwd: moduleDir });
     execSync("pnpm run build", { stdio: "inherit", cwd: moduleDir });
@@ -131,44 +132,47 @@ async function deploy() {
 
     // Step 3.5: Ensure Static Website is enabled (idempotent)
     try {
-      execSync(
-        `az storage blob service-properties update --account-name ${accountName} --static-website --index-document index.html -o none`,
-        { stdio: "ignore", shell: true }
-      );
+      execSync(`az storage blob service-properties update --account-name ${accountName} --static-website --index-document index.html -o none`, {
+        stdio: "ignore",
+        shell: true,
+      });
     } catch (_) {
       // Non-fatal; continue
     }
 
     console.log("Step 4: Ensuring container $web exists.");
     try {
-      execSync(
-        `az storage container create --name $web --account-name ${accountName} --auth-mode login -o none`,
-        { stdio: "ignore", shell: true }
-      );
+      execSync(`az storage container create --name $web --account-name ${accountName} --auth-mode login -o none`, {
+        stdio: "ignore",
+        shell: useShell,
+      });
     } catch (_) {
       // Non-fatal; proceed to delete/upload which will surface real issues if any
     }
 
     console.log(`Step 5: Deleting old blobs from account-name ${accountName}`);
     try {
-      execSync(
-        `az storage blob delete-batch --account-name ${accountName} --source $web --auth-mode login`,
-        { stdio: "inherit", shell: true }
-      );
+      // execSync(`az storage blob delete-batch --account-name ${accountName} --source $web --auth-mode login`, { stdio: "inherit", shell: useShell });
+      execFileSync("az", ["storage", "blob", "delete-batch", "--account-name", accountName, "--source", "$web", "--auth-mode", "login"], {
+        stdio: "inherit",
+        shell: useShell,
+      });
     } catch (err) {
       console.warn("Warning: Failed to delete old blobs (continuing).", err?.message || String(err));
     }
 
     console.log("Step 6: Uploading new blobs.");
     try {
-      execSync(
-        `az storage blob upload-batch --account-name ${accountName} -d $web -s "${distPath}" --auth-mode login`,
-        {
-          stdio: "inherit",
-          shell: true,
-          cwd: moduleDir,
-        }
-      );
+      // execSync(`az storage blob upload-batch --account-name ${accountName} -d $web -s "${distPath}" --auth-mode login`, {
+      //   stdio: "inherit",
+      //   shell: useShell,
+      //   cwd: moduleDir,
+      // });
+      execFileSync("az", ["storage", "blob", "upload-batch", "--account-name", accountName, "-d", "$web", "-s", distPath, "--auth-mode", "login"], {
+        stdio: "inherit",
+        cwd: moduleDir,
+        shell: useShell,
+      });
     } catch (err) {
       // console.error("Failed to upload blobs:", err.message);
       throw new Error("Failed to upload blobs.");

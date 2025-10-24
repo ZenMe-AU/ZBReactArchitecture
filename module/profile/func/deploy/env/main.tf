@@ -42,6 +42,9 @@ module "function_app" {
   user_assigned_identity_client_id       = data.azurerm_user_assigned_identity.uai.client_id
   appconfig_id                           = data.azurerm_app_configuration.config.id
   env_type                               = var.env_type
+  db_username                            = var.function_app_name
+  db_database                            = var.db_name
+  db_host                                = data.azurerm_postgresql_flexible_server.main_server.fqdn
 }
 
 

@@ -49,3 +49,15 @@ variable "appconfig_id" {
 variable "env_type" {
   type = string
 }
+
+variable "db_username" {
+  type = string
+}
+
+variable "db_database" {
+  type = string
+}
+
+variable "db_host" {
+  type = string
+}

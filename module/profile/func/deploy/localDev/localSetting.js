@@ -23,13 +23,13 @@ const localSettingTemplate = {
 const customSettings = {
   JWT_SECRET: "bb64c67554381aff324d26669540f591e02e3e993ce85c2d1ed2962e22411634",
   BASE_URL: "http://localhost:" + localPort,
-  ServiceBusConnection:
-    "Endpoint=sb://localhost;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;",
-  ServiceBusConnection__fullyQualifiedNamespace: "localhost",
+  // ServiceBusConnection:
+  //   "Endpoint=sb://localhost;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;",
+  // ServiceBusConnection__fullyQualifiedNamespace: "localhost",
   // set your local DB details
-  DB_USERNAME: "root",
-  DB_HOST: "localhost",
-  DB_PASSWORD: "DatabasePassword123!",
+  // DB_USERNAME: "root",
+  // DB_HOST: "localhost",
+  // DB_PASSWORD: "DatabasePassword123!",
 };
 
 (async () => {
@@ -48,10 +48,11 @@ const customSettings = {
 
     json.Values = {
       ...json.Values,
-      APPLICATIONINSIGHTS_CONNECTION_STRING: getAppInsightsConnectionString({
-        appInsightsName: getAppInsightsName(targetEnv),
-        resourceGroupName: getResourceGroupName(envType, targetEnv),
-      }),
+      APPLICATIONINSIGHTS_CONNECTION_STRING:
+        getAppInsightsConnectionString({
+          appInsightsName: getAppInsightsName(targetEnv),
+          resourceGroupName: getResourceGroupName(envType, targetEnv),
+        }) ?? "",
       ServiceBusConnection__fullyQualifiedNamespace: getServiceBusHost(targetEnv),
       DB_USERNAME: getDbAdminName(envType),
       DB_DATABASE: moduleName,

@@ -34,4 +34,4 @@ Make sure to deploy the output of `react-router build`
 
 # ui
 
-This folder contains the frontend application for ZenMeChatPOC1, built with React and Vite. It includes all client-side code, components, and assets.
+This folder contains the frontend application, built with React and Vite. It includes all client-side code, components, and assets.

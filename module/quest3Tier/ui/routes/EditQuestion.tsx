@@ -65,7 +65,7 @@ function EditQuestion() {
       } else {
         console.error("Question ID is undefined");
       }
-      navigate(`/question/${id}`);
+      navigate(`/quest3Tier/${id}`);
     } catch (err) {
       console.error("Error updating question:", err);
     } finally {
@@ -110,7 +110,7 @@ function EditQuestion() {
         <button type="submit">Save Changes</button>
       </form>
 
-      <Link to={`/question/${question.id}`}>Back</Link>
+      <Link to={`/quest3Tier/${question.id}`}>Back</Link>
     </div>
   );
 }
