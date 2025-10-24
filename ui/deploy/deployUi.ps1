@@ -24,8 +24,8 @@ if (-not $type -or $type -notin $validTypes) {
 $env:TF_VAR_env_type = $type
 Write-Output "TF_VAR_env_type was set to $env:TF_VAR_env_type"
 
-# set a root folder environment variable to one folder above the current folder.
-$env:UI_FOLDER = Resolve-Path -Path ".."
+# set a root folder environment variable to one folder above this script's folder (robust when invoked from anywhere)
+$env:UI_FOLDER = Resolve-Path -Path (Join-Path $PSScriptRoot "..")
 Write-Output "Set UI_FOLDER to $env:UI_FOLDER"
 Set-Location $env:UI_FOLDER
 pnpm install
