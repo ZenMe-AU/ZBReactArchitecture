@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 // From Eslint v8.21.0, .eslintrc* is no longer used. eslint.config.js is the default config file name.
 
 import js from "@eslint/js";
@@ -26,7 +31,15 @@ export default [
     rules: {
       ...tseslint.configs.recommended.rules,
       "@typescript-eslint/no-require-imports": "warn",
-      "licenseheader/header": ["warn", ["/**", " * @license SPDX-License-Identifier: MIT", " */"]],
+      "licenseheader/header": [
+        "warn",
+        [
+          "/**",
+          " * @license SPDX-FileCopyrightText: © " + new Date().getFullYear() + " Zenme Pty Ltd <info@zenme.com.au>",
+          " * @license SPDX-License-Identifier: MIT",
+          " */",
+        ],
+      ],
     },
     linterOptions: {
       reportUnusedDisableDirectives: true,
