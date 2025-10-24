@@ -12,6 +12,12 @@ data "azurerm_cdn_frontdoor_endpoint" "fd_endpoint" {
   profile_name                = "${var.target_env}-fd-profile"
   resource_group_name = data.azurerm_resource_group.main_resource.name
 }
+# DNS zone for creating validation/CNAME records for additional subdomains
+data "azurerm_dns_zone" "dns_zone" {
+  name                = var.parent_domain_name
+  resource_group_name = data.azurerm_resource_group.dns_resource.name
+}
+
 
 # define how traffic is prioritized to each origin
 resource "azurerm_cdn_frontdoor_origin_group" "ui_fdog" {
@@ -78,6 +84,9 @@ resource "azurerm_cdn_frontdoor_route" "fd_route" {
   forwarding_protocol               = "HttpsOnly"
   link_to_default_domain            = true
   https_redirect_enabled            = true
-  cdn_frontdoor_custom_domain_ids = [data.azurerm_cdn_frontdoor_custom_domain.ui_custom_domain.id] # Associate the custom domain with the Front Door endpoint
+  cdn_frontdoor_custom_domain_ids = [
+    data.azurerm_cdn_frontdoor_custom_domain.ui_custom_domain.id
+  ]
   # No depends_on needed since we're referencing existing DNS records via data sources
 }
+## Removed App Config key for quest3tier host
