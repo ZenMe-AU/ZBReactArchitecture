@@ -15,7 +15,7 @@ const {
   sendQuestionCreatedEvent,
   sendQuestionUpdatedEvent,
   sendAnswerCreatedEvent,
-} = require("../eventGrid/eventGrid");
+} = require("../eventGrid/eventSender");
 const { join, resolve, relative, basename } = require("path");
 const fs = require("fs");
 

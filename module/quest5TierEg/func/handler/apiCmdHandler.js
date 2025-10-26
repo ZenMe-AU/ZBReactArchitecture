@@ -4,7 +4,7 @@ const {
   sendCreateQuestionCmd,
   sendUpdateQuestionCmd,
   sendCreateAnswerCmd,
-} = require("../eventGrid/eventGrid");
+} = require("../eventGrid/eventSender");
 
 /**
  * @swagger
