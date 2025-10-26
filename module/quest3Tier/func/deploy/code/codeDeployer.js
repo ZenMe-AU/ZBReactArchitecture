@@ -13,7 +13,7 @@ const {
   getAppConfigValueByKeyLabel,
   setFunctionAppCors,
 } = require("../util/azureCli.js");
-const { npmInstall, npmPrune, zipDir } = require("./cli.js");
+const { npmInstall, npmPrune, zipDir } = require("../../../../shared/func/deploy/util/cli.js");
 const { getIdentityName, getAppConfigName } = require("../util/namingConvention.js");
 
 class CodeDeployer {
@@ -120,7 +120,7 @@ class CodeDeployer {
       fs.unlinkSync(distFile);
     }
 
-    zipDir(this.distPath, funcDir, this.excludeList);
+  await zipDir(this.distPath, funcDir, this.excludeList);
 
     console.log("deploying zip file to Azure Function App...");
     deployFunctionAppZip(
