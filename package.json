@@ -16,8 +16,6 @@
     "@azure/identity": "^4.11.1",
     "@eslint/js": "^9.38.0",
     "@microsoft/microsoft-graph-client": "^3.0.7",
-    "@typescript-eslint/eslint-plugin": "^8.46.2",
-    "@typescript-eslint/parser": "^8.46.2",
     "eslint": "^9.38.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-header": "^3.1.1",
@@ -25,9 +23,9 @@
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-react": "^7.37.5",
     "glob": "^11.0.3",
-    "unique-names-generator": "^4.7.1",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.46.2"
+    "typescript-eslint": "^8.46.2",
+    "unique-names-generator": "^4.7.1"
   },
   "pnpm": {
     "overrides": {
