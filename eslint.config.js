@@ -6,30 +6,23 @@
 // From Eslint v8.21.0, .eslintrc* is no longer used. eslint.config.js is the default config file name.
 
 import js from "@eslint/js";
-import tseslint from "@typescript-eslint/eslint-plugin";
-
+import tseslint from "typescript-eslint";
 import licenseheader from "eslint-plugin-license-header";
 
 export default [
+  js.configs.recommended,
+  ...tseslint.configs.recommended,
   {
     files: ["**/*.{ts,tsx,mts,cts}", "**/*.{js,jsx,mjs,cjs}"],
     languageOptions: {
-      ecmaVersion: 2021,
-      sourceType: "module",
       globals: {
-        window: "readonly",
-        document: "readonly",
-        navigator: "readonly",
         // ...add more browser globals as needed
       },
     },
     plugins: {
-      js,
-      "@typescript-eslint": tseslint,
       licenseheader,
     },
     rules: {
-      ...tseslint.configs.recommended.rules,
       "@typescript-eslint/no-require-imports": "warn",
       "licenseheader/header": [
         "warn",
