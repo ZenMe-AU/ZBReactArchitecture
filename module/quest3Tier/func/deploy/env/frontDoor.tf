@@ -1,6 +1,8 @@
-#############################################
-# module API Front Door (Shared Profile) #
-#############################################
+#
+# @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+# @license SPDX-License-Identifier: MIT
+#
+
 # Wires module Function App into the existing shared Azure Front Door.
 # Adds origin group, origin, custom domain + DNS (TXT/CNAME), rules, and route.
 
