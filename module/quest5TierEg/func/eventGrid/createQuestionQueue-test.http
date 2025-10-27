@@ -1,0 +1,23 @@
+### Send Event Grid event to local Function
+POST http://localhost:7076/runtime/webhooks/EventGrid?functionName=CreateQuestionQueue
+Content-Type: application/json
+aeg-event-type: Notification
+
+[
+    {
+        "id": "58180e78-6356-4e06-972e-086b2999d0eb",
+        "source": "/quest5TierEg/CreateQuestion",
+        "data": {
+            "profileId": "7a232055-5355-422a-9ca7-b7e567103fd4",
+            "title": "Favorite Foods",
+            "questionText": "What is your favorite food?",
+            "option": ["Pizza", "Burger", "Sushi"]
+        },
+        "type": "CreateQuestion",
+        "time": "2025-09-30T16:50:16.696Z",
+        "specversion": "1.0",
+        "datacontenttype": "application/json",
+        "subject": "CreateQuestion",
+        "correlationid": "123e4567-e89b-12d3-a456-012345678000"
+    }
+]

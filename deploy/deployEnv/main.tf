@@ -146,3 +146,23 @@ resource "azurerm_role_assignment" "servicebus_receiver" {
   role_definition_name = "Azure Service Bus Data Receiver"
   principal_id         = azurerm_user_assigned_identity.uai.principal_id
 }
+
+# resource "azurerm_eventgrid_namespace" "eventgrid_namespace" {
+#   capacity              = 1
+#   location              = data.azurerm_resource_group.rg.location
+#   name                  = "hugejunglefowl-egnamespace"
+#   public_network_access = "Enabled"
+#   resource_group_name   = data.azurerm_resource_group.rg.name
+#   sku                   = "Standard"
+#   tags                  = {}
+#   identity {
+#     identity_ids = ["/subscriptions/0930d9a7-2369-4a2d-a0b6-5805ef505868/resourceGroups/dev-hugejunglefowl/providers/Microsoft.ManagedIdentity/userAssignedIdentities/hugejunglefowl-identity"]
+#     type         = "SystemAssigned, UserAssigned"
+#   }
+#   topic_spaces_configuration {
+#     alternative_authentication_name_source          = []
+#     maximum_client_sessions_per_authentication_name = 1
+#     maximum_session_expiry_in_hours                 = 1
+#     route_topic_id                                  = ""
+#   }
+# }
