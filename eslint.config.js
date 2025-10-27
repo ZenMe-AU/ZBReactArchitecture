@@ -17,6 +17,7 @@ export default [
   {
     files: ["**/*.{ts,tsx,mts,cts}", "**/*.{js,jsx,mjs,cjs}"],
     languageOptions: {
+      env: { node: true },
       globals: {
         // ...add more globals as needed
       },
