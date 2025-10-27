@@ -1,4 +1,10 @@
-// deployStatic.js
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
+// Script to deploy static web files to Azure Storage Account's static website hosting
+// Uses Azure CLI commands; ensure Azure CLI is installed and user is logged in.
 import fs from "fs";
 import { getTargetEnv } from "../../../module/shared/func/deploy/util/envSetup.js";
 import { getAppConfigValueByKeyLabel } from "../../../module/shared/func/deploy/util/azureCli.js";
@@ -65,32 +71,17 @@ async function deploy() {
 
     // Fetch Frontend custom domain host from App Config and expose to client
     try {
-      const key = `Frontend:CustomDomainHost`;
-      const value = getAppConfigValueByKeyLabel({
-        appConfigName,
-        key,
-        label: envType,
-      });
-      if (value) {
-        envMap.set("FRONTEND_CUSTOM_DOMAIN_HOST", String(value));
-      }
-    } catch (err) {
-      console.warn("Warning: Failed to fetch Frontend:CustomDomainHost from App Config.");
-    }
-
-    // Fetch Frontend custom domain host from App Config and expose to client
-    try {
-      const frontKey = `Frontend:CustomDomainHost`;
+      const frontKey = `webEndpoint`;
       const frontHost = getAppConfigValueByKeyLabel({
         appConfigName,
         key: frontKey,
         label: envType,
       });
       if (frontHost) {
-        envMap.set("FRONTEND_CUSTOM_DOMAIN_HOST", frontHost);
+        envMap.set("FRONTEND_CUSTOM_DOMAIN_HOST", String(frontHost));
       }
     } catch (err) {
-      console.warn("Warning: Failed to fetch Frontend:CustomDomainHost from App Config.");
+      console.warn("Warning: Failed to fetch webEndpoint from App Config.");
     }
 
     // writing back to envFile

@@ -26,12 +26,12 @@ import { getAppConfigValueByKeyLabel } from "../../../module/shared/func/deploy/
     if (!endpoint) {
       throw new Error("Failed to get endpoint");
     }
-    console.log(`Endpoint: ${endpoint}`);
+    console.log(`Static website private Endpoint: ${endpoint}`);
+
     const storedEndpoint = getAppConfigValueByKeyLabel({ appConfigName, key: "webEndpoint", label: envType });
-    if (endpoint !== storedEndpoint) {
-      throw new Error(`Endpoint from storage (${endpoint}) does not match App Config (${storedEndpoint})`);
-    }
-    const res = await fetch(endpoint);
+    console.log(`Static website public Endpoint: ${storedEndpoint}`);
+
+    const res = await fetch(storedEndpoint);
     if (!res.ok) {
       throw new Error(`Invalid HTTP response code ${res.status} ${res.statusText}`);
     }

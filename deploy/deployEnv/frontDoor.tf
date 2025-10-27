@@ -64,7 +64,7 @@ resource "azurerm_dns_cname_record" "cname_record" {
 # Publish the frontend custom domain host to App Configuration for runtime use by UI
 resource "azurerm_app_configuration_key" "frontend_custom_domain_host" {
   configuration_store_id = data.azurerm_app_configuration.appconfig.id
-  key                    = "Frontend:CustomDomainHost"
+  key                    = "webEndpoint"
   label                  = var.env_type
   value                  = lower("${var.target_env}.${data.azurerm_dns_zone.dns_zone.name}")
   # The key only needs the custom domain to exist; TXT record may be managed externally
