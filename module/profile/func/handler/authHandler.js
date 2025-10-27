@@ -1,5 +1,5 @@
 const Profile = require("../service/profileService");
-const { generateToken, decode } = require("@zenmechat/shared/service/authUtils");
+const { generateToken, decode } = require("../service/authUtils");
 
 /**
  * @swagger

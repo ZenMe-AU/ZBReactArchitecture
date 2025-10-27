@@ -5,7 +5,7 @@ const { getAppInsightsConnectionString } = require("../util/azureCli.js");
 const fs = require("fs");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
-const localPort = 7075;
+const localPort = 7072;
 const localSettingTemplate = {
   IsEncrypted: false,
   Values: {

@@ -1,14 +1,14 @@
 const { resolve } = require("path");
-const { getTargetEnv, getModuleName } = require("@zenmechat/shared/deploy/util/envSetup.js");
-const EnvironmentDeployer = require("@zenmechat/shared/deploy/environmentDeployer.js");
+const { getTargetEnv, getModuleName } = require("../util/envSetup.js");
+const EnvironmentDeployer = require("./environmentDeployer.js");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
 
 (async () => {
-  let envType, logLevel, targetEnv, moduleName;
+  let logLevel, targetEnv, moduleName, envType;
   // logLevel = "DEBUG";
   try {
-    envType = process.env.TF_VAR_env_type;
+    envType = process.env.TF_VAR_env_type || "dev";
     targetEnv = getTargetEnv();
     moduleName = getModuleName(moduleDir);
   } catch (err) {

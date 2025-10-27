@@ -1,6 +1,6 @@
 const { Op, Sequelize, QueryTypes } = require("sequelize");
 // const { Profiles, Attributes } = require("../db/model");
-const { Location } = require("@zenmechat/shared/db/model");
+// const { Location } = require("@zenmechat/shared/db/model");
 // const { sequelize } = require("../db");
 
 /**

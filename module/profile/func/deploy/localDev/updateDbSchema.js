@@ -1,13 +1,13 @@
 const { resolve } = require("path");
 const fs = require("fs");
-const MigrationRunner = require("@zenmechat/shared/deploy/migrationRunner.js");
-const { getTargetEnv, getModuleName } = require("@zenmechat/shared/deploy/util/envSetup.js");
-const { createDatabaseInstance } = require("@zenmechat/shared/db/connection");
-const DB_TYPE = require("@zenmechat/shared/enum/dbType.js");
+const MigrationRunner = require("../db/migrationRunner");
+const { getTargetEnv, getModuleName } = require("../util/envSetup.js");
+const { createDatabaseInstance } = require("../../repository/model/connection");
+const DB_TYPE = require("../enum/dbType.js");
 // const { getDbAdminName, getPgHost } = require("../util/namingConvention.js");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
-const migrationDir = resolve(__dirname, "..", "..", "db", "migration");
+const migrationDir = resolve(__dirname, "..", "db", "migration");
 
 (async () => {
   const localSettingsPath = resolve(__dirname, "..", "..", "local.settings.json");
