@@ -25,6 +25,7 @@
     "@opentelemetry/sdk-trace-base": "^2.0.0",
     "@opentelemetry/semantic-conventions": "^1.32.0",
     "applicationinsights": "^3.6.0",
+    "archiver": "^7.0.1",
     "fast-json-patch": "^3.1.1",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",

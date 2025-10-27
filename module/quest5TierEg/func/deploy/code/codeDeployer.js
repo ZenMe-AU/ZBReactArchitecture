@@ -89,93 +89,93 @@ class CodeDeployer {
         createServiceBusQueue({ resourceGroupName: this.resourceGroupName, namespaceName: this.serviceBusName, queueName });
       });
     }
-    // // Create topic and subscription if any
-    // if (this.topicNames?.length > 0 || this.eventSubscriptionList?.length > 0) {
-    //   this.appSettings = {
-    //     ...this.appSettings,
-    //     EventGridConnection__topicEndpointUri: getEventGridTopicEndpoint({
-    //       resourceGroupName: this.resourceGroupName,
-    //       eventGridName: this.eventGridName,
-    //     }),
-    //     EventGridConnection__credential: "managedidentity",
-    //     EventGridConnection__clientId: getIdentityClientId({
-    //       identityName: getIdentityName(this.targetEnv),
-    //       resourceGroupName: this.resourceGroupName,
-    //     }),
-    //   };
-    //   // // Get Event Grid Namespace Topic List
-    //   // console.log(`Creating Event Grid Topics...`);
-    //   // const existingTopics = getEventGridTopicList({
-    //   //   resourceGroupName: this.resourceGroupName,
-    //   //   eventGridNamespaceName: this.eventGridName,
-    //   // });
-    //   // const existingTopicArray = JSON.parse(existingTopics ?? "[]");
-    //   // // Create Event Grid Topics if any
-    //   // await Promise.all(
-    //   //   this.topicNames
-    //   //     .filter((t) => !existingTopicArray.includes(t))
-    //   //     .map((topicName) => {
-    //   //       try {
-    //   //         createEventGridTopic({
-    //   //           resourceGroupName: this.resourceGroupName,
-    //   //           eventGridNamespaceName: this.eventGridName,
-    //   //           topicName,
-    //   //         });
-    //   //       } catch (err) {
-    //   //         console.error(`Failed to create topic ${topicName}:`, err.message);
-    //   //       }
-    //   //     })
-    //   // );
-    // }
-    // // Settings Env Var for the Function App
-    // setFunctionAppSetting({
-    //   functionAppName: this.functionAppName,
-    //   resourceGroupName: this.resourceGroupName,
-    //   appSettings: this.appSettings,
-    // });
-    // deleteFunctionAppSetting({
-    //   functionAppName: this.functionAppName,
-    //   resourceGroupName: this.resourceGroupName,
-    //   appSettingKeys: this.deleteAppSettings,
-    // });
-    // // Set CORS settings
-    // if (this.allowedOrigins.length > 0) {
-    //   console.log(`Setting CORS for Function App...`);
-    //   setFunctionAppCors({
-    //     functionAppName: this.functionAppName,
-    //     resourceGroupName: this.resourceGroupName,
-    //     allowedOrigins: this.allowedOrigins,
-    //   });
-    // }
-    // console.log(`dependencies installing...`);
-    // // Install shared module dependencies if it exists
-    // if (fs.existsSync(resolve(this.moduleDir, "..", "shared", "func", "package.json"))) {
-    //   npmInstall(resolve(this.moduleDir, "..", "shared", "func"));
-    // }
-    // // Install function app dependencies
-    // npmInstall(funcDir, "--omit=dev");
-    // npmPrune(funcDir);
+    // Create topic and subscription if any
+    if (this.topicNames?.length > 0 || this.eventSubscriptionList?.length > 0) {
+      this.appSettings = {
+        ...this.appSettings,
+        EventGridConnection__topicEndpointUri: getEventGridTopicEndpoint({
+          resourceGroupName: this.resourceGroupName,
+          eventGridName: this.eventGridName,
+        }),
+        EventGridConnection__credential: "managedidentity",
+        EventGridConnection__clientId: getIdentityClientId({
+          identityName: getIdentityName(this.targetEnv),
+          resourceGroupName: this.resourceGroupName,
+        }),
+      };
+      // // Get Event Grid Namespace Topic List
+      // console.log(`Creating Event Grid Topics...`);
+      // const existingTopics = getEventGridTopicList({
+      //   resourceGroupName: this.resourceGroupName,
+      //   eventGridNamespaceName: this.eventGridName,
+      // });
+      // const existingTopicArray = JSON.parse(existingTopics ?? "[]");
+      // // Create Event Grid Topics if any
+      // await Promise.all(
+      //   this.topicNames
+      //     .filter((t) => !existingTopicArray.includes(t))
+      //     .map((topicName) => {
+      //       try {
+      //         createEventGridTopic({
+      //           resourceGroupName: this.resourceGroupName,
+      //           eventGridNamespaceName: this.eventGridName,
+      //           topicName,
+      //         });
+      //       } catch (err) {
+      //         console.error(`Failed to create topic ${topicName}:`, err.message);
+      //       }
+      //     })
+      // );
+    }
+    // Settings Env Var for the Function App
+    setFunctionAppSetting({
+      functionAppName: this.functionAppName,
+      resourceGroupName: this.resourceGroupName,
+      appSettings: this.appSettings,
+    });
+    deleteFunctionAppSetting({
+      functionAppName: this.functionAppName,
+      resourceGroupName: this.resourceGroupName,
+      appSettingKeys: this.deleteAppSettings,
+    });
+    // Set CORS settings
+    if (this.allowedOrigins.length > 0) {
+      console.log(`Setting CORS for Function App...`);
+      setFunctionAppCors({
+        functionAppName: this.functionAppName,
+        resourceGroupName: this.resourceGroupName,
+        allowedOrigins: this.allowedOrigins,
+      });
+    }
+    console.log(`dependencies installing...`);
+    // Install shared module dependencies if it exists
+    if (fs.existsSync(resolve(this.moduleDir, "..", "shared", "func", "package.json"))) {
+      npmInstall(resolve(this.moduleDir, "..", "shared", "func"));
+    }
+    // Install function app dependencies
+    npmInstall(funcDir, "--omit=dev");
+    npmPrune(funcDir);
 
-    // console.log("Creating dist directory...");
-    // const distFile = resolve(funcDir, this.distPath);
-    // // Ensure the directory exists
-    // fs.mkdirSync(path.dirname(distFile), { recursive: true });
-    // // Remove existing dist file if it exists
-    // if (fs.existsSync(distFile)) {
-    //   fs.unlinkSync(distFile);
-    // }
+    console.log("Creating dist directory...");
+    const distFile = resolve(funcDir, this.distPath);
+    // Ensure the directory exists
+    fs.mkdirSync(path.dirname(distFile), { recursive: true });
+    // Remove existing dist file if it exists
+    if (fs.existsSync(distFile)) {
+      fs.unlinkSync(distFile);
+    }
 
-    // zipDir(this.distPath, funcDir, this.excludeList);
+    await zipDir(this.distPath, funcDir, this.excludeList);
 
-    // console.log("deploying zip file to Azure Function App...");
-    // deployFunctionAppZip(
-    //   {
-    //     src: this.distPath,
-    //     functionAppName: this.functionAppName,
-    //     resourceGroupName: this.resourceGroupName,
-    //   },
-    //   { cwd: funcDir }
-    // );
+    console.log("deploying zip file to Azure Function App...");
+    deployFunctionAppZip(
+      {
+        src: this.distPath,
+        functionAppName: this.functionAppName,
+        resourceGroupName: this.resourceGroupName,
+      },
+      { cwd: funcDir }
+    );
     if (this.eventSubscriptionList?.length > 0) {
       const existingSubscriptions = getEventGridSubscriptionList({
         resourceGroupName: this.resourceGroupName,

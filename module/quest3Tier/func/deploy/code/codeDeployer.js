@@ -125,7 +125,7 @@ class CodeDeployer {
       fs.unlinkSync(distFile);
     }
 
-    zipDir(this.distPath, funcDir, this.excludeList);
+    await zipDir(this.distPath, funcDir, this.excludeList);
 
     console.log("deploying zip file to Azure Function App...");
     deployFunctionAppZip(
