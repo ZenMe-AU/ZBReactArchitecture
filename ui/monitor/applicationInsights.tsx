@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 import { ApplicationInsights } from "@microsoft/applicationinsights-web";
 import { ReactPlugin } from "@microsoft/applicationinsights-react-js";
 import { ClickAnalyticsPlugin } from "@microsoft/applicationinsights-clickanalytics-js";
@@ -7,8 +12,8 @@ import { getConfig } from "../config/loadConfig";
 const reactPlugin = new ReactPlugin();
 
 // *** Add the Click Analytics plug-in. ***
-var clickPluginInstance = new ClickAnalyticsPlugin();
-var clickPluginConfig = {
+const clickPluginInstance = new ClickAnalyticsPlugin();
+const clickPluginConfig = {
   // autoCapture: true,
   autoCapture: false,
 };

@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { Helmet } from "react-helmet";

@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 const Question = require("../service/function.js");
 const { decode } = require("../service/authUtils.js");
 const { followUpCmdQueue, shareQuestionCmdQueue } = require("../service/serviceBus.js");

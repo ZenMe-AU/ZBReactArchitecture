@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 const { resolve } = require("path");
 const fs = require("fs");
 const MigrationRunner = require("../db/migrationRunner.js");

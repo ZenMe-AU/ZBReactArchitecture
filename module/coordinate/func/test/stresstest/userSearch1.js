@@ -1,3 +1,7 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
 
 //Search for users near the device at the given time and repeat the search 1000 times.
 //TODO: Luke update test to match above description

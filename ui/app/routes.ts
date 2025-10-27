@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 import type { RouteConfig } from "@react-router/dev/routes";
 import { route, index, layout } from "@react-router/dev/routes";
 import { protectedRoutes as quest3TierProtectedRoutes, publicRoutes as quest3TierPublicRoutes } from "../../module/quest3Tier/ui/routes";

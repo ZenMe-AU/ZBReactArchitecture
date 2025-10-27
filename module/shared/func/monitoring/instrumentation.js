@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 const { AzureMonitorTraceExporter } = require("@azure/monitor-opentelemetry-exporter");
 // const { OTLPTraceExporter } = require("@opentelemetry/exporter-trace-otlp-grpc");
 const { resourceFromAttributes } = require("@opentelemetry/resources");

@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 import { getTargetEnv } from "../../../module/shared/func/deploy/util/envSetup.js";
 import EnvironmentDeployer from "../../../module/shared/func/deploy/environmentDeployer.js";
 

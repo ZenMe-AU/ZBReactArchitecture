@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 // Initialize or seed data to the database
 const { resolve } = require("path");
 const MigrationRunner = require("../db/migrationRunner");

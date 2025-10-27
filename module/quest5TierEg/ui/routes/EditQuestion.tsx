@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 // src/pages/EditQuestion.tsx
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";

@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 const baseUrl = process.env.QUESTION_URL;
 // const profileBaseUrl = process.env.PROFILE_URL;
 // const profileUrl = new URL("/profile", profileBaseUrl);

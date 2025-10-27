@@ -1,4 +1,9 @@
 /**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
+/**
  * This file sets the global naming standards for resources in this application when creating the environment.
  * The file will be called from every script that need to reference these resource names.
  * At deploy time, these names will be saved to the relevant configuration settings location

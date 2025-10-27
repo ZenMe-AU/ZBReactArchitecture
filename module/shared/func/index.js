@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 // require("./otel-setup");
 require("./monitoring/instrumentation");
 const { app } = require("@azure/functions");

@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 // const appInsights = require("applicationinsights");
 const { trace, context: sContext, TraceFlags, SpanKind, SpanStatusCode } = require("@opentelemetry/api");
 const { randomBytes } = require("crypto");

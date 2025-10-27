@@ -1,9 +1,14 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 import { Helmet } from "react-helmet";
 import { Link } from "react-router";
 import { Button, Box } from "@mui/material";
 
 export async function clientLoader() {
-  let isAuthenticated = localStorage.getItem("token") ? true : false;
+  const isAuthenticated = localStorage.getItem("token") ? true : false;
   return { isAuthenticated };
 }
 

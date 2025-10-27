@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 const { Op, Sequelize, QueryTypes, literal } = require("sequelize");
 // const { Profiles, Attributes } = require("../db/model");
 // const { Location } = require("@zenmechat/shared/db/model");

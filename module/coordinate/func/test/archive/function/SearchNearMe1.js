@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 const { app } = require("@azure/functions");
 const { sequelize } = require("../../../src/module/shared/db/index.js");
 const { QueryTypes } = require("sequelize");

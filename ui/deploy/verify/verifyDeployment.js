@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 // Test that the deployment succeeded and all dependencies are in place. This test will not change any data.
 import { execSync } from "child_process";
 import { getTargetEnv } from "../../../module/shared/func/deploy/util/envSetup.js";

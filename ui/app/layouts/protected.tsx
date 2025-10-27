@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 import { Outlet, redirect } from "react-router";
 import { authVerify } from "../../api/auth";
 import Navbar from "../components/Navbar";

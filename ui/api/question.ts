@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 import { jwtFetch } from "./jwtFetch";
 import { getConfig } from "../config/loadConfig";
 // const apiDomain = import.meta.env.VITE_quest5Tier_DOMAIN;

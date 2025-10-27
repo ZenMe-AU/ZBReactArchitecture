@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 async function withTransaction(sequelizeInstance, callback) {
   const t = await sequelizeInstance.transaction();
   try {

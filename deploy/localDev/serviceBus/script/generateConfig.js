@@ -1,5 +1,10 @@
 #!/usr/bin/env node
 
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 import { existsSync, readdirSync, writeFileSync, statSync } from "fs";
 import { fileURLToPath } from "url";
 import { dirname, resolve, join } from "path";

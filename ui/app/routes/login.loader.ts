@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 import { redirect } from "react-router";
 import { getProfileList } from "../../api/profile";
 import { login as authLogin } from "../../api/auth";

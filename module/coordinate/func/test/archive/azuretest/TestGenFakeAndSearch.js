@@ -1,4 +1,7 @@
-
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
 
 const baseUrl = 'https://local-chat.azurewebsites.net/';
 const coord = [153.10352173070004, -27.50177678975135]

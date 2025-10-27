@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 import { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "react-router";
@@ -300,7 +305,7 @@ function FollowUpQuestion() {
     const fetchQuestions = async () => {
       try {
         const data = await getQuestionsByUser();
-        let list = data.filter((q: Question) => q.id != id && q.optionList !== null && q.optionList.length > 0);
+        const list = data.filter((q: Question) => q.id != id && q.optionList !== null && q.optionList.length > 0);
         console.log("List:", list);
         setQuestionList(list);
       } catch (error) {

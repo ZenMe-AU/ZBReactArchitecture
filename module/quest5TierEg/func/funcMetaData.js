@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 const { requestHandler, eventGridHandler } = require("./handler/handlerWrapper.js");
 const apiCmdHandler = require("./handler/apiCmdHandler.js");
 const apiQryHandler = require("./handler/apiQryHandler.js");

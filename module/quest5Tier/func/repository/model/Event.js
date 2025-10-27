@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 const AGGREGATE_TYPE = require("../../enum/aggregateType");
 const ACTION_TYPE = require("../../enum/actionType");
 

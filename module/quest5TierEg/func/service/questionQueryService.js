@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 const QuestionRepo = require("../repository/questionRepository");
 const AnswerRepo = require("../repository/questionAnswerRepository");
 const ShareRepo = require("../repository/questionShareRepository");

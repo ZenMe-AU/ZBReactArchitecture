@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 // A simple DI registry to register and initialize services
 // Each service is registered with a name and an async init function
 // The init function is called during startup to initialize the service

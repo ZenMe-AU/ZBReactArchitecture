@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 const { withTransaction } = require("./dbUtils");
 const CmdRepo = require("../repository/cmdRepository");
 const QuestionRepo = require("../repository/questionRepository");

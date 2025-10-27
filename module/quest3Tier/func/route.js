@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 const { app } = require("@azure/functions");
 const { requestHandler, serviceBusHandler } = require("./handler/handlerWrapper.js");
 const questionHandler = require("./handler/handler.js");

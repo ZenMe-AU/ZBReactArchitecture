@@ -1,4 +1,8 @@
-// SPDX-License-Identifier: MIT
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 /**
  * @file deploy.js
  * @description

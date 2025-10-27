@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 // From Eslint v8.21.0, .eslintrc* is no longer used. eslint.config.js is the default config file name.
 
 import rootConfig from "../eslint.config.js";

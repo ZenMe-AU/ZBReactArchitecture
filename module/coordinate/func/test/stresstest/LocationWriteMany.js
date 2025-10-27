@@ -1,3 +1,7 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
 
 //Write random user locations to the database for one deviceid and locations changing randomly in a specified radius.
 //TODO: Luke copy generate fake data code here.

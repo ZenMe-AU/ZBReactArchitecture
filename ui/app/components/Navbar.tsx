@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 import { useNavigate } from "react-router";
 import { AppBar, Toolbar, Typography, Avatar, Button, Box } from "@mui/material";
 import { logEvent } from "../../monitor/telemetry";

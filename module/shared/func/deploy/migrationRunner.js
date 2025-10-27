@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 const path = require("path");
 const { createMigrationInstance } = require("../db/migration");
 const { getCurrentPublicIP, getTargetEnv } = require("./util/envSetup.js");

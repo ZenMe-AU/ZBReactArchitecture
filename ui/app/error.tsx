@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 import { isRouteErrorResponse } from "react-router";
 import type { Route } from "./+types/root";
 import { error } from "console";
@@ -8,7 +13,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let message = "Oops!";
   let details = "An unexpected error occurred.";
   let stack: string | undefined;
-  let isDev = getConfig("DEV") || false;
+  const isDev = getConfig("DEV") || false;
 
   if (isRouteErrorResponse(error)) {
     message = error.status === 404 ? "404" : "Error";

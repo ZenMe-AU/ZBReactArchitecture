@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 /* This script configures the corporate environment with the relevant permissions to allow automated deployments.
 */
 import { execSync } from "child_process";

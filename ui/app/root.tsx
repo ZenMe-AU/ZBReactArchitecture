@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 import { useEffect } from "react";
 import { Scripts, ScrollRestoration, isRouteErrorResponse, Outlet, useLocation } from "react-router";
 import type { LoaderFunctionArgs } from "react-router";

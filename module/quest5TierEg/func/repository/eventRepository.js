@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 const BaseRepository = require("./baseRepository");
 const ACTION_TYPE = require("../enum/actionType");
 

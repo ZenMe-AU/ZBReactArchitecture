@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 const { resolve } = require("path");
 const { getTargetEnv, getModuleName } = require("../util/envSetup.js");
 const classDeployEnvironment = require("./classDeployEnvironment.js");

@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 import { Helmet } from "react-helmet";
 import { Link } from "react-router";
 import { getQuestionsByUser } from "../api/question";

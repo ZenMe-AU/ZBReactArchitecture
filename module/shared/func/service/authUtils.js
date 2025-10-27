@@ -1,3 +1,8 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
 const jwt = require("jsonwebtoken");
 
 const jwtSecret = process.env.JWT_SECRET || "bb64c67554381aff324d26669540f591e02e3e993ce85c2d1ed2962e22411634";

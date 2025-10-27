@@ -1,4 +1,9 @@
 /**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
+/**
  * Utility to check if role exists
  */
 async function roleExists(sequelize, roleName) {
