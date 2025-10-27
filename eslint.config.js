@@ -8,6 +8,7 @@
 import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 import licenseheader from "eslint-plugin-license-header";
+import globals from "globals";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 
 export default [
@@ -17,8 +18,9 @@ export default [
   {
     files: ["**/*.{ts,tsx,mts,cts}", "**/*.{js,jsx,mjs,cjs}"],
     languageOptions: {
-      env: { node: true },
       globals: {
+        ...globals.node,
+        ...globals.browser,
         // ...add more globals as needed
       },
     },

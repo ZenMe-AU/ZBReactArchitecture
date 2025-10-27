@@ -23,6 +23,7 @@
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-react": "^7.37.5",
     "glob": "^11.0.3",
+    "globals": "^16.4.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.2",
     "unique-names-generator": "^4.7.1"
