@@ -75,6 +75,14 @@ resource "azurerm_cdn_frontdoor_custom_domain" "module_custom_domain" {
   }
 }
 
+# Store the Function App endpoint in App Configuration
+resource "azurerm_app_configuration_key" "endpoint" {
+  configuration_store_id = data.azurerm_app_configuration.config.id
+  key                    = "FunctionAppHost:${var.function_app_name}"
+  value                  = azurerm_cdn_frontdoor_custom_domain.module_custom_domain.host_name
+  label                  = var.env_type
+}
+
 # DNS TXT record for certificate validation
 resource "azurerm_dns_txt_record" "module_dns_validation" {
   # _dnsauth.module.<env>

@@ -52,13 +52,6 @@ resource "azurerm_function_app_flex_consumption" "fa" {
   }
 }
 
-# Store the Function App endpoint in App Configuration
-resource "azurerm_app_configuration_key" "endpoint" {
-  configuration_store_id = var.appconfig_id
-  key                    = "FunctionAppHost:${var.function_app_name}"
-  value                  = azurerm_function_app_flex_consumption.fa.default_hostname
-  label                  = var.env_type
-}
 # the function app does not use storage account directly,so we do not need to assign permissions to the storage account
 # Assign Function App to Azure AD Group
 # resource "azuread_group_member" "func_identity_member" {
