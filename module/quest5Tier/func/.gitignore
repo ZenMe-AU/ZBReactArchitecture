@@ -102,3 +102,6 @@ __azurite_db*__.json
 terraform.tfstate.backup
 .terraform.*
 .terraform/
+# Snyk Security Extension - AI Rules (auto-generated)
+.github\instructions\snyk_rules.instructions.md
+**/.github\instructions\snyk_rules.instructions.md
