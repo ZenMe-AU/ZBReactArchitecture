@@ -3,15 +3,10 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const { app } = require("@azure/functions");
-// const { requestHandler, serviceBusHandler, eventGridHandler } = require("./handler/handlerWrapper.js");
-// const apiCmdHandler = require("./handler/apiCmdHandler.js");
-// const apiQryHandler = require("./handler/apiQryHandler.js");
-// const queueCmdHandler = require("./handler/queueCmdHandler.js");
-// const sendFollowUpCmdSchema = require("./schema/sendFollowUpCmdSchema");
-// const shareQuestionCmdSchema = require("./schema/shareQuestionCmdSchema");
-// const { eventGridDomain } = require("./eventGrid/output.js");
 const funcMetaData = require("./funcMetaData.js");
+const funcClientFactory = require("./funcClient/factory.js");
+// TODO: create the client based on environment variables
+const app = funcClientFactory.getClient();
 
 app.http(funcMetaData.allFunctions.GetQuestion.funcName, {
   route: funcMetaData.allFunctions.GetQuestion.route,
