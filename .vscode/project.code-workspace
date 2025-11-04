@@ -33,15 +33,6 @@
       "path": "../module/shared/func"
     }
   ],
-
-  "settings": {
-    "files.exclude": {
-      "node_modules/": false
-    },
-    "jest.runMode": "on-demand",
-    "jest.disabledWorkspaceFolders": ["ROOT"],
-    "powershell.cwd": "ROOT"
-  },
   "launch": {
     "version": "0.2.0",
     "compounds": [
@@ -53,6 +44,39 @@
         "name": "Install Dependencies",
         "configurations": ["Dependencies shared", "Dependencies ui", "Dependencies quest5Tier", "Dependencies profile"]
       }
+    ]
+  },
+  "settings": {
+    // These settings apply to all workspaces.
+    "files.exclude": {
+      "node_modules/": false
+    },
+    //Jest configuration
+    "jest.runMode": { "type": "on-demand", "deferred": true },
+    "jest.disabledWorkspaceFolders": ["ROOT"],
+    "jest.runAllTestsOnStartup": false,
+    // Powershell settings
+    "powershell.cwd": "ROOT",
+    "powershell.scriptAnalysis.settingsPath": "PSScriptAnalyzerSettings.psd1",
+    "powershell.scriptAnalysis.enable": true,
+
+    "debug.internalConsoleOptions": "neverOpen",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit"
+    },
+    // ESLint settings
+    "eslint.enable": true,
+    "eslint.lintTask.enable": true,
+    "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
+    "eslint.workingDirectories": [
+      "../",
+      "../ui",
+      "../module/quest5Tier/func",
+      "../module/quest3Tier/func",
+      "../module/profile/func",
+      "../module/coordinate/func",
+      "../module/shared/func"
     ]
   }
 }

@@ -1,27 +1,10 @@
 {
+  //This file is used to store local workspace settings.
+  // Azure Functions settings are duplicated for each workspace that uses azure functions.
   "azureFunctions.deploySubpath": "api",
   "azureFunctions.postDeployTask": "npm install (functions)",
   "azureFunctions.projectLanguage": "JavaScript",
   "azureFunctions.projectRuntime": "~4",
-  "debug.internalConsoleOptions": "neverOpen",
   "azureFunctions.projectLanguageModel": 4,
-  "azureFunctions.preDeployTask": "npm prune (functions)",
-  "editor.formatOnSave": true,
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit"
-  },
-  "powershell.scriptAnalysis.settingsPath": "PSScriptAnalyzerSettings.psd1",
-  "powershell.scriptAnalysis.enable": true,
-  "eslint.enable": true,
-  "eslint.lintTask.enable": true,
-  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"],
-  "eslint.workingDirectories": [
-    "../",
-    "../ui",
-    "../module/quest5Tier/func",
-    "../module/quest3Tier/func",
-    "../module/profile/func",
-    "../module/coordinate/func",
-    "../module/shared/func"
-  ]
+  "azureFunctions.preDeployTask": "npm prune (functions)"
 }
