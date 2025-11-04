@@ -11,6 +11,8 @@ const { createFollowUp } = require("./testModule/createFollowUpTest");
 const { checkShareQuestion, checkFollowUpQty } = require("./testModule/createFollowUpTest_B");
 const { v4: uuidv4 } = require("uuid");
 const { registerListener } = require("./receiveMessages.js");
+const { updateQuestion } = require("./testModule/updateQuestionTest");
+const { shareQuestion } = require("./testModule/shareQuestionTest");
 const funcMetaData = global._funcMetaData || (global._funcMetaData = require("../funcMetaData"));
 require("../index");
 
@@ -19,6 +21,8 @@ const testCorrelationId = uuidv4();
 describe("test question data", () => {
   createUser();
   createQuestion(profileIdLookup, testCorrelationId);
+  updateQuestion(profileIdLookup, questionIdLookup, testCorrelationId);
+  shareQuestion(profileIdLookup, questionIdLookup, testCorrelationId);
   createAnswer(profileIdLookup, questionIdLookup, testCorrelationId);
   checkQuestion(profileIdLookup);
   checkAnswer(profileIdLookup, questionIdLookup);

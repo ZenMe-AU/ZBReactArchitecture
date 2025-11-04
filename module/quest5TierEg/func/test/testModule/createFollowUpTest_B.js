@@ -60,7 +60,7 @@ const checkFollowUpQty = (testCorrelationId) => {
 
 function shareQuestionData() {
   return [
-    { userId: 2, count: 1 },
+    { userId: 2, count: 1 + 1 },
     { userId: 3, count: 5 },
     { userId: 4, count: 3 },
     { userId: 5, count: 3 },
