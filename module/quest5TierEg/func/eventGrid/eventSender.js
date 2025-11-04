@@ -5,6 +5,7 @@
 
 const container = require("../di/diContainer");
 const { v4: uuidv4 } = require("uuid");
+let funcMetaData = null;
 
 /**
  * Send a CloudEvent using either a provided client or one from the container.
@@ -41,44 +42,51 @@ async function sendEvent({ client, topic, source, body, correlationId, messageId
 }
 
 async function sendSendFollowUpCmd({ source, body, correlationId }) {
-  const funcMetaData = require("../funcMetaData");
-  return sendEvent({ topic: funcMetaData.allFunctions.SendFollowUpCmd.subscriptionFilter, source, body, correlationId });
+  const funcMetaData = getFuncMetaData();
+  return await sendEvent({ topic: funcMetaData.allFunctions.SendFollowUpCmd.subscriptionFilter, source, body, correlationId });
 }
 async function sendShareQuestionCmd({ source, body, correlationId }) {
-  const funcMetaData = require("../funcMetaData");
-  return sendEvent({ topic: funcMetaData.allFunctions.ShareQuestionCmd.subscriptionFilter, source, body, correlationId });
+  const funcMetaData = getFuncMetaData();
+  return await sendEvent({ topic: funcMetaData.allFunctions.ShareQuestionCmd.subscriptionFilter, source, body, correlationId });
 }
 async function sendCreateQuestionCmd({ source, body, correlationId }) {
-  const funcMetaData = require("../funcMetaData");
-  return sendEvent({ topic: funcMetaData.allFunctions.CreateQuestionCmd.subscriptionFilter, source, body, correlationId });
+  const funcMetaData = getFuncMetaData();
+  return await sendEvent({ topic: funcMetaData.allFunctions.CreateQuestionCmd.subscriptionFilter, source, body, correlationId });
 }
 async function sendUpdateQuestionCmd({ source, body, correlationId }) {
-  const funcMetaData = require("../funcMetaData");
-  return sendEvent({ topic: funcMetaData.allFunctions.UpdateQuestionCmd.subscriptionFilter, source, body, correlationId });
+  const funcMetaData = getFuncMetaData();
+  return await sendEvent({ topic: funcMetaData.allFunctions.UpdateQuestionCmd.subscriptionFilter, source, body, correlationId });
 }
 async function sendCreateAnswerCmd({ source, body, correlationId }) {
-  const funcMetaData = require("../funcMetaData");
-  return sendEvent({ topic: funcMetaData.allFunctions.CreateAnswerCmd.subscriptionFilter, source, body, correlationId });
+  const funcMetaData = getFuncMetaData();
+  return await sendEvent({ topic: funcMetaData.allFunctions.CreateAnswerCmd.subscriptionFilter, source, body, correlationId });
 }
 async function sendFollowUpSentEvent({ source, body, correlationId, messageId }) {
-  const funcMetaData = require("../funcMetaData");
-  return sendEvent({ topic: funcMetaData.allFunctions.SendFollowUpCmd.eventQueueName, source, body, correlationId, messageId });
+  const funcMetaData = getFuncMetaData();
+  return await sendEvent({ topic: funcMetaData.allFunctions.SendFollowUpCmd.eventQueueName, source, body, correlationId, messageId });
 }
 async function sendQuestionSharedEvent({ source, body, correlationId, messageId }) {
-  const funcMetaData = require("../funcMetaData");
-  return sendEvent({ topic: funcMetaData.allFunctions.ShareQuestionCmd.eventQueueName, source, body, correlationId, messageId });
+  const funcMetaData = getFuncMetaData();
+  return await sendEvent({ topic: funcMetaData.allFunctions.ShareQuestionCmd.eventQueueName, source, body, correlationId, messageId });
 }
 async function sendQuestionCreatedEvent({ source, body, correlationId, messageId }) {
-  const funcMetaData = require("../funcMetaData");
-  return sendEvent({ topic: funcMetaData.allFunctions.CreateQuestionCmd.eventQueueName, source, body, correlationId, messageId });
+  const funcMetaData = getFuncMetaData();
+  return await sendEvent({ topic: funcMetaData.allFunctions.CreateQuestionCmd.eventQueueName, source, body, correlationId, messageId });
 }
 async function sendQuestionUpdatedEvent({ source, body, correlationId, messageId }) {
-  const funcMetaData = require("../funcMetaData");
-  return sendEvent({ topic: funcMetaData.allFunctions.UpdateQuestionCmd.eventQueueName, source, body, correlationId, messageId });
+  const funcMetaData = getFuncMetaData();
+  return await sendEvent({ topic: funcMetaData.allFunctions.UpdateQuestionCmd.eventQueueName, source, body, correlationId, messageId });
 }
 async function sendAnswerCreatedEvent({ source, body, correlationId, messageId }) {
-  const funcMetaData = require("../funcMetaData");
-  return sendEvent({ topic: funcMetaData.allFunctions.CreateAnswerCmd.eventQueueName, source, body, correlationId, messageId });
+  const funcMetaData = getFuncMetaData();
+  return await sendEvent({ topic: funcMetaData.allFunctions.CreateAnswerCmd.eventQueueName, source, body, correlationId, messageId });
+}
+
+function getFuncMetaData() {
+  if (!funcMetaData) {
+    funcMetaData = require("../funcMetaData");
+  }
+  return funcMetaData;
 }
 
 module.exports = {

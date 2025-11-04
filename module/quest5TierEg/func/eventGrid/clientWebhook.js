@@ -10,7 +10,7 @@ class clientWebhook {
   credential = null;
   type = "webhook";
   endpoint = null;
-  // queueFunctionName = null;
+  funcMetaData = null;
 
   constructor({ endpoint, clientId }) {
     if (!endpoint) {
@@ -19,13 +19,21 @@ class clientWebhook {
     this.endpoint = endpoint;
     this.credential = clientId ? new DefaultAzureCredential({ managedIdentityClientId: clientId }) : new DefaultAzureCredential();
     console.log(`Using AAD credential (clientId=${clientId || "system-assigned"}) for ${this.type} client`);
+    this.funcMetaData = null;
+  }
+
+  getFuncMetaData() {
+    if (!this.funcMetaData) {
+      this.funcMetaData = require("../funcMetaData");
+    }
+    return this.funcMetaData;
   }
 
   sendEvents = (events) => {
     if (!events || !Array.isArray(events) || events.length === 0) {
       throw new Error("sendEvents requires a non-empty array of events");
     }
-    const funcMetaData = require("../funcMetaData");
+    const funcMetaData = this.getFuncMetaData();
     const matchingCommand = funcMetaData.commands.find((cmd) => events[0].type === cmd.subscriptionFilter);
     if (!matchingCommand) {
       console.log(`No subscriber found for event type: ${events[0].type}`);
