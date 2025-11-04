@@ -77,6 +77,17 @@
       "../module/profile/func",
       "../module/coordinate/func",
       "../module/shared/func"
+    ],
+    // Snyk settings
+    "snyk.scanningMode": "manual",
+    "snyk.trustedFolders": [
+      "../",
+      "../ui",
+      "../module/quest5Tier/func",
+      "../module/quest3Tier/func",
+      "../module/profile/func",
+      "../module/coordinate/func",
+      "../module/shared/func"
     ]
   }
 }
