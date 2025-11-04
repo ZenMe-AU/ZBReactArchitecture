@@ -3,6 +3,8 @@
  * @license SPDX-License-Identifier: MIT
  */
 
+// npx jest ./test/testQuestion.test.js --coverage --collectCoverageFrom="**/*.js"
+
 const { createUser, profileIdLookup } = require("./testModule/createUserTest");
 const { createQuestion, checkQuestion, questionIdLookup } = require("./testModule/createQuestionTest");
 const { createAnswer } = require("./testModule/createAnswerTest");
