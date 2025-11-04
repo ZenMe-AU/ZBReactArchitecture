@@ -6,8 +6,9 @@
 const baseUrl = process.env.BASE_URL;
 const questionUrl = new URL("/questionQry", baseUrl);
 const { generateToken } = require("../../service/authUtils");
-
+const funcClientFactory = require("../../funcClient/factory.js");
 const checkAnswer = (profileIdLookup, questionIdLookup) => {
+  let client = funcClientFactory.getClient();
   test.each(getAnswerTestResult())("There should be $count answers for question $questionId.", async (r) => {
     if (!tokenLookup.data) {
       const token = generateToken({ profileId: profileIdLookup.data[0].profileId });
@@ -15,7 +16,7 @@ const checkAnswer = (profileIdLookup, questionIdLookup) => {
       // console.log("Generated Token: ", token);
       tokenLookup.add(token);
     }
-    const response = await fetch(questionUrl + "/getAnswers/" + questionIdLookup.getQuestionId(r.questionId), {
+    const response = await client.fetch(questionUrl + "/getAnswers/" + questionIdLookup.getQuestionId(r.questionId), {
       method: "GET",
       headers: {
         Accept: "application/json",

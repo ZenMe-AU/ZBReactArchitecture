@@ -3,73 +3,70 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const { createServiceBusInstance } = require("../serviceBus/connection");
-let sbClient;
+const funcClientFactory = require("../funcClient/factory.js");
+const eventStore = new Map();
 
-async function getMessageById(queueName, targetMessageId, { timeoutMs = 30000, batchSize = 50 } = {}) {
-  sbClient = sbClient || (await getServiceBusClient());
-  const receiver = sbClient.createReceiver(queueName);
-  const start = Date.now();
-
-  try {
-    while (Date.now() - start < timeoutMs) {
-      const messages = await receiver.peekMessages(batchSize);
-      const matched = messages.find((m) => m.messageId === targetMessageId);
-
-      if (matched) {
-        return matched.body;
-      }
-
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    }
-    console.log(`Timeout: Message '${targetMessageId}' not found within ${timeoutMs}ms`);
-    return null;
-  } finally {
-    await receiver.close();
+function registerListener(queueNames = []) {
+  const container = require("../di/diContainer");
+  const client = container.get("eventGrid");
+  const funcClient = funcClientFactory.getClient();
+  if (!Array.isArray(queueNames) || queueNames.length === 0) {
+    throw new Error("registerListener requires a non-empty array of queue names");
   }
-}
 
-async function removeMessagesByIds(queueName, targetIds, { batchSize = 50, maxWaitTimeInMs = 5000 } = {}) {
-  sbClient = sbClient || (await getServiceBusClient());
-  const receiver = sbClient.createReceiver(queueName);
-
-  try {
-    const removed = [];
-    const toRemove = new Set(targetIds);
-
-    const received = await receiver.receiveMessages(batchSize, { maxWaitTimeInMs });
-
-    for (const msg of received) {
-      if (toRemove.has(msg.messageId)) {
-        await receiver.completeMessage(msg);
-        removed.push(msg.messageId);
-      } else {
-        await receiver.abandonMessage(msg);
-      }
+  queueNames.forEach((queueName) => {
+    if (eventStore.has(queueName)) {
+      console.log(`Listener for '${queueName}' already registered`);
+      return;
     }
 
-    return removed;
-  } finally {
-    await receiver.close();
-  }
-}
-
-async function getServiceBusClient() {
-  if (sbClient) return sbClient;
-
-  sbClient = createServiceBusInstance({
-    namespace: process.env.ServiceBusConnection__fullyQualifiedNamespace,
-    clientId: process.env.ServiceBusConnection__clientId || null,
-  });
-  // for local development, use connection string if ServiceBusConnection is set
-  if (process.env.ServiceBusConnection && process.env.ServiceBusConnection.startsWith("Endpoint=sb://localhost")) {
-    sbClient = createServiceBusInstance({
-      namespace: process.env.ServiceBusConnection__fullyQualifiedNamespace,
-      connectionString: process.env.ServiceBusConnection,
+    eventStore.set(queueName, []);
+    const funcMetaData = global._funcMetaData || (global._funcMetaData = require("../funcMetaData"));
+    const matchingCommand = funcMetaData.commands.find((cmd) => queueName === cmd.subscriptionFilter);
+    if (matchingCommand) {
+      client.rawClient.on(queueName, (events) => {
+        console.log(`🎉 Received events for queue '${queueName}':`, events);
+        funcClient.fetchEventGrid(matchingCommand.queueFuncName, events);
+      });
+    }
+    client.rawClient.on(queueName, (events) => {
+      const normalized = Array.isArray(events) ? events : [events];
+      const store = eventStore.get(queueName);
+      store.push(...normalized);
+      console.log(`👌 Stored ${normalized.length} events for '${queueName}'`);
+      console.log(`Current stored events for '${queueName}':`, store);
     });
-  }
+  });
 
-  return sbClient;
+  console.log(`🎧 Listening on queues: ${queueNames.join(", ")}`);
 }
 
-module.exports = { getMessageById, removeMessagesByIds, getServiceBusClient };
+async function getMessageById(queueName, targetId, { timeoutMs = 10000, intervalMs = 200 } = {}) {
+  console.log(`🔍 Waiting for message '${targetId}' in queue '${queueName}'`);
+  if (!eventStore.has(queueName)) {
+    throw new Error(`Queue '${queueName}' is not being listened to`);
+  }
+
+  const start = Date.now();
+  return new Promise((resolve, reject) => {
+    const timer = setInterval(() => {
+      const messages = eventStore.get(queueName);
+      console.log(`👀Checking ${messages.length} messages in '${queueName}' for '${targetId}'`, messages);
+      const index = messages.findIndex((m) => m.id === targetId);
+
+      if (index !== -1) {
+        const [matched] = messages.splice(index, 1);
+        clearInterval(timer);
+        resolve(matched);
+      } else if (Date.now() - start > timeoutMs) {
+        clearInterval(timer);
+        reject(new Error(`Timeout waiting for message '${targetId}' in '${queueName}'`));
+      }
+    }, intervalMs);
+  });
+}
+
+module.exports = {
+  registerListener,
+  getMessageById,
+};

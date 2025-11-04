@@ -5,10 +5,12 @@
 
 const baseUrl = process.env.BASE_URL;
 const cmdUrl = new URL("/questionCmd", baseUrl);
+const funcClientFactory = require("../../funcClient/factory.js");
 
 const createAnswer = (profileIdLookup, questionIdLookup, testCorrelationId) => {
+  let client = funcClientFactory.getClient();
   test.each(answerData())("answer question $questionId by user $userId", async (a) => {
-    const response = await fetch(cmdUrl + "/createAnswer/" + questionIdLookup.getQuestionId(a.questionId), {
+    const response = await client.fetch(cmdUrl + "/createAnswer/" + questionIdLookup.getQuestionId(a.questionId), {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-correlation-id": testCorrelationId },
       body: JSON.stringify({
@@ -21,6 +23,7 @@ const createAnswer = (profileIdLookup, questionIdLookup, testCorrelationId) => {
     });
 
     let answer = await response.json();
+    console.log("✅ Created answer response:", answer);
     // let answerId = answer.return.id;
     // console.log(answerId);
     expect(response.ok).toBeTruthy();

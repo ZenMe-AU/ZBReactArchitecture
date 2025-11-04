@@ -4,15 +4,20 @@
  */
 
 const baseUrl = process.env.BASE_URL;
+console.log(" Base URL:", baseUrl);
 const qryUrl = new URL("/questionQry", baseUrl);
 const cmdUrl = new URL("/questionCmd", baseUrl);
 const { questionData, questionTestResult } = require("./createQuestionTestData");
-const { getMessageById, removeMessagesByIds, getServiceBusClient } = require("../receiveMessages");
-const { qNameQuestionCreatedEvent } = require("../../serviceBus/queueNameList");
+const { getMessageById } = require("../receiveMessages");
+const funcMetaData = require("../../funcMetaData");
+
+const funcClientFactory = require("../../funcClient/factory.js");
+// class fakeHttp.fetch(functionName, headers, method, body)
 
 const createQuestion = (profileIdLookup, testCorrelationId) => {
+  let client = funcClientFactory.getClient();
   test.each(questionData())("create question $questionId", async (q) => {
-    const response = await fetch(cmdUrl + "/createQuestion", {
+    const response = await client.fetch(cmdUrl + "/createQuestion", {
       headers: { "Content-Type": "application/json", "x-correlation-id": testCorrelationId },
       method: "POST",
       body: JSON.stringify({
@@ -25,11 +30,12 @@ const createQuestion = (profileIdLookup, testCorrelationId) => {
     //
     let question = await response.json();
     let messageId = question.return.messageId;
+    let messageBody = await getMessageById(funcMetaData.allFunctions.CreateQuestionCmd.eventQueueName, messageId);
 
-    let messageBody = await getMessageById(qNameQuestionCreatedEvent, messageId);
-    let questionId = messageBody ? messageBody.aggregateId : null;
+    let questionId = messageBody ? messageBody.data.aggregateId : null;
     questionIdLookup.add(q.questionId, questionId);
-    let removed = await removeMessagesByIds(qNameQuestionCreatedEvent, [messageId]);
+    console.log(questionIdLookup.data);
+
     // console.log(" Removed messages:", { removed });
     expect(response.ok).toBeTruthy();
   });
@@ -39,18 +45,23 @@ const createQuestion = (profileIdLookup, testCorrelationId) => {
 };
 
 const checkQuestion = (profileIdLookup) => {
-  test.each(questionTestResult())("There should be $count questions by user $userId.", async (r) => {
-    const response = await fetch(qryUrl + "/getQuestions/" + profileIdLookup.getProfileId(r.userId), {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        "Access-Control-Allow-Origin": "*",
-      },
-    });
-    const resultData = await response.json();
-    const qty = resultData.return.list.length;
-    expect(qty).toBe(r.count);
-  });
+  let client = funcClientFactory.getClient();
+  test.each(questionTestResult())(
+    "There should be $count questions by user $userId.",
+    async (r) => {
+      const response = await client.fetch(qryUrl + "/getQuestions/" + profileIdLookup.getProfileId(r.userId), {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "Access-Control-Allow-Origin": "*",
+        },
+      });
+      const resultData = await response.json();
+      const qty = resultData.return.list.length;
+      expect(qty).toBe(r.count);
+    },
+    6000
+  );
 };
 
 const questionIdLookup = {

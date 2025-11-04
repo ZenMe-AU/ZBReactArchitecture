@@ -6,10 +6,12 @@
 const baseUrl = process.env.BASE_URL;
 const qryUrl = new URL("/questionQry", baseUrl);
 const cmdUrl = new URL("/questionCmd", baseUrl);
+const funcClientFactory = require("../../funcClient/factory.js");
 
 const createFollowUp = (profileIdLookup, questionIdLookup, testCorrelationId) => {
   test.each(followUpData())("send follow-up question by user $userId", async (followUp) => {
-    const response = await fetch(cmdUrl + "/sendFollowUp", {
+    const client = funcClientFactory.getClient();
+    const response = await client.fetch(cmdUrl + "/sendFollowUp", {
       headers: {
         "Content-Type": "application/json",
         "x-correlation-id": testCorrelationId,

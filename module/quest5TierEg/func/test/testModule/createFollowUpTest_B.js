@@ -6,13 +6,15 @@
 const baseUrl = process.env.BASE_URL;
 const qryUrl = new URL("/questionQry", baseUrl);
 const cmdUrl = new URL("/questionCmd", baseUrl);
+const funcClientFactory = require("../../funcClient/factory.js");
 const followUpQuestionQty = 5;
 
 const checkShareQuestion = (profileIdLookup, testCorrelationId) => {
+  let client = funcClientFactory.getClient();
   test.each(shareQuestionData())("check shared question by user $userId", async (shared) => {
     let qty = 0;
     for (let i = 0; i < 5; i++) {
-      const response = await fetch(qryUrl + "/getSharedQuestions/" + profileIdLookup.getProfileId(shared.userId), { method: "GET" });
+      const response = await client.fetch(qryUrl + "/getSharedQuestions/" + profileIdLookup.getProfileId(shared.userId), { method: "GET" });
       let resultData = await response.json();
       qty = resultData.return.list.length;
       if (qty === shared.count) {
@@ -26,17 +28,20 @@ const checkShareQuestion = (profileIdLookup, testCorrelationId) => {
 };
 
 const checkFollowUpQty = (testCorrelationId) => {
+  let client = funcClientFactory.getClient();
   test(
     "check follow up question by Correlation Id:" + testCorrelationId,
     async () => {
       let qty = 0;
       for (let i = 0; i < 5; i++) {
-        const response = await fetch(qryUrl + "/getFollowUpEvents/" + testCorrelationId, { method: "GET" });
+        const response = await client.fetch(qryUrl + "/getFollowUpEvents/" + testCorrelationId, { method: "GET" });
+        console.log("❤️ Follow up events response:", response);
         if (!response.ok) {
           console.error(`Error: ${response.status} - ${response.statusText}`);
           break;
         }
         let resultData = await response.json();
+        console.log("❤️ Follow up events response:", resultData);
         qty = resultData.return.qty;
 
         if (qty === followUpQuestionQty) {
