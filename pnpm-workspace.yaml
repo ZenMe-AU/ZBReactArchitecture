@@ -1,3 +1,4 @@
 packages:
   - ui
   - module/*/ui
+  - module/quest5TierEg/func

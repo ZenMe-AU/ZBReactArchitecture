@@ -6,10 +6,11 @@
   "private": true,
   "workspaces": [
     "module/shared/ui",
-    "module/question/ui",
-    "module/questionV2/ui",
+    "module/quest3Tier/ui",
     "module/quest5Tier/ui",
-    "module/profile/ui"
+    "module/quest5TierEg/ui",
+    "module/profile/ui",
+    "module/quest5TierEg/func"
   ],
   "scripts": {},
   "devDependencies": {
