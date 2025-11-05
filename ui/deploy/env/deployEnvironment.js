@@ -3,8 +3,8 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import { getTargetEnv } from "../../../module/shared/func/deploy/util/envSetup.js";
-import EnvironmentDeployer from "../../../module/shared/func/deploy/environmentDeployer.js";
+import { getTargetEnv } from "../deploy/util/envSetup.js";
+import EnvironmentDeployer from "./environmentDeployer.js";
 
 (async () => {
   const autoApprove = process.argv.includes("--auto-approve");
