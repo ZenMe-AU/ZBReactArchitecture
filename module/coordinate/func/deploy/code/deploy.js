@@ -4,22 +4,17 @@
  */
 
 const { resolve } = require("path");
-const { getTargetEnv, getModuleName } = require("@zenmechat/shared/deploy/util/envSetup");
-const {
-  getResourceGroupName,
-  getServiceBusName,
-  getFunctionAppName,
-  getStorageAccountName,
-} = require("@zenmechat/shared/deploy/util/namingConvention");
-const { getSubscriptionId } = require("@zenmechat/shared/deploy/util/azureCli");
-const CodeDeployer = require("@zenmechat/shared/deploy//CodeDeployer");
+const { getTargetEnv, getModuleName } = require("../util/envSetup");
+const { getResourceGroupName, getServiceBusName, getFunctionAppName, getStorageAccountName } = require("../util/namingConvention");
+const { getSubscriptionId } = require("../util/azureCli");
+const CodeDeployer = require("./codeDeployer.js");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
 
 (async () => {
   let targetEnv, moduleName, subscriptionId, envType;
   try {
-    envType = process.env.TF_VAR_env_type;
+    envType = process.env.TF_VAR_env_type || "dev";
     targetEnv = getTargetEnv();
     moduleName = getModuleName(moduleDir);
     subscriptionId = getSubscriptionId();

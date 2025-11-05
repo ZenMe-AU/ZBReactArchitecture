@@ -3,10 +3,9 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-require("@zenmechat/shared");
 const { app } = require("@azure/functions");
-const { requestHandler } = require("@zenmechat/shared/handler.js");
-const coordinateHandler = require("./handler.js");
+const { requestHandler } = require("./handler/handlerWrapper.js");
+const coordinateHandler = require("./handler/handler.js");
 
 app.http("SearchAtLocationQty", {
   route: "SearchAtLocationQty",
