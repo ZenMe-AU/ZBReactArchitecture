@@ -5,9 +5,9 @@
 
 // Test that the deployment succeeded and all dependencies are in place. This test will not change any data.
 import { execSync } from "child_process";
-import { getTargetEnv } from "../../../module/shared/func/deploy/util/envSetup.js";
-import { getStorageAccountWebName, getResourceGroupName, getAppConfigName } from "../../../module/shared/func/deploy/util/namingConvention.js";
-import { getAppConfigValueByKeyLabel } from "../../../module/shared/func/deploy/util/azureCli.js";
+import { getTargetEnv } from "../util/envSetup.js";
+import { getStorageAccountWebName, getResourceGroupName, getAppConfigName } from "../util/namingConvention.js";
+import { getAppConfigValueByKeyLabel } from "../util/azureCli.js";
 
 (async () => {
   try {

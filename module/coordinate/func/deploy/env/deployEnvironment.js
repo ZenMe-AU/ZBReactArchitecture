@@ -4,8 +4,8 @@
  */
 
 const { resolve } = require("path");
-const { getTargetEnv, getModuleName } = require("@zenmechat/shared/deploy/util/envSetup.js");
-const EnvironmentDeployer = require("@zenmechat/shared/deploy/environmentDeployer.js");
+const { getTargetEnv, getModuleName } = require("../util/envSetup.js");
+const EnvironmentDeployer = require("./environmentDeployer.js");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
 
@@ -13,7 +13,7 @@ const moduleDir = resolve(__dirname, "..", "..", "..");
   let logLevel, targetEnv, moduleName, envType;
   // logLevel = "DEBUG";
   try {
-    envType = process.env.TF_VAR_env_type;
+    envType = process.env.TF_VAR_env_type || "dev";
     targetEnv = getTargetEnv();
     moduleName = getModuleName(moduleDir);
   } catch (err) {
@@ -21,5 +21,6 @@ const moduleDir = resolve(__dirname, "..", "..", "..");
     process.exit(1);
   }
   const autoApprove = process.argv.includes("--auto-approve");
-  new EnvironmentDeployer({ envType, targetEnv, moduleName, logLevel, autoApprove }).run();
+  const envDeployer = new EnvironmentDeployer({ envType, targetEnv, moduleName, logLevel, autoApprove });
+  envDeployer.run();
 })();

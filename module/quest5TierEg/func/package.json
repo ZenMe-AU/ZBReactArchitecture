@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "setup:local": "node deploy/localDev/localSetting.js",
-    "prestart": "npm run setup:local",
-    "start": "func start",
+    "prestart": "pnpm run setup:local",
+    "start": "npx func start",
+    "deploy":"pnpm deploy --filter quest5TierEg --prod out",
     "test": "jest"
   },
   "dependencies": {

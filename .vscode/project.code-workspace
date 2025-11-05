@@ -27,10 +27,6 @@
     {
       "name": "coordinate/func",
       "path": "../module/coordinate/func"
-    },
-    {
-      "name": "shared/func",
-      "path": "../module/shared/func"
     }
   ],
   "launch": {
@@ -75,8 +71,7 @@
       "../module/quest5Tier/func",
       "../module/quest3Tier/func",
       "../module/profile/func",
-      "../module/coordinate/func",
-      "../module/shared/func"
+      "../module/coordinate/func"
     ],
     // Snyk settings
     "snyk.scanningMode": "manual",
@@ -86,8 +81,7 @@
       "../module/quest5Tier/func",
       "../module/quest3Tier/func",
       "../module/profile/func",
-      "../module/coordinate/func",
-      "../module/shared/func"
+      "../module/coordinate/func"
     ]
   }
 }

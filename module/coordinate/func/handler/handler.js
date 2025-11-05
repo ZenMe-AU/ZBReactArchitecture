@@ -3,12 +3,12 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const Location = require("./service/function.js");
-const Profiles = require("@zenmechat/profile/service/function.js");
+const Location = require("../service/function.js");
+const Profiles = require("@zenmechat/profile/service/profileService.js");
 
 /**
  * @swagger
- * /api/SearchAtLocationQty:
+ * /SearchAtLocationQty:
  *   get:
  *     tags:
  *       - Coordinate
@@ -116,7 +116,7 @@ async function SearchAtLocationQty(request, context) {
 
 /**
  * @swagger
- * /api/GetUsersDataByCoord:
+ * /GetUsersDataByCoord:
  *   get:
  *     tags:
  *       - Coordinate
@@ -238,7 +238,7 @@ async function GetUsersDataByCoord(request, context) {
 
 /**
  * @swagger
- * /api/LocationWrite:
+ * /LocationWrite:
  *   post:
  *     tags:
  *       - Coordinate
@@ -295,7 +295,7 @@ async function LocationWrite(request, context) {
 }
 /**
  * @swagger
- * /api/SearchUsersData:
+ * /SearchUsersData:
  *   get:
  *     tags:
  *       - Coordinate
