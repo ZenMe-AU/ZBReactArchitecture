@@ -18,7 +18,7 @@ import {
   getDbAdminName,
   getIdentityName,
   getAppInsightsName,
-} from "../../module/shared/func/deploy/util/namingConvention.js";
+} from "../util/namingConvention.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -135,10 +135,11 @@ function initEnvironment() {
     if (!process.env.TF_VAR_dns_resource_group_name) {
       const zone = process.env.TF_VAR_parent_domain_name;
       // Query all DNS zones and find the RG for the specified zone name
-      const rg = execSync(
-        `az network dns zone list --query "[?name=='${zone}'].resourceGroup | [0]" -o tsv`,
-        { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"], shell: true }
-      )
+      const rg = execSync(`az network dns zone list --query "[?name=='${zone}'].resourceGroup | [0]" -o tsv`, {
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "ignore"],
+        shell: true,
+      })
         .toString()
         .trim();
       if (rg) {
@@ -147,16 +148,12 @@ function initEnvironment() {
       } else {
         // Fallback: commonly used RG for shared DNS zones
         process.env.TF_VAR_dns_resource_group_name = "root-zenblox";
-        console.warn(
-          `Could not auto-detect DNS RG for zone '${zone}'. Defaulting to: ${process.env.TF_VAR_dns_resource_group_name}`
-        );
+        console.warn(`Could not auto-detect DNS RG for zone '${zone}'. Defaulting to: ${process.env.TF_VAR_dns_resource_group_name}`);
       }
     }
   } catch (e) {
     process.env.TF_VAR_dns_resource_group_name = process.env.TF_VAR_dns_resource_group_name || "root-zenblox";
-    console.warn(
-      `Warning: DNS RG auto-detect failed. Using dns_resource_group_name=${process.env.TF_VAR_dns_resource_group_name}`
-    );
+    console.warn(`Warning: DNS RG auto-detect failed. Using dns_resource_group_name=${process.env.TF_VAR_dns_resource_group_name}`);
   }
   console.log(`Setting dns_resource_group_name to: ${process.env.TF_VAR_dns_resource_group_name}`);
 
@@ -169,27 +166,25 @@ function initEnvironment() {
 
     let txtExists = false;
     try {
-      execSync(
-        `az network dns record-set txt show --resource-group ${dnsRg} --zone-name ${zone} --name ${txtName} -o none`,
-        { stdio: ["ignore", "ignore", "ignore"], shell: true }
-      );
+      execSync(`az network dns record-set txt show --resource-group ${dnsRg} --zone-name ${zone} --name ${txtName} -o none`, {
+        stdio: ["ignore", "ignore", "ignore"],
+        shell: true,
+      });
       txtExists = true;
     } catch {}
 
     let cnameExists = false;
     try {
-      execSync(
-        `az network dns record-set cname show --resource-group ${dnsRg} --zone-name ${zone} --name ${cnameName} -o none`,
-        { stdio: ["ignore", "ignore", "ignore"], shell: true }
-      );
+      execSync(`az network dns record-set cname show --resource-group ${dnsRg} --zone-name ${zone} --name ${cnameName} -o none`, {
+        stdio: ["ignore", "ignore", "ignore"],
+        shell: true,
+      });
       cnameExists = true;
     } catch {}
 
     if (txtExists) {
       process.env.TF_VAR_manage_dns_txt_validation = "false";
-      console.log(
-        `Detected existing DNS TXT record ${txtName}.${zone}; will not manage it (manage_dns_txt_validation=false).`
-      );
+      console.log(`Detected existing DNS TXT record ${txtName}.${zone}; will not manage it (manage_dns_txt_validation=false).`);
     } else {
       process.env.TF_VAR_manage_dns_txt_validation = process.env.TF_VAR_manage_dns_txt_validation || "true";
       console.log(
@@ -199,9 +194,7 @@ function initEnvironment() {
 
     if (cnameExists) {
       process.env.TF_VAR_manage_dns_cname = "false";
-      console.log(
-        `Detected existing DNS CNAME record ${cnameName}.${zone}; will not manage it (manage_dns_cname=false).`
-      );
+      console.log(`Detected existing DNS CNAME record ${cnameName}.${zone}; will not manage it (manage_dns_cname=false).`);
     } else {
       process.env.TF_VAR_manage_dns_cname = process.env.TF_VAR_manage_dns_cname || "true";
       console.log(
