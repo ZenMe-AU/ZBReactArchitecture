@@ -2,10 +2,11 @@
 
 # The profile is the top-level resource for Front Door
 resource "azurerm_cdn_frontdoor_profile" "fd_profile" {
-  name                = "${var.target_env}-fd-profile"   
-  resource_group_name = data.azurerm_resource_group.rg.name  
+  name                = "${var.target_env}-fd-profile"
+  resource_group_name = var.resource_group_name
+  # resource_group_name = data.azurerm_resource_group.rg.name
   # sku_name            = "Premium_AzureFrontDoor"
-  sku_name            = "Standard_AzureFrontDoor"                       
+  sku_name = "Standard_AzureFrontDoor"
   identity {
     type = "SystemAssigned"
   }
@@ -25,18 +26,18 @@ data "azurerm_dns_zone" "dns_zone" {
 # Main entry point into Front Door
 resource "azurerm_cdn_frontdoor_endpoint" "fd_endpoint" {
   name                     = "${var.target_env}-fd-endpoint"
-  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.fd_profile.id  
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.fd_profile.id
 }
 
 
 # creating domain with environment name
 resource "azurerm_cdn_frontdoor_custom_domain" "custom_domain" {
-  name                        = "${var.target_env}-dns"
-  cdn_frontdoor_profile_id    = azurerm_cdn_frontdoor_profile.fd_profile.id
-  host_name                   = lower("${var.target_env}.${data.azurerm_dns_zone.dns_zone.name}")
+  name                     = "${var.target_env}-dns"
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.fd_profile.id
+  host_name                = lower("${var.target_env}.${data.azurerm_dns_zone.dns_zone.name}")
   tls {
     certificate_type = "ManagedCertificate"
-    }
+  }
 }
 
 # Enable custom domain by adding txt record to dns zone
@@ -68,7 +69,7 @@ resource "azurerm_app_configuration_key" "frontend_custom_domain_host" {
   label                  = var.env_type
   value                  = lower("${var.target_env}.${data.azurerm_dns_zone.dns_zone.name}")
   # The key only needs the custom domain to exist; TXT record may be managed externally
-  depends_on             = [azurerm_cdn_frontdoor_custom_domain.custom_domain]
+  depends_on = [azurerm_cdn_frontdoor_custom_domain.custom_domain]
 }
 
 # Helpful outputs for DNS delegation and verification
