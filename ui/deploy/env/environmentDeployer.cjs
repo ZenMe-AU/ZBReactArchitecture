@@ -4,7 +4,7 @@
  */
 
 const fs = require("fs");
-const { terraformInit, terraformPlan, terraformApply, terraformImport } = require("./terraformCli");
+const { terraformInit, terraformPlan, terraformApply, terraformImport } = require("./terraformCli.cjs");
 const {
   getFunctionAppName,
   getResourceGroupName,
@@ -18,8 +18,8 @@ const {
   getPgServerName,
   getStorageAccountWebName,
   getEventGridName,
-} = require("../util/namingConvention");
-const { getSubscriptionId, getEventGridDomainId } = require("../util/azureCli");
+} = require("../util/namingConvention.cjs");
+const { getSubscriptionId, getEventGridDomainId } = require("../util/azureCli.cjs");
 
 class EnvironmentDeployer {
   constructor({ envType, targetEnv, moduleName, dbName, backendConfig, logLevel = "", autoApprove = false }) {

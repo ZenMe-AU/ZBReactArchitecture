@@ -6,12 +6,12 @@
 // Script to deploy static web files to Azure Storage Account's static website hosting
 // Uses Azure CLI commands; ensure Azure CLI is installed and user is logged in.
 import fs from "fs";
-import { getTargetEnv } from " ../util/envSetup.js";
-import { getAppConfigValueByKeyLabel } from "../util/azureCli.js";
+import { getTargetEnv } from "../util/envSetup.cjs";
+import { getAppConfigValueByKeyLabel } from "../util/azureCli.cjs";
 import { execSync, execFileSync, spawn } from "child_process";
 import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
-import { getStorageAccountWebName, getFunctionAppName, getAppConfigName } from " ../util/namingConvention.js";
+import { getStorageAccountWebName, getFunctionAppName, getAppConfigName } from "../util/namingConvention.cjs";
 import { readdirSync, statSync } from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
