@@ -18,7 +18,7 @@ import {
   getDbAdminName,
   getIdentityName,
   getAppInsightsName,
-} from "../util/namingConvention.js";
+} from "../util/namingConvention.cjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

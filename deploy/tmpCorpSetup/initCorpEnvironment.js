@@ -10,9 +10,9 @@ import { createInterface } from "readline";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { resolve } from "path";
 // import { uniqueNamesGenerator, adjectives, animals } from "unique-names-generator";
-import { getResourceGroupName, getStorageAccountName, getAppConfigName } from "../util/namingConvention.js";
-import { generateNewEnvName, getTargetEnv } from "../util/envSetup.js";
-import { getSubscriptionId, getDefaultAzureLocation, isStorageAccountNameAvailable } from "../util/azureCli.js";
+import { getResourceGroupName, getStorageAccountName, getAppConfigName } from "../util/namingConvention.cjs";
+import { generateNewEnvName, getTargetEnv } from "../util/envSetup.cjs";
+import { getSubscriptionId, getDefaultAzureLocation, isStorageAccountNameAvailable } from "../util/azureCli.cjs";
 import { AzureCliCredential } from "@azure/identity";
 import { Client } from "@microsoft/microsoft-graph-client";
 
