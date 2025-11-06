@@ -1,31 +1,5 @@
-# Get the Resource Group resource
-data "azurerm_resource_group" "main_rg" {
-  name = var.resource_group_name
-}
-# Get the Storage Account resource
-data "azurerm_storage_account" "main_sa" {
-  name                = var.storage_account_name
-  resource_group_name = data.azurerm_resource_group.main_rg.name
-}
-# # Get the Service Plan resource
-# data "azurerm_service_plan" "main_plan" {
-#   name                = "${var.target_env}-plan"
-#   resource_group_name = data.azurerm_resource_group.main_rg.name
-# }
-# Get the App Insights resource
-data "azurerm_application_insights" "main_appinsights" {
-  name                = var.app_insights_name
-  resource_group_name = data.azurerm_resource_group.main_rg.name
-}
-# Get the User Assigned Identity
-data "azurerm_user_assigned_identity" "uai" {
-  name                = var.identity_name
-  resource_group_name = data.azurerm_resource_group.main_rg.name
-}
-data "azurerm_app_configuration" "config" {
-  name                = var.appconfig_name
-  resource_group_name = data.azurerm_resource_group.main_rg.name
-}
+# Main Terraform script for deploying function app and database
+
 # create function app
 module "function_app" {
   source                                 = "./functionApps"
@@ -47,29 +21,9 @@ module "function_app" {
   db_host                                = data.azurerm_postgresql_flexible_server.main_server.fqdn
 }
 
-
-# Get the postgreSQL server details
-data "azurerm_postgresql_flexible_server" "main_server" {
-  name                = var.pg_server_name
-  resource_group_name = data.azurerm_resource_group.main_rg.name
-}
-
 # create database
 module "database" {
   source               = "./database"
   database_name        = var.db_name
   postgresql_server_id = data.azurerm_postgresql_flexible_server.main_server.id
 }
-
-# # Get the Service Bus Namespace
-# data "azurerm_servicebus_namespace" "sb" {
-#   name                = "${var.target_env}-sbnamespace"
-#   resource_group_name = data.azurerm_resource_group.main_rg.name
-# }
-
-# # create service bus Role Assignments
-# module "service_bus" {
-#   source                    = "../../../../../module/shared/func/deploy/terraformTemplate/serviceBus"
-#   servicebus_namespace_id   = data.azurerm_servicebus_namespace.sb.id
-#   function_app_principal_id = module.function_app.principal_id
-# }
