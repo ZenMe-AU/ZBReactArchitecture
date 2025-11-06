@@ -8,7 +8,7 @@ const { resolve, basename } = require("path");
 const { execSync } = require("child_process");
 const { uniqueNamesGenerator, adjectives, animals } = require("unique-names-generator");
 
-function getTargetEnv(rootDir = resolve(__dirname, "..", "..", "..", "..", "..")) {
+function getTargetEnv(rootDir = resolve(__dirname, "..", "..", "..")) {
   const envFilePath = resolve(rootDir, "deploy", ".env");
   if (!existsSync(envFilePath)) {
     throw new Error(".env file not found at " + envFilePath);
