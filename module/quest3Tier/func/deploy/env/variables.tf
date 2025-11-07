@@ -72,20 +72,20 @@ variable "env_type" {
   type = string
 }
 
-variable "dns_resource_group_name" {
-  description = "Resource group containing the public DNS zone"
-  type        = string
-}
+# variable "dns_resource_group_name" {
+#   description = "Resource group containing the public DNS zone"
+#   type        = string
+# }
 
-variable "frontdoor_profile_name" {
-  description = "Existing shared Front Door profile name (created upstream)"
-  type        = string
-}
+# variable "frontdoor_profile_name" {
+#   description = "Existing shared Front Door profile name (created upstream)"
+#   type        = string
+# }
 
-variable "frontdoor_endpoint_name" {
-  description = "Existing shared Front Door endpoint name"
-  type        = string
-}
+# variable "frontdoor_endpoint_name" {
+#   description = "Existing shared Front Door endpoint name"
+#   type        = string
+# }
 
 #-------------------------------------------------#
 # Fetch existing resources

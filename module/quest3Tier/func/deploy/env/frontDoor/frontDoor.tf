@@ -12,11 +12,11 @@ data "azurerm_dns_zone" "main_dns_zone" {
   resource_group_name = var.dns_resource_group_name
 }
 
-# Function App lookup (by name)
-data "azurerm_linux_function_app" "module_func" {
-  name                = var.function_app_name
-  resource_group_name = var.resource_group_name
-}
+# # Function App lookup (by name)
+# data "azurerm_linux_function_app" "module_func" {
+#   name                = var.function_app_name
+#   resource_group_name = var.resource_group_name
+# }
 
 # Reuse shared Front Door profile + endpoint
 data "azurerm_cdn_frontdoor_profile" "shared_profile" {
@@ -54,9 +54,11 @@ resource "azurerm_cdn_frontdoor_origin" "module_fd_origin" {
   name                          = "${var.function_app_name}-orig"
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.module_fd_origin_group.id
 
-  enabled                        = true
-  host_name                      = data.azurerm_linux_function_app.module_func.default_hostname
-  origin_host_header             = data.azurerm_linux_function_app.module_func.default_hostname
+  enabled            = true
+  host_name          = var.function_app_hostname
+  origin_host_header = var.function_app_hostname
+  # host_name                      = data.azurerm_linux_function_app.module_func.default_hostname
+  # origin_host_header             = data.azurerm_linux_function_app.module_func.default_hostname
   https_port                     = 443
   certificate_name_check_enabled = true
 }
