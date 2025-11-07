@@ -13,7 +13,7 @@ const {
 } = require("../util/azureCli.js");
 const { createDbReadWriteRole, createDbReadOnlyRole, createDbSchemaAdminRole, createAadLoginRole, grantRole } = require("./postgresql.js");
 
-class DatabasePermissionManager {
+class classManageDataPermission {
   constructor({
     targetEnv,
     moduleName,
@@ -80,4 +80,4 @@ class DatabasePermissionManager {
   }
 }
 
-module.exports = DatabasePermissionManager;
+module.exports = classManageDataPermission;

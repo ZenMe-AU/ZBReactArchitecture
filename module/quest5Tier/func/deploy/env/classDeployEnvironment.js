@@ -20,7 +20,7 @@ const {
 } = require("../util/namingConvention");
 const { getSubscriptionId } = require("../util/azureCli");
 
-class EnvironmentDeployer {
+class classDeployEnvironment {
   constructor({ envType, targetEnv, moduleName, dbName, backendConfig, logLevel = "", autoApprove = false }) {
     this.envType = envType;
     this.targetEnv = targetEnv;
@@ -92,4 +92,4 @@ class EnvironmentDeployer {
   }
 }
 
-module.exports = EnvironmentDeployer;
+module.exports = classDeployEnvironment;
