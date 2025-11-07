@@ -11,7 +11,7 @@ import EnvironmentDeployer from "./environmentDeployer.cjs";
   let logLevel, targetEnv, moduleName, envType;
   // logLevel = "DEBUG";
   try {
-    envType = process.env.TF_VAR_env_type;
+    envType = process.env.TF_VAR_env_type || "dev";
     targetEnv = getTargetEnv();
     moduleName = "ui";
   } catch (err) {

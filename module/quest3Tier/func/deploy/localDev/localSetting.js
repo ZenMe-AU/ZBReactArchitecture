@@ -34,7 +34,7 @@ const customSettings = {
   const path = resolve(moduleDir, "func", fileName);
   let targetEnv, moduleName, envType, json;
   try {
-    envType = process.env.TF_VAR_env_type;
+    envType = process.env.TF_VAR_env_type || "dev";
     targetEnv = getTargetEnv();
     moduleName = getModuleName(moduleDir);
     json = localSettingTemplate;

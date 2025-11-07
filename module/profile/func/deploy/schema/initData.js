@@ -21,7 +21,7 @@ const moduleDir = resolve(__dirname, "..", "..", "..");
 const migrationDir = resolve(__dirname, "..", "db", "seeder");
 
 (async () => {
-  const envType = process.env.TF_VAR_env_type;
+  const envType = process.env.TF_VAR_env_type || "dev";
   const targetEnv = getTargetEnv();
   const moduleName = getModuleName(moduleDir);
 

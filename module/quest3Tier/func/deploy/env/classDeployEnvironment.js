@@ -51,6 +51,7 @@ class classDeployEnvironment {
   }
 
   run() {
+    process.env.TF_VAR_env_type = this.envType;
     process.env.TF_VAR_target_env = this.targetEnv;
     process.env.TF_VAR_module_name = this.moduleName;
     process.env.TF_VAR_subscription_id = this.subscriptionId;

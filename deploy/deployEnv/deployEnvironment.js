@@ -111,7 +111,8 @@ function activatePimPermissions() {
 
 function initEnvironment() {
   const autoApprove = process.argv.includes("--auto-approve");
-  const envType = process.env.TF_VAR_env_type;
+  const envType = process.env.TF_VAR_env_type || "dev";
+  process.env.TF_VAR_env_type = envType;
   const targetEnv = getTargetEnvName();
   process.env.TF_VAR_target_env = targetEnv;
   console.log(`Setting TARGET_ENV to: ${process.env.TF_VAR_target_env}`);
