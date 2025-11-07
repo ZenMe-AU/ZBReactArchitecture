@@ -4,7 +4,7 @@
  */
 
 const { resolve } = require("path");
-const DatabasePermissionManager = require("./databasePermissionManager.js");
+const classManageDataPermission = require("./classManageDataPermission.js");
 const { getTargetEnv, getModuleName } = require("../util/envSetup.js");
 const { createDatabaseInstance } = require("../../repository/model/connection");
 const DB_TYPE = require("../../enum/dbType.js");
@@ -52,7 +52,7 @@ const {
     ...config,
     database: "postgres",
   });
-  const dbManager = new DatabasePermissionManager({
+  const dbManager = new classManageDataPermission({
     targetEnv,
     moduleName,
     functionAppName,

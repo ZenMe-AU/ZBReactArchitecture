@@ -25,7 +25,7 @@ const { npmInstall, npmPrune, zipDir } = require("./cli.js");
 const { getIdentityName, getAppConfigName, getEventGridName } = require("../util/namingConvention.js");
 const { execSync } = require("child_process");
 
-class CodeDeployer {
+class classDeployCode {
   constructor({ envType, targetEnv, moduleName, subscriptionId, functionAppName, resourceGroupName, storageAccountName, serviceBusName, moduleDir }) {
     this.envType = envType;
     this.targetEnv = targetEnv;
@@ -210,4 +210,4 @@ class CodeDeployer {
   }
 }
 
-module.exports = CodeDeployer;
+module.exports = classDeployCode;

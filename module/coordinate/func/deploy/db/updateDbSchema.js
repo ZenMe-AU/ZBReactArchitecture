@@ -4,7 +4,7 @@
  */
 
 const { resolve } = require("path");
-const MigrationRunner = require("./migrationRunner.js");
+const classRunMigration = require("./classRunMigration.js");
 const { getTargetEnv, getModuleName } = require("../util/envSetup.js");
 const { createDatabaseInstance } = require("../../repository/model/connection/index.js");
 const DB_TYPE = require("../../enum/dbType.js");
@@ -30,5 +30,5 @@ const migrationDir = resolve(__dirname, "migration");
     },
   });
   const direction = process.argv[2] || "up";
-  await new MigrationRunner({ db, migrationDir, envType, targetEnv }).run(direction);
+  await new classRunMigration({ db, migrationDir, envType, targetEnv }).run(direction);
 })();
