@@ -9,7 +9,7 @@ const { getCurrentPublicIP, getTargetEnv } = require("../util/envSetup.js");
 const { getResourceGroupName, getPgServerName } = require("../util/namingConvention.js");
 const { addTemporaryFirewallRule, removeTemporaryFirewallRule } = require("../util/azureCli.js");
 
-class MigrationRunner {
+class classRunMigration {
   constructor({ db, migrationDir, envType, targetEnv }) {
     this.db = db;
     this.migration = createMigrationInstance({ db, migrationDir });
@@ -53,15 +53,13 @@ class MigrationRunner {
       process.exit(1);
     } finally {
       await this.db.close();
-      if (this.firewallRuleName) {
-        removeTemporaryFirewallRule({
-          resourceGroup: this.resourceGroupName,
-          serverName: this.pgServerName,
-          ruleName: this.firewallRuleName,
-        });
-      }
+      removeTemporaryFirewallRule({
+        resourceGroup: this.resourceGroupName,
+        serverName: this.pgServerName,
+        ruleName: this.firewallRuleName,
+      });
     }
   }
 }
 
-module.exports = MigrationRunner;
+module.exports = classRunMigration;
