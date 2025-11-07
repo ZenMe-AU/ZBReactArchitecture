@@ -9,7 +9,7 @@ const { getCurrentPublicIP, getTargetEnv } = require("../util/envSetup.js");
 const { getResourceGroupName, getPgServerName } = require("../util/namingConvention.js");
 const { addTemporaryFirewallRule, removeTemporaryFirewallRule } = require("../util/azureCli.js");
 
-class MigrationRunner {
+class classRunMigration {
   constructor({ db, migrationDir, envType, targetEnv }) {
     this.db = db;
     this.migration = createMigrationInstance({ db, migrationDir });
@@ -60,4 +60,4 @@ class MigrationRunner {
   }
 }
 
-module.exports = MigrationRunner;
+module.exports = classRunMigration;

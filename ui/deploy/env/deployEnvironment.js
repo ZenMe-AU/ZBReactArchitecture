@@ -4,7 +4,7 @@
  */
 
 import { getTargetEnv } from "../util/envSetup.cjs";
-import EnvironmentDeployer from "./environmentDeployer.cjs";
+import classDeployEnvironment from "./classDeployEnvironment.cjs";
 
 (async () => {
   const autoApprove = process.argv.includes("--auto-approve");
@@ -18,5 +18,5 @@ import EnvironmentDeployer from "./environmentDeployer.cjs";
     console.error("Failed to initialize environment variables:", err.message);
     process.exit(1);
   }
-  new EnvironmentDeployer({ envType, targetEnv, moduleName, logLevel, autoApprove }).run();
+  new classDeployEnvironment({ envType, targetEnv, moduleName, logLevel, autoApprove }).run();
 })();

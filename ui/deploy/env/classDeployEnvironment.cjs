@@ -21,7 +21,7 @@ const {
 } = require("../util/namingConvention.cjs");
 const { getSubscriptionId, getEventGridDomainId } = require("../util/azureCli.cjs");
 
-class EnvironmentDeployer {
+class classDeployEnvironment {
   constructor({ envType, targetEnv, moduleName, dbName, backendConfig, logLevel = "", autoApprove = false }) {
     this.envType = envType;
     this.targetEnv = targetEnv;
@@ -123,4 +123,4 @@ class EnvironmentDeployer {
   }
 }
 
-module.exports = EnvironmentDeployer;
+module.exports = classDeployEnvironment;

@@ -17,7 +17,7 @@ const { resolve } = require("path");
 const { getTargetEnv, getModuleName } = require("../util/envSetup");
 const { getResourceGroupName, getServiceBusName, getFunctionAppName, getStorageAccountName } = require("../util/namingConvention");
 const { getSubscriptionId } = require("../util/azureCli");
-const CodeDeployer = require("./CodeDeployer");
+const classDeployCode = require("./classDeployCode.js");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
 
@@ -37,7 +37,7 @@ const moduleDir = resolve(__dirname, "..", "..", "..");
   const resourceGroupName = getResourceGroupName(envType, targetEnv);
   const storageAccountName = getStorageAccountName(targetEnv);
 
-  const codeDeployer = new CodeDeployer({
+  const codeDeployer = new classDeployCode({
     envType,
     targetEnv,
     moduleName,

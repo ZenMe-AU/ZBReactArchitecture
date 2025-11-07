@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-// CodeDeployer.js
+// classDeployCode.js
 const path = require("path");
 const { resolve } = path;
 const fs = require("fs");
@@ -21,7 +21,7 @@ const {
 const { npmInstall, npmPrune, zipDir } = require("./cli.js");
 const { getIdentityName, getAppConfigName } = require("../util/namingConvention.js");
 
-class CodeDeployer {
+class classDeployCode {
   constructor({ envType, targetEnv, moduleName, subscriptionId, functionAppName, resourceGroupName, storageAccountName, serviceBusName, moduleDir }) {
     this.envType = envType;
     this.targetEnv = targetEnv;
@@ -141,4 +141,4 @@ class CodeDeployer {
   }
 }
 
-module.exports = CodeDeployer;
+module.exports = classDeployCode;
