@@ -46,5 +46,6 @@ const subscriptionList = funcMetaData.commands
     moduleDir,
   });
   codeDeployer.eventSubscriptionList = subscriptionList;
+  codeDeployer.appSettings.EventQueueType = "eventGridTopic";
   await codeDeployer.run();
 })();

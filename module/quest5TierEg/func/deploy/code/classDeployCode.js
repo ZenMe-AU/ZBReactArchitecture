@@ -21,7 +21,7 @@ const {
   getEventGridTopicEndpoint,
   getEventGridSubscriptionList,
 } = require("../util/azureCli.js");
-const { npmInstall, npmPrune, zipDir } = require("./cli.js");
+const { zipDir } = require("./cli.js");
 const { getIdentityName, getAppConfigName, getEventGridName } = require("../util/namingConvention.js");
 const { execSync } = require("child_process");
 
@@ -39,6 +39,7 @@ class classDeployCode {
     this.moduleDir = moduleDir;
 
     this.distPath = "dist/dist.zip";
+    this.outputDir = "out";
     this.excludeList = ["dist/*", ".vscode/*", ".git/*", "local.settings.json", "local.settings.json.template", "deploy/*"];
     this.appSettings = {
       // JWT_SECRET: getAppConfigValueByKeyLabel({ appConfigName: getAppConfigName(this.targetEnv), key: "jwtSecret", label: this.envType }),
@@ -70,8 +71,8 @@ class classDeployCode {
   // }
 
   async run() {
-    console.log("Starting deployment...");
-    console.log("env settings...");
+    console.log("Starting deployment.");
+    console.log("Step 1: Settings Function App Environment Variables.");
     const funcDir = resolve(this.moduleDir, "func");
     const functionAppPrincipalId = getFunctionAppPrincipalId({
       functionAppName: this.functionAppName,
@@ -147,27 +148,34 @@ class classDeployCode {
         allowedOrigins: this.allowedOrigins,
       });
     }
-    console.log(`dependencies installing...`);
-    // Install shared module dependencies if it exists
-    if (fs.existsSync(resolve(this.moduleDir, "..", "shared", "func", "package.json"))) {
-      npmInstall(resolve(this.moduleDir, "..", "shared", "func"));
-    }
-    // Install function app dependencies
-    npmInstall(funcDir, "--omit=dev");
-    npmPrune(funcDir);
 
-    console.log("Creating dist directory...");
+    console.log(`Step 2: Creating output via pnpm.`);
+    const outputDir = resolve(funcDir, this.outputDir);
+    // delete outputDir if it exists
+    if (fs.existsSync(outputDir)) {
+      console.log(`Deleting existing output directory.`);
+      fs.rmSync(outputDir, { recursive: true, force: true });
+    }
+
+    execSync(`pnpm deploy --filter ${this.moduleName} --prod ${outputDir}`, { stdio: "inherit", cwd: funcDir });
+
+    console.log("Step 3: Creating dist directory.");
     const distFile = resolve(funcDir, this.distPath);
     // Ensure the directory exists
     fs.mkdirSync(path.dirname(distFile), { recursive: true });
     // Remove existing dist file if it exists
     if (fs.existsSync(distFile)) {
+      console.log(`Deleting existing dist file.`);
       fs.unlinkSync(distFile);
     }
+    console.log("Step 4: Zipping output directory.");
+    await zipDir(distFile, outputDir, this.excludeList);
+    if (fs.existsSync(outputDir)) {
+      console.log(`Deleting output directory.`);
+      fs.rmSync(outputDir, { recursive: true, force: true });
+    }
 
-    await zipDir(this.distPath, funcDir, this.excludeList);
-
-    console.log("deploying zip file to Azure Function App...");
+    console.log("Step 5: Deploying zip file to Azure Function App.");
     deployFunctionAppZip(
       {
         src: this.distPath,
@@ -176,6 +184,8 @@ class classDeployCode {
       },
       { cwd: funcDir }
     );
+
+    console.log("Step 6: Checking Event Grid Subscriptions.");
     if (this.eventSubscriptionList?.length > 0) {
       const existingSubscriptions = getEventGridSubscriptionList({
         resourceGroupName: this.resourceGroupName,
@@ -183,6 +193,7 @@ class classDeployCode {
       });
       const existingSubscriptionArray = JSON.parse(existingSubscriptions ?? "[]");
 
+      console.log(`Creating Event Grid Subscriptions.`);
       // Create Event Grid Subscriptions if any
       this.eventSubscriptionList
         .filter(({ queueName }) => !existingSubscriptionArray.includes(queueName))

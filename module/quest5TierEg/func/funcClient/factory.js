@@ -8,7 +8,7 @@ class Factory {
 
   static _instances = {};
 
-  static getClient(type = "funcClientFake") {
+  static getClient(type = "funcClientAzure") {
     if (Factory._instances[type]) {
       return Factory._instances[type];
     }
