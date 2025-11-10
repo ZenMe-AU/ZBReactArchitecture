@@ -55,7 +55,7 @@ jobs:
           wait-for-processing: true
 
       - name: Install Snyk
-        run: npm install -g snyk
+        run: pnpm install -g snyk
       - name: Run Snyk
         run: snyk test --sarif > snyk-results.sarif
       - name: Upload Snyk results to GitHub
