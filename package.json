@@ -17,6 +17,7 @@
     "@azure/identity": "^4.11.1",
     "@eslint/js": "^9.38.0",
     "@microsoft/microsoft-graph-client": "^3.0.7",
+    "@microsoft/eslint-formatter-sarif": "^3.1.0",
     "eslint": "^9.38.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-header": "^3.1.1",
