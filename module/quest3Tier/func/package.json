@@ -1,6 +1,7 @@
 {
   "name": "quest3Tier",
   "version": "1.0.0",
+  "type": "commonjs",
   "description": "",
   "main": "index.js",
   "scripts": {

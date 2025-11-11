@@ -1,6 +1,7 @@
 {
   "name": "quest5TierEg",
   "version": "1.0.0",
+  "type": "commonjs",
   "description": "",
   "main": "index.js",
   "scripts": {
