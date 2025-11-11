@@ -10,6 +10,7 @@
     "module/quest5Tier/ui",
     "module/quest5TierEg/ui",
     "module/profile/ui",
+    "module/quest3Tier/func",
     "module/quest5TierEg/func"
   ],
   "scripts": {},
