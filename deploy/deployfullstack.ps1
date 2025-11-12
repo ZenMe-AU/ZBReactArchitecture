@@ -57,8 +57,8 @@ if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
                 exit 1
             }
         } else {
-    Write-Output "pnpm is installed and version $pnpmVersion meets the minimum required version $pnpmRequiredVersion."
-    }
+            Write-Output "pnpm is installed and version $pnpmVersion meets the minimum required version $pnpmRequiredVersion."
+        }
     }
 }
 
@@ -189,3 +189,4 @@ if ($LASTEXITCODE -ne 0) { Write-Warning "UI deployment failed" }
 
 
 
+ 

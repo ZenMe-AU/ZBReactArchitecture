@@ -15,7 +15,9 @@
     "module/profile/func",
     "module/coordinate/func"
   ],
-  "scripts": {},
+  "scripts": {
+    "prepare": "husky"
+  },
   "devDependencies": {
     "@azure/identity": "^4.11.1",
     "@eslint/js": "^9.38.0",
@@ -31,7 +33,10 @@
     "globals": "^16.4.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.2",
-    "unique-names-generator": "^4.7.1"
+    "unique-names-generator": "^4.7.1",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.6",
+    "snyk": "^1.1300.2"
   },
   "pnpm": {
     "overrides": {
@@ -42,7 +47,9 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "dependencies": {
-    "snyk": "^1.1300.2"
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged --config .codingstandards/lint-staged.config.mjs"
+    }
   }
 }
