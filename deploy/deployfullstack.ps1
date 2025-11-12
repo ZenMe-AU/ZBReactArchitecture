@@ -18,7 +18,13 @@ function Ensure-Pnpm {
     # Ensure pnpm is installed and setup
 if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
     Write-Output "pnpm is not installed. Installing pnpm globally using npm..."
-    npm install -g pnpm
+    if ($IsMacOS) {
+        Write-Output "MacOS requires sudo to globally install: npm install -g pnpm"
+        Write-Output "Please enter your password."
+        sudo npm install -g pnpm
+    } else {
+        npm install -g pnpm
+    }
     if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
         Write-Error "pnpm installation failed. Please install pnpm manually."
         exit 1
