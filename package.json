@@ -19,8 +19,8 @@
   "devDependencies": {
     "@azure/identity": "^4.11.1",
     "@eslint/js": "^9.38.0",
-    "@microsoft/microsoft-graph-client": "^3.0.7",
     "@microsoft/eslint-formatter-sarif": "^3.1.0",
+    "@microsoft/microsoft-graph-client": "^3.0.7",
     "eslint": "^9.38.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-header": "^3.1.1",
@@ -41,5 +41,8 @@
   },
   "engines": {
     "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "snyk": "^1.1300.2"
   }
 }
