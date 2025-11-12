@@ -16,8 +16,8 @@ provider "azurerm" {
   subscription_id = var.subscription_id
 }
 
-variable "parent_domain_name" {
-  description = "Parent domain name (e.g., zenblox.com.au)"
-  type        = string
-  default     = "zenblox.com.au"
-}
+# variable "parent_domain_name" {
+#   description = "Parent domain name (e.g., zenblox.com.au)"
+#   type        = string
+#   default     = "zenblox.com.au"
+# }

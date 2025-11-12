@@ -10,10 +10,10 @@ output "quest5tier_custom_domain_url" {
   value       = "https://${azurerm_cdn_frontdoor_custom_domain.quest5tier_custom_domain.host_name}"
 }
 
-output "quest5tier_function_app_hostname" {
-  description = "The hostname of the underlying Function App"
-  value       = data.azurerm_linux_function_app.quest5tier_func.default_hostname
-}
+# output "quest5tier_function_app_hostname" {
+#   description = "The hostname of the underlying Function App"
+#   value       = data.azurerm_linux_function_app.quest5tier_func.default_hostname
+# }
 
 output "quest5tier_frontdoor_profile_id" {
   description = "The ID of the shared Front Door profile"

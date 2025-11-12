@@ -25,11 +25,11 @@ data "azurerm_dns_zone" "main_dns_zone" {
   resource_group_name = var.dns_resource_group_name
 }
 
-# Function App (use variable for name)
-data "azurerm_linux_function_app" "quest5tier_func" {
-  name                = var.function_app_name
-  resource_group_name = var.resource_group_name
-}
+# # Function App (use variable for name)
+# data "azurerm_linux_function_app" "quest5tier_func" {
+#   name                = var.function_app_name
+#   resource_group_name = var.resource_group_name
+# }
 
 # Reuse existing Front Door profile & endpoint (supplied by variables)
 data "azurerm_cdn_frontdoor_profile" "shared_profile" {
@@ -69,9 +69,9 @@ resource "azurerm_cdn_frontdoor_origin" "quest5tier_fd_origin" {
   cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.quest5tier_fd_origin_group.id
 
   enabled                        = true
-  host_name                     = module.function_app.default_hostname
-  origin_host_header            = module.function_app.default_hostname
-  https_port                    = 443
+  host_name                      = module.function_app.default_hostname
+  origin_host_header             = module.function_app.default_hostname
+  https_port                     = 443
   certificate_name_check_enabled = true
 }
 
@@ -125,10 +125,10 @@ resource "azurerm_cdn_frontdoor_rule" "quest5tier_enforce_custom_host" {
 
   conditions {
     host_name_condition {
-      operator          = "Equal"
-      negate_condition  = true
-      match_values      = [lower("${var.function_app_name}-api-${var.target_env}.${var.parent_domain_name}")]
-      transforms        = []
+      operator         = "Equal"
+      negate_condition = true
+      match_values     = [lower("${var.function_app_name}-api-${var.target_env}.${var.parent_domain_name}")]
+      transforms       = []
     }
   }
 
@@ -149,16 +149,16 @@ resource "azurerm_cdn_frontdoor_route" "quest5tier_fd_route" {
   # Binds the custom domain + origin group to the shared endpoint and applies the rule set.
   depends_on = [azurerm_dns_txt_record.quest5tier_dns_validation, azurerm_dns_cname_record.quest5tier_cname_record]
 
-  name                          = "${var.function_app_name}-route"
-  cdn_frontdoor_endpoint_id     = data.azurerm_cdn_frontdoor_endpoint.shared_endpoint.id
-  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.quest5tier_fd_origin_group.id
-  cdn_frontdoor_origin_ids      = [azurerm_cdn_frontdoor_origin.quest5tier_fd_origin.id]
+  name                            = "${var.function_app_name}-route"
+  cdn_frontdoor_endpoint_id       = data.azurerm_cdn_frontdoor_endpoint.shared_endpoint.id
+  cdn_frontdoor_origin_group_id   = azurerm_cdn_frontdoor_origin_group.quest5tier_fd_origin_group.id
+  cdn_frontdoor_origin_ids        = [azurerm_cdn_frontdoor_origin.quest5tier_fd_origin.id]
   cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.quest5tier_custom_domain.id]
-  cdn_frontdoor_rule_set_ids    = [azurerm_cdn_frontdoor_rule_set.quest5tier_fd_rules.id]
+  cdn_frontdoor_rule_set_ids      = [azurerm_cdn_frontdoor_rule_set.quest5tier_fd_rules.id]
 
   supported_protocols    = ["Https"]
-  patterns_to_match     = ["/*"]
-  forwarding_protocol   = "HttpsOnly"
+  patterns_to_match      = ["/*"]
+  forwarding_protocol    = "HttpsOnly"
   link_to_default_domain = true
   https_redirect_enabled = false
 }
