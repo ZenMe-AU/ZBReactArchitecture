@@ -1,0 +1,6 @@
+# This file was generated to allow Snyk to run install scripts when installed globally with pnpm.
+# For more details, see: https://pnpm.io/cli/approve-builds
+
+packages:
+  snyk:
+    - "*"
