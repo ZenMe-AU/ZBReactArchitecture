@@ -8,7 +8,7 @@ const { resolve } = require("path");
 const classRunMigration = require("./classRunMigration.js");
 const { getTargetEnv, getModuleName } = require("../util/envSetup.js");
 const { createDatabaseInstance } = require("../../repository/model/connection/index.js");
-const DB_TYPE = require("../enum/dbType");
+const DB_TYPE = require("../../enum/dbType.js");
 const { getDbAdminName, getPgHost } = require("../util/namingConvention.js");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
