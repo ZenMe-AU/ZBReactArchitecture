@@ -12,6 +12,50 @@ param(
     [string]$type = "dev"
 )
 Set-StrictMode -Version Latest
+
+
+function Ensure-Pnpm {
+    # Ensure pnpm is installed and setup
+if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
+    Write-Output "pnpm is not installed. Installing pnpm globally using npm..."
+    npm install -g pnpm
+    if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
+        Write-Error "pnpm installation failed. Please install pnpm manually."
+        exit 1
+    }
+}
+    Write-Output "pnpm is installed."
+    # Check if pnpm is properly set up by running 'pnpm setup'
+    try {
+        pnpm setup --help > $null 2>&1
+    } catch {
+        Write-Output "pnpm is installed but not properly set up. Running 'pnpm setup'..."
+        pnpm setup
+        if ($LASTEXITCODE -ne 0) {
+            Write-Error "pnpm setup failed. Please run 'pnpm setup' manually."
+            exit 1
+        }
+    }
+    Write-Output "Check pnpm version"
+    $pnpmRequiredVersion = [version]"10.20.0"
+    $pnpmVersionOutput = pnpm --version 2>$null
+    if ($pnpmVersionOutput) {
+        $pnpmVersion = [version]($pnpmVersionOutput.Trim())
+        if ($pnpmVersion -lt $pnpmRequiredVersion) {
+            Write-Output "pnpm version $pnpmVersion is less than required $pnpmRequiredVersion. Upgrading pnpm globally using npm..."
+            npm install -g pnpm
+            $pnpmVersionOutput = & pnpm --version 2>$null
+            $pnpmVersion = [version]($pnpmVersionOutput.Trim())
+            if ($pnpmVersion -lt $pnpmRequiredVersion) {
+                Write-Error "pnpm upgrade failed or version is still less than $pnpmRequiredVersion. Please upgrade pnpm manually."
+                exit 1
+            }
+        } else {
+    Write-Output "pnpm is installed and version $pnpmVersion meets the minimum required version $pnpmRequiredVersion."
+    }
+    }
+}
+
 # If no type parameter is passed, try to read it from environment variable TF_VAR_env_type
 # If still no value, or the value is not in the valid list, default to "dev"
 # Set environment variable TF_VAR_env_type with the value
@@ -70,20 +114,10 @@ if (-not $nodeInstalled -or -not $npmInstalled) {
         exit 1
     }
 } else {
-    Write-Output "Node.js and npm are already installed."
+    Write-Output "Node.js and npm are installed."
 }
 
-# Ensure pnpm is installed
-if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
-    Write-Output "pnpm is not installed. Installing pnpm globally using npm..."
-    npm install -g pnpm
-    if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
-        Write-Error "pnpm installation failed. Please install pnpm manually."
-        exit 1
-    }
-} else {
-    Write-Output "pnpm is already installed."
-}
+Ensure-Pnpm
 
 # Ensure Terraform is installed
 $terraformInstalled = Get-Command terraform -ErrorAction SilentlyContinue
@@ -146,3 +180,6 @@ if ($LASTEXITCODE -ne 0) { Write-Warning "UI deployment failed" }
 # #TODO: Run verification test to confirm the deployment succeeded.
 # node ./verify/verifyDeployment.js
 # if ($LASTEXITCODE -ne 0) { Write-Warning "Deploy Function App code failed" }
+
+
+
