@@ -3,12 +3,13 @@
  * @license SPDX-License-Identifier: MIT
  */
 
+// Initialize or seed data to the database
 const { resolve } = require("path");
 const MigrationRunner = require("../db/migrationRunner");
 const { getTargetEnv, getModuleName } = require("../util/envSetup.js");
-const { createDatabaseInstance } = require("../../repository/model/connection");
-const DB_TYPE = require("../../enum/dbType");
-const { getDbAdminName } = require("../util/namingConvention");
+const { createDatabaseInstance } = require("../../repository/model/connection/index.js");
+const DB_TYPE = require("../enum/dbType");
+const { getDbAdminName } = require("../util/namingConvention.js");
 
 /**
  * Naming convention helpers
@@ -17,7 +18,7 @@ function getPgHost(targetEnv) {
   return `${targetEnv}-postgresqlserver.postgres.database.azure.com`;
 }
 const moduleDir = resolve(__dirname, "..", "..", "..");
-const migrationDir = resolve(__dirname, "..", "db", "migration");
+const migrationDir = resolve(__dirname, "seeder");
 
 (async () => {
   const envType = process.env.TF_VAR_env_type || "dev";

@@ -46,7 +46,7 @@ if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 # Update database schema for Function App
 Write-Output "Updating database schema..."
-Set-Location $env:MODULE_FOLDER\deploy\schema
+Set-Location $env:MODULE_FOLDER\deploy\db
 node ./updateDbSchema.js
 if ($LASTEXITCODE -ne 0) { Write-Warning "Update database schema failed" }
 
