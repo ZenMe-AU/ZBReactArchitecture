@@ -5,13 +5,15 @@
   "description": "",
   "private": true,
   "workspaces": [
-    "module/shared/ui",
     "module/quest3Tier/ui",
     "module/quest5Tier/ui",
     "module/quest5TierEg/ui",
     "module/profile/ui",
     "module/quest3Tier/func",
-    "module/quest5TierEg/func"
+    "module/quest5Tier/func",
+    "module/quest5TierEg/func",
+    "module/profile/func",
+    "module/coordinate/func"
   ],
   "scripts": {},
   "devDependencies": {

@@ -20,6 +20,7 @@ const {
 } = require("../util/azureCli.js");
 const { npmInstall, npmPrune, zipDir } = require("./cli.js");
 const { getIdentityName, getAppConfigName } = require("../util/namingConvention.js");
+const { execSync } = require("child_process");
 
 class classDeployCode {
   constructor({ envType, targetEnv, moduleName, subscriptionId, functionAppName, resourceGroupName, storageAccountName, serviceBusName, moduleDir }) {
@@ -34,6 +35,7 @@ class classDeployCode {
     this.moduleDir = moduleDir;
 
     this.distPath = "dist/dist.zip";
+    this.outputDir = "out";
     this.excludeList = ["dist/*", ".vscode/*", ".git/*", "local.settings.json", "local.settings.json.template", "deploy/*"];
     this.appSettings = {
       ServiceBusConnection__fullyQualifiedNamespace: `${this.serviceBusName}.servicebus.windows.net`,
@@ -70,13 +72,9 @@ class classDeployCode {
   // }
 
   async run() {
-    console.log("Starting deployment...");
-    console.log("env settings...");
-    const funcDir = resolve(this.moduleDir, "func");
-    const functionAppPrincipalId = getFunctionAppPrincipalId({
-      functionAppName: this.functionAppName,
-      resourceGroupName: this.resourceGroupName,
-    });
+    console.log("Starting deployment.");
+    console.log("Step 1: Settings Function App Environment.");
+    console.log(`Setting environment variables for Function App ${this.functionAppName}.`);
     // Settings Env Var for the Function App
     setFunctionAppSetting({
       functionAppName: this.functionAppName,
@@ -88,12 +86,17 @@ class classDeployCode {
       resourceGroupName: this.resourceGroupName,
       appSettingKeys: this.deleteAppSettings,
     });
+    console.log(`Assigning roles to Function App ${this.functionAppName}.`);
+    const functionAppPrincipalId = getFunctionAppPrincipalId({
+      functionAppName: this.functionAppName,
+      resourceGroupName: this.resourceGroupName,
+    });
     // Assign roles to the Function App
     this.roleAssignments.forEach(({ assignee = functionAppPrincipalId, role, scope }) => {
       assignRole({ assignee, role, scope });
     });
     if (this.queueNames.length > 0) {
-      console.log(`Creating Service Bus Queues...`);
+      console.log(`Creating Service Bus Queues.`);
     }
     // Create Service Bus Queues if any
     this.queueNames.forEach((queueName) => {
@@ -101,34 +104,44 @@ class classDeployCode {
     });
     // Set CORS settings
     if (this.allowedOrigins.length > 0) {
-      console.log(`Setting CORS for Function App...`);
+      console.log(`Setting CORS for Function App.`);
       setFunctionAppCors({
         functionAppName: this.functionAppName,
         resourceGroupName: this.resourceGroupName,
         allowedOrigins: this.allowedOrigins,
       });
     }
-    console.log(`dependencies installing...`);
-    // Install shared module dependencies if it exists
-    if (fs.existsSync(resolve(this.moduleDir, "..", "shared", "func", "package.json"))) {
-      npmInstall(resolve(this.moduleDir, "..", "shared", "func"));
+    console.log(`Step 2: Creating output via pnpm.`);
+    const funcDir = resolve(this.moduleDir, "func");
+    const outputDir = resolve(funcDir, this.outputDir);
+    // delete outputDir if it exists
+    if (fs.existsSync(outputDir)) {
+      console.log(`Deleting existing output directory.`);
+      fs.rmSync(outputDir, { recursive: true, force: true });
     }
-    // Install function app dependencies
-    npmInstall(funcDir, "--omit=dev");
-    npmPrune(funcDir);
 
-    console.log("Creating dist directory...");
+    execSync(
+      `pnpm deploy --filter ${this.moduleName} --prod ${outputDir} --config.node-linker=hoisted --config.symlink=false --config.package-import-method=copy`,
+      { stdio: "inherit", cwd: funcDir }
+    );
+
+    console.log("Step 3: Creating dist directory.");
     const distFile = resolve(funcDir, this.distPath);
     // Ensure the directory exists
     fs.mkdirSync(path.dirname(distFile), { recursive: true });
     // Remove existing dist file if it exists
     if (fs.existsSync(distFile)) {
+      console.log(`Deleting existing dist file.`);
       fs.unlinkSync(distFile);
     }
+    console.log("Step 4: Zipping output directory.");
+    await zipDir(distFile, outputDir, this.excludeList);
 
-    await zipDir(this.distPath, funcDir, this.excludeList);
-
-    console.log("deploying zip file to Azure Function App...");
+    if (fs.existsSync(outputDir)) {
+      console.log(`Deleting output directory.`);
+      fs.rmSync(outputDir, { recursive: true, force: true });
+    }
+    console.log("Step 5: Deploying zip file to Azure Function App.");
     deployFunctionAppZip(
       {
         src: this.distPath,

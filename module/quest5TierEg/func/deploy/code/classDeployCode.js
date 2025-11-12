@@ -157,7 +157,10 @@ class classDeployCode {
       fs.rmSync(outputDir, { recursive: true, force: true });
     }
 
-    execSync(`pnpm deploy --filter ${this.moduleName} --prod ${outputDir}`, { stdio: "inherit", cwd: funcDir });
+    execSync(
+      `pnpm deploy --filter ${this.moduleName} --prod ${outputDir} --config.node-linker=hoisted --config.symlink=false --config.package-import-method=copy`,
+      { stdio: "inherit", cwd: funcDir }
+    );
 
     console.log("Step 3: Creating dist directory.");
     const distFile = resolve(funcDir, this.distPath);
