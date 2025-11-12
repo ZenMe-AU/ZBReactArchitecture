@@ -159,6 +159,9 @@ importers:
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@20.19.23)(babel-plugin-macros@3.1.0)
+      umzug:
+        specifier: ^3.8.2
+        version: 3.8.2(@types/node@20.19.23)
 
   module/profile/func:
     dependencies:
@@ -256,6 +259,9 @@ importers:
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@20.19.23)(babel-plugin-macros@3.1.0)
+      umzug:
+        specifier: ^3.8.2
+        version: 3.8.2(@types/node@20.19.23)
 
   module/profile/ui:
     dependencies:
