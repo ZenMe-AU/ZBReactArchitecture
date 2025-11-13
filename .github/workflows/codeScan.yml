@@ -59,8 +59,14 @@ jobs:
           pwd
           ls -al
 
+      - name: Approve builds for global install
+        run: pnpm approve-builds -g
+
       - name: Install Snyk
         run: pnpm install -g snyk
+
+      - name: Approve builds for global install
+        run: pnpm approve-builds -g
 
       - name: Run Snyk
         run: snyk test --sarif > snyk-results.sarif
