@@ -47,11 +47,5 @@
   },
   "engines": {
     "node": ">=20.0.0"
-  },
-  "lint-staged": {
-    "config": ".codingstandards/lint-staged.config.mjs",
-    "package.json": [
-      "node .codingstandards/checkLockfile.mjs"
-    ]
   }
 }
