@@ -31,12 +31,13 @@
     "eslint-plugin-react": "^7.37.5",
     "glob": "^11.0.3",
     "globals": "^16.4.0",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.46.2",
-    "unique-names-generator": "^4.7.1",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.6",
-    "snyk": "^1.1300.2"
+    "prettier": "^3.6.2",
+    "snyk": "^1.1300.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.2",
+    "unique-names-generator": "^4.7.1"
   },
   "pnpm": {
     "overrides": {
@@ -47,9 +48,7 @@
   "engines": {
     "node": ">=20.0.0"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged --config .codingstandards/lint-staged.config.mjs"
-    }
+  "lint-staged": {
+    "config": ".codingstandards/lint-staged.config.mjs"
   }
 }
