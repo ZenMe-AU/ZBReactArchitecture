@@ -13,7 +13,7 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@microsoft/applicationinsights-clickanalytics-js": "^3.3.8",
-    "@microsoft/applicationinsights-react-js": "^18.3.6",
+    "@microsoft/applicationinsights-react-js": "^19.3.8",
     "@microsoft/applicationinsights-web": "^3.3.8",
     "@mui/icons-material": "^7.1.1",
     "@mui/material": "^7.1.1",
