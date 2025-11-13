@@ -65,7 +65,7 @@ jobs:
       - uses: snyk/actions/node@master
         with:
           command: test
-          args: --sarif
+          args: --sarif -d
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         continue-on-error: true
