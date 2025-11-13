@@ -376,12 +376,6 @@ importers:
       eslint:
         specifier: ^9.38.0
         version: 9.38.0(jiti@2.6.1)
-      eslint-config-prettier:
-        specifier: ^10.1.8
-        version: 10.1.8(eslint@9.38.0(jiti@2.6.1))
-      eslint-plugin-prettier:
-        specifier: ^5.5.4
-        version: 5.5.4(eslint-config-prettier@10.1.8(eslint@9.38.0(jiti@2.6.1)))(eslint@9.38.0(jiti@2.6.1))(prettier@3.6.2)
       eslint-plugin-react:
         specifier: ^7.37.5
         version: 7.37.5(eslint@9.38.0(jiti@2.6.1))
@@ -391,9 +385,6 @@ importers:
       jiti:
         specifier: ^2.6.1
         version: 2.6.1
-      prettier:
-        specifier: ^3.6.2
-        version: 3.6.2
       typescript:
         specifier: ^5.7.2
         version: 5.9.3
@@ -612,12 +603,6 @@ importers:
       eslint:
         specifier: ^9.38.0
         version: 9.38.0(jiti@2.6.1)
-      eslint-config-prettier:
-        specifier: ^10.1.8
-        version: 10.1.8(eslint@9.38.0(jiti@2.6.1))
-      eslint-plugin-prettier:
-        specifier: ^5.5.4
-        version: 5.5.4(eslint-config-prettier@10.1.8(eslint@9.38.0(jiti@2.6.1)))(eslint@9.38.0(jiti@2.6.1))(prettier@3.6.2)
       eslint-plugin-react:
         specifier: ^7.37.5
         version: 7.37.5(eslint@9.38.0(jiti@2.6.1))
@@ -627,9 +612,6 @@ importers:
       jiti:
         specifier: ^2.6.1
         version: 2.6.1
-      prettier:
-        specifier: ^3.6.2
-        version: 3.6.2
       typescript:
         specifier: ^5.7.2
         version: 5.9.3
@@ -836,12 +818,6 @@ importers:
       eslint:
         specifier: ^9.38.0
         version: 9.38.0(jiti@2.6.1)
-      eslint-config-prettier:
-        specifier: ^10.1.8
-        version: 10.1.8(eslint@9.38.0(jiti@2.6.1))
-      eslint-plugin-prettier:
-        specifier: ^5.5.4
-        version: 5.5.4(eslint-config-prettier@10.1.8(eslint@9.38.0(jiti@2.6.1)))(eslint@9.38.0(jiti@2.6.1))(prettier@3.6.2)
       eslint-plugin-react:
         specifier: ^7.37.5
         version: 7.37.5(eslint@9.38.0(jiti@2.6.1))
@@ -851,9 +827,6 @@ importers:
       jiti:
         specifier: ^2.6.1
         version: 2.6.1
-      prettier:
-        specifier: ^3.6.2
-        version: 3.6.2
       typescript:
         specifier: ^5.7.2
         version: 5.9.3
@@ -1169,15 +1142,9 @@ importers:
       eslint:
         specifier: ^9.38.0
         version: 9.38.0(jiti@2.6.1)
-      eslint-config-prettier:
-        specifier: ^10.1.8
-        version: 10.1.8(eslint@9.38.0(jiti@2.6.1))
       eslint-plugin-header:
         specifier: ^3.1.1
         version: 3.1.1(eslint@9.38.0(jiti@2.6.1))
-      eslint-plugin-prettier:
-        specifier: ^5.5.4
-        version: 5.5.4(eslint-config-prettier@10.1.8(eslint@9.38.0(jiti@2.6.1)))(eslint@9.38.0(jiti@2.6.1))(prettier@3.6.2)
       eslint-plugin-react:
         specifier: ^7.37.5
         version: 7.37.5(eslint@9.38.0(jiti@2.6.1))
@@ -1187,9 +1154,6 @@ importers:
       jiti:
         specifier: ^2.6.1
         version: 2.6.1
-      prettier:
-        specifier: ^3.6.2
-        version: 3.6.2
       typescript:
         specifier: ^5.7.2
         version: 5.9.3
