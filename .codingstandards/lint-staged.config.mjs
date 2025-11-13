@@ -5,5 +5,5 @@
 
 export default {
   "*.{js,jsx,ts,tsx}": ["pnpm exec prettier --write --"],
-  "{package.json,pnpm-lock.yaml}": ["node .codingstandards/checkLockfile.mjs"],
+  "package.json": ["node .codingstandards/checkLockfile.mjs"],
 };

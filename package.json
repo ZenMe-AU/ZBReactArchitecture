@@ -34,6 +34,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.2.6",
     "prettier": "^3.6.2",
+    "snyk": "^1.1300.2",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.2",
     "unique-names-generator": "^4.7.1"
@@ -48,6 +49,9 @@
     "node": ">=20.0.0"
   },
   "lint-staged": {
-    "config": ".codingstandards/lint-staged.config.mjs"
+    "config": ".codingstandards/lint-staged.config.mjs",
+    "package.json": [
+      "node .codingstandards/checkLockfile.mjs"
+    ]
   }
 }
