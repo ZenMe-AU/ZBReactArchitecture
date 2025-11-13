@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-// check-mit-license-header.js test
+// check-mit-license-header.js test2
 const fs = require("fs");
 const { execSync } = require("child_process");
 const path = require("path");
