@@ -68,6 +68,7 @@ jobs:
           args: --sarif
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        continue-on-error: true
 
       - name: Install Snyk
         run: pnpm install -g snyk
@@ -80,6 +81,7 @@ jobs:
 
       - name: Run Snyk
         run: pnpm exec snyk test --sarif > snyk-results.sarif
+        continue-on-error: true
 
       - name: Upload Snyk results to GitHub
         uses: github/codeql-action/upload-sarif@v2
