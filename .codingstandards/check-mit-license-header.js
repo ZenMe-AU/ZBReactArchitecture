@@ -10,10 +10,15 @@ const path = require("path");
 
 // Read LICENSE file
 const licensePath = path.resolve(__dirname, "LICENSE");
-const licenseText = fs.readFileSync(licensePath, "utf8").replace(/\r?\n/g, "\n").trim();
+const licenseText = fs
+  .readFileSync(licensePath, "utf8")
+  .replace(/\r?\n/g, "\n")
+  .trim();
 
 // Get staged files
-const stagedFiles = execSync("git diff --cached --name-only", { encoding: "utf8" })
+const stagedFiles = execSync("git diff --cached --name-only", {
+  encoding: "utf8",
+})
   .split("\n")
   .filter((f) => f && fs.existsSync(f) && fs.statSync(f).isFile());
 
