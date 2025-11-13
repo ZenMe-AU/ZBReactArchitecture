@@ -43,7 +43,13 @@
     "overrides": {
       "ui>react": "18.x.x",
       "ui>react-router": "^7.x.x"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "snyk",
+      "snyk@1.1300.2",
+      "snyk25h",
+      "snyk25h6"
+    ]
   },
   "engines": {
     "node": ">=20.0.0"

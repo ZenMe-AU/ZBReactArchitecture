@@ -3,4 +3,7 @@ packages:
   - module/*/ui
   - module/*/func
 onlyBuiltDependencies:
-  - "snyk"
+  - snyk25h
+  - snyk25h6
+  - snyk
+  - snyk@1.1300.2

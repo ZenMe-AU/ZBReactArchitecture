@@ -68,6 +68,9 @@ jobs:
       - name: Approve builds for global install
         run: pnpm approve-builds -g
 
+      - name: Build snyk
+        run: pnpm rebuild snyk
+
       - name: Run Snyk
         run: snyk test --sarif > snyk-results.sarif
 
