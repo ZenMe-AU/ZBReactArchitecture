@@ -2,3 +2,5 @@ packages:
   - ui
   - module/*/ui
   - module/*/func
+onlyBuiltDependencies:
+  - "snyk"
