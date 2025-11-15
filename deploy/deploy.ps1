@@ -7,7 +7,7 @@
 # + DbAdmin group membership for the relevant environment type e.g. DbAdmin-Dev, DbAdmin-Test, DbAdmin-Prod
 
 # Define a script parameter named "type" (string).
-# This allows the script to be called with -type <value>, e.g.: .\deployfullstack.ps1 -type dev
+# This allows the script to be called with -type <value>, e.g.: .\deploy.ps1 -type dev
 param(
     [string]$type = "dev"
 )

@@ -3,6 +3,6 @@
 powershell Set-ExecutionPolicy -Scope CurrentUser RemoteSigned;
 powershell Get-ExecutionPolicy -List
 
-powershell -ExecutionPolicy Bypass -Command "Set-Location -Path './deploy'; ./deployfullstack.ps1"
+powershell -ExecutionPolicy Bypass -Command "Set-Location -Path './deploy'; ./deploy.ps1"
 
 pause

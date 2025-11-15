@@ -5,7 +5,7 @@
 # 4. Deploying the Function App code.
 
 # Define a script parameter named "type" (string).
-# This allows the script to be called with -type <value>, e.g.: .\deployfullstack.ps1 -type dev
+# This allows the script to be called with -type <value>, e.g.: .\deploy.ps1 -type dev
 param(
     [string]$type
 )
