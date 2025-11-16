@@ -28,7 +28,7 @@ param(
 )
 Set-StrictMode -Version Latest
 
-Import-Module ./dscLocalDevTools.psm1
+Import-Module ./deploymentModule.psm1
 
 # Stage0: Always run
 # Set TF_VAR_env_type using modular function
