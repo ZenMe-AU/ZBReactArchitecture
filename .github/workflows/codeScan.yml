@@ -39,8 +39,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Setup environment
-        uses: ./.github/actions/setup-env
+      - name: Setup pnpm environment
+        uses: ./.github/actions/setup-pnpm
 
       - name: Show working directory and files
         run: |
