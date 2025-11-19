@@ -1,4 +1,4 @@
-name: "Setup Environment"
+name: "Setup pnpm Environment"
 description: "Checkout code, setup pnpm, Node.js, and cache dependencies"
 runs:
   using: "composite"
