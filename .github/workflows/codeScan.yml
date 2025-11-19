@@ -71,6 +71,9 @@ jobs:
         run: pnpm exec snyk test --sarif > snyk-results.sarif
         continue-on-error: true
 
+      - name: Print SARIF file content
+        run: cat snyk-results.sarif
+
       - name: Upload Snyk results to GitHub
         uses: github/codeql-action/upload-sarif@v4
         with:
