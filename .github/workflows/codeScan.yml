@@ -79,5 +79,5 @@ jobs:
           wait-for-processing: true
 
       - name: Handle upload failure, print file content
-        if: steps.uploadSnyk.outcome == 'failure'
+        if: failure()
         run: cat snyk-results.sarif
