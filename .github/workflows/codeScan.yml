@@ -40,16 +40,23 @@ jobs:
     permissions:
       contents: read
       security-events: write
-      actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
+      actions: read # required for private repositories
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Cache pnpm store for faster installs
+        uses: actions/cache@v3
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
       - name: Setup pnpm environment
         uses: ./.github/actions/setup-pnpm
 
       - uses: snyk/actions/node@master
         with:
-          args: test -d --sarif-file-output=snyk-results.sarif
+          args: test --severity-threshold=high --sarif-file-output=snyk-results.sarif
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         continue-on-error: true
@@ -61,6 +68,6 @@ jobs:
           sarif_file: snyk-results.sarif
           wait-for-processing: true
 
-      - name: Handle upload failure, print file content
+      - name: If upload fails, print sarif file content
         if: failure()
         run: cat snyk-results.sarif
