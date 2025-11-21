@@ -1,1 +1,17 @@
-name: deployRootTest 
+name: deployRootTest
+on:
+    workflow_call:
+jobs:
+    deployRootTest:
+        name: Run deployRootTest
+        needs: testRootDev
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            security-events: write
+            actions: read
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+            - name: Setup pnpm environment
+              uses: ./.github/actions/setup-pnpm

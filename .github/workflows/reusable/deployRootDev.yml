@@ -1,1 +1,17 @@
-name: deployRootDev 
+name: deployRootDev
+on:
+    workflow_call:
+jobs:
+    deployRootDev:
+        name: Run deployRootDev
+        needs: buildRoot
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            security-events: write
+            actions: read
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+            - name: Setup pnpm environment
+              uses: ./.github/actions/setup-pnpm
