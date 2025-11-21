@@ -1,0 +1,17 @@
+
+name: buildprofile
+on:
+	workflow_call:
+jobs:
+	buildprofile:
+		name: Run buildprofile
+		runs-on: ubuntu-latest
+		permissions:
+			contents: read
+			security-events: write
+			actions: read
+		steps:
+			- name: Checkout code
+				uses: actions/checkout@v4
+			- name: Setup pnpm environment
+				uses: ./.github/actions/setup-pnpm
