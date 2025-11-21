@@ -1,8 +1,7 @@
 name: Codescan
 
 on:
-  push:
-    branches: ["main"]
+  workflow_dispatch:
 
 concurrency:
   group: codescan-group
@@ -37,7 +36,7 @@ jobs:
       - name: Handle upload failure, print file content
         if: failure()
         run: cat eslint-results.sarif
-        
+
   Snyk:
     name: Run Snyk code scans
     runs-on: ubuntu-latest

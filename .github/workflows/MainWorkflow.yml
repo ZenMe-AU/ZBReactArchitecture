@@ -1,0 +1,25 @@
+name: Deploy
+
+on:
+  push:
+    branches: ["main"]
+
+concurrency:
+  group: deploy-group
+  cancel-in-progress: true
+
+jobs:
+  call-reusable-workflow:
+    strategy:
+      matrix:
+        include:
+          - name: root
+            folder: .
+          - name: module1
+            folder: module1
+          - name: module2
+            folder: module2
+    uses: ./.github/workflows/DeployEnvironment.yml
+    with:
+      name: ${{ matrix.name }}
+      folder: ${{ matrix.folder }}
