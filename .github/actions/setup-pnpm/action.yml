@@ -13,8 +13,21 @@ runs:
       uses: actions/setup-node@v4
       with:
         node-version: 20
-        cache: "pnpm"
+        cache: "pnpm" # caches node_modules for pnpm projects
+
+    - name: Get pnpm store path
+      id: pnpm-store
+      run: echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Cache pnpm store
+      uses: actions/cache@v3
+      with:
+        path: ${{ env.STORE_PATH }}
+        key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-pnpm-store-
 
     - name: Install dependencies
-      run: pnpm install
+      run: pnpm install --frozen-lockfile
       shell: bash
