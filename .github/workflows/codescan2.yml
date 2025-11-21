@@ -1,0 +1,62 @@
+name: Codescan
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detect changed workspaces
+        id: set-matrix
+        run: |
+          # Get changed directories containing package.json
+          changed=$(git diff --name-only HEAD~1 HEAD | grep 'package.json' | xargs dirname | jq -R -s 'split("\n") | map(select(length > 0))')
+          echo "matrix={\"workspace\": $changed}" >> $GITHUB_OUTPUT
+
+  codescan:
+    needs: detect-changes
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.detect-changes.outputs.matrix) }}
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm environment
+        uses: ./.github/actions/setup-pnpm
+
+      - name: Run ESLint
+        working-directory: ${{ matrix.workspace }}
+        run: |
+          npx eslint . --config eslint.config.js \
+          --format @microsoft/eslint-formatter-sarif \
+          --output-file eslint-results.sarif
+        continue-on-error: true
+
+      - name: Upload ESLint SARIF
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: eslint-results.sarif
+
+      - name: Run Snyk Scan
+        working-directory: ${{ matrix.workspace }}
+        uses: snyk/actions/node@master
+        with:
+          args: test --sarif-file-output=snyk-results.sarif --severity-threshold=high
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        continue-on-error: true
+
+      - name: Upload Snyk SARIF
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: snyk-results.sarif
