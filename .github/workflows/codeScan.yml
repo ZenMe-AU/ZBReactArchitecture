@@ -4,6 +4,10 @@ on:
   push:
     branches: ["main"]
 
+concurrency:
+  group: codescan-group
+  cancel-in-progress: true
+
 jobs:
   ESLint:
     name: Run ESLint code scans
@@ -56,7 +60,7 @@ jobs:
 
       - uses: snyk/actions/node@master
         with:
-          args: test --severity-threshold=high --sarif-file-output=snyk-results.sarif
+          args: test -d --severity-threshold=high --sarif-file-output=snyk-results.sarif
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         continue-on-error: true
