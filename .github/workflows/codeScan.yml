@@ -47,31 +47,11 @@ jobs:
       - name: Setup pnpm environment
         uses: ./.github/actions/setup-pnpm
 
-      - name: Show pnpm approved builds
-        run: pnpm config get onlyBuiltDependencies --global
-
-      - name: Approve builds for global install
-        run: pnpm approve-builds -g
-
       - uses: snyk/actions/node@master
         with:
-          command: test
-          args: --sarif -d
+          args: test -d --sarif-file-output=snyk-results.sarif
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        continue-on-error: true
-
-      - name: Install Snyk
-        run: pnpm install -g snyk
-
-      - name: Approve builds for global install
-        run: pnpm approve-builds -g
-
-      - name: Build snyk
-        run: pnpm rebuild snyk
-
-      - name: Run Snyk
-        run: pnpm exec snyk test --sarif > snyk-results.sarif
         continue-on-error: true
 
       - name: Upload Snyk results to GitHub
