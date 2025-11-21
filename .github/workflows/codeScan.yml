@@ -23,12 +23,17 @@ jobs:
           SARIF_ESLINT_IGNORE_SUPPRESSED: "true"
         run: npx eslint . --config eslint.config.js  --format @microsoft/eslint-formatter-sarif  --output-file eslint-results.sarif
         continue-on-error: true
+
       - name: Upload eslint results to GitHub
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: eslint-results.sarif
           wait-for-processing: true
 
+      - name: Handle upload failure, print file content
+        if: failure()
+        run: cat eslint-results.sarif
+        
   Snyk:
     name: Run Snyk code scans
     runs-on: ubuntu-latest
@@ -42,10 +47,8 @@ jobs:
       - name: Setup pnpm environment
         uses: ./.github/actions/setup-pnpm
 
-      - name: Show working directory and files
-        run: |
-          pwd
-          ls -al
+      - name: Show pnpm approved builds
+        run: pnpm config get onlyBuiltDependencies --global
 
       - name: Approve builds for global install
         run: pnpm approve-builds -g
