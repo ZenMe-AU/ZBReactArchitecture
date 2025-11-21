@@ -12,14 +12,9 @@ jobs:
   call-reusable-workflow:
     strategy:
       matrix:
-        include:
-          - name: root
-            folder: .
-          - name: module1
-            folder: module1
-          - name: module2
-            folder: module2
-    uses: ./.github/workflows/DeployEnvironment.yml
+        environment: [dev, test, production]
+        component: [root, module1, module2, ui]
+    uses: ./.github/workflows/DeployComponent.yml
     with:
-      name: ${{ matrix.name }}
-      folder: ${{ matrix.folder }}
+      environment: ${{ matrix.environment }}
+      component: ${{ matrix.component }}
