@@ -18,32 +18,33 @@ jobs:
         uses: ./.github/workflows/deployModuleDev.yml
         with:
             moduleName: ${{ inputs.moduleName }}
-#   testDev:
-#     needs: deployDev
-#     runs-on: ubuntu-latest
-#     steps:
-#       - run: echo "Testing ${{ inputs.moduleName }} Dev"
 
-#   deployTest:
-#     needs: testDev
-#     runs-on: ubuntu-latest
-#     steps:
-#       - run: echo "Deploying ${{ inputs.moduleName }} Test"
+    testDev:
+        needs: deployDev
+        uses: ./.github/workflows/testModuleDev.yml
+        with:
+            moduleName: ${{ inputs.moduleName }}
 
-#   testTest:
-#     needs: deployTest
-#     runs-on: ubuntu-latest
-#     steps:
-#       - run: echo "Testing ${{ inputs.moduleName }} Test"
+    deployTest:
+        needs: testDev
+        uses: ./.github/workflows/deployModuleTest.yml
+        with:
+            moduleName: ${{ inputs.moduleName }}
 
-#   deployProd:
-#     needs: testTest
-#     runs-on: ubuntu-latest
-#     steps:
-#       - run: echo "Deploying ${{ inputs.moduleName }} Prod"
+    testTest:
+        needs: deployTest
+        uses: ./.github/workflows/testModuleTest.yml
+        with:
+            moduleName: ${{ inputs.moduleName }}
 
-#   testProd:
-#     needs: deployProd
-#     runs-on: ubuntu-latest
-#     steps:
-#       - run: echo "Testing ${{ inputs.moduleName }} Prod"
+    deployProd:
+        needs: testTest
+        uses: ./.github/workflows/deployModuleProd.yml
+        with:
+            moduleName: ${{ inputs.moduleName }}
+
+    testProd:
+        needs: deployProd
+        uses: ./.github/workflows/testModuleProd.yml
+        with:
+            moduleName: ${{ inputs.moduleName }}

@@ -21,3 +21,9 @@ jobs:
             #   uses: ./.github/actions/setup-pnpm
             - name: Print which module is building
               run: echo "Building module ${{ inputs.moduleName }} deployModuleDev"
+
+            - name: Fail intentionally for profile
+              if: ${{ inputs.moduleName == 'profile' }}
+              run: |
+                  echo "Simulating failure for profile module"
+                  exit 1
