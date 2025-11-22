@@ -8,7 +8,7 @@ on:
 
 jobs:
     buildModule:
-        name: Run buildModule
+        name: Build ${{ inputs.moduleName }}
         runs-on: ubuntu-latest
         permissions:
             contents: read

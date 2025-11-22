@@ -8,7 +8,7 @@ on:
 
 jobs:
     deployModuleDev:
-        name: Run deployModuleDev
+        name: Deploy ${{ inputs.moduleName }}
         runs-on: ubuntu-latest
         permissions:
             contents: read
