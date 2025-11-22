@@ -1,1 +1,20 @@
-name: deployquest5TierDev 
+name: deployquest5TierDev
+
+on:
+    workflow_call:
+jobs:
+    deployquest5TierDev:
+        name: Run deployquest5TierDev
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            security-events: write
+            actions: read
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            # - name: Setup pnpm environment
+            #   uses: ./.github/actions/setup-pnpm
+            - name: print input
+              run: echo "deployquest5TierDev"

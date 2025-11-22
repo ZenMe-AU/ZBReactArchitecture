@@ -2,92 +2,182 @@ name: MainWorkflow
 on:
   push:
     branches: ["main"]
-concurrency:
-  group: deploy-group
-  cancel-in-progress: true
+  workflow_dispatch:
+
+# concurrency:
+#   group: deploy-group
+#   cancel-in-progress: true
+
 jobs:
+  # main:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Start Main Workflow
+  #       run: echo "Starting Main Workflow"
+
   buildRoot:
     uses: ./.github/workflows/reusable/buildRoot.yml
+
   deployRootDev:
+    needs: buildRoot
     uses: ./.github/workflows/reusable/deployRootDev.yml
+
   testRootDev:
+    needs: deployRootDev
     uses: ./.github/workflows/reusable/testRootDev.yml
+
   deployRootTest:
+    needs: testRootDev
     uses: ./.github/workflows/reusable/deployRootTest.yml
+
   testRootTest:
+    needs: deployRootTest
     uses: ./.github/workflows/reusable/testRootTest.yml
+
   deployRootProd:
+    needs: testRootTest
     uses: ./.github/workflows/reusable/deployRootProd.yml
+
   testRootProd:
+    needs: deployRootProd
     uses: ./.github/workflows/reusable/testRootProd.yml
 
   buildprofile:
+    needs: buildRoot
     uses: ./.github/workflows/reusable/buildprofile.yml
+
   deployprofileDev:
+    needs: buildprofile
     uses: ./.github/workflows/reusable/deployprofileDev.yml
+
   testprofileDev:
+    needs: deployprofileDev
     uses: ./.github/workflows/reusable/testprofileDev.yml
+
   deployprofileTest:
+    needs: testprofileDev
     uses: ./.github/workflows/reusable/deployprofileTest.yml
+
   testprofileTest:
+    needs: deployprofileTest
     uses: ./.github/workflows/reusable/testprofileTest.yml
+
   deployprofileProd:
+    needs: testprofileTest
     uses: ./.github/workflows/reusable/deployprofileProd.yml
+
   testprofileProd:
+    needs: deployprofileProd
     uses: ./.github/workflows/reusable/testprofileProd.yml
-  buildquest3Tier:
-    uses: ./.github/workflows/reusable/buildquest3Tier.yml
-  deployquest3TierDev:
-    uses: ./.github/workflows/reusable/deployquest3TierDev.yml
-  testquest3TierDev:
-    uses: ./.github/workflows/reusable/testquest3TierDev.yml
-  deployquest3TierTest:
-    uses: ./.github/workflows/reusable/deployquest3TierTest.yml
-  testquest3TierTest:
-    uses: ./.github/workflows/reusable/testquest3TierTest.yml
-  deployquest3TierProd:
-    uses: ./.github/workflows/reusable/deployquest3TierProd.yml
-  testquest3TierProd:
-    uses: ./.github/workflows/reusable/testquest3TierProd.yml
-  buildquest5Tier:
-    uses: ./.github/workflows/reusable/buildquest5Tier.yml
-  deployquest5TierDev:
-    uses: ./.github/workflows/reusable/deployquest5TierDev.yml
-  testquest5TierDev:
-    uses: ./.github/workflows/reusable/testquest5TierDev.yml
-  deployquest5TierTest:
-    uses: ./.github/workflows/reusable/deployquest5TierTest.yml
-  testquest5TierTest:
-    uses: ./.github/workflows/reusable/testquest5TierTest.yml
-  deployquest5TierProd:
-    uses: ./.github/workflows/reusable/deployquest5TierProd.yml
-  testquest5TierProd:
-    uses: ./.github/workflows/reusable/testquest5TierProd.yml
-  buildquest5TierEg:
-    uses: ./.github/workflows/reusable/buildquest5TierEg.yml
-  deployquest5TierEgDev:
-    uses: ./.github/workflows/reusable/deployquest5TierEgDev.yml
-  testquest5TierEgDev:
-    uses: ./.github/workflows/reusable/testquest5TierEgDev.yml
-  deployquest5TierEgTest:
-    uses: ./.github/workflows/reusable/deployquest5TierEgTest.yml
-  testquest5TierEgTest:
-    uses: ./.github/workflows/reusable/testquest5TierEgTest.yml
-  deployquest5TierEgProd:
-    uses: ./.github/workflows/reusable/deployquest5TierEgProd.yml
-  testquest5TierEgProd:
-    uses: ./.github/workflows/reusable/testquest5TierEgProd.yml
+
+  # buildquest3Tier:
+  #   needs: buildRoot
+  #   uses: ./.github/workflows/reusable/buildquest3Tier.yml
+
+  # deployquest3TierDev:
+  #   needs: buildquest3Tier
+  #   uses: ./.github/workflows/reusable/deployquest3TierDev.yml
+
+  # testquest3TierDev:
+  #   needs: deployquest3TierDev
+  #   uses: ./.github/workflows/reusable/testquest3TierDev.yml
+
+  # deployquest3TierTest:
+  #   needs: testquest3TierDev
+  #   uses: ./.github/workflows/reusable/deployquest3TierTest.yml
+
+  # testquest3TierTest:
+  #   needs: deployquest3TierTest
+  #   uses: ./.github/workflows/reusable/testquest3TierTest.yml
+
+  # deployquest3TierProd:
+  #   needs: testquest3TierTest
+  #   uses: ./.github/workflows/reusable/deployquest3TierProd.yml
+
+  # testquest3TierProd:
+  #   needs: deployquest3TierProd
+  #   uses: ./.github/workflows/reusable/testquest3TierProd.yml
+
+  # buildquest5Tier:
+  #   needs: buildRoot
+  #   uses: ./.github/workflows/reusable/buildquest5Tier.yml
+
+  # deployquest5TierDev:
+  #   needs: buildquest5Tier
+  #   uses: ./.github/workflows/reusable/deployquest5TierDev.yml
+
+  # testquest5TierDev:
+  #   needs: deployquest5TierDev
+  #   uses: ./.github/workflows/reusable/testquest5TierDev.yml
+
+  # deployquest5TierTest:
+  #   needs: testquest5TierDev
+  #   uses: ./.github/workflows/reusable/deployquest5TierTest.yml
+
+  # testquest5TierTest:
+  #   needs: deployquest5TierTest
+  #   uses: ./.github/workflows/reusable/testquest5TierTest.yml
+
+  # deployquest5TierProd:
+  #   needs: testquest5TierTest
+  #   uses: ./.github/workflows/reusable/deployquest5TierProd.yml
+
+  # testquest5TierProd:
+  #   needs: deployquest5TierProd
+  #   uses: ./.github/workflows/reusable/testquest5TierProd.yml
+
+  # buildquest5TierEg:
+  #   needs: buildRoot
+  #   uses: ./.github/workflows/reusable/buildquest5TierEg.yml
+
+  # deployquest5TierEgDev:
+  #   needs: buildquest5TierEg
+  #   uses: ./.github/workflows/reusable/deployquest5TierEgDev.yml
+
+  # testquest5TierEgDev:
+  #   needs: deployquest5TierEgDev
+  #   uses: ./.github/workflows/reusable/testquest5TierEgDev.yml
+
+  # deployquest5TierEgTest:
+  #   needs: testquest5TierEgDev
+  #   uses: ./.github/workflows/reusable/deployquest5TierEgTest.yml
+
+  # testquest5TierEgTest:
+  #   needs: deployquest5TierEgTest
+  #   uses: ./.github/workflows/reusable/testquest5TierEgTest.yml
+
+  # deployquest5TierEgProd:
+  #   needs: testquest5TierEgTest
+  #   uses: ./.github/workflows/reusable/deployquest5TierEgProd.yml
+
+  # testquest5TierEgProd:
+  #   needs: deployquest5TierEgProd
+  #   uses: ./.github/workflows/reusable/testquest5TierEgProd.yml
+
   buildUi:
+    needs: buildRoot
     uses: ./.github/workflows/reusable/buildUi.yml
+
   deployUiDev:
+    needs: buildUi
     uses: ./.github/workflows/reusable/deployUiDev.yml
+
   testUiDev:
+    needs: deployUiDev
     uses: ./.github/workflows/reusable/testUiDev.yml
+
   deployUiTest:
+    needs: testUiDev
     uses: ./.github/workflows/reusable/deployUiTest.yml
+
   testUiTest:
+    needs: deployUiTest
     uses: ./.github/workflows/reusable/testUiTest.yml
+
   deployUiProd:
+    needs: testUiTest
     uses: ./.github/workflows/reusable/deployUiProd.yml
+
   testUiProd:
+    needs: deployUiProd
     uses: ./.github/workflows/reusable/testUiProd.yml
