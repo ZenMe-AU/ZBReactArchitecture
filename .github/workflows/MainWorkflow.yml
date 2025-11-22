@@ -21,29 +21,29 @@ jobs:
   buildRoot:
     uses: ./.github/workflows/buildRoot.yml
 
-  deployRootDev:
-    needs: buildRoot
-    uses: ./.github/workflows/deployRootDev.yml
+  # deployRootDev:
+  #   needs: buildRoot
+  #   uses: ./.github/workflows/deployRootDev.yml
 
-  testRootDev:
-    needs: deployRootDev
-    uses: ./.github/workflows/testRootDev.yml
+  # testRootDev:
+  #   needs: deployRootDev
+  #   uses: ./.github/workflows/testRootDev.yml
 
-  deployRootTest:
-    needs: testRootDev
-    uses: ./.github/workflows/deployRootTest.yml
+  # deployRootTest:
+  #   needs: testRootDev
+  #   uses: ./.github/workflows/deployRootTest.yml
 
-  testRootTest:
-    needs: deployRootTest
-    uses: ./.github/workflows/testRootTest.yml
+  # testRootTest:
+  #   needs: deployRootTest
+  #   uses: ./.github/workflows/testRootTest.yml
 
-  deployRootProd:
-    needs: testRootTest
-    uses: ./.github/workflows/deployRootProd.yml
+  # deployRootProd:
+  #   needs: testRootTest
+  #   uses: ./.github/workflows/deployRootProd.yml
 
-  testRootProd:
-    needs: deployRootProd
-    uses: ./.github/workflows/testRootProd.yml
+  # testRootProd:
+  #   needs: deployRootProd
+  #   uses: ./.github/workflows/testRootProd.yml
 
   buildModule:
     needs: buildRoot
@@ -52,75 +52,86 @@ jobs:
         module:
           - profile
           - quest3Tier
-
-    uses: ./.github/workflows/buildModule.yml
+    uses: ./.github/workflows/modulePipeline.yml
     with:
       moduleName: ${{ matrix.module }}
 
-  deployModuleDev:
-    needs: buildModule
-    uses: ./.github/workflows/deployModuleDev.yml
-    with:
-      moduleName: ${{ matrix.module }}
+  # buildModule:
+  #   needs: buildRoot
+  #   strategy:
+  #     matrix:
+  #       module:
+  #         - profile
+  #         - quest3Tier
+  #   uses: ./.github/workflows/buildModule.yml
+  #   with:
+  #     moduleName: ${{ matrix.module }}
 
-  testModuleDev:
-    needs: deployModuleDev
-    strategy:
-      matrix:
-        module:
-          - profile
-          - quest3Tier
-    uses: ./.github/workflows/testModuleDev.yml
-    with:
-      moduleName: ${{ matrix.module }}
+  # deployModuleDev:
+  #   needs: buildModule
+  #   strategy:
+  #     matrix:
+  #       module:
+  #         - profile
+  #         - quest3Tier
+  #   uses: ./.github/workflows/deployModuleDev.yml
+  #   with:
+  #     moduleName: ${{ matrix.module }}
 
-  deployModuleTest:
-    needs: testModuleDev
-    strategy:
-      matrix:
-        module:
-          - profile
-          - quest3Tier
+  # testModuleDev:
+  #   needs: deployModuleDev
+  #   strategy:
+  #     matrix:
+  #       module:
+  #         - profile
+  #         - quest3Tier
+  #   uses: ./.github/workflows/testModuleDev.yml
+  #   with:
+  #     moduleName: ${{ matrix.module }}
 
-    uses: ./.github/workflows/deployModuleTest.yml
-    with:
-      moduleName: ${{ matrix.module }}
+  # deployModuleTest:
+  #   needs: testModuleDev
+  #   strategy:
+  #     matrix:
+  #       module:
+  #         - profile
+  #         - quest3Tier
+  #   uses: ./.github/workflows/deployModuleTest.yml
+  #   with:
+  #     moduleName: ${{ matrix.module }}
 
-  testModuleTest:
-    needs: deployModuleTest
-    strategy:
-      matrix:
-        module:
-          - profile
-          - quest3Tier
+  # testModuleTest:
+  #   needs: deployModuleTest
+  #   strategy:
+  #     matrix:
+  #       module:
+  #         - profile
+  #         - quest3Tier
+  #   uses: ./.github/workflows/testModuleTest.yml
+  #   with:
+  #     moduleName: ${{ matrix.module }}
 
-    uses: ./.github/workflows/testModuleTest.yml
-    with:
-      moduleName: ${{ matrix.module }}
+  # deployModuleProd:
+  #   needs: testModuleTest
+  #   strategy:
+  #     matrix:
+  #       module:
+  #         - profile
+  #         - quest3Tier
+  #   uses: ./.github/workflows/deployModuleProd.yml
+  #   with:
+  #     moduleName: ${{ matrix.module }}
 
-  deployModuleProd:
-    needs: testModuleTest
-    strategy:
-      matrix:
-        module:
-          - profile
-          - quest3Tier
-
-    uses: ./.github/workflows/deployModuleProd.yml
-    with:
-      moduleName: ${{ matrix.module }}
-
-  testModuleProd:
-    needs: deployModuleProd
-    strategy:
-      matrix:
-        module:
-          - profile
-          - quest3Tier
-
-    uses: ./.github/workflows/testModuleProd.yml
-    with:
-      moduleName: ${{ matrix.module }}
+  # testModuleProd:
+  #   needs: deployModuleProd
+  #   strategy:
+  #     matrix:
+  #       module:
+  #         - profile
+  #         - quest3Tier
+  #   uses: ./.github/workflows/testModuleProd.yml
+  #   with:
+  #     moduleName: ${{ matrix.module }}
 
   # buildprofile:
   #   needs: buildRoot

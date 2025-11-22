@@ -1,0 +1,49 @@
+name: modulePipeline
+
+on:
+    workflow_call:
+        inputs:
+            moduleName:
+                required: true
+                type: string
+
+jobs:
+    build:
+        uses: ./.github/workflows/buildModule.yml
+        with:
+            moduleName: ${{ inputs.moduleName }}
+
+    deployDev:
+        needs: build
+        uses: ./.github/workflows/deployModuleDev.yml
+        with:
+            moduleName: ${{ inputs.moduleName }}
+#   testDev:
+#     needs: deployDev
+#     runs-on: ubuntu-latest
+#     steps:
+#       - run: echo "Testing ${{ inputs.moduleName }} Dev"
+
+#   deployTest:
+#     needs: testDev
+#     runs-on: ubuntu-latest
+#     steps:
+#       - run: echo "Deploying ${{ inputs.moduleName }} Test"
+
+#   testTest:
+#     needs: deployTest
+#     runs-on: ubuntu-latest
+#     steps:
+#       - run: echo "Testing ${{ inputs.moduleName }} Test"
+
+#   deployProd:
+#     needs: testTest
+#     runs-on: ubuntu-latest
+#     steps:
+#       - run: echo "Deploying ${{ inputs.moduleName }} Prod"
+
+#   testProd:
+#     needs: deployProd
+#     runs-on: ubuntu-latest
+#     steps:
+#       - run: echo "Testing ${{ inputs.moduleName }} Prod"
