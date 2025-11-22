@@ -1,8 +1,10 @@
 name: MainWorkflow
 
 on:
-  # push:
-  #   branches: ["main"]
+  push:
+    branches:
+      - main
+      - workflow
   workflow_dispatch:
 
 # concurrency:
