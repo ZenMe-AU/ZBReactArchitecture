@@ -45,33 +45,110 @@ jobs:
     needs: deployRootProd
     uses: ./.github/workflows/testRootProd.yml
 
-  buildprofile:
+  buildModule:
     needs: buildRoot
-    uses: ./.github/workflows/buildprofile.yml
+    strategy:
+      matrix:
+        module:
+          - profile
+          - quest3Tier
 
-  deployprofileDev:
-    needs: buildprofile
-    uses: ./.github/workflows/deployprofileDev.yml
+    uses: ./.github/workflows/buildModule.yml
+    with:
+      moduleName: ${{ matrix.module }}
 
-  testprofileDev:
-    needs: deployprofileDev
-    uses: ./.github/workflows/testprofileDev.yml
+  deployModuleDev:
+    needs: buildModule
+    uses: ./.github/workflows/deployModuleDev.yml
+    with:
+      moduleName: ${{ matrix.module }}
 
-  deployprofileTest:
-    needs: testprofileDev
-    uses: ./.github/workflows/deployprofileTest.yml
+  testModuleDev:
+    needs: deployModuleDev
+    strategy:
+      matrix:
+        module:
+          - profile
+          - quest3Tier
+    uses: ./.github/workflows/testModuleDev.yml
+    with:
+      moduleName: ${{ matrix.module }}
 
-  testprofileTest:
-    needs: deployprofileTest
-    uses: ./.github/workflows/testprofileTest.yml
+  deployModuleTest:
+    needs: testModuleDev
+    strategy:
+      matrix:
+        module:
+          - profile
+          - quest3Tier
 
-  deployprofileProd:
-    needs: testprofileTest
-    uses: ./.github/workflows/deployprofileProd.yml
+    uses: ./.github/workflows/deployModuleTest.yml
+    with:
+      moduleName: ${{ matrix.module }}
 
-  testprofileProd:
-    needs: deployprofileProd
-    uses: ./.github/workflows/testprofileProd.yml
+  testModuleTest:
+    needs: deployModuleTest
+    strategy:
+      matrix:
+        module:
+          - profile
+          - quest3Tier
+
+    uses: ./.github/workflows/testModuleTest.yml
+    with:
+      moduleName: ${{ matrix.module }}
+
+  deployModuleProd:
+    needs: testModuleTest
+    strategy:
+      matrix:
+        module:
+          - profile
+          - quest3Tier
+
+    uses: ./.github/workflows/deployModuleProd.yml
+    with:
+      moduleName: ${{ matrix.module }}
+
+  testModuleProd:
+    needs: deployModuleProd
+    strategy:
+      matrix:
+        module:
+          - profile
+          - quest3Tier
+
+    uses: ./.github/workflows/testModuleProd.yml
+    with:
+      moduleName: ${{ matrix.module }}
+
+  # buildprofile:
+  #   needs: buildRoot
+  #   uses: ./.github/workflows/buildprofile.yml
+
+  # deployprofileDev:
+  #   needs: buildprofile
+  #   uses: ./.github/workflows/deployprofileDev.yml
+
+  # testprofileDev:
+  #   needs: deployprofileDev
+  #   uses: ./.github/workflows/testprofileDev.yml
+
+  # deployprofileTest:
+  #   needs: testprofileDev
+  #   uses: ./.github/workflows/deployprofileTest.yml
+
+  # testprofileTest:
+  #   needs: deployprofileTest
+  #   uses: ./.github/workflows/testprofileTest.yml
+
+  # deployprofileProd:
+  #   needs: testprofileTest
+  #   uses: ./.github/workflows/deployprofileProd.yml
+
+  # testprofileProd:
+  #   needs: deployprofileProd
+  #   uses: ./.github/workflows/testprofileProd.yml
 
   # buildquest3Tier:
   #   needs: buildRoot
@@ -157,30 +234,30 @@ jobs:
   #   needs: deployquest5TierEgProd
   #   uses: ./.github/workflows/testquest5TierEgProd.yml
 
-  buildUi:
-    needs: buildRoot
-    uses: ./.github/workflows/buildUi.yml
+  # buildUi:
+  #   needs: buildRoot
+  #   uses: ./.github/workflows/buildUi.yml
 
-  deployUiDev:
-    needs: buildUi
-    uses: ./.github/workflows/deployUiDev.yml
+  # deployUiDev:
+  #   needs: buildUi
+  #   uses: ./.github/workflows/deployUiDev.yml
 
-  testUiDev:
-    needs: deployUiDev
-    uses: ./.github/workflows/testUiDev.yml
+  # testUiDev:
+  #   needs: deployUiDev
+  #   uses: ./.github/workflows/testUiDev.yml
 
-  deployUiTest:
-    needs: testUiDev
-    uses: ./.github/workflows/deployUiTest.yml
+  # deployUiTest:
+  #   needs: testUiDev
+  #   uses: ./.github/workflows/deployUiTest.yml
 
-  testUiTest:
-    needs: deployUiTest
-    uses: ./.github/workflows/testUiTest.yml
+  # testUiTest:
+  #   needs: deployUiTest
+  #   uses: ./.github/workflows/testUiTest.yml
 
-  deployUiProd:
-    needs: testUiTest
-    uses: ./.github/workflows/deployUiProd.yml
+  # deployUiProd:
+  #   needs: testUiTest
+  #   uses: ./.github/workflows/deployUiProd.yml
 
-  testUiProd:
-    needs: deployUiProd
-    uses: ./.github/workflows/testUiProd.yml
+  # testUiProd:
+  #   needs: deployUiProd
+  #   uses: ./.github/workflows/testUiProd.yml

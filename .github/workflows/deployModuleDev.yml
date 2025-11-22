@@ -1,9 +1,14 @@
-name: buildprofile
+name: deployModuleDev
 on:
     workflow_call:
+        inputs:
+            moduleName:
+                required: true
+                type: string
+
 jobs:
-    buildprofile:
-        name: Run buildprofile
+    deployModuleDev:
+        name: Run deployModuleDev
         runs-on: ubuntu-latest
         permissions:
             contents: read
@@ -12,9 +17,7 @@ jobs:
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
-
             # - name: Setup pnpm environment
             #   uses: ./.github/actions/setup-pnpm
-
-            - name: print input
-              run: echo "buildprofile"
+            - name: Print which module is building
+              run: echo "Building module ${{ inputs.moduleName }} deployModuleDev"
