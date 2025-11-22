@@ -45,17 +45,37 @@ jobs:
   #   needs: deployRootProd
   #   uses: ./.github/workflows/testRootProd.yml
 
-  buildModule:
+  profile:
     needs: buildRoot
-    strategy:
-      matrix:
-        module:
-          - profile
-          - quest3Tier
     uses: ./.github/workflows/modulePipeline.yml
     with:
-      moduleName: ${{ matrix.module }}
+      moduleName: profile
 
+  quest3Tier:
+    needs: buildRoot
+    uses: ./.github/workflows/modulePipeline.yml
+    with:
+      moduleName: quest3Tier
+
+  quest5Tier:
+    needs: buildRoot
+    uses: ./.github/workflows/modulePipeline.yml
+    with:
+      moduleName: quest5Tier
+
+  # pipeline with matrix for modules
+  # buildModule:
+  #   needs: buildRoot
+  #   strategy:
+  #     matrix:
+  #       module:
+  #         - profile
+  #         - quest3Tier
+  #   uses: ./.github/workflows/modulePipeline.yml
+  #   with:
+  #     moduleName: ${{ matrix.module }}
+
+  # module
   # buildModule:
   #   needs: buildRoot
   #   strategy:
