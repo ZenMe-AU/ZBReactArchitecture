@@ -1,5 +1,11 @@
 name: "Setup Release Environment"
 description: "setup pnpm, Node.js, terraform, and cache dependencies"
+
+inputs:
+  azureCreds:
+    description: "Azure credentials JSON"
+    required: true
+
 runs:
   using: "composite"
   steps:
@@ -27,7 +33,7 @@ runs:
     - name: Azure Login
       uses: azure/login@v2
       with:
-        creds: ${{ secrets.AZURE_CREDENTIALS }}
+        creds: ${{ inputs.azureCreds }}
 
     - name: Verify Azure Login
       shell: bash

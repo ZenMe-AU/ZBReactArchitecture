@@ -21,3 +21,5 @@ jobs:
 
             - name: Setup environment
               uses: ./.github/actions/setup-release
+              with:
+                  azureCreds: ${{ secrets.AZURE_CREDENTIALS }}
