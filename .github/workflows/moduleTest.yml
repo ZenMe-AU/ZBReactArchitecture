@@ -23,7 +23,7 @@ jobs:
               run: |
                   echo "Env: $GITHUB_ENVIRONMENT"
                   echo "Module: ${{ inputs.moduleName }}"
-                  echo "TargetEnv: ${{ inputs.targetEnv }}"
+                  echo "TargetEnv: ${{ vars.targetEnv }}"
 
             - name: Checkout code
               uses: actions/checkout@v4
