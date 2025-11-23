@@ -20,6 +20,15 @@ jobs:
               run: echo "buildRoot"
 
             - name: Setup environment
-              uses: ./.github/actions/setup-release
+              uses: ./.github/actions/setup-azure
+            #   with:
+            #       azureCreds: ${{ secrets.AZURE_CREDENTIALS }}
+
+            - name: Azure Login
+              uses: azure/login@v2
               with:
-                  azureCreds: ${{ secrets.AZURE_CREDENTIALS }}
+                  creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+            - name: Verify Azure Login
+              shell: bash
+              run: az account show
