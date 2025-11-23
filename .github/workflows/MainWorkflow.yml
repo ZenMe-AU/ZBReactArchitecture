@@ -12,6 +12,28 @@ on:
 #   cancel-in-progress: true
 
 jobs:
+  # root pipelines
+  root:
+    uses: ./.github/workflows/rootPipeline.yml
+
+  # modules pipelines
+  profile:
+    needs: root
+    uses: ./.github/workflows/profilePipeline.yml
+
+  # quest3Tier:
+  #   needs: root
+  #   uses: ./.github/workflows/quest3TierPipeline.yml
+
+  # quest5Tier:
+  #   needs: root
+  #   uses: ./.github/workflows/quest5TierPipeline.yml
+
+  # # ui pipelines
+  # ui:
+  #   needs: root
+  #   uses: ./.github/workflows/uiPipeline.yml
+
   # main:
   #   runs-on: ubuntu-latest
   #   steps:
@@ -19,51 +41,51 @@ jobs:
   #       run: echo "Starting Main Workflow"
 
   # root pipelines
-  buildRoot:
-    uses: ./.github/workflows/buildRoot.yml
+  # buildRoot:
+  #   uses: ./.github/workflows/buildRoot.yml
 
-  deployRootDev:
-    needs: buildRoot
-    uses: ./.github/workflows/deployRootDev.yml
+  # deployRootDev:
+  #   needs: buildRoot
+  #   uses: ./.github/workflows/deployRootDev.yml
 
-  testRootDev:
-    needs: deployRootDev
-    uses: ./.github/workflows/testRootDev.yml
+  # testRootDev:
+  #   needs: deployRootDev
+  #   uses: ./.github/workflows/testRootDev.yml
 
-  deployRootTest:
-    needs: testRootDev
-    uses: ./.github/workflows/deployRootTest.yml
+  # deployRootTest:
+  #   needs: testRootDev
+  #   uses: ./.github/workflows/deployRootTest.yml
 
-  testRootTest:
-    needs: deployRootTest
-    uses: ./.github/workflows/testRootTest.yml
+  # testRootTest:
+  #   needs: deployRootTest
+  #   uses: ./.github/workflows/testRootTest.yml
 
-  deployRootProd:
-    needs: testRootTest
-    uses: ./.github/workflows/deployRootProd.yml
+  # deployRootProd:
+  #   needs: testRootTest
+  #   uses: ./.github/workflows/deployRootProd.yml
 
-  testRootProd:
-    needs: deployRootProd
-    uses: ./.github/workflows/testRootProd.yml
+  # testRootProd:
+  #   needs: deployRootProd
+  #   uses: ./.github/workflows/testRootProd.yml
 
   # modules pipelines
-  profile:
-    needs: buildRoot
-    uses: ./.github/workflows/modulePipeline.yml
-    with:
-      moduleName: profile
+  # profile:
+  #   needs: buildRoot
+  #   uses: ./.github/workflows/modulePipeline.yml
+  #   with:
+  #     moduleName: profile
 
-  quest3Tier:
-    needs: buildRoot
-    uses: ./.github/workflows/modulePipeline.yml
-    with:
-      moduleName: quest3Tier
+  # quest3Tier:
+  #   needs: buildRoot
+  #   uses: ./.github/workflows/modulePipeline.yml
+  #   with:
+  #     moduleName: quest3Tier
 
-  quest5Tier:
-    needs: buildRoot
-    uses: ./.github/workflows/modulePipeline.yml
-    with:
-      moduleName: quest5Tier
+  # quest5Tier:
+  #   needs: buildRoot
+  #   uses: ./.github/workflows/modulePipeline.yml
+  #   with:
+  #     moduleName: quest5Tier
 
   # pipeline with matrix for modules
   # buildModule:
