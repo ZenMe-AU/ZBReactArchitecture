@@ -9,7 +9,7 @@ on:
 
 jobs:
     build:
-        uses: ./.github/workflows/buildModule.yml
+        uses: ./.github/workflows/moduleBuild.yml
         with:
             moduleName: ${{ inputs.moduleName }}
 
@@ -40,6 +40,20 @@ jobs:
         with:
             moduleName: ${{ inputs.moduleName }}
             environment: Test
+
+    deployProd:
+        needs: testTest
+        uses: ./.github/workflows/moduleDeploy.yml
+        with:
+            moduleName: ${{ inputs.moduleName }}
+            environment: Prod
+
+    testProd:
+        needs: deployProd
+        uses: ./.github/workflows/moduleTest.yml
+        with:
+            moduleName: ${{ inputs.moduleName }}
+            environment: Prod
 
     # deployDev:
     #     needs: build

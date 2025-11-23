@@ -17,7 +17,6 @@ jobs:
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
+
             # - name: Setup pnpm environment
             #   uses: ./.github/actions/setup-pnpm
-            - name: print input
-              run: echo "buildModule"
