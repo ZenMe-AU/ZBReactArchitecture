@@ -15,36 +15,64 @@ jobs:
 
     deployDev:
         needs: build
-        uses: ./.github/workflows/deployModuleDev.yml
+        uses: ./.github/workflows/moduleDeploy.yml
         with:
             moduleName: ${{ inputs.moduleName }}
+            environment: Dev
 
     testDev:
         needs: deployDev
-        uses: ./.github/workflows/testModuleDev.yml
+        uses: ./.github/workflows/moduleTest.yml
         with:
             moduleName: ${{ inputs.moduleName }}
+            environment: Dev
 
     deployTest:
         needs: testDev
-        uses: ./.github/workflows/deployModuleTest.yml
+        uses: ./.github/workflows/moduleDeploy.yml
         with:
             moduleName: ${{ inputs.moduleName }}
+            environment: Test
 
     testTest:
         needs: deployTest
-        uses: ./.github/workflows/testModuleTest.yml
+        uses: ./.github/workflows/moduleTest.yml
         with:
             moduleName: ${{ inputs.moduleName }}
+            environment: Test
 
-    deployProd:
-        needs: testTest
-        uses: ./.github/workflows/deployModuleProd.yml
-        with:
-            moduleName: ${{ inputs.moduleName }}
+    # deployDev:
+    #     needs: build
+    #     uses: ./.github/workflows/deployModuleDev.yml
+    #     with:
+    #         moduleName: ${{ inputs.moduleName }}
 
-    testProd:
-        needs: deployProd
-        uses: ./.github/workflows/testModuleProd.yml
-        with:
-            moduleName: ${{ inputs.moduleName }}
+    # testDev:
+    #     needs: deployDev
+    #     uses: ./.github/workflows/testModuleDev.yml
+    #     with:
+    #         moduleName: ${{ inputs.moduleName }}
+
+    # deployTest:
+    #     needs: testDev
+    #     uses: ./.github/workflows/deployModuleTest.yml
+    #     with:
+    #         moduleName: ${{ inputs.moduleName }}
+
+    # testTest:
+    #     needs: deployTest
+    #     uses: ./.github/workflows/testModuleTest.yml
+    #     with:
+    #         moduleName: ${{ inputs.moduleName }}
+
+    # deployProd:
+    #     needs: testTest
+    #     uses: ./.github/workflows/deployModuleProd.yml
+    #     with:
+    #         moduleName: ${{ inputs.moduleName }}
+
+    # testProd:
+    #     needs: deployProd
+    #     uses: ./.github/workflows/testModuleProd.yml
+    #     with:
+    #         moduleName: ${{ inputs.moduleName }}

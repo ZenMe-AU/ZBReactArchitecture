@@ -1,0 +1,32 @@
+name: testModuleDev
+on:
+    workflow_call:
+        inputs:
+            moduleName:
+                required: true
+                type: string
+            environment:
+                required: true
+                type: string
+
+jobs:
+    testModuleDev:
+        name: Deploy ${{ inputs.moduleName }} - ${{ inputs.environment }}
+        environment: ${{ inputs.environment }}
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            security-events: write
+            actions: read
+        steps:
+            - name: Print Starting deploy
+              run: echo " Env ${{ github.environment }}, TargetEnv ${{ vars.TARGET_ENV_NAME }}"
+
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            # - name: Setup pnpm environment
+            #   uses: ./.github/actions/setup-pnpm
+
+            - name: Print which module is building
+              run: echo "Building module${{ inputs.moduleName }} testModuleDev"
