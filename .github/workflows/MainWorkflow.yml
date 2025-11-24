@@ -12,9 +12,10 @@ on:
 #   cancel-in-progress: true
 
 permissions:
+  id-token: write
   contents: read
-  security-events: write
-  actions: read
+  # security-events: write
+  # actions: read
 
 jobs:
   # root pipelines
@@ -23,10 +24,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Print job name
-        run: echo "Job name is ${{ github.job }}"
+        run:
+          echo "Job name is ${{ github.job }}"
+
+          # - name: Setup pnpm environment
+          #   uses: ./.github/actions/setup-pnpm
 
   deployRootDev:
-    name: Deploy Root Dev
+    name: Deploy Dev Env
     needs: buildRoot
     runs-on: ubuntu-latest
     environment: Dev
@@ -34,8 +39,19 @@ jobs:
       - name: Print job name
         run: echo "Job name is ${{ github.job }}"
 
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Verify Azure Login
+        shell: bash
+        run: az account show
+
   testRootDev:
-    name: Test Root Dev
+    name: Test Dev Env
     needs: deployRootDev
     runs-on: ubuntu-latest
     steps:
@@ -43,7 +59,7 @@ jobs:
         run: echo "Job name is ${{ github.job }}"
 
   deployRootTest:
-    name: Deploy Root Test
+    name: Deploy Test Env
     needs: testRootDev
     runs-on: ubuntu-latest
     environment: Test
@@ -52,7 +68,7 @@ jobs:
         run: echo "Job name is ${{ github.job }}"
 
   testRootTest:
-    name: Test Root Test
+    name: Test Test Env
     needs: deployRootTest
     runs-on: ubuntu-latest
     steps:
@@ -60,7 +76,7 @@ jobs:
         run: echo "Job name is ${{ github.job }}"
 
   deployRootProd:
-    name: Deploy Root Prod
+    name: Deploy Prod Env
     needs: testRootTest
     runs-on: ubuntu-latest
     environment: Prod
@@ -69,7 +85,7 @@ jobs:
         run: echo "Job name is ${{ github.job }}"
 
   testRootProd:
-    name: Test Root Prod
+    name: Test Prod Env
     needs: deployRootProd
     runs-on: ubuntu-latest
     steps:
@@ -78,6 +94,7 @@ jobs:
 
   # modules pipelines
   buildProfile:
+    name: Build Profile
     needs: buildRoot
     if: always()
     runs-on: ubuntu-latest
@@ -86,6 +103,7 @@ jobs:
         run: echo "Job name is ${{ github.job }}"
 
   deployProfileDev:
+    name: Deploy Profile Dev
     needs:
       - buildProfile
       - deployRootDev
@@ -96,6 +114,7 @@ jobs:
         run: echo "Job name is ${{ github.job }}"
 
   testProfileDev:
+    name: Test Profile Dev
     needs: deployProfileDev
     if: always()
     runs-on: ubuntu-latest
@@ -104,6 +123,7 @@ jobs:
         run: echo "Job name is ${{ github.job }}"
 
   deployProfileTest:
+    name: Deploy Profile Test
     needs:
       - testProfileDev
       - deployRootTest
@@ -114,6 +134,7 @@ jobs:
         run: echo "Job name is ${{ github.job }}"
 
   testProfileTest:
+    name: Test Profile Test
     needs: deployProfileTest
     if: always()
     runs-on: ubuntu-latest
@@ -122,6 +143,7 @@ jobs:
         run: echo "Job name is ${{ github.job }}"
 
   deployProfileProd:
+    name: Deploy Profile Prod
     needs:
       - testProfileTest
       - deployRootProd
@@ -132,6 +154,7 @@ jobs:
         run: echo "Job name is ${{ github.job }}"
 
   testProfileProd:
+    name: Test Profile Prod
     needs: deployProfileProd
     if: always()
     runs-on: ubuntu-latest
@@ -140,10 +163,10 @@ jobs:
         run: echo "Job name is ${{ github.job }}"
 
   activateDev:
+    name: Activate Dev Env
     needs:
       - testRootDev
       - testProfileDev
-    if: always()
     runs-on: ubuntu-latest
     environment: Dev
     steps:
@@ -151,10 +174,10 @@ jobs:
         run: echo "Job name is ${{ github.job }}"
 
   activateTest:
+    name: Activate Test Env
     needs:
       - testRootTest
       - testProfileTest
-    if: always()
     runs-on: ubuntu-latest
     environment: Test
     steps:
@@ -162,10 +185,10 @@ jobs:
         run: echo "Job name is ${{ github.job }}"
 
   activateProd:
+    name: Activate Prod Env
     needs:
       - testRootProd
       - testProfileProd
-    if: always()
     runs-on: ubuntu-latest
     environment: Prod
     steps:
