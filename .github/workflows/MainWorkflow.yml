@@ -138,3 +138,36 @@ jobs:
     steps:
       - name: Echo job name
         run: echo "Job name is ${{ github.job }}"
+
+  activateDev:
+    needs:
+      - testRootDev
+      - testProfileDev
+    if: always()
+    runs-on: ubuntu-latest
+    environment: Dev
+    steps:
+      - name: Echo job name
+        run: echo "Job name is ${{ github.job }}"
+
+  activateTest:
+    needs:
+      - testRootTest
+      - testProfileTest
+    if: always()
+    runs-on: ubuntu-latest
+    environment: Test
+    steps:
+      - name: Echo job name
+        run: echo "Job name is ${{ github.job }}"
+
+  activateProd:
+    needs:
+      - testRootProd
+      - testProfileProd
+    if: always()
+    runs-on: ubuntu-latest
+    environment: Prod
+    steps:
+      - name: Echo job name
+        run: echo "Job name is ${{ github.job }}"
