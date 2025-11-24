@@ -34,7 +34,6 @@ jobs:
 
     deployDev:
         name: Deploy Dev
-        needs: build
         environment: Dev
         runs-on: ubuntu-latest
         if: ${{ inputs.deployDev == 'true' }}
@@ -82,10 +81,10 @@ jobs:
             # - name: Setup pnpm environment
             #   uses: ./.github/actions/setup-azure
 
-            - name: Fail intentionally
-              run: |
-                  echo "Simulating failure"
-                  exit 1
+            # - name: Fail intentionally
+            #   run: |
+            #       echo "Simulating failure"
+            #       exit 1
 
     testTest:
         name: Test Test
