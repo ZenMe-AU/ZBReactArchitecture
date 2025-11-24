@@ -15,32 +15,21 @@ permissions:
   contents: read
   security-events: write
   actions: read
+
 jobs:
   # root pipelines
   buildRoot:
     name: Build Root
     runs-on: ubuntu-latest
-    outputs:
-      result: ${{ steps.result.outputs.result }}
     steps:
       - name: Print job name
         run: echo "Job name is ${{ github.job }}"
-      # - name: Checkout code
-      #   uses: actions/checkout@v4
-
-      # - name: Setup pnpm environment
-      #   uses: ./.github/actions/setup-azure
-
-      - name: Set output
-        id: result
-        run: echo "result=true" >> $GITHUB_OUTPUT
 
   deployRootDev:
     name: Deploy Root Dev
     needs: buildRoot
     runs-on: ubuntu-latest
-    outputs:
-      result: ${{ steps.result.outputs.result }}
+    environment: Dev
     steps:
       - name: Print job name
         run: echo "Job name is ${{ github.job }}"
@@ -57,8 +46,7 @@ jobs:
     name: Deploy Root Test
     needs: testRootDev
     runs-on: ubuntu-latest
-    outputs:
-      result: ${{ steps.result.outputs.result }}
+    environment: Test
     steps:
       - name: Print job name
         run: echo "Job name is ${{ github.job }}"
@@ -75,6 +63,7 @@ jobs:
     name: Deploy Root Prod
     needs: testRootTest
     runs-on: ubuntu-latest
+    environment: Prod
     steps:
       - name: Print job name
         run: echo "Job name is ${{ github.job }}"
@@ -97,9 +86,12 @@ jobs:
         run: echo "Job name is ${{ github.job }}"
 
   deployProfileDev:
-    needs: buildProfile
+    needs:
+      - buildProfile
+      - deployRootDev
     if: always()
     runs-on: ubuntu-latest
+    environment: Dev
     steps:
       - name: Echo job name
         run: echo "Job name is ${{ github.job }}"
@@ -113,9 +105,12 @@ jobs:
         run: echo "Job name is ${{ github.job }}"
 
   deployProfileTest:
-    needs: testProfileDev
+    needs:
+      - testProfileDev
+      - deployRootTest
     if: always()
     runs-on: ubuntu-latest
+    environment: Test
     steps:
       - name: Echo job name
         run: echo "Job name is ${{ github.job }}"
@@ -129,9 +124,12 @@ jobs:
         run: echo "Job name is ${{ github.job }}"
 
   deployProfileProd:
-    needs: testProfileTest
+    needs:
+      - testProfileTest
+      - deployRootProd
     if: always()
     runs-on: ubuntu-latest
+    environment: Prod
     steps:
       - name: Echo job name
         run: echo "Job name is ${{ github.job }}"
