@@ -86,10 +86,10 @@ jobs:
       # - name: Setup pnpm environment
       #   uses: ./.github/actions/setup-azure
 
-      - name: Fail intentionally
-        run: |
-          echo "Simulating failure"
-          exit 1
+      # - name: Fail intentionally
+      #   run: |
+      #     echo "Simulating failure"
+      #     exit 1
 
       - name: Set output
         id: result
@@ -187,14 +187,26 @@ jobs:
       deployTest: ${{ needs.export.outputs.deployTest }}
       deployProd: ${{ needs.export.outputs.deployProd }}
 
-  # quest5Tier:
-  #   needs: root
-  #   uses: ./.github/workflows/quest5TierPipeline.yml
+  quest5Tier:
+    needs: export
+    if: always()
+    uses: ./.github/workflows/quest5TierPipeline.yml
+    with:
+      build: ${{ needs.export.outputs.build }}
+      deployDev: ${{ needs.export.outputs.deployDev }}
+      deployTest: ${{ needs.export.outputs.deployTest }}
+      deployProd: ${{ needs.export.outputs.deployProd }}
 
-  # # ui pipelines
-  # ui:
-  #   needs: root
-  #   uses: ./.github/workflows/uiPipeline.yml
+  # ui pipelines
+  ui:
+    needs: export
+    if: always()
+    uses: ./.github/workflows/uiPipeline.yml
+    with:
+      build: ${{ needs.export.outputs.build }}
+      deployDev: ${{ needs.export.outputs.deployDev }}
+      deployTest: ${{ needs.export.outputs.deployTest }}
+      deployProd: ${{ needs.export.outputs.deployProd }}
 
   # main:
   #   runs-on: ubuntu-latest

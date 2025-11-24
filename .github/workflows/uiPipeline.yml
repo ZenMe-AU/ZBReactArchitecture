@@ -1,4 +1,4 @@
-name: profilePipeline
+name: uiPipeline
 
 on:
     workflow_call:
@@ -81,11 +81,6 @@ jobs:
 
             # - name: Setup pnpm environment
             #   uses: ./.github/actions/setup-azure
-
-            - name: Fail intentionally
-              run: |
-                  echo "Simulating failure"
-                  exit 1
 
     testTest:
         name: Test Test
