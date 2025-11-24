@@ -11,20 +11,22 @@ on:
 #   group: deploy-group
 #   cancel-in-progress: true
 
+permissions:
+  contents: read
+  security-events: write
+  actions: read
 jobs:
   # root pipelines
   buildRoot:
     name: Build Root
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      security-events: write
-      actions: read
     outputs:
       result: ${{ steps.result.outputs.result }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Print job name
+        run: echo "Job name is ${{ github.job }}"
+      # - name: Checkout code
+      #   uses: actions/checkout@v4
 
       # - name: Setup pnpm environment
       #   uses: ./.github/actions/setup-azure
@@ -37,466 +39,107 @@ jobs:
     name: Deploy Root Dev
     needs: buildRoot
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      security-events: write
-      actions: read
     outputs:
       result: ${{ steps.result.outputs.result }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      # - name: Setup pnpm environment
-      #   uses: ./.github/actions/setup-azure
-
-      - name: Set output
-        id: result
-        run: echo "result=true" >> $GITHUB_OUTPUT
+      - name: Print job name
+        run: echo "Job name is ${{ github.job }}"
 
   testRootDev:
     name: Test Root Dev
     needs: deployRootDev
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      security-events: write
-      actions: read
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      # - name: Setup pnpm environment
-      #   uses: ./.github/actions/setup-azure
+      - name: Print job name
+        run: echo "Job name is ${{ github.job }}"
 
   deployRootTest:
     name: Deploy Root Test
     needs: testRootDev
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      security-events: write
-      actions: read
     outputs:
       result: ${{ steps.result.outputs.result }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      # - name: Setup pnpm environment
-      #   uses: ./.github/actions/setup-azure
-
-      # - name: Fail intentionally
-      #   run: |
-      #     echo "Simulating failure"
-      #     exit 1
-
-      - name: Set output
-        id: result
-        run: echo "result=true" >> $GITHUB_OUTPUT
+      - name: Print job name
+        run: echo "Job name is ${{ github.job }}"
 
   testRootTest:
     name: Test Root Test
     needs: deployRootTest
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      security-events: write
-      actions: read
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      # - name: Setup pnpm environment
-      #   uses: ./.github/actions/setup-azure
+      - name: Print job name
+        run: echo "Job name is ${{ github.job }}"
 
   deployRootProd:
     name: Deploy Root Prod
     needs: testRootTest
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      security-events: write
-      actions: read
-    outputs:
-      result: ${{ steps.result.outputs.result }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      # - name: Setup pnpm environment
-      #   uses: ./.github/actions/setup-azure
-
-      - name: Set output
-        id: result
-        run: echo "result=true" >> $GITHUB_OUTPUT
+      - name: Print job name
+        run: echo "Job name is ${{ github.job }}"
 
   testRootProd:
     name: Test Root Prod
     needs: deployRootProd
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      security-events: write
-      actions: read
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      # - name: Setup pnpm environment
-      #   uses: ./.github/actions/setup-azure
-  export:
-    runs-on: ubuntu-latest
-    needs:
-      - buildRoot
-      - deployRootDev
-      - deployRootTest
-      - deployRootProd
-    if: always()
-    outputs:
-      build: ${{ needs.buildRoot.outputs.result || 'false' }}
-      deployDev: ${{ needs.deployRootDev.outputs.result || 'false' }}
-      deployTest: ${{ needs.deployRootTest.outputs.result || 'false' }}
-      deployProd: ${{ needs.deployRootProd.outputs.result || 'false' }}
-    steps:
-      - run: |
-          echo "Export results"
-        # echo "build=${{ needs.buildRoot.outputs.result || 'false' }}" >> $GITHUB_ENV
-        # echo "deployDev=${{ needs.deployRootDev.outputs.result || 'false' }}" >> $GITHUB_ENV
-        # echo "deployTest=${{ needs.deployRootTest.outputs.result || 'false' }}" >> $GITHUB_ENV
-        # echo "deployProd=${{ needs.deployRootProd.outputs.result || 'false' }}" >> $GITHUB_ENV
+      - name: Echo job name
+        run: echo "Job name is ${{ github.job }}"
 
   # modules pipelines
   buildProfile:
     needs: buildRoot
     if: always()
-    uses: ./.github/workflows/profilePipeline.yml
-    with:
-      build: "true"
-      deployDev: "false"
-      deployTest: "false"
-      deployProd: "false"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo job name
+        run: echo "Job name is ${{ github.job }}"
 
   deployProfileDev:
     needs: buildProfile
     if: always()
-    uses: ./.github/workflows/profilePipeline.yml
-    with:
-      build: "false"
-      deployDev: "true"
-      deployTest: "false"
-      deployProd: "false"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo job name
+        run: echo "Job name is ${{ github.job }}"
 
-  quest3Tier:
-    needs: export
+  testProfileDev:
+    needs: deployProfileDev
     if: always()
-    uses: ./.github/workflows/quest3TierPipeline.yml
-    with:
-      build: ${{ needs.export.outputs.build }}
-      deployDev: ${{ needs.export.outputs.deployDev }}
-      deployTest: ${{ needs.export.outputs.deployTest }}
-      deployProd: ${{ needs.export.outputs.deployProd }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo job name
+        run: echo "Job name is ${{ github.job }}"
 
-  # quest5Tier:
-  #   needs: export
-  #   if: always()
-  #   uses: ./.github/workflows/quest5TierPipeline.yml
-  #   with:
-  #     build: ${{ needs.export.outputs.build }}
-  #     deployDev: ${{ needs.export.outputs.deployDev }}
-  #     deployTest: ${{ needs.export.outputs.deployTest }}
-  #     deployProd: ${{ needs.export.outputs.deployProd }}
-
-  # ui pipelines
-  ui:
-    needs: export
+  deployProfileTest:
+    needs: testProfileDev
     if: always()
-    uses: ./.github/workflows/uiPipeline.yml
-    with:
-      build: ${{ needs.export.outputs.build }}
-      deployDev: ${{ needs.export.outputs.deployDev }}
-      deployTest: ${{ needs.export.outputs.deployTest }}
-      deployProd: ${{ needs.export.outputs.deployProd }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo job name
+        run: echo "Job name is ${{ github.job }}"
 
-  # main:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Start Main Workflow
-  #       run: echo "Starting Main Workflow"
+  testProfileTest:
+    needs: deployProfileTest
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo job name
+        run: echo "Job name is ${{ github.job }}"
 
-  # root pipelines
-  # buildRoot:
-  #   uses: ./.github/workflows/buildRoot.yml
+  deployProfileProd:
+    needs: testProfileTest
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo job name
+        run: echo "Job name is ${{ github.job }}"
 
-  # deployRootDev:
-  #   needs: buildRoot
-  #   uses: ./.github/workflows/deployRootDev.yml
-
-  # testRootDev:
-  #   needs: deployRootDev
-  #   uses: ./.github/workflows/testRootDev.yml
-
-  # deployRootTest:
-  #   needs: testRootDev
-  #   uses: ./.github/workflows/deployRootTest.yml
-
-  # testRootTest:
-  #   needs: deployRootTest
-  #   uses: ./.github/workflows/testRootTest.yml
-
-  # deployRootProd:
-  #   needs: testRootTest
-  #   uses: ./.github/workflows/deployRootProd.yml
-
-  # testRootProd:
-  #   needs: deployRootProd
-  #   uses: ./.github/workflows/testRootProd.yml
-
-  # modules pipelines
-  # profile:
-  #   needs: buildRoot
-  #   uses: ./.github/workflows/modulePipeline.yml
-  #   with:
-  #     moduleName: profile
-
-  # quest3Tier:
-  #   needs: buildRoot
-  #   uses: ./.github/workflows/modulePipeline.yml
-  #   with:
-  #     moduleName: quest3Tier
-
-  # quest5Tier:
-  #   needs: buildRoot
-  #   uses: ./.github/workflows/modulePipeline.yml
-  #   with:
-  #     moduleName: quest5Tier
-
-  # pipeline with matrix for modules
-  # buildModule:
-  #   needs: buildRoot
-  #   strategy:
-  #     matrix:
-  #       module:
-  #         - profile
-  #         - quest3Tier
-  #   uses: ./.github/workflows/modulePipeline.yml
-  #   with:
-  #     moduleName: ${{ matrix.module }}
-
-  # module
-  # buildModule:
-  #   needs: buildRoot
-  #   strategy:
-  #     matrix:
-  #       module:
-  #         - profile
-  #         - quest3Tier
-  #   uses: ./.github/workflows/buildModule.yml
-  #   with:
-  #     moduleName: ${{ matrix.module }}
-
-  # deployModuleDev:
-  #   needs: buildModule
-  #   strategy:
-  #     matrix:
-  #       module:
-  #         - profile
-  #         - quest3Tier
-  #   uses: ./.github/workflows/deployModuleDev.yml
-  #   with:
-  #     moduleName: ${{ matrix.module }}
-
-  # testModuleDev:
-  #   needs: deployModuleDev
-  #   strategy:
-  #     matrix:
-  #       module:
-  #         - profile
-  #         - quest3Tier
-  #   uses: ./.github/workflows/testModuleDev.yml
-  #   with:
-  #     moduleName: ${{ matrix.module }}
-
-  # deployModuleTest:
-  #   needs: testModuleDev
-  #   strategy:
-  #     matrix:
-  #       module:
-  #         - profile
-  #         - quest3Tier
-  #   uses: ./.github/workflows/deployModuleTest.yml
-  #   with:
-  #     moduleName: ${{ matrix.module }}
-
-  # testModuleTest:
-  #   needs: deployModuleTest
-  #   strategy:
-  #     matrix:
-  #       module:
-  #         - profile
-  #         - quest3Tier
-  #   uses: ./.github/workflows/testModuleTest.yml
-  #   with:
-  #     moduleName: ${{ matrix.module }}
-
-  # deployModuleProd:
-  #   needs: testModuleTest
-  #   strategy:
-  #     matrix:
-  #       module:
-  #         - profile
-  #         - quest3Tier
-  #   uses: ./.github/workflows/deployModuleProd.yml
-  #   with:
-  #     moduleName: ${{ matrix.module }}
-
-  # testModuleProd:
-  #   needs: deployModuleProd
-  #   strategy:
-  #     matrix:
-  #       module:
-  #         - profile
-  #         - quest3Tier
-  #   uses: ./.github/workflows/testModuleProd.yml
-  #   with:
-  #     moduleName: ${{ matrix.module }}
-
-  # buildprofile:
-  #   needs: buildRoot
-  #   uses: ./.github/workflows/buildprofile.yml
-
-  # deployprofileDev:
-  #   needs: buildprofile
-  #   uses: ./.github/workflows/deployprofileDev.yml
-
-  # testprofileDev:
-  #   needs: deployprofileDev
-  #   uses: ./.github/workflows/testprofileDev.yml
-
-  # deployprofileTest:
-  #   needs: testprofileDev
-  #   uses: ./.github/workflows/deployprofileTest.yml
-
-  # testprofileTest:
-  #   needs: deployprofileTest
-  #   uses: ./.github/workflows/testprofileTest.yml
-
-  # deployprofileProd:
-  #   needs: testprofileTest
-  #   uses: ./.github/workflows/deployprofileProd.yml
-
-  # testprofileProd:
-  #   needs: deployprofileProd
-  #   uses: ./.github/workflows/testprofileProd.yml
-
-  # buildquest3Tier:
-  #   needs: buildRoot
-  #   uses: ./.github/workflows/buildquest3Tier.yml
-
-  # deployquest3TierDev:
-  #   needs: buildquest3Tier
-  #   uses: ./.github/workflows/deployquest3TierDev.yml
-
-  # testquest3TierDev:
-  #   needs: deployquest3TierDev
-  #   uses: ./.github/workflows/testquest3TierDev.yml
-
-  # deployquest3TierTest:
-  #   needs: testquest3TierDev
-  #   uses: ./.github/workflows/deployquest3TierTest.yml
-
-  # testquest3TierTest:
-  #   needs: deployquest3TierTest
-  #   uses: ./.github/workflows/testquest3TierTest.yml
-
-  # deployquest3TierProd:
-  #   needs: testquest3TierTest
-  #   uses: ./.github/workflows/deployquest3TierProd.yml
-
-  # testquest3TierProd:
-  #   needs: deployquest3TierProd
-  #   uses: ./.github/workflows/testquest3TierProd.yml
-
-  # buildquest5Tier:
-  #   needs: buildRoot
-  #   uses: ./.github/workflows/buildquest5Tier.yml
-
-  # deployquest5TierDev:
-  #   needs: buildquest5Tier
-  #   uses: ./.github/workflows/deployquest5TierDev.yml
-
-  # testquest5TierDev:
-  #   needs: deployquest5TierDev
-  #   uses: ./.github/workflows/testquest5TierDev.yml
-
-  # deployquest5TierTest:
-  #   needs: testquest5TierDev
-  #   uses: ./.github/workflows/deployquest5TierTest.yml
-
-  # testquest5TierTest:
-  #   needs: deployquest5TierTest
-  #   uses: ./.github/workflows/testquest5TierTest.yml
-
-  # deployquest5TierProd:
-  #   needs: testquest5TierTest
-  #   uses: ./.github/workflows/deployquest5TierProd.yml
-
-  # testquest5TierProd:
-  #   needs: deployquest5TierProd
-  #   uses: ./.github/workflows/testquest5TierProd.yml
-
-  # buildquest5TierEg:
-  #   needs: buildRoot
-  #   uses: ./.github/workflows/buildquest5TierEg.yml
-
-  # deployquest5TierEgDev:
-  #   needs: buildquest5TierEg
-  #   uses: ./.github/workflows/deployquest5TierEgDev.yml
-
-  # testquest5TierEgDev:
-  #   needs: deployquest5TierEgDev
-  #   uses: ./.github/workflows/testquest5TierEgDev.yml
-
-  # deployquest5TierEgTest:
-  #   needs: testquest5TierEgDev
-  #   uses: ./.github/workflows/deployquest5TierEgTest.yml
-
-  # testquest5TierEgTest:
-  #   needs: deployquest5TierEgTest
-  #   uses: ./.github/workflows/testquest5TierEgTest.yml
-
-  # deployquest5TierEgProd:
-  #   needs: testquest5TierEgTest
-  #   uses: ./.github/workflows/deployquest5TierEgProd.yml
-
-  # testquest5TierEgProd:
-  #   needs: deployquest5TierEgProd
-  #   uses: ./.github/workflows/testquest5TierEgProd.yml
-
-  # buildUi:
-  #   needs: buildRoot
-  #   uses: ./.github/workflows/buildUi.yml
-
-  # deployUiDev:
-  #   needs: buildUi
-  #   uses: ./.github/workflows/deployUiDev.yml
-
-  # testUiDev:
-  #   needs: deployUiDev
-  #   uses: ./.github/workflows/testUiDev.yml
-
-  # deployUiTest:
-  #   needs: testUiDev
-  #   uses: ./.github/workflows/deployUiTest.yml
-
-  # testUiTest:
-  #   needs: deployUiTest
-  #   uses: ./.github/workflows/testUiTest.yml
-
-  # deployUiProd:
-  #   needs: testUiTest
-  #   uses: ./.github/workflows/deployUiProd.yml
-
-  # testUiProd:
-  #   needs: deployUiProd
-  #   uses: ./.github/workflows/testUiProd.yml
+  testProfileProd:
+    needs: deployProfileProd
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo job name
+        run: echo "Job name is ${{ github.job }}"
