@@ -1,16 +1,26 @@
-name: modulePipeline
+name: profilePipeline
 
 on:
     workflow_call:
-        # inputs:
-        #     moduleName:
-        #         required: true
-        #         type: string
+        inputs:
+            build:
+                required: true
+                type: string
+            deployDev:
+                required: true
+                type: string
+            deployTest:
+                required: true
+                type: string
+            deployProd:
+                required: true
+                type: string
 
 jobs:
     build:
         name: Build
         runs-on: ubuntu-latest
+        if: ${{ inputs.build == 'true' }}
         permissions:
             contents: read
             security-events: write
@@ -25,7 +35,9 @@ jobs:
     deployDev:
         name: Deploy Dev
         needs: build
+        environment: Dev
         runs-on: ubuntu-latest
+        if: ${{ inputs.deployDev == 'true' }}
         permissions:
             contents: read
             security-events: write
@@ -40,6 +52,7 @@ jobs:
     testDev:
         name: Test Dev
         needs: deployDev
+        environment: Dev
         runs-on: ubuntu-latest
         permissions:
             contents: read
@@ -55,7 +68,9 @@ jobs:
     deployTest:
         name: Deploy Test
         needs: testDev
+        environment: Test
         runs-on: ubuntu-latest
+        if: ${{ inputs.deployTest == 'true' }}
         permissions:
             contents: read
             security-events: write
@@ -69,6 +84,7 @@ jobs:
 
     testTest:
         name: Test Test
+        environment: Test
         needs: deployTest
         runs-on: ubuntu-latest
         permissions:
@@ -85,7 +101,9 @@ jobs:
     deployProd:
         name: Deploy Prod
         needs: testTest
+        environment: Prod
         runs-on: ubuntu-latest
+        if: ${{ inputs.deployProd == 'true' }}
         permissions:
             contents: read
             security-events: write
@@ -100,6 +118,7 @@ jobs:
     testProd:
         name: Test Prod
         needs: deployProd
+        environment: Prod
         runs-on: ubuntu-latest
         permissions:
             contents: read

@@ -1,53 +1,47 @@
-name: rootPipeline
+name: quest3TierPipeline
 
 on:
     workflow_call:
-        outputs:
+        inputs:
             build:
-                value: ${{ jobs.export.outputs.build }}
+                required: true
+                type: string
             deployDev:
-                value: ${{ jobs.export.outputs.deployDev }}
+                required: true
+                type: string
             deployTest:
-                value: ${{ jobs.export.outputs.deployTest }}
+                required: true
+                type: string
             deployProd:
-                value: ${{ jobs.export.outputs.deployProd }}
+                required: true
+                type: string
 
 jobs:
     build:
         name: Build
         runs-on: ubuntu-latest
+        if: ${{ inputs.build == 'true' }}
         permissions:
             contents: read
             security-events: write
             actions: read
-        outputs:
-            result: ${{ steps.result.outputs.result }}
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
 
             # - name: Setup pnpm environment
             #   uses: ./.github/actions/setup-azure
-
-            - name: Fail intentionally
-              run: |
-                  echo "Simulating failure"
-                  exit 1
-              continue-on-error: true
-            - name: Set output
-              id: result
-              run: echo "result=true" >> $GITHUB_OUTPUT
 
     deployDev:
         name: Deploy Dev
         needs: build
+        environment: Dev
         runs-on: ubuntu-latest
+        if: ${{ inputs.deployDev == 'true' }}
         permissions:
             contents: read
             security-events: write
             actions: read
-        outputs:
-            result: ${{ steps.result.outputs.result }}
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
@@ -55,13 +49,10 @@ jobs:
             # - name: Setup pnpm environment
             #   uses: ./.github/actions/setup-azure
 
-            - name: Set output
-              id: result
-              run: echo "result=true" >> $GITHUB_OUTPUT
-
     testDev:
         name: Test Dev
         needs: deployDev
+        environment: Dev
         runs-on: ubuntu-latest
         permissions:
             contents: read
@@ -77,13 +68,13 @@ jobs:
     deployTest:
         name: Deploy Test
         needs: testDev
+        environment: Test
         runs-on: ubuntu-latest
+        if: ${{ inputs.deployTest == 'true' }}
         permissions:
             contents: read
             security-events: write
             actions: read
-        outputs:
-            result: ${{ steps.result.outputs.result }}
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
@@ -91,17 +82,9 @@ jobs:
             # - name: Setup pnpm environment
             #   uses: ./.github/actions/setup-azure
 
-            # - name: Fail intentionally
-            #   run: |
-            #       echo "Simulating failure"
-            #       exit 1
-
-            - name: Set output
-              id: result
-              run: echo "result=true" >> $GITHUB_OUTPUT
-
     testTest:
         name: Test Test
+        environment: Test
         needs: deployTest
         runs-on: ubuntu-latest
         permissions:
@@ -118,27 +101,24 @@ jobs:
     deployProd:
         name: Deploy Prod
         needs: testTest
+        environment: Prod
         runs-on: ubuntu-latest
+        if: ${{ inputs.deployProd == 'true' }}
         permissions:
             contents: read
             security-events: write
             actions: read
-        outputs:
-            result: ${{ steps.result.outputs.result }}
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
 
             # - name: Setup pnpm environment
             #   uses: ./.github/actions/setup-azure
-
-            - name: Set output
-              id: result
-              run: echo "result=true" >> $GITHUB_OUTPUT
 
     testProd:
         name: Test Prod
         needs: deployProd
+        environment: Prod
         runs-on: ubuntu-latest
         permissions:
             contents: read
@@ -150,23 +130,3 @@ jobs:
 
             # - name: Setup pnpm environment
             #   uses: ./.github/actions/setup-azure
-    export:
-        runs-on: ubuntu-latest
-        needs:
-            - build
-            - deployDev
-            - deployTest
-            - deployProd
-        if: always()
-        outputs:
-            build: ${{ needs.build.outputs.result || 'false' }}
-            deployDev: ${{ needs.deployDev.outputs.result || 'false' }}
-            deployTest: ${{ needs.deployTest.outputs.result || 'false' }}
-            deployProd: ${{ needs.deployProd.outputs.result || 'false' }}
-        steps:
-            - run: |
-                  echo "Export results"
-                  echo "build=${{ needs.build.outputs.result || 'false' }}" >> $GITHUB_ENV
-                  echo "deployDev=${{ needs.deployDev.outputs.result || 'false' }}" >> $GITHUB_ENV
-                  echo "deployTest=${{ needs.deployTest.outputs.result || 'false' }}" >> $GITHUB_ENV
-                  echo "deployProd=${{ needs.deployProd.outputs.result || 'false' }}" >> $GITHUB_ENV
