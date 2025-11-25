@@ -1,0 +1,1 @@
+This folder with contain the code that exports an indipentant file with the necacary resources to deploy the front door foundation.
