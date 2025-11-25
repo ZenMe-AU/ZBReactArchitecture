@@ -317,22 +317,18 @@ For the deployment scripts to work, certain prerequisites of the environment mus
 Azure subscription
 EntraID user
 
-The infrastructure deployment is automated using PowerShell (`deployfullstack.ps1`) and Terraform scripts. The sequence follows these steps:
+The infrastructure deployment is automated using PowerShell (`deploy.ps1`) and Terraform scripts. The sequence follows these steps:
 
 1. **Environment Preparation**
-
    - The PowerShell script initializes environment variables and configuration settings required for deployment (e.g., subscription, resource group, region).
 
 2. **Terraform Initialization**
-
    - The script runs `terraform init` to set up the Terraform working directory and download required providers.
 
 3. **Terraform Plan**
-
    - Executes `terraform plan` to preview infrastructure changes and validate the configuration.
 
 4. **Terraform Apply**
-
    - Runs `terraform apply` to provision Azure resources, including:
      - Resource Group
      - Storage Account
@@ -342,13 +338,11 @@ The infrastructure deployment is automated using PowerShell (`deployfullstack.ps
      - Azure Functions and Static Web Apps
 
 5. **Deployment of Application Code**
-
    - After infrastructure is provisioned, the script deploys application code:
      - Frontend (React/Vite) is built and deployed to Azure Static Web Apps.
      - Backend APIs and Azure Functions are published to their respective Azure resources.
 
 6. **Configuration and Secrets**
-
    - The script configures connection strings, secrets, and environment variables for each module, ensuring secure integration between services.
 
 7. **Verification and Output**

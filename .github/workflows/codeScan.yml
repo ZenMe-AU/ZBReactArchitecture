@@ -1,21 +1,15 @@
-# ESLint is a tool for identifying and reporting on patterns
-# found in ECMAScript/JavaScript code.
-# More details at https://github.com/eslint/eslint
-# and https://eslint.org
-
-name: ESLint
+name: Codescan
 
 on:
-  push:
-    branches: ["main"]
-  pull_request:
-    branches: ["main"]
-  schedule:
-    - cron: "10 01 * * 4"
+  workflow_dispatch:
+
+concurrency:
+  group: codescan-group
+  cancel-in-progress: true
 
 jobs:
-  codeScan:
-    name: Run code scans
+  ESLint:
+    name: Run ESLint code scans
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -24,67 +18,59 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
-          run_install: false
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: "pnpm"
-
-      - name: Install dependencies
-        run: pnpm install
+      - name: Setup pnpm environment
+        uses: ./.github/actions/setup-pnpm
 
       - name: Run ESLint
         env:
           SARIF_ESLINT_IGNORE_SUPPRESSED: "true"
-        run: npx eslint .
-          --config eslint.config.js
-          --format @microsoft/eslint-formatter-sarif
-          --output-file eslint-results.sarif
+        run: npx eslint . --config eslint.config.js  --format @microsoft/eslint-formatter-sarif  --output-file eslint-results.sarif
         continue-on-error: true
+
       - name: Upload eslint results to GitHub
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: eslint-results.sarif
           wait-for-processing: true
 
-      - name: Show working directory and files
-        run: |
-          pwd
-          ls -al
+      - name: Handle upload failure, print file content
+        if: failure()
+        run: cat eslint-results.sarif
 
-      - name: Approve builds for global install
-        run: pnpm approve-builds -g
+  Snyk:
+    name: Run Snyk code scans
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read # required for private repositories
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Cache pnpm store for faster installs
+        uses: actions/cache@v3
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+      - name: Setup pnpm environment
+        uses: ./.github/actions/setup-pnpm
 
       - uses: snyk/actions/node@master
         with:
-          command: test
-          args: --sarif -d
+          args: test -d --severity-threshold=high --sarif-file-output=snyk-results.sarif
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         continue-on-error: true
 
-      - name: Install Snyk
-        run: pnpm install -g snyk
-
-      - name: Approve builds for global install
-        run: pnpm approve-builds -g
-
-      - name: Build snyk
-        run: pnpm rebuild snyk
-
-      - name: Run Snyk
-        run: pnpm exec snyk test --sarif > snyk-results.sarif
-        continue-on-error: true
-
       - name: Upload Snyk results to GitHub
-        uses: github/codeql-action/upload-sarif@v2
+        id: uploadSnyk
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: snyk-results.sarif
           wait-for-processing: true
+
+      - name: If upload fails, print sarif file content
+        if: failure()
+        run: cat snyk-results.sarif
