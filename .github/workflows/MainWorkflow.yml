@@ -45,6 +45,9 @@ jobs:
       - name: Print job name
         run: echo "Job name is ${{ github.job }}"
 
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: setup environment
         uses: ./.github/actions/setup-azure
 
