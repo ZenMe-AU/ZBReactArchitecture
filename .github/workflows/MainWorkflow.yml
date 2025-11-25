@@ -30,6 +30,12 @@ jobs:
           # - name: Setup pnpm environment
           #   uses: ./.github/actions/setup-pnpm
 
+      # - name: Upload build output
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: build-output
+      #     path: ./dist
+
   deployRootDev:
     name: Deploy Dev Env
     needs: buildRoot
@@ -39,16 +45,24 @@ jobs:
       - name: Print job name
         run: echo "Job name is ${{ github.job }}"
 
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: setup environment
+        uses: ./.github/actions/setup-azure
 
-      - name: Verify Azure Login
-        shell: bash
-        run: az account show
+      - name: Create env file & echo target name
+        working-directory: deploy
+        run: |
+          echo "TARGET_ENV_NAME:${{ vars.TARGET_ENV_NAME }}"
+          echo "TARGET_ENV=${{ vars.TARGET_ENV_NAME }}" >> .env
+
+      - name: Read env file
+        run: cat deploy/.env
+
+      - name: Set deployment environment
+        run: echo "TF_VAR_env_type=dev" >> $GITHUB_ENV
+
+      - name: Run Terraform for deployEnv
+        working-directory: deploy/initEnv
+        run: node ./initEnvironment.js  --auto-approve
 
   testRootDev:
     name: Test Dev Env
