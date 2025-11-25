@@ -1,10 +1,16 @@
 name: "Setup Release Environment"
 description: "setup pnpm, Node.js, terraform, and cache dependencies"
 
-# inputs:
-#   azureCreds:
-#     description: "Azure credentials JSON"
-#     required: true
+inputs:
+  clientId:
+    description: "Azure client ID"
+    required: true
+  tenantId:
+    description: "Azure tenant ID"
+    required: true
+  subscriptionId:
+    description: "Azure subscription ID"
+    required: true
 
 runs:
   using: "composite"
@@ -33,9 +39,9 @@ runs:
     - name: Azure Login
       uses: azure/login@v2
       with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        client-id: ${{ inputs.clientId }}
+        tenant-id: ${{ inputs.tenantId }}
+        subscription-id: ${{ inputs.subscriptionId }}
 
     - name: Verify Azure Login
       shell: bash
