@@ -131,6 +131,7 @@ function activatePimPermissions() {
     const userObject = execSync("az account show --query user -o json", {
       encoding: "utf8",
     }).trim();
+    console.log("Current user object:", userObject);
     if (userObject.type === "servicePrincipal") {
       userId = execSync(
         `az ad sp show --id ${userObject.name} --query id -o tsv`,
