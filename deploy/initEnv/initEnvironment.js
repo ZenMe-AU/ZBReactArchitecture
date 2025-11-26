@@ -128,10 +128,10 @@ function activatePimPermissions() {
   try {
     // Get current user id from Azure CLI
     let userId;
-    const userObject = execSync("az account show --query user -o json", {
+    const userJson = execSync("az account show --query user -o json", {
       encoding: "utf8",
     }).trim();
-    console.log("Current user object:", userObject);
+    const userObject = JSON.parse(userJson);
     if (userObject.type === "servicePrincipal") {
       userId = execSync(
         `az ad sp show --id ${userObject.name} --query id -o tsv`,
