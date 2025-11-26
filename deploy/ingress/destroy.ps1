@@ -22,6 +22,8 @@ param(
   [string]$ParentDomainName,
   [string]$DnsZoneResourceGroup,
   [string]$FrontDoorProfileName = "FrontDoor",
+  [string]$FunctionAppName,
+  [string]$ResourceGroupName,
   [switch]$AutoApprove,
   [switch]$NoPurge, # opt-out: do not remove local terraform artifacts
   [switch]$Purge    # backward-compatible opt-in (has no effect if -NoPurge is set)
@@ -92,7 +94,11 @@ if (Test-Path -LiteralPath $applyProfileScript) {
   try {
     $envType = if ($dotVals.ContainsKey('ENV_TYPE')) { $dotVals['ENV_TYPE'] } else { 'dev' }
     Write-Host "Preparing module TF vars via applyProfileSlice.ps1..." -ForegroundColor DarkCyan
-    & $applyProfileScript -TargetEnv $EnvironmentKey -EnvType $envType -AutoDetect:$true | Write-Output
+    $args = @('-TargetEnv', $EnvironmentKey, '-EnvType', $envType)
+    if ($FunctionAppName) { $args += @('-FunctionAppName', $FunctionAppName) }
+    if ($ResourceGroupName) { $args += @('-ResourceGroupName', $ResourceGroupName) } else { $args += @('-ResourceGroupName', "$envType-$EnvironmentKey") }
+    if (-not $FunctionAppName) { $args += '-AutoDetect:$true' }
+    & $applyProfileScript @args | Write-Output
   } catch {
     Write-Host "WARN: Failed to prepare module variables via applyProfileSlice.ps1 ($_)" -ForegroundColor Yellow
   }
