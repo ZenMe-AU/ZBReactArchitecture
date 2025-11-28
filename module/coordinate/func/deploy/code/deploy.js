@@ -4,9 +4,19 @@
  */
 
 const { resolve } = require("path");
-const { getTargetEnv, getModuleName } = require("../util/envSetup");
-const { getResourceGroupName, getServiceBusName, getFunctionAppName, getStorageAccountName } = require("../util/namingConvention");
-const { getSubscriptionId } = require("../util/azureCli");
+const {
+  getTargetEnv,
+  getModuleName,
+} = require("../../../../../deploy/util/envSetup.cjs");
+const {
+  getResourceGroupName,
+  getServiceBusName,
+  getFunctionAppName,
+  getStorageAccountName,
+} = require("../../../../../deploy/util/namingConvention.cjs");
+const {
+  getSubscriptionId,
+} = require("../../../../../deploy/util/azureCli.cjs");
 const classDeployCode = require("./classDeployCode");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");

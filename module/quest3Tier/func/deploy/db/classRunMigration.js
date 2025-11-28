@@ -5,9 +5,18 @@
 
 const path = require("path");
 const { createMigrationInstance } = require("./migration/tool/index.js");
-const { getCurrentPublicIP, getTargetEnv } = require("../util/envSetup.js");
-const { getResourceGroupName, getPgServerName } = require("../util/namingConvention.js");
-const { addTemporaryFirewallRule, removeTemporaryFirewallRule } = require("../util/azureCli.js");
+const {
+  getCurrentPublicIP,
+  getTargetEnv,
+} = require("../../../../../deploy/util/envSetup.cjs");
+const {
+  getResourceGroupName,
+  getPgServerName,
+} = require("../../../../../deploy/util/namingConvention.cjs");
+const {
+  addTemporaryFirewallRule,
+  removeTemporaryFirewallRule,
+} = require("../../../../../deploy/util/azureCli.cjs");
 
 class classRunMigration {
   constructor({ db, migrationDir, envType, targetEnv }) {
@@ -23,14 +32,19 @@ class classRunMigration {
   async run(direction = "up") {
     const ip = getCurrentPublicIP();
     if (this.extensionNames.length > 0) {
-      const { addPgServerExtensionsList, getSubscriptionId } = require("../util/azureCli.js");
+      const {
+        addPgServerExtensionsList,
+        getSubscriptionId,
+      } = require("../../../../../deploy/util/azureCli.cjs");
       addPgServerExtensionsList({
         resourceGroup: this.resourceGroupName,
         serverName: this.pgServerName,
         subscriptionId: getSubscriptionId(),
         extensionNames: this.extensionNames,
       });
-      console.log(`Enabled PostgreSQL extensions: ${this.extensionNames.join(", ")}`);
+      console.log(
+        `Enabled PostgreSQL extensions: ${this.extensionNames.join(", ")}`,
+      );
     }
     addTemporaryFirewallRule({
       resourceGroup: this.resourceGroupName,
@@ -41,13 +55,20 @@ class classRunMigration {
     try {
       if (direction === "down") {
         await this.migration.down();
-        console.log(`[${this.constructor.name}] Migrations DOWN performed successfully.`);
+        console.log(
+          `[${this.constructor.name}] Migrations DOWN performed successfully.`,
+        );
       } else {
         await this.migration.up();
-        console.log(`[${this.constructor.name}] All migrations performed successfully.`);
+        console.log(
+          `[${this.constructor.name}] All migrations performed successfully.`,
+        );
       }
     } catch (err) {
-      console.error(`[${this.constructor.name}] Migration ${direction.toUpperCase()} failed:`, err);
+      console.error(
+        `[${this.constructor.name}] Migration ${direction.toUpperCase()} failed:`,
+        err,
+      );
       process.exit(1);
     } finally {
       await this.db.close();

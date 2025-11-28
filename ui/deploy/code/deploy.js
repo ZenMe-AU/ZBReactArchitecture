@@ -6,12 +6,16 @@
 // Script to deploy static web files to Azure Storage Account's static website hosting
 // Uses Azure CLI commands; ensure Azure CLI is installed and user is logged in.
 import fs from "fs";
-import { getTargetEnv } from "../util/envSetup.cjs";
-import { getAppConfigValueByKeyLabel } from "../util/azureCli.cjs";
+import { getTargetEnv } from "../../deploy/util/envSetup.cjs";
+import { getAppConfigValueByKeyLabel } from "../../deploy/util/azureCli.cjs";
 import { execSync, execFileSync, spawn } from "child_process";
 import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
-import { getStorageAccountWebName, getFunctionAppName, getAppConfigName } from "../util/namingConvention.cjs";
+import {
+  getStorageAccountWebName,
+  getFunctionAppName,
+  getAppConfigName,
+} from "../../deploy/util/namingConvention.cjs";
 import { readdirSync, statSync } from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -65,7 +69,9 @@ async function deploy() {
         envMap.set(`${module.toUpperCase()}_DOMAIN`, `https://${value}`);
       } catch (err) {
         // console.error(`Failed to fetch ${module}:`, err);
-        console.warn(`Warning: Failed to fetch ${module} domain from App Config.`);
+        console.warn(
+          `Warning: Failed to fetch ${module} domain from App Config.`,
+        );
       }
     });
 
@@ -102,13 +108,19 @@ async function deploy() {
     // await runCommand("pnpm run build", { label: "Building project", cwd: moduleDir });
 
     console.log("Step 3: Checking storage account access permissions.");
-    const storageAccountID = execSync(`az storage account show --name ${accountName} --query id --output tsv`, { encoding: "utf8" }).trim();
-    const principalName = execSync("az account show --query user.name --output tsv", { encoding: "utf8" }).trim();
+    const storageAccountID = execSync(
+      `az storage account show --name ${accountName} --query id --output tsv`,
+      { encoding: "utf8" },
+    ).trim();
+    const principalName = execSync(
+      "az account show --query user.name --output tsv",
+      { encoding: "utf8" },
+    ).trim();
     // console.log(`Storage Account ID: ${storageAccountID}`);
     // console.log(`Principal Name: ${principalName}`);
     const roleAssignment = execSync(
       `az role assignment list --assignee ${principalName} --include-inherited --include-groups --scope ${storageAccountID} --query "[?roleDefinitionName=='Storage Blob Data Contributor']" --output json`,
-      { encoding: "utf8" }
+      { encoding: "utf8" },
     );
     const roleAssignmentObj = JSON.parse(roleAssignment || "[]");
     // console.log("Role Assignment:", roleAssignmentObj, typeof roleAssignmentObj);
@@ -117,26 +129,32 @@ async function deploy() {
       //   "Failed: The current user does not have 'Storage Blob Data Contributor' role on the storage account. Please activate the role and try again."
       // );
       throw new Error(
-        "The current user does not have 'Storage Blob Data Contributor' role on the storage account. Please activate the role and try again."
+        "The current user does not have 'Storage Blob Data Contributor' role on the storage account. Please activate the role and try again.",
       );
     }
 
     // Step 3.5: Ensure Static Website is enabled (idempotent)
     try {
-      execSync(`az storage blob service-properties update --account-name ${accountName} --static-website --index-document index.html -o none`, {
-        stdio: "ignore",
-        shell: true,
-      });
+      execSync(
+        `az storage blob service-properties update --account-name ${accountName} --static-website --index-document index.html -o none`,
+        {
+          stdio: "ignore",
+          shell: true,
+        },
+      );
     } catch (_) {
       // Non-fatal; continue
     }
 
     console.log("Step 4: Ensuring container $web exists.");
     try {
-      execSync(`az storage container create --name $web --account-name ${accountName} --auth-mode login -o none`, {
-        stdio: "ignore",
-        shell: useShell,
-      });
+      execSync(
+        `az storage container create --name $web --account-name ${accountName} --auth-mode login -o none`,
+        {
+          stdio: "ignore",
+          shell: useShell,
+        },
+      );
     } catch (_) {
       // Non-fatal; proceed to delete/upload which will surface real issues if any
     }
@@ -144,12 +162,29 @@ async function deploy() {
     console.log(`Step 5: Deleting old blobs from account-name ${accountName}`);
     try {
       // execSync(`az storage blob delete-batch --account-name ${accountName} --source $web --auth-mode login`, { stdio: "inherit", shell: useShell });
-      execFileSync("az", ["storage", "blob", "delete-batch", "--account-name", accountName, "--source", "$web", "--auth-mode", "login"], {
-        stdio: "inherit",
-        shell: useShell,
-      });
+      execFileSync(
+        "az",
+        [
+          "storage",
+          "blob",
+          "delete-batch",
+          "--account-name",
+          accountName,
+          "--source",
+          "$web",
+          "--auth-mode",
+          "login",
+        ],
+        {
+          stdio: "inherit",
+          shell: useShell,
+        },
+      );
     } catch (err) {
-      console.warn("Warning: Failed to delete old blobs (continuing).", err?.message || String(err));
+      console.warn(
+        "Warning: Failed to delete old blobs (continuing).",
+        err?.message || String(err),
+      );
     }
 
     console.log("Step 6: Uploading new blobs.");
@@ -159,11 +194,27 @@ async function deploy() {
       //   shell: useShell,
       //   cwd: moduleDir,
       // });
-      execFileSync("az", ["storage", "blob", "upload-batch", "--account-name", accountName, "-d", "$web", "-s", distPath, "--auth-mode", "login"], {
-        stdio: "inherit",
-        cwd: moduleDir,
-        shell: useShell,
-      });
+      execFileSync(
+        "az",
+        [
+          "storage",
+          "blob",
+          "upload-batch",
+          "--account-name",
+          accountName,
+          "-d",
+          "$web",
+          "-s",
+          distPath,
+          "--auth-mode",
+          "login",
+        ],
+        {
+          stdio: "inherit",
+          cwd: moduleDir,
+          shell: useShell,
+        },
+      );
     } catch (err) {
       // console.error("Failed to upload blobs:", err.message);
       throw new Error("Failed to upload blobs.");

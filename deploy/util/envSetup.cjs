@@ -6,7 +6,11 @@
 const { existsSync, readFileSync } = require("fs");
 const { resolve, basename } = require("path");
 const { execSync } = require("child_process");
-const { uniqueNamesGenerator, adjectives, animals } = require("unique-names-generator");
+const {
+  uniqueNamesGenerator,
+  adjectives,
+  animals,
+} = require("unique-names-generator");
 
 function getTargetEnv(rootDir = resolve(__dirname, "..", "..")) {
   const envFilePath = resolve(rootDir, "deploy", ".env");
@@ -42,4 +46,20 @@ function getCurrentPublicIP() {
   }
 }
 
-module.exports = { getTargetEnv, generateNewEnvName, getCurrentPublicIP };
+function getModuleName(moduleDir = resolve(__dirname, "..", "..")) {
+  const moduleEnvFilePath = resolve(moduleDir, "deploy", ".env");
+  if (existsSync(moduleEnvFilePath)) {
+    const envContent = readFileSync(moduleEnvFilePath, "utf8");
+    const match = envContent.match(/^MODULE_NAME=(.+)$/m);
+    if (match) return match[1].trim();
+  }
+
+  return basename(moduleDir);
+}
+
+module.exports = {
+  getTargetEnv,
+  generateNewEnvName,
+  getCurrentPublicIP,
+  getModuleName,
+};

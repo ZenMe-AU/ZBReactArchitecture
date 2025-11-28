@@ -17,13 +17,26 @@ const {
   getIdentityClientId,
   getAppConfigValueByKeyLabel,
   setFunctionAppCors,
-} = require("../util/azureCli.js");
+} = require("../../../../../deploy/util/azureCli.cjs");
 const { npmInstall, npmPrune, zipDir } = require("./cli.js");
-const { getIdentityName, getAppConfigName } = require("../util/namingConvention.js");
+const {
+  getIdentityName,
+  getAppConfigName,
+} = require("../../../../../deploy/util/namingConvention.cjs");
 const { execSync } = require("child_process");
 
 class classDeployCode {
-  constructor({ envType, targetEnv, moduleName, subscriptionId, functionAppName, resourceGroupName, storageAccountName, serviceBusName, moduleDir }) {
+  constructor({
+    envType,
+    targetEnv,
+    moduleName,
+    subscriptionId,
+    functionAppName,
+    resourceGroupName,
+    storageAccountName,
+    serviceBusName,
+    moduleDir,
+  }) {
     this.envType = envType;
     this.targetEnv = targetEnv;
     this.moduleName = moduleName;
@@ -36,7 +49,14 @@ class classDeployCode {
 
     this.distPath = "dist/dist.zip";
     this.outputDir = "out";
-    this.excludeList = ["dist/*", ".vscode/*", ".git/*", "local.settings.json", "local.settings.json.template", "deploy/*"];
+    this.excludeList = [
+      "dist/*",
+      ".vscode/*",
+      ".git/*",
+      "local.settings.json",
+      "local.settings.json.template",
+      "deploy/*",
+    ];
     this.appSettings = {
       ServiceBusConnection__fullyQualifiedNamespace: `${this.serviceBusName}.servicebus.windows.net`,
       ServiceBusConnection__credential: "managedidentity",
@@ -45,7 +65,8 @@ class classDeployCode {
         resourceGroupName: this.resourceGroupName,
       }),
       // JWT_SECRET: getAppConfigValueByKeyLabel({ appConfigName: getAppConfigName(this.targetEnv), key: "jwtSecret", label: this.envType }),
-      JWT_SECRET: "bb64c67554381aff324d26669540f591e02e3e993ce85c2d1ed2962e22411634",
+      JWT_SECRET:
+        "bb64c67554381aff324d26669540f591e02e3e993ce85c2d1ed2962e22411634",
     };
     this.deleteAppSettings = ["AzureWebJobsStorage"];
 
@@ -74,7 +95,9 @@ class classDeployCode {
   async run() {
     console.log("Starting deployment.");
     console.log("Step 1: Settings Function App Environment.");
-    console.log(`Setting environment variables for Function App ${this.functionAppName}.`);
+    console.log(
+      `Setting environment variables for Function App ${this.functionAppName}.`,
+    );
     // Settings Env Var for the Function App
     setFunctionAppSetting({
       functionAppName: this.functionAppName,
@@ -92,15 +115,21 @@ class classDeployCode {
       resourceGroupName: this.resourceGroupName,
     });
     // Assign roles to the Function App
-    this.roleAssignments.forEach(({ assignee = functionAppPrincipalId, role, scope }) => {
-      assignRole({ assignee, role, scope });
-    });
+    this.roleAssignments.forEach(
+      ({ assignee = functionAppPrincipalId, role, scope }) => {
+        assignRole({ assignee, role, scope });
+      },
+    );
     if (this.queueNames.length > 0) {
       console.log(`Creating Service Bus Queues.`);
     }
     // Create Service Bus Queues if any
     this.queueNames.forEach((queueName) => {
-      createServiceBusQueue({ resourceGroupName: this.resourceGroupName, namespaceName: this.serviceBusName, queueName });
+      createServiceBusQueue({
+        resourceGroupName: this.resourceGroupName,
+        namespaceName: this.serviceBusName,
+        queueName,
+      });
     });
     // Set CORS settings
     if (this.allowedOrigins.length > 0) {
@@ -122,7 +151,7 @@ class classDeployCode {
 
     execSync(
       `pnpm deploy --filter ${this.moduleName} --prod ${outputDir} --config.node-linker=hoisted --config.symlink=false --config.package-import-method=copy`,
-      { stdio: "inherit", cwd: funcDir }
+      { stdio: "inherit", cwd: funcDir },
     );
 
     console.log("Step 3: Creating dist directory.");
@@ -148,7 +177,7 @@ class classDeployCode {
         functionAppName: this.functionAppName,
         resourceGroupName: this.resourceGroupName,
       },
-      { cwd: funcDir }
+      { cwd: funcDir },
     );
 
     console.log("Deployment finished!");

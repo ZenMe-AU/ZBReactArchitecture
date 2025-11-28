@@ -6,16 +6,24 @@
 const { resolve } = require("path");
 const fs = require("fs");
 const MigrationRunner = require("../db/migrationRunner");
-const { getTargetEnv, getModuleName } = require("../util/envSetup.js");
+const {
+  getTargetEnv,
+  getModuleName,
+} = require("../../../../../deploy/util/envSetup.cjs");
 const { createDatabaseInstance } = require("../../repository/model/connection");
 const DB_TYPE = require("../enum/dbType.js");
-// const { getDbAdminName, getPgHost } = require("../util/namingConvention.js");
+// const { getDbAdminName, getPgHost } = require("../../../../../deploy/util/namingConvention.cjs");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
 const migrationDir = resolve(__dirname, "..", "db", "migration");
 
 (async () => {
-  const localSettingsPath = resolve(__dirname, "..", "..", "local.settings.json");
+  const localSettingsPath = resolve(
+    __dirname,
+    "..",
+    "..",
+    "local.settings.json",
+  );
   if (!fs.existsSync(localSettingsPath)) {
     console.warn(`Error: file not found at ${localSettingsPath}`);
     return;
