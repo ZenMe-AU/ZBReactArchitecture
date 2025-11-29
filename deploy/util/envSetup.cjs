@@ -12,8 +12,8 @@ const {
   animals,
 } = require("unique-names-generator");
 
-function getTargetEnv(rootDir = resolve(__dirname, "..", "..")) {
-  const envFilePath = resolve(rootDir, "deploy", ".env");
+function getTargetEnv(rootDir = resolve(__dirname, "..", "..", "deploy")) {
+  const envFilePath = resolve(rootDir, ".env");
   if (!existsSync(envFilePath)) {
     throw new Error(".env file not found at " + envFilePath);
   }
