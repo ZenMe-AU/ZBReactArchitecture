@@ -6,21 +6,33 @@
 const { existsSync, readFileSync } = require("fs");
 const { resolve, basename } = require("path");
 const { execSync } = require("child_process");
-const { uniqueNamesGenerator, adjectives, animals } = require("unique-names-generator");
+const {
+  uniqueNamesGenerator,
+  adjectives,
+  animals,
+} = require("unique-names-generator");
 
-function getTargetEnv(rootDir = resolve(__dirname, "..", "..")) {
-  const envFilePath = resolve(rootDir, "deploy", ".env");
+function getTargetEnv(
+  rootDir = resolve(__dirname, "..", "..", "deploy"),
+  defaultName = null,
+) {
+  const envFilePath = resolve(rootDir, ".env");
   if (!existsSync(envFilePath)) {
     throw new Error(".env file not found at " + envFilePath);
   }
 
   const envContent = readFileSync(envFilePath, "utf8");
   const match = envContent.match(/^TARGET_ENV=(.+)$/m);
-  if (!match) {
+  if (match && match[1].trim()) {
+    // escape any dangerous characters  Allowed characters: letters, numbers, ., _, -, (, )
+    let validCharsRegex = /[^a-zA-Z0-9._\-\(\)]/g;
+    let sanitizedEnv = match[1].trim().replace(validCharsRegex, "");
+    return sanitizedEnv;
+  } else if (defaultName) {
+    return defaultName;
+  } else {
     throw new Error("TARGET_ENV not found in .env file.");
   }
-
-  return match[1].trim();
 }
 
 function generateNewEnvName(maxLength = 20) {
@@ -42,4 +54,20 @@ function getCurrentPublicIP() {
   }
 }
 
-module.exports = { getTargetEnv, generateNewEnvName, getCurrentPublicIP };
+function getModuleName(moduleDir = resolve(__dirname, "..", "..")) {
+  const moduleEnvFilePath = resolve(moduleDir, "deploy", ".env");
+  if (existsSync(moduleEnvFilePath)) {
+    const envContent = readFileSync(moduleEnvFilePath, "utf8");
+    const match = envContent.match(/^MODULE_NAME=(.+)$/m);
+    if (match) return match[1].trim();
+  }
+
+  return basename(moduleDir);
+}
+
+module.exports = {
+  getTargetEnv,
+  generateNewEnvName,
+  getCurrentPublicIP,
+  getModuleName,
+};

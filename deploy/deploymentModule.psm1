@@ -172,7 +172,7 @@ function Install-Dependencies {
 function Init-ResourceGroup {
     Write-Output "Initialise the resource group that will contain all components and setup minimal components to support the Terraform backend."
     Set-Location $env:ROOT_FOLDER\deploy\initEnv
-    node ./initEnvironment.js  --auto-approve
+    node ./initEnvironment.js --envDir="$env:ROOT_FOLDER/deploy" --auto-approve
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }
 

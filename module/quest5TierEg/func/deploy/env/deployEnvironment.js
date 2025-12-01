@@ -4,7 +4,10 @@
  */
 
 const { resolve } = require("path");
-const { getTargetEnv, getModuleName } = require("../util/envSetup.js");
+const {
+  getTargetEnv,
+  getModuleName,
+} = require("../../../../../deploy/util/envSetup.cjs");
 const classDeployEnvironment = require("./classDeployEnvironment.js");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
@@ -21,6 +24,12 @@ const moduleDir = resolve(__dirname, "..", "..", "..");
     process.exit(1);
   }
   const autoApprove = process.argv.includes("--auto-approve");
-  const envDeployer = new classDeployEnvironment({ envType, targetEnv, moduleName, logLevel, autoApprove });
+  const envDeployer = new classDeployEnvironment({
+    envType,
+    targetEnv,
+    moduleName,
+    logLevel,
+    autoApprove,
+  });
   envDeployer.run();
 })();

@@ -16,13 +16,16 @@
     "module/coordinate/func"
   ],
   "scripts": {
-    "prepare": "husky"
+    "prepare": "husky",
+    "build:init": "esbuild ./deploy/initEnv/initEnvironment.js --bundle --platform=node --outfile=./deploy/initEnv/dist/initEnvironment.cjs"
   },
   "devDependencies": {
     "@azure/identity": "^4.11.1",
     "@eslint/js": "^9.38.0",
     "@microsoft/eslint-formatter-sarif": "^3.1.0",
     "@microsoft/microsoft-graph-client": "^3.0.7",
+    "archiver": "^7.0.1",
+    "esbuild": "^0.27.0",
     "eslint": "^9.38.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-header": "^3.1.1",
@@ -33,6 +36,7 @@
     "globals": "^16.4.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.6",
+    "minimist": "^1.2.8",
     "prettier": "^3.6.2",
     "snyk": "^1.1300.2",
     "typescript": "^5.9.3",

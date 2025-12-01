@@ -5,7 +5,10 @@
 
 const { resolve } = require("path");
 const classManageDataPermission = require("./classManageDataPermission.js");
-const { getTargetEnv, getModuleName } = require("../util/envSetup.js");
+const {
+  getTargetEnv,
+  getModuleName,
+} = require("../../../../../deploy/util/envSetup.cjs");
 const { createDatabaseInstance } = require("../../repository/model/connection");
 const DB_TYPE = require("../../enum/dbType.js");
 const {
@@ -18,7 +21,7 @@ const {
   getDbSchemaAdminRoleName,
   getDbAdminName,
   getPgHost,
-} = require("../util/namingConvention.js");
+} = require("../../../../../deploy/util/namingConvention.cjs");
 
 (async () => {
   //basic environment setup
