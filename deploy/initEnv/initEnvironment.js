@@ -6,7 +6,7 @@
 import { execSync } from "child_process";
 import { createInterface } from "readline";
 import { existsSync, readFileSync, writeFileSync } from "fs";
-import { resolve } from "path";
+import { resolve, dirname } from "path";
 // import { uniqueNamesGenerator, adjectives, animals } from "unique-names-generator";
 import {
   getResourceGroupName,
@@ -22,6 +22,7 @@ import {
 import { AzureCliCredential } from "@azure/identity";
 import { Client } from "@microsoft/microsoft-graph-client";
 import minimist from "minimist";
+import { fileURLToPath } from "url";
 
 // function getResourceGroupName(envType, targetEnv) {
 //   return `${envType}-${targetEnv}`;
@@ -67,7 +68,9 @@ function getAzureLocation() {
 }
 
 let TARGET_ENV = null;
-function getTargetEnvName(targetDir = resolve(__dirname)) {
+function getTargetEnvName(
+  targetDir = resolve(dirname(fileURLToPath(import.meta.url))),
+) {
   if (TARGET_ENV) {
     return TARGET_ENV;
   }
