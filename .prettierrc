@@ -1,5 +1,4 @@
-
 {
-  "printWidth": 150,
-  "trailingComma": "es5",
+  "printWidth": 160,
+  "trailingComma": "es5"
 }
