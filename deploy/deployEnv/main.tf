@@ -147,6 +147,16 @@ resource "azurerm_role_assignment" "servicebus_receiver" {
   principal_id         = azurerm_user_assigned_identity.uai.principal_id
 }
 
+# API Management Service
+resource "azurerm_api_management" "apim" {
+  name                = "${var.target_env}-apim"
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
+  publisher_name      = "Zenme"
+  publisher_email     = "${var.target_env}@${var.central_dns}"
+  sku_name            = "Developer_1" # Change to Basic/Standard/Premium if needed
+}
+
 # resource "azurerm_eventgrid_namespace" "eventgrid_namespace" {
 #   capacity              = 1
 #   location              = data.azurerm_resource_group.rg.location
