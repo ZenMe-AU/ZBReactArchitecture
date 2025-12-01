@@ -3,23 +3,23 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import { execSync } from "child_process";
-import { existsSync, readFileSync, writeFileSync } from "fs";
-import { resolve, dirname } from "path";
-import {
+const { execSync } = require("child_process");
+const { existsSync, readFileSync, writeFileSync } = require("fs");
+const { resolve, dirname } = require("path");
+const {
   getResourceGroupName,
   getStorageAccountName,
   getAppConfigName,
   getDbAdminName,
-} from "../util/namingConvention.cjs";
-import { generateNewEnvName, getTargetEnv } from "../util/envSetup.cjs";
-import {
+} = require("../util/namingConvention.cjs");
+const { generateNewEnvName, getTargetEnv } = require("../util/envSetup.cjs");
+const {
   getSubscriptionId,
   getDefaultAzureLocation,
   isStorageAccountNameAvailable,
-} from "../util/azureCli.cjs";
-import minimist from "minimist";
-import { fileURLToPath } from "url";
+} = require("../util/azureCli.cjs");
+const minimist = require("minimist");
+const currentDirname = __dirname;
 
 let cachedSubscriptionId = null;
 function getAzureSubscriptionId() {
@@ -55,9 +55,7 @@ function getAzureLocation() {
 }
 
 let TARGET_ENV = null;
-function getTargetEnvName(
-  targetDir = resolve(dirname(fileURLToPath(import.meta.url))),
-) {
+function getTargetEnvName(targetDir = currentDirname) {
   if (TARGET_ENV) {
     return TARGET_ENV;
   }
@@ -100,7 +98,16 @@ function activatePimPermissions() {
   }
 }
 
+function terraformApply(autoApprove = false, planfile = "") {
+  const args = autoApprove ? "-auto-approve" : "";
+  execSync(`terraform apply ${args} ${planfile}`, {
+    stdio: "inherit",
+    shell: true,
+  });
+}
+
 function initEnvironment() {
+  const autoApprove = process.argv.includes("--auto-approve");
   const args = minimist(process.argv.slice(2));
   const assignDeployer = args.assignDeployer; // The service principal to assign as contributor of the resource group
   const envDir = args.envDir;
@@ -149,7 +156,7 @@ function initEnvironment() {
     execSync(`terraform init`, { stdio: "inherit", shell: true });
     console.log("Terraform initialized successfully.");
 
-    execSync("terraform apply", { stdio: "inherit", shell: true });
+    terraformApply(autoApprove);
 
     // Assign roles (Contributor, App Configuration Data Owner) to deployer service principal if specified
     if (assignDeployer) {
@@ -181,4 +188,4 @@ function initEnvironment() {
 
 initEnvironment();
 
-export default { initEnvironment };
+module.exports = { initEnvironment };

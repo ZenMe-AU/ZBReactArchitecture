@@ -17,7 +17,7 @@
   ],
   "scripts": {
     "prepare": "husky",
-    "build:init": "esbuild ./deploy/initEnv/initEnvironment.js --bundle --platform=node --outfile=./deploy/initEnv/dist/initEnvironment.cjs"
+    "build:init": "esbuild ./deploy/initEnv/initEnvironment.cjs --bundle --platform=node --outfile=./deploy/initEnv/dist/initEnvironment.cjs"
   },
   "devDependencies": {
     "@azure/identity": "^4.11.1",
