@@ -6,5 +6,8 @@
   "azureFunctions.projectLanguage": "JavaScript",
   "azureFunctions.projectRuntime": "~4",
   "azureFunctions.projectLanguageModel": 4,
-  "azureFunctions.preDeployTask": "npm prune (functions)"
+  "azureFunctions.preDeployTask": "npm prune (functions)",
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "prettier.configPath": ".prettierrc"
 }
