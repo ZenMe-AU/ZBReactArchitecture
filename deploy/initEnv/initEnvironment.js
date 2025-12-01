@@ -67,7 +67,7 @@ function getAzureLocation() {
 }
 
 let TARGET_ENV = null;
-function getTargetEnvName(targetDir = resolve(__dirname, "..")) {
+function getTargetEnvName(targetDir = resolve(__dirname)) {
   if (TARGET_ENV) {
     return TARGET_ENV;
   }
@@ -83,7 +83,7 @@ function getTargetEnvName(targetDir = resolve(__dirname, "..")) {
       TARGET_ENV = newEnvName;
       writeFileSync(envFilePath, `TARGET_ENV=${TARGET_ENV}\n`, { flag: "w" });
     } else {
-      getTargetEnvName();
+      getTargetEnvName(targetDir);
     }
   }
   return TARGET_ENV;
@@ -147,10 +147,9 @@ function activatePimPermissions() {
 function initEnvironment() {
   const autoApprove = process.argv.includes("--auto-approve");
   const args = minimist(process.argv.slice(2));
-  const assignOwner = args.assignOwner;
+  const assignDeployer = args.assignDeployer;
   const envDir = args.envDir;
 
-  console.log(assignOwner, envDir);
   const envType = process.env.TF_VAR_env_type;
   const targetEnv = getTargetEnvName(envDir);
   process.env.TF_VAR_target_env = targetEnv;
@@ -216,6 +215,29 @@ function initEnvironment() {
                 stdio: "inherit",
                 shell: true,
               });
+
+              // Assign roles (Contributor, App Configuration Data Owner) to deployer service principal if specified
+              if (assignDeployer) {
+                const spId = execSync(
+                  `az ad sp list --display-name "${assignDeployer}" --query "[0].id" -o tsv`,
+                  { encoding: "utf8" },
+                ).trim();
+                console.log(
+                  `az role assignment create --assignee ${spId} --role "App Configuration Data Owner" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`,
+                );
+                execSync(
+                  `az role assignment create --assignee ${spId} --role "App Configuration Data Owner" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`,
+                  { stdio: "inherit" },
+                );
+
+                console.log(
+                  `az role assignment create --assignee ${spId} --role "Contributor" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`,
+                );
+                execSync(
+                  `az role assignment create --assignee ${spId} --role "Contributor" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`,
+                  { stdio: "inherit" },
+                );
+              }
             } catch (error) {
               console.error("Terraform apply failed:", error);
               process.exit(1);
@@ -224,20 +246,6 @@ function initEnvironment() {
             console.log("Aborted terraform apply.");
           }
         },
-      );
-    }
-
-    if (assignOwner) {
-      const spId = execSync(
-        `az ad sp list --display-name "${assignOwner}" --query "[0].id" -o tsv`,
-        { encoding: "utf8" },
-      ).trim();
-      console.log(
-        `az role assignment create --assignee-object-id ${spId} --assignee-principal-type ServicePrincipal --role "Owner" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`,
-      );
-      execSync(
-        `az role assignment create --assignee-object-id ${spId} --assignee-principal-type ServicePrincipal --role "Owner" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`,
-        { stdio: "inherit" },
       );
     }
   } catch (error) {

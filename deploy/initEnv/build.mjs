@@ -35,42 +35,14 @@ function zipDir(targetZip, cwd, excludeList = []) {
   });
 }
 
-let TARGET_ENV;
-function getTargetEnvName(
-  targetDir = resolve(dirname(fileURLToPath(import.meta.url)), ".."),
-) {
-  if (TARGET_ENV) {
-    return TARGET_ENV;
-  }
-  try {
-    // Try to read existing TARGET_ENV from .env file
-    TARGET_ENV = getTargetEnv(targetDir);
-  } catch (error) {
-    const envFilePath = resolve(targetDir, ".env");
-    const newEnvName = generateNewEnvName();
-    const isAvailable = isStorageAccountNameAvailable(newEnvName);
-    if (isAvailable) {
-      TARGET_ENV = newEnvName;
-      fs.writeFileSync(envFilePath, `TARGET_ENV=${TARGET_ENV}\n`, {
-        flag: "w",
-      });
-    } else {
-      getTargetEnvName();
-    }
-  }
-  return TARGET_ENV;
-}
-
 async function main() {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = dirname(__filename);
   const envFileName = ".env";
   const terraformFileName = "main.tf";
-  const execFileName = "initNewEnv.ps1";
+  const execFileName = "deployEnv.ps1";
   const distDirName = "dist";
-  const zipFileName = "dist.zip";
   const distDir = resolve(__dirname, distDirName);
-  const zipFile = resolve(__dirname, zipFileName);
   console.log("Step 1: Building project.");
   //   execSync("pnpm install", { stdio: "inherit" });
 
@@ -81,12 +53,20 @@ async function main() {
   }
   execSync("pnpm run build:init", { stdio: "inherit" });
 
-  console.log("Step 3: copy env file.");
-  const targetEnv = getTargetEnvName();
-  fs.copyFileSync(
-    resolve(__dirname, "..", envFileName),
-    resolve(distDir, envFileName),
-  );
+  console.log("Step 3: copy env file if existing.");
+  // use existing env name if .env exists in initEnv folder otherwise it will be generated at deploy time
+  let targetName = "New";
+  try {
+    targetName = getTargetEnv(__dirname);
+    fs.copyFileSync(
+      resolve(__dirname, envFileName),
+      resolve(distDir, envFileName),
+    );
+  } catch (error) {
+    console.log(
+      "No target environment provided, new name will be generated during deployment.",
+    );
+  }
 
   console.log("Step 4: copy terraform file.");
   fs.copyFileSync(
@@ -98,35 +78,15 @@ async function main() {
   //   fs.copyFileSync(resolve(__dirname, execFileName), resolve(distDir, execFileName));
   fs.writeFileSync(
     resolve(distDir, execFileName),
-    `param(
-    [string]$type = "dev"
-)
-
-
-# If no type parameter is passed, try to read it from environment variable TF_VAR_env_type
-# If still no value, or the value is not in the valid list, default to "dev"
-# Set environment variable TF_VAR_env_type with the value
-$validTypes = @("dev", "test", "prod")
-if (-not $type) {
-    $type = $env:TF_VAR_env_type
-    if ($type) {
-        Write-Output "type parameter not set, using TF_VAR_env_type environment variable value: $type"
-    }
-}
-if (-not $type -or $type -notin $validTypes) {
-    Write-Warning "type is not set to a valid value ($($validTypes -join ', ')). Defaulting to 'dev'."
-    $type = "dev"
-}
-$env:TF_VAR_env_type = $type
-Write-Output "TF_VAR_env_type was set to $env:TF_VAR_env_type"
-
-
-Set-Location $PSScriptRoot
-node ./bundle.cjs --envDir=$PSScriptRoot --auto-approve --assignOwner=github-oidc`,
-    { flag: "w" },
+    `Set-Location $PSScriptRoot\n$env:TF_VAR_env_type="dev"\nnode ./initEnvironment.cjs --assignDeployer=github-oidc`,
+    {
+      flag: "w",
+    },
   );
 
   console.log("Step 5: Zipping output directory.");
+  const zipFileName = `deployEnv-${targetName}.zip`;
+  const zipFile = resolve(__dirname, zipFileName);
   if (fs.existsSync(zipFile)) {
     console.log("Deleting existing dist file.");
     fs.unlinkSync(zipFile);

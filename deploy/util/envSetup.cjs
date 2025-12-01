@@ -12,7 +12,10 @@ const {
   animals,
 } = require("unique-names-generator");
 
-function getTargetEnv(rootDir = resolve(__dirname, "..", "..", "deploy")) {
+function getTargetEnv(
+  rootDir = resolve(__dirname, "..", "..", "deploy"),
+  defaultName = null,
+) {
   const envFilePath = resolve(rootDir, ".env");
   if (!existsSync(envFilePath)) {
     throw new Error(".env file not found at " + envFilePath);
@@ -20,11 +23,13 @@ function getTargetEnv(rootDir = resolve(__dirname, "..", "..", "deploy")) {
 
   const envContent = readFileSync(envFilePath, "utf8");
   const match = envContent.match(/^TARGET_ENV=(.+)$/m);
-  if (!match) {
+  if (match && match[1].trim()) {
+    return match[1].trim();
+  } else if (defaultName) {
+    return defaultName;
+  } else {
     throw new Error("TARGET_ENV not found in .env file.");
   }
-
-  return match[1].trim();
 }
 
 function generateNewEnvName(maxLength = 20) {
