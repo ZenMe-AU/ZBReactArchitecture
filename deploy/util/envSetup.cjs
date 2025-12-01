@@ -24,7 +24,10 @@ function getTargetEnv(
   const envContent = readFileSync(envFilePath, "utf8");
   const match = envContent.match(/^TARGET_ENV=(.+)$/m);
   if (match && match[1].trim()) {
-    return match[1].trim();
+    // escape any dangerous characters  Allowed characters: letters, numbers, ., _, -, (, )
+    let validCharsRegex = /[^a-zA-Z0-9._\-\(\)]/g;
+    let sanitizedEnv = match[1].trim().replace(validCharsRegex, "");
+    return sanitizedEnv;
   } else if (defaultName) {
     return defaultName;
   } else {
