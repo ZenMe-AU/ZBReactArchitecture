@@ -1,7 +1,7 @@
 name: MainWorkflow
 on:
-  push:
-    branches: ["main"]
+  workflow_dispatch:
+  
 concurrency:
   group: deploy-group
   cancel-in-progress: true
