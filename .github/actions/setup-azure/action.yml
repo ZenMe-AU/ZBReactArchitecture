@@ -53,3 +53,4 @@ runs:
         echo "ARM_CLIENT_ID=${{ inputs.clientId }}" >> $GITHUB_ENV
         echo "ARM_TENANT_ID=${{ inputs.tenantId }}" >> $GITHUB_ENV
         echo "ARM_SUBSCRIPTION_ID=${{ inputs.subscriptionId }}" >> $GITHUB_ENV
+        echo "ARM_USE_OIDC=true" >> $GITHUB_ENV
