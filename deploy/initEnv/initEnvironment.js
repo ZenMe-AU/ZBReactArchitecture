@@ -12,6 +12,7 @@ import {
   getResourceGroupName,
   getStorageAccountName,
   getAppConfigName,
+  getDbAdminName,
 } from "../util/namingConvention.cjs";
 import { generateNewEnvName, getTargetEnv } from "../util/envSetup.cjs";
 import {
@@ -174,9 +175,15 @@ function initEnvironment() {
   console.log(
     `Setting storage_account_name to: ${process.env.TF_VAR_storage_account_name}`,
   );
-  process.env.TF_VAR_appconfig_name = getAppConfigName(targetEnv);
+  const appConfigName = getAppConfigName(targetEnv);
+  process.env.TF_VAR_appconfig_name = appConfigName;
   console.log(
     `Setting appconfig_name to: ${process.env.TF_VAR_appconfig_name}`,
+  );
+  const dbAdminGroupName = getDbAdminName(envType);
+  process.env.TF_VAR_db_admin_group_name = dbAdminGroupName;
+  console.log(
+    `Setting db_admin_group_name to: ${process.env.TF_VAR_db_admin_group_name}`,
   );
 
   activatePimPermissions();
@@ -185,72 +192,77 @@ function initEnvironment() {
     execSync(`terraform init`, { stdio: "inherit", shell: true });
     console.log("Terraform initialized successfully.");
 
-    // Run terraform plan
-    // execSync("terraform plan -out=planfile", { stdio: "inherit", shell: true });
-    console.log("Terraform plan completed successfully.");
+    execSync("terraform apply", { stdio: "inherit", shell: true });
 
-    // Prompt user for confirmation before applying changes
-    console.log(
-      "You are about to run 'terraform apply'. This will make changes to your infrastructure.",
-    );
-    if (autoApprove) {
-      try {
-        execSync("terraform apply -auto-approve", {
-          stdio: "inherit",
-          shell: true,
-        });
-      } catch (error) {
-        console.error("Terraform apply failed:", error);
-        process.exit(1);
-      }
-    } else {
-      const rl = createInterface({
-        input: process.stdin,
-        output: process.stdout,
-      });
-      rl.question(
-        "Do you want to continue and run 'terraform apply'? (y/N): ",
-        (answer) => {
-          rl.close();
-          if (answer.trim().toLowerCase() === "y") {
-            try {
-              execSync("terraform apply -auto-approve", {
-                stdio: "inherit",
-                shell: true,
-              });
+    // Assign roles (Contributor, App Configuration Data Owner) to deployer service principal if specified
+    if (assignDeployer) {
+      const spId = execSync(
+        `az ad sp list --display-name "${assignDeployer}" --query "[0].id" -o tsv`,
+        { encoding: "utf8" },
+      ).trim();
+      console.log(
+        `az role assignment create --assignee ${spId} --role "App Configuration Data Owner" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`,
+      );
+      execSync(
+        `az role assignment create --assignee ${spId} --role "App Configuration Data Owner" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`,
+        { stdio: "inherit" },
+      );
 
-              // Assign roles (Contributor, App Configuration Data Owner) to deployer service principal if specified
-              if (assignDeployer) {
-                const spId = execSync(
-                  `az ad sp list --display-name "${assignDeployer}" --query "[0].id" -o tsv`,
-                  { encoding: "utf8" },
-                ).trim();
-                console.log(
-                  `az role assignment create --assignee ${spId} --role "App Configuration Data Owner" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`,
-                );
-                execSync(
-                  `az role assignment create --assignee ${spId} --role "App Configuration Data Owner" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`,
-                  { stdio: "inherit" },
-                );
-
-                console.log(
-                  `az role assignment create --assignee ${spId} --role "Contributor" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`,
-                );
-                execSync(
-                  `az role assignment create --assignee ${spId} --role "Contributor" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`,
-                  { stdio: "inherit" },
-                );
-              }
-            } catch (error) {
-              console.error("Terraform apply failed:", error);
-              process.exit(1);
-            }
-          } else {
-            console.log("Aborted terraform apply.");
-          }
-        },
+      console.log(
+        `az role assignment create --assignee ${spId} --role "Contributor" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`,
+      );
+      execSync(
+        `az role assignment create --assignee ${spId} --role "Contributor" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`,
+        { stdio: "inherit" },
       );
     }
+    // // save the dbAdmin group id to the app config
+    // const dbAdminGroupName = getDbAdminName(envType);
+    // const dbAdminGroupId = execSync(`az ad group list --query "[?displayName == '${dbAdminGroupName}'].id" -o tsv`, {
+    //   encoding: "utf8",
+    // }).trim();
+    // console.log(`Saving DbAdmin group ID to app config: ${dbAdminGroupId}`);
+    // execSync(`az appconfig kv set --name ${appConfigName} --key "DbAdminGroupId" --value "${dbAdminGroupId}"`, { stdio: "inherit" });
+
+    // Run terraform plan
+    // execSync("terraform plan -out=planfile", { stdio: "inherit", shell: true });
+    // console.log("Terraform plan completed successfully.");
+
+    // // Prompt user for confirmation before applying changes
+    // console.log("You are about to run 'terraform apply'. This will make changes to your infrastructure.");
+    // if (autoApprove) {
+    //   try {
+    //     execSync("terraform apply -auto-approve", {
+    //       stdio: "inherit",
+    //       shell: true,
+    //     });
+    //   } catch (error) {
+    //     console.error("Terraform apply failed:", error);
+    //     process.exit(1);
+    //   }
+    // } else {
+    //   const rl = createInterface({
+    //     input: process.stdin,
+    //     output: process.stdout,
+    //   });
+    //   rl.question("Do you want to continue and run 'terraform apply'? (y/N): ", (answer) => {
+    //     rl.close();
+    //     if (answer.trim().toLowerCase() === "y") {
+    //       try {
+    //         execSync("terraform apply -auto-approve", {
+    //           stdio: "inherit",
+    //           shell: true,
+    //         });
+
+    //       } catch (error) {
+    //         console.error("Terraform apply failed:", error);
+    //         process.exit(1);
+    //       }
+    //     } else {
+    //       console.log("Aborted terraform apply.");
+    //     }
+    //   });
+    // }
   } catch (error) {
     console.error("Terraform command failed:", error);
     process.exit(1);
