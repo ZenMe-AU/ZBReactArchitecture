@@ -4,7 +4,6 @@
  */
 
 // From Eslint v8.21.0, .eslintrc* is no longer used. eslint.config.js is the default config file name.
-//test
 import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 import licenseheader from "eslint-plugin-license-header";
@@ -14,7 +13,7 @@ import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended"
 export default [
   js.configs.recommended,
   ...tseslint.configs.recommended,
-  //eslintPluginPrettierRecommended,
+  eslintPluginPrettierRecommended,
   {
     files: ["**/*.{ts,tsx,mts,cts}", "**/*.{js,jsx,mjs,cjs}"],
     languageOptions: {
