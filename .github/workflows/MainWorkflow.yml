@@ -68,8 +68,8 @@ jobs:
         run: echo "TF_VAR_env_type=dev" >> $GITHUB_ENV
 
       - name: Run Terraform for deployEnv
-        working-directory: deploy/initEnv
-        run: node ./initEnvironment.js  --auto-approve
+        working-directory: deploy/deployEnv
+        run: node ./deployEnvironment.js  --auto-approve
 
   testRootDev:
     name: Test Dev Env
