@@ -4,10 +4,8 @@
  */
 
 import { execSync } from "child_process";
-import { createInterface } from "readline";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 import { resolve, dirname } from "path";
-// import { uniqueNamesGenerator, adjectives, animals } from "unique-names-generator";
 import {
   getResourceGroupName,
   getStorageAccountName,
@@ -20,20 +18,8 @@ import {
   getDefaultAzureLocation,
   isStorageAccountNameAvailable,
 } from "../util/azureCli.cjs";
-import { AzureCliCredential } from "@azure/identity";
-import { Client } from "@microsoft/microsoft-graph-client";
 import minimist from "minimist";
 import { fileURLToPath } from "url";
-
-// function getResourceGroupName(envType, targetEnv) {
-//   return `${envType}-${targetEnv}`;
-// }
-// function getStorageAccountName(targetEnv) {
-//   return `${targetEnv}`;
-// }
-// function getAppConfigName(targetEnv) {
-//   return `${targetEnv}-appconfig`;
-// }
 
 let cachedSubscriptionId = null;
 function getAzureSubscriptionId() {
@@ -93,40 +79,6 @@ function getTargetEnvName(
   return TARGET_ENV;
 }
 
-// /* use graph api to activate groupname membership in entra id.
-// */
-// const graphClient = null;
-// function graphActivatePimEntitlement(groupname) {
-
-// if (!graphClient) {
-//   // Login to Graph
-//   const credential = new AzureCliCredential();
-//   graphClient = Client.initWithMiddleware({
-//     authProvider: {
-//       getAccessToken: async () => {
-//         const tokenResponse = await credential.getToken("https://graph.microsoft.com/.default");
-//         return tokenResponse.token;
-//       }
-//     }
-//   });
-// }
-
-// const requestBody = {
-//   "action": "activate",
-//   "assignmentScheduleId": "<assignmentScheduleId>", // ID of the eligible assignment
-//   "justification": "Need access for deployment",
-//   "principalId": "<userObjectId>", // Current user's object ID
-//   "targetId": "<groupObjectId>",   // Target group ID
-//   "assignmentType": "member",
-//   "duration": "PT4H" // ISO 8601 duration format (e.g., 4 hours)
-// };
-
-// const response = await graphClient
-//   .api("/identityGovernance/privilegedAccess/group/assignmentScheduleRequests")
-//   .post(requestBody);
-// console.log("Activation response:", response);
-// }
-
 /** Activate PIM role "App Configuration Data Owner" for the current user for the current tenant.
  * This activation will usually expire within 8 hours and need to be re-activated every time it's needed.
  */
@@ -149,44 +101,49 @@ function activatePimPermissions() {
 }
 
 function initEnvironment() {
-  const autoApprove = process.argv.includes("--auto-approve");
   const args = minimist(process.argv.slice(2));
-  const assignDeployer = args.assignDeployer;
+  const assignDeployer = args.assignDeployer; // The service principal to assign as contributor of the resource group
   const envDir = args.envDir;
-
-  const envType = process.env.TF_VAR_env_type;
+  // set the environment variables for terraform
+  const envType = process.env.TF_VAR_env_type; // environment type: dev/test/prod is prefixed to the environment name
+  // get the environment name
   const targetEnv = getTargetEnvName(envDir);
   process.env.TF_VAR_target_env = targetEnv;
   console.log(`Setting TARGET_ENV to: ${process.env.TF_VAR_target_env}`);
+  // use the pre-configured subscription
   const subscriptionId = getAzureSubscriptionId();
   process.env.TF_VAR_subscription_id = subscriptionId;
   console.log(
     `Setting subscription_id to: ${process.env.TF_VAR_subscription_id}`,
   );
+  // all resources in the environment will be created in the same azure hosting location
   process.env.TF_VAR_location = getAzureLocation();
   console.log(`Setting location to: ${process.env.TF_VAR_location}`);
-
+  // the resource group name is also the environment name
   const resourceGroupName = getResourceGroupName(envType, targetEnv);
   process.env.TF_VAR_resource_group_name = resourceGroupName;
   console.log(
     `Setting resource_group_name to: ${process.env.TF_VAR_resource_group_name}`,
   );
+  // set the storage account name
   process.env.TF_VAR_storage_account_name = getStorageAccountName(targetEnv);
   console.log(
     `Setting storage_account_name to: ${process.env.TF_VAR_storage_account_name}`,
   );
+  //set the app config name
   const appConfigName = getAppConfigName(targetEnv);
   process.env.TF_VAR_appconfig_name = appConfigName;
   console.log(
     `Setting appconfig_name to: ${process.env.TF_VAR_appconfig_name}`,
   );
+  // use the pre-defined DB Admin Group from entra id, as an administrator group for DB access in the resource group
   const dbAdminGroupName = getDbAdminName(envType);
   process.env.TF_VAR_db_admin_group_name = dbAdminGroupName;
   console.log(
     `Setting db_admin_group_name to: ${process.env.TF_VAR_db_admin_group_name}`,
   );
 
-  activatePimPermissions();
+  activatePimPermissions(); // activate PIM role for current user to allow adding app configuration items
 
   try {
     execSync(`terraform init`, { stdio: "inherit", shell: true });
@@ -216,53 +173,6 @@ function initEnvironment() {
         { stdio: "inherit" },
       );
     }
-    // // save the dbAdmin group id to the app config
-    // const dbAdminGroupName = getDbAdminName(envType);
-    // const dbAdminGroupId = execSync(`az ad group list --query "[?displayName == '${dbAdminGroupName}'].id" -o tsv`, {
-    //   encoding: "utf8",
-    // }).trim();
-    // console.log(`Saving DbAdmin group ID to app config: ${dbAdminGroupId}`);
-    // execSync(`az appconfig kv set --name ${appConfigName} --key "DbAdminGroupId" --value "${dbAdminGroupId}"`, { stdio: "inherit" });
-
-    // Run terraform plan
-    // execSync("terraform plan -out=planfile", { stdio: "inherit", shell: true });
-    // console.log("Terraform plan completed successfully.");
-
-    // // Prompt user for confirmation before applying changes
-    // console.log("You are about to run 'terraform apply'. This will make changes to your infrastructure.");
-    // if (autoApprove) {
-    //   try {
-    //     execSync("terraform apply -auto-approve", {
-    //       stdio: "inherit",
-    //       shell: true,
-    //     });
-    //   } catch (error) {
-    //     console.error("Terraform apply failed:", error);
-    //     process.exit(1);
-    //   }
-    // } else {
-    //   const rl = createInterface({
-    //     input: process.stdin,
-    //     output: process.stdout,
-    //   });
-    //   rl.question("Do you want to continue and run 'terraform apply'? (y/N): ", (answer) => {
-    //     rl.close();
-    //     if (answer.trim().toLowerCase() === "y") {
-    //       try {
-    //         execSync("terraform apply -auto-approve", {
-    //           stdio: "inherit",
-    //           shell: true,
-    //         });
-
-    //       } catch (error) {
-    //         console.error("Terraform apply failed:", error);
-    //         process.exit(1);
-    //       }
-    //     } else {
-    //       console.log("Aborted terraform apply.");
-    //     }
-    //   });
-    // }
   } catch (error) {
     console.error("Terraform command failed:", error);
     process.exit(1);
