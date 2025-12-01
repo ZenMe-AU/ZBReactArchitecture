@@ -1,0 +1,47 @@
+name: Codescan
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: codescan-group
+  cancel-in-progress: true
+
+jobs:
+  Snyk:
+    name: Run Snyk code scans
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read # required for private repositories
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Cache pnpm store for faster installs
+        uses: actions/cache@v3
+        with:
+          path: ~/.pnpm-store
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
+      - name: Setup pnpm environment
+        uses: ./.github/actions/setup-pnpm
+
+      - uses: snyk/actions/node@master
+        with:
+          args: test -d --severity-threshold=high --sarif-file-output=snyk-results.sarif
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        continue-on-error: true
+
+      - name: Upload Snyk results to GitHub
+        id: uploadSnyk
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: snyk-results.sarif
+          wait-for-processing: true
+
+      - name: If upload fails, print sarif file content
+        if: failure()
+        run: cat snyk-results.sarif
