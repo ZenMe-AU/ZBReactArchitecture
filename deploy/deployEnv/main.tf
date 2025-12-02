@@ -82,12 +82,12 @@ output "pg_id" {
 #   mail_enabled     = false
 # }
 
-data "azuread_group" "pg_admin_group" {
-  display_name = var.db_admin_group_name
-}
-output "pg_admin_group" {
-  value = data.azuread_group.pg_admin_group.display_name
-}
+# data "azuread_group" "pg_admin_group" {
+#   display_name = var.db_admin_group_name
+# }
+# output "pg_admin_group" {
+#   value = data.azuread_group.pg_admin_group.display_name
+# }
 resource "azurerm_app_configuration_key" "db_host" {
   configuration_store_id = data.azurerm_app_configuration.appconfig.id
   key                    = "DbHost"
@@ -95,13 +95,18 @@ resource "azurerm_app_configuration_key" "db_host" {
   label                  = var.env_type
 }
 
+data "azurerm_app_configuration_key" "db_admin_group" {
+  configuration_store_id = data.azurerm_app_configuration.appconfig.id
+  key                    = "DbAdminGroupId"
+}
+
 # Set Administrator for PostgreSQL
 resource "azurerm_postgresql_flexible_server_active_directory_administrator" "pg_admin" {
   resource_group_name = data.azurerm_resource_group.rg.name
   server_name         = azurerm_postgresql_flexible_server.pg_server.name
-  object_id           = data.azuread_group.pg_admin_group.object_id
+  object_id           = data.azurerm_app_configuration_key.db_admin_group.value
   tenant_id           = data.azurerm_client_config.current.tenant_id
-  principal_name      = data.azuread_group.pg_admin_group.display_name
+  principal_name      = var.db_admin_group_name
   principal_type      = "Group"
 }
 
