@@ -153,7 +153,7 @@ resource "azurerm_api_management" "apim" {
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
   publisher_name      = "Zenme"
-  publisher_email     = "${var.target_env}@${var.central_dns}"
+  publisher_email     = "xxxx@xxxx.com.au"
   sku_name            = "Developer_1" # Change to Basic/Standard/Premium if needed
 }
 
