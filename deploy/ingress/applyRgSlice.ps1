@@ -19,6 +19,8 @@ param(
   [string]$ParentDomainName,
   [string]$DnsZoneResourceGroup,
   [string]$FrontDoorProfileName,
+  [string]$RgApimGatewayHost = "",
+  [Parameter(ValueFromPipelineByPropertyName=$true)] [object]$EnableRgWildcard = $true,
   [Parameter(ValueFromPipelineByPropertyName=$true)] [object]$EnableCustomDomain = $true,
   [Parameter(ValueFromPipelineByPropertyName=$true)] [object]$AutoDetect = $true,
   [switch]$PlanOnly,
@@ -115,6 +117,21 @@ try {
   }
   # Booleans must be 'true'/'false'
   $vars += @('-var', "enable_custom_domain=$($EnableCustomDomainBool.ToString().ToLower())")
+    $EnableRgWildcardBool    = Parse-Bool $EnableRgWildcard    $true
+    # Determine RG APIM gateway host: param override, TF_VAR, or default to <environment_key>-apim.azure-api.net
+    if ($RgApimGatewayHost -and $RgApimGatewayHost.Trim() -ne '') {
+      $rgApimHost = $RgApimGatewayHost.Trim()
+    }
+    elseif ($env:TF_VAR_rg_apim_gateway_host -and $env:TF_VAR_rg_apim_gateway_host.Trim() -ne '') {
+      $rgApimHost = $env:TF_VAR_rg_apim_gateway_host.Trim()
+    }
+    else {
+      # fall back to envKey from above or EnvironmentKey param
+      $envKey = if ($EnvironmentKey) { $EnvironmentKey } elseif ($wsenv.ContainsKey('TARGET_ENV')) { $wsenv['TARGET_ENV'] } else { '' }
+      if ($envKey -and $envKey.Trim() -ne '') { $rgApimHost = "${envKey}-apim.azure-api.net" } else { $rgApimHost = "" }
+    }
+    if ($rgApimHost -and $rgApimHost.Trim() -ne '') { $vars += @('-var', "rg_apim_gateway_host=$rgApimHost") }
+    $vars += @('-var', "enable_rg_wildcard=$($EnableRgWildcardBool.ToString().ToLower())")
 
   # Auto-detect static web origin when requested
   if ($AutoDetectBool) {

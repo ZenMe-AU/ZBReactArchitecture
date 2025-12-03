@@ -27,3 +27,9 @@ variable "web_origin_host_override" {
   description = "(Stub) Host name for static web origin. Real variable declared in env ingress.tf."
   default     = ""
 }
+
+variable "target_env" {
+  type        = string
+  description = "Target environment name (overrides .env if provided)"
+  default     = ""
+}

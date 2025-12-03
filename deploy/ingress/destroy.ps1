@@ -17,7 +17,7 @@ Notes:
 param(
   [string]$SubscriptionId,
   [switch]$NoLogin,
-  [string]$EnvironmentKey = "willingworm",
+  [string]$EnvironmentKey = "${env:TARGET_ENV}",
   [string]$CentralEnv,
   [string]$ParentDomainName,
   [string]$DnsZoneResourceGroup,
@@ -75,6 +75,9 @@ $envVals = @{}
 foreach ($k in $centralVals.Keys) { $envVals[$k] = $centralVals[$k] }
 foreach ($k in $dotVals.Keys)     { $envVals[$k] = $dotVals[$k] }
 
+# Derive EnvironmentKey from .env TARGET_ENV if not passed as a parameter
+if (-not $EnvironmentKey -and $envVals.ContainsKey('TARGET_ENV')) { $EnvironmentKey = $envVals['TARGET_ENV'] }
+
 if (-not $CentralEnv -and $envVals.ContainsKey('CENTRAL_ENV')) { $CentralEnv = $envVals['CENTRAL_ENV'] }
 if (-not $ParentDomainName -and $envVals.ContainsKey('CENTRAL_DNS')) { $ParentDomainName = $envVals['CENTRAL_DNS'] }
 
@@ -97,8 +100,16 @@ if (Test-Path -LiteralPath $applyProfileScript) {
     $args = @('-TargetEnv', $EnvironmentKey, '-EnvType', $envType)
     if ($FunctionAppName) { $args += @('-FunctionAppName', $FunctionAppName) }
     if ($ResourceGroupName) { $args += @('-ResourceGroupName', $ResourceGroupName) } else { $args += @('-ResourceGroupName', "$envType-$EnvironmentKey") }
-    if (-not $FunctionAppName) { $args += '-AutoDetect:$true' }
-    & $applyProfileScript @args | Write-Output
+    # Build a named-parameter hashtable and splat it to avoid positional/array quirks
+    $paramHash = @{
+      TargetEnv = $EnvironmentKey
+      EnvType   = $envType
+    }
+    if ($FunctionAppName) { $paramHash.FunctionAppName = $FunctionAppName }
+    if ($ResourceGroupName) { $paramHash.ResourceGroupName = $ResourceGroupName } else { $paramHash.ResourceGroupName = "$envType-$EnvironmentKey" }
+    if (-not $FunctionAppName) { $paramHash.AutoDetect = $true }
+
+    & $applyProfileScript @paramHash | Write-Output
   } catch {
     Write-Host "WARN: Failed to prepare module variables via applyProfileSlice.ps1 ($_)" -ForegroundColor Yellow
   }

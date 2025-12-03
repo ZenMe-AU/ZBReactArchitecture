@@ -10,11 +10,8 @@
 # - Attach existing custom domain if provided (do not create it)
 # ------------------------------------------------------------
 
-# Core identifiers
-variable "target_env" {
-  type        = string
-  description = "Environment key (e.g. dev, test, prod)"
-}
+# Core identifiers (target_env is declared in the root ingress module)
+# Note: name_prefix is declared in the root ingress module; do not redeclare here to avoid duplicates.
 variable "module_name" {
   type        = string
   description = "Module name owning this ingress slice (e.g. profile)"
@@ -84,6 +81,7 @@ locals {
   profile_id             = data.azurerm_cdn_frontdoor_profile.shared.id
   custom_domain_ids      = var.custom_domain_resource_id != "" ? [var.custom_domain_resource_id] : []
   web_enabled            = var.enable_web_origin && var.web_origin_host_override != ""
+  # Names based on module_name to avoid undeclared variable references
   api_route_name         = "${var.target_env}-${var.module_name}-api-route"
   api_origin_group_name  = "${var.target_env}-${var.module_name}-api-og"
   api_origin_name        = "${var.target_env}-${var.module_name}-api-origin"
