@@ -1,4 +1,4 @@
-name: Codescan
+name: Eslint Scan
 
 on:
   workflow_dispatch:
