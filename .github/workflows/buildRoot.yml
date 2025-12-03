@@ -1,10 +1,11 @@
 name: buildRoot
+
 on:
     workflow_call:
 
 jobs:
-    <job name>:
-        name: Run <job name>
+    jobname:
+        name: Run jobname
         runs-on: ubuntu-latest
         permissions:
             contents: read
