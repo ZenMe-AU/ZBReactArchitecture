@@ -6,18 +6,9 @@
 const { execSync } = require("child_process");
 const { existsSync, readFileSync, writeFileSync } = require("fs");
 const { resolve, dirname } = require("path");
-const {
-  getResourceGroupName,
-  getStorageAccountName,
-  getAppConfigName,
-  getDbAdminName,
-} = require("../util/namingConvention.cjs");
+const { getResourceGroupName, getStorageAccountName, getAppConfigName, getDbAdminName } = require("../util/namingConvention.cjs");
 const { generateNewEnvName, getTargetEnv } = require("../util/envSetup.cjs");
-const {
-  getSubscriptionId,
-  getDefaultAzureLocation,
-  isStorageAccountNameAvailable,
-} = require("../util/azureCli.cjs");
+const { getSubscriptionId, getDefaultAzureLocation, isStorageAccountNameAvailable, addMemberToAadGroup } = require("../util/azureCli.cjs");
 const minimist = require("minimist");
 const currentDirname = __dirname;
 
@@ -29,9 +20,7 @@ function getAzureSubscriptionId() {
   try {
     return (cachedSubscriptionId = getSubscriptionId());
   } catch (error) {
-    console.error(
-      "Failed to get Azure subscription ID. Make sure you are logged in with Azure CLI.",
-    );
+    console.error("Failed to get Azure subscription ID. Make sure you are logged in with Azure CLI.");
     process.exit(1);
   }
 }
@@ -86,12 +75,8 @@ function activatePimPermissions() {
     const userId = execSync("az ad signed-in-user show --query id -o tsv", {
       encoding: "utf8",
     }).trim();
-    console.log(
-      `az role assignment create --assignee ${userId} --role "App Configuration Data Owner" --scope /subscriptions/${getAzureSubscriptionId()}`,
-    );
-    execSync(
-      `az role assignment create --assignee ${userId} --role "App Configuration Data Owner" --scope /subscriptions/${getAzureSubscriptionId()}`,
-    );
+    console.log(`az role assignment create --assignee ${userId} --role "App Configuration Data Owner" --scope /subscriptions/${getAzureSubscriptionId()}`);
+    execSync(`az role assignment create --assignee ${userId} --role "App Configuration Data Owner" --scope /subscriptions/${getAzureSubscriptionId()}`);
   } catch (error) {
     console.error("Failed to activate PIM role:", error);
     process.exit(1);
@@ -120,35 +105,25 @@ function initEnvironment() {
   // use the pre-configured subscription
   const subscriptionId = getAzureSubscriptionId();
   process.env.TF_VAR_subscription_id = subscriptionId;
-  console.log(
-    `Setting subscription_id to: ${process.env.TF_VAR_subscription_id}`,
-  );
+  console.log(`Setting subscription_id to: ${process.env.TF_VAR_subscription_id}`);
   // all resources in the environment will be created in the same azure hosting location
   process.env.TF_VAR_location = getAzureLocation();
   console.log(`Setting location to: ${process.env.TF_VAR_location}`);
   // the resource group name is also the environment name
   const resourceGroupName = getResourceGroupName(envType, targetEnv);
   process.env.TF_VAR_resource_group_name = resourceGroupName;
-  console.log(
-    `Setting resource_group_name to: ${process.env.TF_VAR_resource_group_name}`,
-  );
+  console.log(`Setting resource_group_name to: ${process.env.TF_VAR_resource_group_name}`);
   // set the storage account name
   process.env.TF_VAR_storage_account_name = getStorageAccountName(targetEnv);
-  console.log(
-    `Setting storage_account_name to: ${process.env.TF_VAR_storage_account_name}`,
-  );
+  console.log(`Setting storage_account_name to: ${process.env.TF_VAR_storage_account_name}`);
   //set the app config name
   const appConfigName = getAppConfigName(targetEnv);
   process.env.TF_VAR_appconfig_name = appConfigName;
-  console.log(
-    `Setting appconfig_name to: ${process.env.TF_VAR_appconfig_name}`,
-  );
+  console.log(`Setting appconfig_name to: ${process.env.TF_VAR_appconfig_name}`);
   // use the pre-defined DB Admin Group from entra id, as an administrator group for DB access in the resource group
   const dbAdminGroupName = getDbAdminName(envType);
   process.env.TF_VAR_db_admin_group_name = dbAdminGroupName;
-  console.log(
-    `Setting db_admin_group_name to: ${process.env.TF_VAR_db_admin_group_name}`,
-  );
+  console.log(`Setting db_admin_group_name to: ${process.env.TF_VAR_db_admin_group_name}`);
 
   activatePimPermissions(); // activate PIM role for current user to allow adding app configuration items
 
@@ -160,25 +135,57 @@ function initEnvironment() {
 
     // Assign roles (Contributor, App Configuration Data Owner) to deployer service principal if specified
     if (assignDeployer) {
-      const spId = execSync(
-        `az ad sp list --display-name "${assignDeployer}" --query "[0].id" -o tsv`,
-        { encoding: "utf8" },
-      ).trim();
+      const spId = execSync(`az ad sp list --display-name "${assignDeployer}" --query "[0].id" -o tsv`, { encoding: "utf8" }).trim();
       console.log(
-        `az role assignment create --assignee ${spId} --role "App Configuration Data Owner" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`,
+        `az role assignment create --assignee ${spId} --role "App Configuration Data Owner" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`
       );
       execSync(
         `az role assignment create --assignee ${spId} --role "App Configuration Data Owner" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`,
-        { stdio: "inherit" },
+        { stdio: "inherit" }
       );
 
       console.log(
-        `az role assignment create --assignee ${spId} --role "Contributor" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`,
+        `az role assignment create --assignee ${spId} --role "Contributor" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`
       );
       execSync(
         `az role assignment create --assignee ${spId} --role "Contributor" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`,
-        { stdio: "inherit" },
+        { stdio: "inherit" }
       );
+
+      // Storage Blob Data Contributor
+      const BLOB_ROLE_ID = execSync(`az role definition list --name "Storage Blob Data Contributor"  --query "[0].id" -o tsv`, { encoding: "utf8" }).trim();
+      // Storage Queue Data Contributor
+      const QUEUE_ROLE_ID = execSync(`az role definition list --name "Storage Queue Data Contributor"  --query "[0].id" -o tsv`, { encoding: "utf8" }).trim();
+      // Storage Table Data Contributor
+      const TABLE_ROLE_ID = execSync(`az role definition list --name "Storage Table Data Contributor"  --query "[0].id" -o tsv`, { encoding: "utf8" }).trim();
+      // Azure Service Bus Data Sender
+      const SB_SENDER_ROLE_ID = execSync(`az role definition list --name "Azure Service Bus Data Sender" --query "[0].id" -o tsv`, {
+        encoding: "utf8",
+      }).trim();
+      // Azure Service Bus Data Receiver
+      const SB_RECEIVER_ROLE_ID = execSync(`az role definition list --name "Azure Service Bus Data Receiver" --query "[0].id" -o tsv`, {
+        encoding: "utf8",
+      }).trim();
+
+      console.log(`
+      az role assignment create \
+              --assignee ${spId} \
+              --role "Role Based Access Control Administrator" \
+              --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName} \
+              --condition "((!(ActionMatches{'Microsoft.Authorization/roleAssignments/write'})) OR (@Request[Microsoft.Authorization/roleAssignments:RoleDefinitionId] ForAnyOfAnyValues:StringEquals {'${BLOB_ROLE_ID}', '${QUEUE_ROLE_ID}', '${TABLE_ROLE_ID}', '${SB_SENDER_ROLE_ID}', '${SB_RECEIVER_ROLE_ID}'})) AND ((!(ActionMatches{'Microsoft.Authorization/roleAssignments/delete'})) OR (@Request[Microsoft.Authorization/roleAssignments:RoleDefinitionId] ForAnyOfAnyValues:StringEquals {'${BLOB_ROLE_ID}', '${QUEUE_ROLE_ID}', '${TABLE_ROLE_ID}', '${SB_SENDER_ROLE_ID}', '${SB_RECEIVER_ROLE_ID}'})))" \
+              --condition-version "2.0"`);
+
+      execSync(
+        `az role assignment create \
+              --assignee ${spId} \
+              --role "Role Based Access Control Administrator" \
+              --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName} \
+              --condition "((!(ActionMatches{'Microsoft.Authorization/roleAssignments/write'})) OR (@Request[Microsoft.Authorization/roleAssignments:RoleDefinitionId] ForAnyOfAnyValues:StringEquals {'${BLOB_ROLE_ID}', '${QUEUE_ROLE_ID}', '${TABLE_ROLE_ID}', '${SB_SENDER_ROLE_ID}', '${SB_RECEIVER_ROLE_ID}'})) AND ((!(ActionMatches{'Microsoft.Authorization/roleAssignments/delete'})) OR (@Request[Microsoft.Authorization/roleAssignments:RoleDefinitionId] ForAnyOfAnyValues:StringEquals {'${BLOB_ROLE_ID}', '${QUEUE_ROLE_ID}', '${TABLE_ROLE_ID}', '${SB_SENDER_ROLE_ID}', '${SB_RECEIVER_ROLE_ID}'}))" \
+              --condition-version "2.0"`,
+        { stdio: "inherit" }
+      );
+
+      // addMemberToAadGroup({ groupIdOrName: dbAdminGroupName, memberId: spId });
     }
   } catch (error) {
     console.error("Terraform command failed:", error);
