@@ -33,7 +33,7 @@ try {
     $deployRoot = Split-Path -Parent $PSScriptRoot
     $centralEnvSource = Join-Path $deployRoot 'central.env'
     $dotEnvSource = Join-Path $deployRoot '.env'
-    $dependency = Join-Path $deployRoot 'dscLocalDevTools.psm1'
+    $dependency = Join-Path $deployRoot 'deploymentModule.psm1'
     $envFiles = @($centralEnvSource,$dotEnvSource,$dependency)
     foreach ($envFile in $envFiles) {
         if (Test-Path -LiteralPath $envFile) {

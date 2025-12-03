@@ -7,7 +7,7 @@ Set-StrictMode -Version Latest
 
 # Ensure tooling module is available when running standalone
 try {
-    $modulePath = Join-Path $PSScriptRoot 'dscLocalDevTools.psm1'
+    $modulePath = Join-Path $PSScriptRoot 'deploymentModule.psm1'
     if (Test-Path -LiteralPath $modulePath) {
         Import-Module $modulePath -Force -ErrorAction Stop
         # Initialize OS flags used by the module (e.g., $IsWindows/$IsMacOS)
@@ -17,7 +17,7 @@ try {
     }
 }
 catch {
-    Write-Error "Failed to load required module 'dscLocalDevTools.psm1': $_"
+    Write-Error "Failed to load required module 'deploymentModule.psm1': $_"
     exit 1
 }
 
