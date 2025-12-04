@@ -36,6 +36,15 @@ jobs:
       #     name: build-output
       #     path: ./dist
 
+  deployRootDev:
+    name: Deploy Dev Env
+    needs: buildRoot
+    runs-on: ubuntu-latest
+    environment: Dev
+    steps:
+      - name: Print job name
+        run: echo "Job name is ${{ github.job }}"
+
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -63,15 +72,6 @@ jobs:
       - name: Run Terraform for deployEnv
         working-directory: deploy/deployEnv
         run: node ./deployEnvironment.js  --auto-approve
-
-  deployRootDev:
-    name: Deploy Dev Env
-    needs: buildRoot
-    runs-on: ubuntu-latest
-    environment: Dev
-    steps:
-      - name: Print job name
-        run: echo "Job name is ${{ github.job }}"
 
   testRootDev:
     name: Test Dev Env
@@ -118,7 +118,9 @@ jobs:
   # modules pipelines
   buildProfile:
     name: Build Profile
-    needs: buildRoot
+    needs:
+      - buildRoot
+      - deployRootDev
     # if: always()
     runs-on: ubuntu-latest
     environment: Dev
