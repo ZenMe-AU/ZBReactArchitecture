@@ -152,27 +152,37 @@ function initEnvironment() {
         { stdio: "inherit" }
       );
 
+      // Get only the role name part from the full resource ID (roleDefinitions/...)
       // Storage Blob Data Contributor
-      const BLOB_ROLE_ID = execSync(`az role definition list --name "Storage Blob Data Contributor"  --query "[0].id" -o tsv`, { encoding: "utf8" }).trim();
+      const BLOB_ROLE_ID_FULL = execSync(`az role definition list --name "Storage Blob Data Contributor" --query "[0].id" -o tsv`, { encoding: "utf8" }).trim();
+      const BLOB_ROLE_ID = BLOB_ROLE_ID_FULL.split("roleDefinitions/").pop();
       // Storage Queue Data Contributor
-      const QUEUE_ROLE_ID = execSync(`az role definition list --name "Storage Queue Data Contributor"  --query "[0].id" -o tsv`, { encoding: "utf8" }).trim();
+      const QUEUE_ROLE_ID_FULL = execSync(`az role definition list --name "Storage Queue Data Contributor"  --query "[0].id" -o tsv`, {
+        encoding: "utf8",
+      }).trim();
+      const QUEUE_ROLE_ID = QUEUE_ROLE_ID_FULL.split("roleDefinitions/").pop();
       // Storage Table Data Contributor
-      const TABLE_ROLE_ID = execSync(`az role definition list --name "Storage Table Data Contributor"  --query "[0].id" -o tsv`, { encoding: "utf8" }).trim();
+      const TABLE_ROLE_ID_FULL = execSync(`az role definition list --name "Storage Table Data Contributor"  --query "[0].id" -o tsv`, {
+        encoding: "utf8",
+      }).trim();
+      const TABLE_ROLE_ID = TABLE_ROLE_ID_FULL.split("roleDefinitions/").pop();
       // Azure Service Bus Data Sender
-      const SB_SENDER_ROLE_ID = execSync(`az role definition list --name "Azure Service Bus Data Sender" --query "[0].id" -o tsv`, {
+      const SB_SENDER_ROLE_ID_FULL = execSync(`az role definition list --name "Azure Service Bus Data Sender" --query "[0].id" -o tsv`, {
         encoding: "utf8",
       }).trim();
+      const SB_SENDER_ROLE_ID = SB_SENDER_ROLE_ID_FULL.split("roleDefinitions/").pop();
       // Azure Service Bus Data Receiver
-      const SB_RECEIVER_ROLE_ID = execSync(`az role definition list --name "Azure Service Bus Data Receiver" --query "[0].id" -o tsv`, {
+      const SB_RECEIVER_ROLE_ID_FULL = execSync(`az role definition list --name "Azure Service Bus Data Receiver" --query "[0].id" -o tsv`, {
         encoding: "utf8",
       }).trim();
+      const SB_RECEIVER_ROLE_ID = SB_RECEIVER_ROLE_ID_FULL.split("roleDefinitions/").pop();
 
       console.log(`
       az role assignment create \
               --assignee ${spId} \
               --role "Role Based Access Control Administrator" \
               --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName} \
-              --condition "((!(ActionMatches{'Microsoft.Authorization/roleAssignments/write'})) OR (@Request[Microsoft.Authorization/roleAssignments:RoleDefinitionId] ForAnyOfAnyValues:StringEquals {'${BLOB_ROLE_ID}', '${QUEUE_ROLE_ID}', '${TABLE_ROLE_ID}', '${SB_SENDER_ROLE_ID}', '${SB_RECEIVER_ROLE_ID}'})) AND ((!(ActionMatches{'Microsoft.Authorization/roleAssignments/delete'})) OR (@Request[Microsoft.Authorization/roleAssignments:RoleDefinitionId] ForAnyOfAnyValues:StringEquals {'${BLOB_ROLE_ID}', '${QUEUE_ROLE_ID}', '${TABLE_ROLE_ID}', '${SB_SENDER_ROLE_ID}', '${SB_RECEIVER_ROLE_ID}'})))" \
+              --condition "((!(ActionMatches{'Microsoft.Authorization/roleAssignments/write'})) OR (@Request[Microsoft.Authorization/roleAssignments:RoleDefinitionId] ForAnyOfAnyValues:GuidEquals {${BLOB_ROLE_ID}, ${QUEUE_ROLE_ID}, ${TABLE_ROLE_ID}, ${SB_SENDER_ROLE_ID}, ${SB_RECEIVER_ROLE_ID}})) AND ((!(ActionMatches{'Microsoft.Authorization/roleAssignments/delete'})) OR (@Request[Microsoft.Authorization/roleAssignments:RoleDefinitionId] ForAnyOfAnyValues:GuidEquals {${BLOB_ROLE_ID}, ${QUEUE_ROLE_ID}, ${TABLE_ROLE_ID}, ${SB_SENDER_ROLE_ID}, ${SB_RECEIVER_ROLE_ID}}))" \
               --condition-version "2.0"`);
 
       execSync(
@@ -180,12 +190,10 @@ function initEnvironment() {
               --assignee ${spId} \
               --role "Role Based Access Control Administrator" \
               --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName} \
-              --condition "((!(ActionMatches{'Microsoft.Authorization/roleAssignments/write'})) OR (@Request[Microsoft.Authorization/roleAssignments:RoleDefinitionId] ForAnyOfAnyValues:StringEquals {'${BLOB_ROLE_ID}', '${QUEUE_ROLE_ID}', '${TABLE_ROLE_ID}', '${SB_SENDER_ROLE_ID}', '${SB_RECEIVER_ROLE_ID}'})) AND ((!(ActionMatches{'Microsoft.Authorization/roleAssignments/delete'})) OR (@Request[Microsoft.Authorization/roleAssignments:RoleDefinitionId] ForAnyOfAnyValues:StringEquals {'${BLOB_ROLE_ID}', '${QUEUE_ROLE_ID}', '${TABLE_ROLE_ID}', '${SB_SENDER_ROLE_ID}', '${SB_RECEIVER_ROLE_ID}'}))" \
+              --condition "((!(ActionMatches{'Microsoft.Authorization/roleAssignments/write'})) OR (@Request[Microsoft.Authorization/roleAssignments:RoleDefinitionId] ForAnyOfAnyValues:GuidEquals {${BLOB_ROLE_ID}, ${QUEUE_ROLE_ID}, ${TABLE_ROLE_ID}, ${SB_SENDER_ROLE_ID}, ${SB_RECEIVER_ROLE_ID}})) AND ((!(ActionMatches{'Microsoft.Authorization/roleAssignments/delete'})) OR (@Request[Microsoft.Authorization/roleAssignments:RoleDefinitionId] ForAnyOfAnyValues:GuidEquals {${BLOB_ROLE_ID}, ${QUEUE_ROLE_ID}, ${TABLE_ROLE_ID}, ${SB_SENDER_ROLE_ID}, ${SB_RECEIVER_ROLE_ID}}))" \
               --condition-version "2.0"`,
         { stdio: "inherit" }
       );
-
-      // addMemberToAadGroup({ groupIdOrName: dbAdminGroupName, memberId: spId });
     }
   } catch (error) {
     console.error("Terraform command failed:", error);
@@ -196,3 +204,5 @@ function initEnvironment() {
 initEnvironment();
 
 module.exports = { initEnvironment };
+
+// note: set the vnet in init env step
