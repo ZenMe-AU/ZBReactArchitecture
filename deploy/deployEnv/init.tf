@@ -196,3 +196,16 @@ output "app_insights_name" {
   value       = var.app_insights_name
   description = "value of app insights name"
 }
+
+variable "deployer_app_name" {
+  description = "Name of the Azure Deployer Application"
+  type        = string
+  default     = null
+}
+output "deployer_app_name" {
+  value       = var.deployer_app_name
+  description = "value of deployer application name"
+}
+locals {
+  has_deployer = var.deployer_app_name != null
+}

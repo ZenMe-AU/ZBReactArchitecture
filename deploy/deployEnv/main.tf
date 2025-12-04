@@ -100,7 +100,7 @@ data "azurerm_app_configuration_key" "db_admin_group" {
   key                    = "DbAdminGroupId"
 }
 
-# Set Administrator for PostgreSQL
+# Set Administrator group for PostgreSQL
 resource "azurerm_postgresql_flexible_server_active_directory_administrator" "pg_admin" {
   resource_group_name = data.azurerm_resource_group.rg.name
   server_name         = azurerm_postgresql_flexible_server.pg_server.name
@@ -108,6 +108,22 @@ resource "azurerm_postgresql_flexible_server_active_directory_administrator" "pg
   tenant_id           = data.azurerm_client_config.current.tenant_id
   principal_name      = var.db_admin_group_name
   principal_type      = "Group"
+}
+
+# Set github Administrator for PostgreSQL
+data "azuread_application" "deployer_app" {
+  count        = local.has_deployer ? 1 : 0
+  display_name = var.deployer_app_name
+}
+
+resource "azurerm_postgresql_flexible_server_active_directory_administrator" "pg_admin_github" {
+  count               = local.has_deployer ? 1 : 0
+  resource_group_name = data.azurerm_resource_group.rg.name
+  server_name         = azurerm_postgresql_flexible_server.pg_server.name
+  object_id           = data.azuread_application.deployer_app[0].object_id
+  tenant_id           = data.azurerm_client_config.current.tenant_id
+  principal_name      = data.azuread_application.deployer_app[0].display_name
+  principal_type      = "ServicePrincipal"
 }
 
 # Create a User Assigned Identity
