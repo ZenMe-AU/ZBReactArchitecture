@@ -197,15 +197,20 @@ output "app_insights_name" {
   description = "value of app insights name"
 }
 
-variable "deployer_app_name" {
-  description = "Name of the Azure Deployer Application"
+variable "deployer_sp_object_id" {
   type        = string
+  description = "Object ID of the Service Principal to assign as AD Admin"
   default     = null
 }
-output "deployer_app_name" {
-  value       = var.deployer_app_name
-  description = "value of deployer application name"
+variable "deployer_sp_name" {
+  type        = string
+  description = "Display name of the Service Principal"
+  default     = null
+}
+output "deployer_sp_name" {
+  value       = var.deployer_sp_name
+  description = "value of deployer service principal name"
 }
 locals {
-  has_deployer = var.deployer_app_name != null
+  has_deployer = var.deployer_sp_object_id != null && var.deployer_sp_name != null
 }

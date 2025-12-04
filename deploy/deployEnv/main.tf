@@ -111,18 +111,13 @@ resource "azurerm_postgresql_flexible_server_active_directory_administrator" "pg
 }
 
 # Set github Administrator for PostgreSQL
-data "azuread_application" "deployer_app" {
-  count        = local.has_deployer ? 1 : 0
-  display_name = var.deployer_app_name
-}
-
 resource "azurerm_postgresql_flexible_server_active_directory_administrator" "pg_admin_github" {
   count               = local.has_deployer ? 1 : 0
   resource_group_name = data.azurerm_resource_group.rg.name
   server_name         = azurerm_postgresql_flexible_server.pg_server.name
-  object_id           = data.azuread_application.deployer_app[0].object_id
+  object_id           = var.deployer_sp_object_id
   tenant_id           = data.azurerm_client_config.current.tenant_id
-  principal_name      = data.azuread_application.deployer_app[0].display_name
+  principal_name      = var.deployer_sp_name
   principal_type      = "ServicePrincipal"
 }
 
