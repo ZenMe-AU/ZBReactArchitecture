@@ -36,15 +36,6 @@ jobs:
       #     name: build-output
       #     path: ./dist
 
-  deployRootDev:
-    name: Deploy Dev Env
-    needs: buildRoot
-    runs-on: ubuntu-latest
-    environment: Dev
-    steps:
-      - name: Print job name
-        run: echo "Job name is ${{ github.job }}"
-
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -65,11 +56,22 @@ jobs:
         run: cat deploy/.env
 
       - name: Set deployment environment
-        run: echo "TF_VAR_env_type=dev" >> $GITHUB_ENV
+        run: |
+          echo "TF_VAR_env_type=dev" >> $GITHUB_ENV
+          echo "TF_VAR_deployer_app_name=github-oidc" >> $GITHUB_ENV
 
       - name: Run Terraform for deployEnv
         working-directory: deploy/deployEnv
         run: node ./deployEnvironment.js  --auto-approve
+
+  deployRootDev:
+    name: Deploy Dev Env
+    needs: buildRoot
+    runs-on: ubuntu-latest
+    environment: Dev
+    steps:
+      - name: Print job name
+        run: echo "Job name is ${{ github.job }}"
 
   testRootDev:
     name: Test Dev Env
