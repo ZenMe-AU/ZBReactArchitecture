@@ -47,7 +47,9 @@ runs:
       shell: bash
       run: |
         node ./updateDbSchema.js
-        node ./initData.js
+        if [ -f "initData.js" ]; then
+          node ./initData.js
+        fi
 
     - name: Deploy Function App code
       working-directory: module/${{ inputs.moduleName }}/func/deploy/code
