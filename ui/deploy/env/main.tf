@@ -27,12 +27,12 @@ resource "azurerm_app_configuration_key" "endpoint" {
   label                  = var.env_type
 }
 
-# Assign Storage Blob Data Contributor role to the LeadDeveloper
-data "azuread_group" "lead_developer" {
-  display_name = "LeadDeveloper" // TODO: check - should i use ResourceGroupDeployer
-}
-resource "azurerm_role_assignment" "blob_contributor" {
-  principal_id         = data.azuread_group.lead_developer.id
-  role_definition_name = "Storage Blob Data Contributor"
-  scope                = azurerm_storage_account.website.id
-}
+# # Assign Storage Blob Data Contributor role to the LeadDeveloper
+# data "azuread_group" "lead_developer" {
+#   display_name = "LeadDeveloper" // TODO: check - should i use ResourceGroupDeployer
+# }
+# resource "azurerm_role_assignment" "blob_contributor" {
+#   principal_id         = data.azuread_group.lead_developer.id
+#   role_definition_name = "Storage Blob Data Contributor"
+#   scope                = azurerm_storage_account.website.id
+# }
