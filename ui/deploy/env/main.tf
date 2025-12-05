@@ -36,3 +36,9 @@ resource "azurerm_app_configuration_key" "endpoint" {
 #   role_definition_name = "Storage Blob Data Contributor"
 #   scope                = azurerm_storage_account.website.id
 # }
+resource "azurerm_role_assignment" "deployer_storage_blob_contributor" {
+  count                = local.has_deployer ? 1 : 0
+  principal_id         = var.deployer_sp_object_id
+  role_definition_name = "Storage Blob Data Contributor"
+  scope                = azurerm_storage_account.website.id
+}
