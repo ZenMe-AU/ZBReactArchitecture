@@ -12,7 +12,8 @@ try {
         Import-Module $modulePath -Force -ErrorAction Stop
         # Initialize OS flags used by the module (e.g., $IsWindows/$IsMacOS)
         Get-OsType
-    } else {
+    }
+    else {
         throw "Module not found at $modulePath"
     }
 }
@@ -52,21 +53,38 @@ if ($depChecksOk) {
                 if (-not $_) { return }
                 $line = $_.Trim()
                 if ($line.StartsWith('#')) { return }
-                $parts = $line.Split('=',2)
+                $parts = $line.Split('=', 2)
                 if ($parts.Count -eq 2) { $map[$parts[0].Trim()] = $parts[1].Trim() }
             }
             return $map
         }
         $localEnv = Read-DotEnv (Join-Path $PSScriptRoot '.env')
         $targetEnv = if ($localEnv.ContainsKey('TARGET_ENV')) { $localEnv['TARGET_ENV'] } else { $env:TARGET_ENV }
-        $envType   = if ($localEnv.ContainsKey('ENV_TYPE'))   { $localEnv['ENV_TYPE'] }   else { 'dev' }
+        $envType = if ($localEnv.ContainsKey('ENV_TYPE')) { $localEnv['ENV_TYPE'] }   else { 'dev' }
         if ($targetEnv) {
             & $applyProfileScript -TargetEnv $targetEnv -EnvType $envType -AutoDetect:$true
-        } else {
+        }
+        else {
             & $applyProfileScript -AutoDetect:$true
         }
-    } else {
+    }
+    else {
         Write-Host "applyProfileSlice.ps1 not found in $PSScriptRoot (skipping module variable setup)" -ForegroundColor Yellow
+    }
+
+    # 1b) Prepare APIM slice variables (if helper exists). This sets TF_VAR_target_env
+    $applyApiScript = Join-Path $PSScriptRoot 'applyApiSlice.ps1'
+    if (Test-Path $applyApiScript) {
+        Write-Host "Invoking applyApiSlice.ps1 (preparing APIM variables)..." -ForegroundColor Cyan
+        if ($targetEnv) {
+            & $applyApiScript -TargetEnv $targetEnv -AutoDetect:$true
+        }
+        else {
+            & $applyApiScript -AutoDetect:$true
+        }
+    }
+    else {
+        Write-Host "applyApiSlice.ps1 not found in $PSScriptRoot (skipping APIM variable setup)" -ForegroundColor Yellow
     }
 
     # 2) Apply environment Front Door slice

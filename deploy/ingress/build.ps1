@@ -13,7 +13,7 @@ try {
     Write-Host "External startup folder ready: $SliceStartUp" -ForegroundColor DarkCyan
 
     # Files to export from this folder into the external startup folder
-    $filesToCopy = @('applyRgSlice.ps1','destroy.ps1','ingress.tf','README.md','deploy.ps1')
+    $filesToCopy = @('applyRgSlice.ps1','destroy.ps1','ingress.tf','README.md','deploy.ps1','apimApi.tf','applyApiSlice.ps1')
     foreach ($file in $filesToCopy) {
         $sourcePath = Join-Path $PSScriptRoot $file
         $destPath = Join-Path $SliceStartUp $file
