@@ -30,7 +30,8 @@ const {
   const dbName = moduleName;
   // pg role/user name setup
   const pgServerName = getPgServerName(targetEnv);
-  const pgAdminUserName = getDbAdminName(envType);
+  const pgAdminUserName =
+    process.env.TF_VAR_deployer_sp_name || getDbAdminName(envType);
   const rwRoleName = getRwRoleName(moduleName);
   const roRoleName = getRoRoleName(moduleName);
   const dbSchemaAdminRoleName = getDbSchemaAdminRoleName(moduleName);
