@@ -128,48 +128,48 @@ jobs:
     steps:
       - name: Echo job name
         run: echo "Job name is ${{ github.job }}"
-      - name: Checkout code
-        uses: actions/checkout@v4
+      # - name: Checkout code
+      #   uses: actions/checkout@v4
 
-      - name: setup environment
-        uses: ./.github/actions/setup-azure
-        with:
-          clientId: ${{ secrets.AZURE_CLIENT_ID }}
-          tenantId: ${{ secrets.AZURE_TENANT_ID }}
-          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      # - name: setup environment
+      #   uses: ./.github/actions/setup-azure
+      #   with:
+      #     clientId: ${{ secrets.AZURE_CLIENT_ID }}
+      #     tenantId: ${{ secrets.AZURE_TENANT_ID }}
+      #     subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Create env file & echo target name
-        working-directory: deploy
-        run: |
-          echo "TARGET_ENV_NAME:${{ vars.TARGET_ENV_NAME }}"
-          echo "TARGET_ENV=${{ vars.TARGET_ENV_NAME }}" >> .env
+      # - name: Create env file & echo target name
+      #   working-directory: deploy
+      #   run: |
+      #     echo "TARGET_ENV_NAME:${{ vars.TARGET_ENV_NAME }}"
+      #     echo "TARGET_ENV=${{ vars.TARGET_ENV_NAME }}" >> .env
 
-      - name: Read env file
-        run: cat deploy/.env
+      # - name: Read env file
+      #   run: cat deploy/.env
 
-      - name: Set deployment environment
-        run: |
-          echo "TF_VAR_env_type=dev" >> $GITHUB_ENV
-          echo "TF_VAR_deployer_sp_name=github-oidc" >> $GITHUB_ENV
+      # - name: Set deployment environment
+      #   run: |
+      #     echo "TF_VAR_env_type=dev" >> $GITHUB_ENV
+      #     echo "TF_VAR_deployer_sp_name=github-oidc" >> $GITHUB_ENV
 
-      - name: Run Terraform for Function App env and database security
-        working-directory: module/profile/func/deploy/env
-        run: |
-          node ./deployEnvironment.js --auto-approve
-          node ./databaseSecurity.js
-      - name: Update database schema and initialize data
-        working-directory: module/profile/func/deploy/db
-        run: |
-          node ./updateDbSchema.js
-          node ./initData.js
+      # - name: Run Terraform for Function App env and database security
+      #   working-directory: module/profile/func/deploy/env
+      #   run: |
+      #     node ./deployEnvironment.js --auto-approve
+      #     node ./databaseSecurity.js
+      # - name: Update database schema and initialize data
+      #   working-directory: module/profile/func/deploy/db
+      #   run: |
+      #     node ./updateDbSchema.js
+      #     node ./initData.js
 
-      - name: Deploy Function App code
-        working-directory: module/profile/func/deploy/code
-        run: node ./deploy.js
+      # - name: Deploy Function App code
+      #   working-directory: module/profile/func/deploy/code
+      #   run: node ./deploy.js
 
-      # - name: Verify Function App deployment
-      #   working-directory: module/profile/func/deploy/verify
-      #   run: node ./verifyDeployment.js
+      # # - name: Verify Function App deployment
+      # #   working-directory: module/profile/func/deploy/verify
+      # #   run: node ./verifyDeployment.js
 
   deployProfileDev:
     name: Deploy Profile Dev
@@ -225,6 +225,115 @@ jobs:
   testProfileProd:
     name: Test Profile Prod
     needs: deployProfileProd
+    # if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo job name
+        run: echo "Job name is ${{ github.job }}"
+
+  # Ui pipelines
+  buildUi:
+    name: Build Ui
+    needs:
+      - buildRoot
+      - deployRootDev
+    # if: always()
+    runs-on: ubuntu-latest
+    environment: Dev
+    steps:
+      - name: Echo job name
+        run: echo "Job name is ${{ github.job }}"
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: setup environment
+        uses: ./.github/actions/setup-azure
+        with:
+          clientId: ${{ secrets.AZURE_CLIENT_ID }}
+          tenantId: ${{ secrets.AZURE_TENANT_ID }}
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Create env file & echo target name
+        working-directory: deploy
+        run: |
+          echo "TARGET_ENV_NAME:${{ vars.TARGET_ENV_NAME }}"
+          echo "TARGET_ENV=${{ vars.TARGET_ENV_NAME }}" >> .env
+
+      - name: Read env file
+        run: cat deploy/.env
+
+      - name: Set deployment environment
+        run: |
+          echo "TF_VAR_env_type=dev" >> $GITHUB_ENV
+          echo "TF_VAR_deployer_sp_name=github-oidc" >> $GITHUB_ENV
+
+      - name: Run Terraform for Function App env and database security
+        working-directory: ui/deploy/env
+        run: |
+          node ./deployEnvironment.js --auto-approve
+
+      - name: Deploy Application code
+        working-directory: ui/deploy/code
+        run: node ./deploy.js
+
+      - name: Verify the deployment
+        working-directory: ui/deploy/verify
+        run: node ./verifyDeployment.js
+
+  deployUiDev:
+    name: Deploy Ui Dev
+    needs:
+      - buildUi
+      - deployRootDev
+    # if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo job name
+        run: echo "Job name is ${{ github.job }}"
+
+  testUiDev:
+    name: Test Ui Dev
+    needs: deployUiDev
+    # if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo job name
+        run: echo "Job name is ${{ github.job }}"
+
+  deployUiTest:
+    name: Deploy Ui Test
+    needs:
+      - testUiDev
+      - deployRootTest
+    # if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo job name
+        run: echo "Job name is ${{ github.job }}"
+
+  testUiTest:
+    name: Test Ui Test
+    needs: deployUiTest
+    # if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo job name
+        run: echo "Job name is ${{ github.job }}"
+
+  deployUiProd:
+    name: Deploy Ui Prod
+    needs:
+      - testUiTest
+      - deployRootProd
+    # if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo job name
+        run: echo "Job name is ${{ github.job }}"
+
+  testUiProd:
+    name: Test Ui Prod
+    needs: deployUiProd
     # if: always()
     runs-on: ubuntu-latest
     steps:
