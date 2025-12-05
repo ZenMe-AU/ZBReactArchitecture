@@ -7,7 +7,9 @@
 const { resolve } = require("path");
 const classRunMigration = require("./classRunMigration.js");
 const { getTargetEnv, getModuleName } = require("../util/envSetup.js");
-const { createDatabaseInstance } = require("../../repository/model/connection/index.js");
+const {
+  createDatabaseInstance,
+} = require("../../repository/model/connection/index.js");
 const DB_TYPE = require("../../enum/dbType.js");
 const { getDbAdminName, getPgHost } = require("../util/namingConvention.js");
 
@@ -19,8 +21,10 @@ const migrationDir = resolve(__dirname, "seeder");
   const targetEnv = getTargetEnv();
   const moduleName = getModuleName(moduleDir);
 
+  const pgAdminUserName =
+    process.env.TF_VAR_deployer_sp_name || getDbAdminName(envType); //"getDbSchemaAdminName(moduleName)";
   const db = await createDatabaseInstance(DB_TYPE.POSTGRES, {
-    username: getDbAdminName(envType), //"getDbSchemaAdminName(moduleName)";
+    username: pgAdminUserName,
     host: getPgHost(targetEnv),
     dialect: "postgres",
     port: 5432,
@@ -31,5 +35,7 @@ const migrationDir = resolve(__dirname, "seeder");
     },
   });
   const direction = process.argv[2] || "up";
-  await new classRunMigration({ db, migrationDir, envType, targetEnv }).run(direction);
+  await new classRunMigration({ db, migrationDir, envType, targetEnv }).run(
+    direction,
+  );
 })();
