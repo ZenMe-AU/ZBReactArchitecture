@@ -150,7 +150,7 @@ jobs:
       - name: Set deployment environment
         run: |
           echo "TF_VAR_env_type=dev" >> $GITHUB_ENV
-          echo "TF_VAR_deployer_app_name=github-oidc" >> $GITHUB_ENV
+          echo "TF_VAR_deployer_sp_name=github-oidc" >> $GITHUB_ENV
 
       - name: Run Terraform for Function App env and database security
         working-directory: module/profile/func/deploy/env
