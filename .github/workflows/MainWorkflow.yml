@@ -234,6 +234,94 @@ jobs:
     steps:
       - name: Echo job name
         run: echo "Job name is ${{ github.job }}"
+  buildQuest3Tier:
+    name: Build Quest3Tier
+    needs:
+      - buildRoot
+      - deployRootDev
+    # if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo job name
+        run: echo "Job name is ${{ github.job }}"
+
+  deployQuest3TierDev:
+    name: Deploy Quest3Tier Dev
+    needs:
+      - buildQuest3Tier
+      - deployRootDev
+    # if: always()
+    runs-on: ubuntu-latest
+    environment: Dev
+    steps:
+      - name: Echo job name
+        run: echo "Job name is ${{ github.job }}"
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: setup environment
+        uses: ./.github/actions/setup-azure
+        with:
+          clientId: ${{ secrets.AZURE_CLIENT_ID }}
+          tenantId: ${{ secrets.AZURE_TENANT_ID }}
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: deploy quest3Tier
+        uses: ./.github/actions/module-deploy
+        with:
+          moduleName: quest3Tier
+          targetEnvName: ${{ vars.TARGET_ENV_NAME }}
+          envType: dev
+          deployerName: github-oidc
+
+  testQuest3TierDev:
+    name: Test Quest3Tier Dev
+    needs: deployQuest3TierDev
+    # if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo job name
+        run: echo "Job name is ${{ github.job }}"
+
+  deployQuest3TierTest:
+    name: Deploy Quest3Tier Test
+    needs:
+      - testQuest3TierDev
+      - deployRootTest
+    # if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo job name
+        run: echo "Job name is ${{ github.job }}"
+
+  testQuest3TierTest:
+    name: Test Quest3Tier Test
+    needs: deployQuest3TierTest
+    # if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo job name
+        run: echo "Job name is ${{ github.job }}"
+
+  deployQuest3TierProd:
+    name: Deploy Quest3Tier Prod
+    needs:
+      - testQuest3TierTest
+      - deployRootProd
+    # if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo job name
+        run: echo "Job name is ${{ github.job }}"
+
+  testQuest3TierProd:
+    name: Test Quest3Tier Prod
+    needs: deployQuest3TierProd
+    # if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Echo job name
+        run: echo "Job name is ${{ github.job }}"
 
   # Ui pipelines
   buildUi:

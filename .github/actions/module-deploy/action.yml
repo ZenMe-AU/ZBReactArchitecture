@@ -1,0 +1,72 @@
+name: "Deploy Module"
+description: "deploy terraform"
+
+inputs:
+  moduleName:
+    description: "Module name to deploy"
+    required: true
+  targetEnvName:
+    description: "Target environment name"
+    required: true
+  envType:
+    description: "Environment type (e.g., dev, test, prod)"
+    required: true
+  deployerName:
+    description: "Deployer service principal name"
+    required: false
+    default: "github-oidc"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Create env file & echo target name
+      working-directory: deploy
+      shell: bash
+      run: |
+        echo "TARGET_ENV_NAME:${{ inputs.targetEnvName }}"
+        echo "TARGET_ENV=${{ inputs.targetEnvName }}" >> .env
+
+    - name: Read env file
+      shell: bash
+      run: cat deploy/.env
+
+    - name: Set deployment environment
+      shell: bash
+      run: |
+        echo "TF_VAR_env_type=${{ inputs.envType }}" >> $GITHUB_ENV
+        echo "TF_VAR_deployer_sp_name=${{ inputs.deployerName }}" >> $GITHUB_ENV
+
+    - name: Run Terraform for Function App env and database security
+      working-directory: module/${{ inputs.moduleName }}/func/deploy/env
+      shell: bash
+      run: |
+        node ./deployEnvironment.js --auto-approve
+        node ./databaseSecurity.js
+    - name: Update database schema and initialize data
+      working-directory: module/${{ inputs.moduleName }}/func/deploy/db
+      shell: bash
+      run: |
+        node ./updateDbSchema.js
+        node ./initData.js
+
+    - name: Deploy Function App code
+      working-directory: module/${{ inputs.moduleName }}/func/deploy/code
+      shell: bash
+      run: node ./deploy.js
+
+    - name: Check if verify step exists
+      working-directory: module/${{ inputs.moduleName }}/func/deploy
+      id: check_verify
+      shell: bash
+      run: |
+        if [ -d "verify" ] && [ -f "verify/verifyDeployment.js" ]; then
+          echo "exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Verify Function App deployment
+      if: steps.check_verify.outputs.exists == 'true'
+      working-directory: module/${{ inputs.moduleName }}/func/deploy/verify
+      shell: bash
+      run: node ./verifyDeployment.js
