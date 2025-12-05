@@ -86,10 +86,14 @@ jobs:
     name: Deploy Test Env
     needs: testRootDev
     runs-on: ubuntu-latest
-    environment: Test
+    # environment: Test
     steps:
       - name: Print job name
         run: echo "Job name is ${{ github.job }}"
+      - name: Simulate failure
+        run: |
+          echo "Simulating failure"
+          exit 1
 
   testRootTest:
     name: Test Test Env
@@ -265,6 +269,7 @@ jobs:
       - name: Set deployment environment
         run: |
           echo "TF_VAR_env_type=dev" >> $GITHUB_ENV
+          echo "TF_VAR_deployer_sp_object_id=${{ secrets.AZURE_GITHUB_OIDC_SP_OBJECT_ID }}" >> $GITHUB_ENV
           echo "TF_VAR_deployer_sp_name=github-oidc" >> $GITHUB_ENV
 
       - name: Run Terraform for Function App env and database security
