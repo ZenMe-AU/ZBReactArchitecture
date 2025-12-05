@@ -68,18 +68,23 @@ class classManageDataPermission {
     });
 
     try {
+      console.log("creating AAD login role.");
       await createAadLoginRole(
         this.postgresDb,
         this.functionAppName,
         functionAppPrincipalId,
       );
+      console.log("creating database read write role.");
       await createDbReadWriteRole(this.moduleDb, this.rwRoleName, this.dbName);
+      console.log("creating database read only role.");
       await createDbReadOnlyRole(this.moduleDb, this.roRoleName, this.dbName);
+      console.log("creating database schema admin role.");
       await createDbSchemaAdminRole(
         this.moduleDb,
         this.dbSchemaAdminRoleName,
         this.dbName,
       );
+      console.log("granting roles to function app and admin.");
       await grantRole(this.moduleDb, this.rwRoleName, this.functionAppName);
       await grantRole(
         this.moduleDb,

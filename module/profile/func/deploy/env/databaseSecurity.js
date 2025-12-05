@@ -36,6 +36,7 @@ const {
   const roRoleName = getRoRoleName(moduleName);
   const dbSchemaAdminRoleName = getDbSchemaAdminRoleName(moduleName);
   const dbSchemaAdminUserName = getDbSchemaAdminName(moduleName);
+  console.log("pgAdminUserName:", pgAdminUserName);
   // db connection setup
   const config = {
     username: pgAdminUserName,
