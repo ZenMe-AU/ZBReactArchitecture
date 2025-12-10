@@ -166,8 +166,8 @@ resource "azurerm_role_assignment" "servicebus_receiver" {
 # API Management Service
 resource "azurerm_api_management" "apim" {
   name                = "${var.target_env}-apim"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  location            = data.azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
   publisher_name      = "Zenme"
   publisher_email     = "xxxx@xxxx.com.au"
   sku_name            = "Developer_1" # Change to Basic/Standard/Premium if needed
