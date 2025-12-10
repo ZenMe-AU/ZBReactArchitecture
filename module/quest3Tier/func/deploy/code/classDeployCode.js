@@ -23,7 +23,18 @@ const { getIdentityName, getAppConfigName } = require("../../../../../deploy/uti
 const { execSync } = require("child_process");
 
 class classDeployCode {
-  constructor({ envType, targetEnv, moduleName, subscriptionId, functionAppName, resourceGroupName, storageAccountName, serviceBusName, moduleDir }) {
+  constructor({
+    envType,
+    targetEnv,
+    moduleName,
+    subscriptionId,
+    functionAppName,
+    resourceGroupName,
+    storageAccountName,
+    serviceBusName,
+    moduleDir,
+    deployFilePath = null,
+  }) {
     this.envType = envType;
     this.targetEnv = targetEnv;
     this.moduleName = moduleName;
@@ -34,6 +45,7 @@ class classDeployCode {
     this.serviceBusName = serviceBusName;
     this.moduleDir = moduleDir;
 
+    this.deployFilePath = deployFilePath;
     this.distPath = "dist/dist.zip";
     this.outputDir = "out";
     this.excludeList = ["dist/*", ".vscode/*", ".git/*", "local.settings.json", "local.settings.json.template", "deploy/*"];
@@ -115,36 +127,44 @@ class classDeployCode {
         allowedOrigins: this.allowedOrigins,
       });
     }
-    console.log(`Step 2: Creating output via pnpm.`);
-    const outputDir = resolve(funcDir, this.outputDir);
-    // delete outputDir if it exists
-    if (fs.existsSync(outputDir)) {
-      console.log(`Deleting existing output directory.`);
-      fs.rmSync(outputDir, { recursive: true, force: true });
-    }
+    if (this.deployFilePath) {
+      console.log("Step 2-4: Using pre-built deploy zipfile:", this.deployFilePath);
+      this.distPath = resolve(this.deployFilePath);
+    } else {
+      console.log(`Step 2: Creating output via pnpm.`);
+      const outputDir = resolve(funcDir, this.outputDir);
+      // delete outputDir if it exists
+      if (fs.existsSync(outputDir)) {
+        console.log(`Deleting existing output directory.`);
+        fs.rmSync(outputDir, { recursive: true, force: true });
+      }
 
-    execSync(
-      `pnpm deploy --filter ${this.moduleName} --prod ${outputDir} --config.node-linker=hoisted --config.symlink=false --config.package-import-method=copy`,
-      { stdio: "inherit", cwd: funcDir }
-    );
+      execSync(
+        `pnpm deploy --filter ${this.moduleName} --prod ${outputDir} --config.node-linker=hoisted --config.symlink=false --config.package-import-method=copy`,
+        { stdio: "inherit", cwd: funcDir }
+      );
 
-    console.log("Step 3: Creating dist directory.");
-    const distFile = resolve(funcDir, this.distPath);
-    // Ensure the directory exists
-    fs.mkdirSync(path.dirname(distFile), { recursive: true });
-    // Remove existing dist file if it exists
-    if (fs.existsSync(distFile)) {
-      console.log(`Deleting existing dist file.`);
-      fs.unlinkSync(distFile);
-    }
-    console.log("Step 4: Zipping output directory.");
-    await zipDir(distFile, outputDir, this.excludeList);
+      console.log("Step 3: Creating dist directory.");
+      const distFile = resolve(funcDir, this.distPath);
+      // Ensure the directory exists
+      fs.mkdirSync(path.dirname(distFile), { recursive: true });
+      // Remove existing dist file if it exists
+      if (fs.existsSync(distFile)) {
+        console.log(`Deleting existing dist file.`);
+        fs.unlinkSync(distFile);
+      }
+      console.log("Step 4: Zipping output directory.");
+      await zipDir(distFile, outputDir, this.excludeList);
 
-    if (fs.existsSync(outputDir)) {
-      console.log(`Deleting output directory.`);
-      fs.rmSync(outputDir, { recursive: true, force: true });
+      if (fs.existsSync(outputDir)) {
+        console.log(`Deleting output directory.`);
+        fs.rmSync(outputDir, { recursive: true, force: true });
+      }
     }
     console.log("Step 5: Deploying zip file to Azure Function App.");
+    if (!fs.existsSync(this.distPath)) {
+      throw new Error(`Deploy zip file not found at path: ${this.distPath}`);
+    }
     deployFunctionAppZip(
       {
         src: this.distPath,

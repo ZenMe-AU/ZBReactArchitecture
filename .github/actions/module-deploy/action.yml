@@ -15,6 +15,10 @@ inputs:
     description: "Deployer service principal name"
     required: false
     default: "github-oidc"
+  zipFileName:
+    description: "Zip file name for build output"
+    required: false
+    default: "deploy-package.zip"
 
 runs:
   using: "composite"
@@ -51,10 +55,15 @@ runs:
           node ./initData.js
         fi
 
+    - uses: actions/download-artifact@v4
+      with:
+        name: my-artifacts-${{ inputs.moduleName }}
+        path: module/${{ inputs.moduleName }}/func/deploy/code/downloaded-artifacts
+
     - name: Deploy Function App code
       working-directory: module/${{ inputs.moduleName }}/func/deploy/code
       shell: bash
-      run: node ./deploy.js
+      run: node ./deploy.js --deployFile ./downloaded-artifacts/${{ inputs.zipFileName }}
 
     - name: Check if verify step exists
       working-directory: module/${{ inputs.moduleName }}/func/deploy

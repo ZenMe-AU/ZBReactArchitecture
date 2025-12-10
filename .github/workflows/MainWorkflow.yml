@@ -245,6 +245,14 @@ jobs:
       - name: Echo job name
         run: echo "Job name is ${{ github.job }}"
 
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: build quest3Tier
+        uses: ./.github/actions/module-build
+        with:
+          moduleName: quest3Tier
+
   deployQuest3TierDev:
     name: Deploy Quest3Tier Dev
     needs:

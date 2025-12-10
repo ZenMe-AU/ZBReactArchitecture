@@ -503,6 +503,9 @@ importers:
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@20.19.23)(babel-plugin-macros@3.1.0)
+      minimist:
+        specifier: ^1.2.8
+        version: 1.2.8
       umzug:
         specifier: ^3.8.2
         version: 3.8.2(@types/node@20.19.23)
