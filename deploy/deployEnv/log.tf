@@ -113,23 +113,29 @@ resource "azurerm_monitor_diagnostic_setting" "postgresql_flexible_server_diagno
   # }
 }
 
-resource "azurerm_monitor_diagnostic_setting" "storage_account_diagnostics" {
+resource "azurerm_monitor_diagnostic_setting" "storage_account_blob_diagnostics" {
   name                       = "standard-diagnostics-setting"
-  target_resource_id         = data.azurerm_storage_account.sa.id
+  target_resource_id         = "${data.azurerm_storage_account.sa.id}/blobServices/default"
   log_analytics_workspace_id = azurerm_log_analytics_workspace.loganalytics_workspace.id
 
   # Enable specific log categories
   enabled_log {
-    category = "StorageLogs"
+    category = "StorageRead"
   }
-}
-resource "azurerm_monitor_diagnostic_setting" "appinsights_diagnostics" {
-  name                       = "standard-diagnostics-setting"
-  target_resource_id         = azurerm_application_insights.appinsights.id
-  log_analytics_workspace_id = azurerm_log_analytics_workspace.loganalytics_workspace.id
-
-  # Enable specific log categories
   enabled_log {
-    category = "Audit"
+    category = "StorageWrite"
+  }
+  enabled_log {
+    category = "StorageDelete"
   }
 }
+# resource "azurerm_monitor_diagnostic_setting" "appinsights_diagnostics" {
+#   name                       = "standard-diagnostics-setting"
+#   target_resource_id         = azurerm_application_insights.appinsights.id
+#   log_analytics_workspace_id = azurerm_log_analytics_workspace.loganalytics_workspace.id
+
+#   # Enable specific log categories
+#   enabled_log {
+#     category = "Audit"
+#   }
+# }
