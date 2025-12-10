@@ -17,9 +17,9 @@ const {
   getIdentityClientId,
   getAppConfigValueByKeyLabel,
   setFunctionAppCors,
-} = require("../util/azureCli.js");
+} = require("../../../../../deploy/util/azureCli.cjs");
 const { npmInstall, npmPrune, zipDir } = require("./cli.js");
-const { getIdentityName, getAppConfigName } = require("../util/namingConvention.js");
+const { getIdentityName, getAppConfigName } = require("../../../../../deploy/util/namingConvention.cjs");
 const { execSync } = require("child_process");
 
 class classDeployCode {
@@ -100,7 +100,11 @@ class classDeployCode {
     }
     // Create Service Bus Queues if any
     this.queueNames.forEach((queueName) => {
-      createServiceBusQueue({ resourceGroupName: this.resourceGroupName, namespaceName: this.serviceBusName, queueName });
+      createServiceBusQueue({
+        resourceGroupName: this.resourceGroupName,
+        namespaceName: this.serviceBusName,
+        queueName,
+      });
     });
     // Set CORS settings
     if (this.allowedOrigins.length > 0) {

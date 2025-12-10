@@ -5,9 +5,9 @@
 
 // Test that the deployment succeeded and all dependencies are in place. This test will not change any data.
 import { execSync } from "child_process";
-import { getTargetEnv } from "../util/envSetup.cjs";
-import { getStorageAccountWebName, getResourceGroupName, getAppConfigName } from "../util/namingConvention.cjs";
-import { getAppConfigValueByKeyLabel } from "../util/azureCli.cjs";
+import { getTargetEnv } from "../../deploy/util/envSetup.cjs";
+import { getStorageAccountWebName, getResourceGroupName, getAppConfigName } from "../../deploy/util/namingConvention.cjs";
+import { getAppConfigValueByKeyLabel } from "../../deploy/util/azureCli.cjs";
 
 (async () => {
   try {
@@ -33,7 +33,11 @@ import { getAppConfigValueByKeyLabel } from "../util/azureCli.cjs";
     }
     console.log(`Static website private Endpoint: ${endpoint}`);
 
-    const storedEndpoint = getAppConfigValueByKeyLabel({ appConfigName, key: "webEndpoint", label: envType });
+    const storedEndpoint = getAppConfigValueByKeyLabel({
+      appConfigName,
+      key: "webEndpoint",
+      label: envType,
+    });
     console.log(`Static website public Endpoint: ${storedEndpoint}`);
 
     const res = await fetch(storedEndpoint);

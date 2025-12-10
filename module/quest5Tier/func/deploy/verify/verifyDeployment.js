@@ -6,8 +6,8 @@
 // Test that the deployment succeeded and all dependencies are in place. This test will not change any data.
 const { resolve } = require("path");
 const { execSync } = require("child_process");
-const { getTargetEnv, getModuleName } = require("../util/envSetup");
-const { getFunctionAppName, getResourceGroupName } = require("../util/namingConvention");
+const { getTargetEnv, getModuleName } = require("../../../../../deploy/util/envSetup.cjs");
+const { getFunctionAppName, getResourceGroupName } = require("../../../../../deploy/util/namingConvention.cjs");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
 const expectedFunctionList = [

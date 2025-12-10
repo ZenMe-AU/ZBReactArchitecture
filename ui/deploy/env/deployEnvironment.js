@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import { getTargetEnv } from "../util/envSetup.cjs";
+import { getTargetEnv } from "../../deploy/util/envSetup.cjs";
 import classDeployEnvironment from "./classDeployEnvironment.cjs";
 
 (async () => {
@@ -18,5 +18,11 @@ import classDeployEnvironment from "./classDeployEnvironment.cjs";
     console.error("Failed to initialize environment variables:", err.message);
     process.exit(1);
   }
-  new classDeployEnvironment({ envType, targetEnv, moduleName, logLevel, autoApprove }).run();
+  new classDeployEnvironment({
+    envType,
+    targetEnv,
+    moduleName,
+    logLevel,
+    autoApprove,
+  }).run();
 })();

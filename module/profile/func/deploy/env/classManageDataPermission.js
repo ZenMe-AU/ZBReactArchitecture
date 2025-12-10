@@ -3,21 +3,15 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const { getCurrentPublicIP } = require("../util/envSetup.js");
+const { getCurrentPublicIP } = require("../../../../../deploy/util/envSetup.cjs");
 const {
   getObjectId,
   getFunctionAppPrincipalId,
   addTemporaryFirewallRule,
   removeTemporaryFirewallRule,
   addMemberToAadGroup,
-} = require("../util/azureCli.js");
-const {
-  createDbReadWriteRole,
-  createDbReadOnlyRole,
-  createDbSchemaAdminRole,
-  createAadLoginRole,
-  grantRole,
-} = require("./postgresql.js");
+} = require("../../../../../deploy/util/azureCli.cjs");
+const { createDbReadWriteRole, createDbReadOnlyRole, createDbSchemaAdminRole, createAadLoginRole, grantRole } = require("./postgresql.js");
 
 class classManageDataPermission {
   constructor({
@@ -69,28 +63,16 @@ class classManageDataPermission {
 
     try {
       console.log("creating AAD login role.");
-      await createAadLoginRole(
-        this.postgresDb,
-        this.functionAppName,
-        functionAppPrincipalId,
-      );
+      await createAadLoginRole(this.postgresDb, this.functionAppName, functionAppPrincipalId);
       console.log("creating database read write role.");
       await createDbReadWriteRole(this.moduleDb, this.rwRoleName, this.dbName);
       console.log("creating database read only role.");
       await createDbReadOnlyRole(this.moduleDb, this.roRoleName, this.dbName);
       console.log("creating database schema admin role.");
-      await createDbSchemaAdminRole(
-        this.moduleDb,
-        this.dbSchemaAdminRoleName,
-        this.dbName,
-      );
+      await createDbSchemaAdminRole(this.moduleDb, this.dbSchemaAdminRoleName, this.dbName);
       console.log("granting roles to function app and admin.");
       await grantRole(this.moduleDb, this.rwRoleName, this.functionAppName);
-      await grantRole(
-        this.moduleDb,
-        this.dbSchemaAdminRoleName,
-        this.pgAdminUserName,
-      ); // for development
+      await grantRole(this.moduleDb, this.dbSchemaAdminRoleName, this.pgAdminUserName); // for development
       // await grantRole(this.moduleDb, this.dbSchemaAdminRoleName, this.dbSchemaAdminUserName);// for development
     } catch (err) {
       console.error("Failed to set up database roles:", err.message);

@@ -76,6 +76,12 @@ output "appconfig_name" {
   description = "value of app configuration name"
 }
 
+variable "db_admin_group_name" {
+  description = "Name of the Azure AD group for DB Admins"
+  type        = string
+
+}
+
 provider "azurerm" {
   features {}
   subscription_id = var.subscription_id
@@ -99,6 +105,17 @@ resource "azurerm_app_configuration_key" "env_type" {
   configuration_store_id = azurerm_app_configuration.appconfig.id
   key                    = "EnvironmentName"
   value                  = var.target_env
+}
+# Get the Azure AD group for DB Admins
+data "azuread_group" "pg_admin_group" {
+  display_name = var.db_admin_group_name
+}
+
+# Store the DB Admin Group ID in App Configuration
+resource "azurerm_app_configuration_key" "pg_admin_group" {
+  configuration_store_id = azurerm_app_configuration.appconfig.id
+  key                    = "DbAdminGroupId"
+  value                  = data.azuread_group.pg_admin_group.object_id
 }
 
 # create a storage account for this environment

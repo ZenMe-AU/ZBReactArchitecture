@@ -3,21 +3,15 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const { getCurrentPublicIP } = require("../util/envSetup.js");
+const { getCurrentPublicIP } = require("../../../../../deploy/util/envSetup.cjs");
 const {
   getObjectId,
   getFunctionAppPrincipalId,
   addTemporaryFirewallRule,
   removeTemporaryFirewallRule,
   addMemberToAadGroup,
-} = require("../util/azureCli.js");
-const {
-  createDbReadWriteRole,
-  createDbReadOnlyRole,
-  createDbSchemaAdminRole,
-  createAadLoginRole,
-  grantRole,
-} = require("./postgresql.js");
+} = require("../../../../../deploy/util/azureCli.cjs");
+const { createDbReadWriteRole, createDbReadOnlyRole, createDbSchemaAdminRole, createAadLoginRole, grantRole } = require("./postgresql.js");
 
 class classManageDataPermission {
   constructor({
@@ -68,24 +62,12 @@ class classManageDataPermission {
     });
 
     try {
-      await createAadLoginRole(
-        this.postgresDb,
-        this.functionAppName,
-        functionAppPrincipalId,
-      );
+      await createAadLoginRole(this.postgresDb, this.functionAppName, functionAppPrincipalId);
       await createDbReadWriteRole(this.moduleDb, this.rwRoleName, this.dbName);
       await createDbReadOnlyRole(this.moduleDb, this.roRoleName, this.dbName);
-      await createDbSchemaAdminRole(
-        this.moduleDb,
-        this.dbSchemaAdminRoleName,
-        this.dbName,
-      );
+      await createDbSchemaAdminRole(this.moduleDb, this.dbSchemaAdminRoleName, this.dbName);
       await grantRole(this.moduleDb, this.rwRoleName, this.functionAppName);
-      await grantRole(
-        this.moduleDb,
-        this.dbSchemaAdminRoleName,
-        this.pgAdminUserName,
-      ); // for development
+      await grantRole(this.moduleDb, this.dbSchemaAdminRoleName, this.pgAdminUserName); // for development
       // await grantRole(this.moduleDb, this.dbSchemaAdminRoleName, this.dbSchemaAdminUserName);// for development
     } catch (err) {
       console.error("Failed to set up database roles:", err.message);

@@ -5,9 +5,9 @@
 
 const path = require("path");
 const { createMigrationInstance } = require("./migration/tool/index.js");
-const { getCurrentPublicIP, getTargetEnv } = require("../util/envSetup.js");
-const { getResourceGroupName, getPgServerName } = require("../util/namingConvention.js");
-const { addTemporaryFirewallRule, removeTemporaryFirewallRule } = require("../util/azureCli.js");
+const { getCurrentPublicIP, getTargetEnv } = require("../../../../../deploy/util/envSetup.cjs");
+const { getResourceGroupName, getPgServerName } = require("../../../../../deploy/util/namingConvention.cjs");
+const { addTemporaryFirewallRule, removeTemporaryFirewallRule } = require("../../../../../deploy/util/azureCli.cjs");
 
 class classRunMigration {
   constructor({ db, migrationDir, envType, targetEnv }) {
@@ -23,7 +23,7 @@ class classRunMigration {
   async run(direction = "up") {
     const ip = getCurrentPublicIP();
     if (this.extensionNames.length > 0) {
-      const { addPgServerExtensionsList, getSubscriptionId } = require("../util/azureCli.js");
+      const { addPgServerExtensionsList, getSubscriptionId } = require("../../../../../deploy/util/azureCli.cjs");
       addPgServerExtensionsList({
         resourceGroup: this.resourceGroupName,
         serverName: this.pgServerName,

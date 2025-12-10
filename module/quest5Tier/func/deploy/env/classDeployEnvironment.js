@@ -17,8 +17,8 @@ const {
   getModuleStorageAccountContainerName,
   getPgServerName,
   getStorageAccountWebName,
-} = require("../util/namingConvention");
-const { getSubscriptionId } = require("../util/azureCli");
+} = require("../../../../../deploy/util/namingConvention.cjs");
+const { getSubscriptionId } = require("../../../../../deploy/util/azureCli.cjs");
 
 class classDeployEnvironment {
   constructor({ envType, targetEnv, moduleName, dbName, backendConfig, logLevel = "", autoApprove = false }) {

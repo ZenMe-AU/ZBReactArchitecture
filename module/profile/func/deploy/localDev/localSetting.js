@@ -4,9 +4,9 @@
  */
 
 const { resolve } = require("path");
-const { getTargetEnv, getModuleName } = require("../util/envSetup.js");
-const { getDbAdminName, getPgHost, getServiceBusHost, getAppInsightsName, getResourceGroupName } = require("../util/namingConvention.js");
-const { getAppInsightsConnectionString } = require("../util/azureCli.js");
+const { getTargetEnv, getModuleName } = require("../../../../../deploy/util/envSetup.cjs");
+const { getDbAdminName, getPgHost, getServiceBusHost, getAppInsightsName, getResourceGroupName } = require("../../../../../deploy/util/namingConvention.cjs");
+const { getAppInsightsConnectionString } = require("../../../../../deploy/util/azureCli.cjs");
 const fs = require("fs");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");

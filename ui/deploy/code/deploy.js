@@ -6,12 +6,12 @@
 // Script to deploy static web files to Azure Storage Account's static website hosting
 // Uses Azure CLI commands; ensure Azure CLI is installed and user is logged in.
 import fs from "fs";
-import { getTargetEnv } from "../util/envSetup.cjs";
-import { getAppConfigValueByKeyLabel } from "../util/azureCli.cjs";
+import { getTargetEnv } from "../../deploy/util/envSetup.cjs";
+import { getAppConfigValueByKeyLabel } from "../../deploy/util/azureCli.cjs";
 import { execSync, execFileSync, spawn } from "child_process";
 import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
-import { getStorageAccountWebName, getFunctionAppName, getAppConfigName } from "../util/namingConvention.cjs";
+import { getStorageAccountWebName, getFunctionAppName, getAppConfigName } from "../../deploy/util/namingConvention.cjs";
 import { readdirSync, statSync } from "fs";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -116,9 +116,7 @@ async function deploy() {
       // console.error(
       //   "Failed: The current user does not have 'Storage Blob Data Contributor' role on the storage account. Please activate the role and try again."
       // );
-      throw new Error(
-        "The current user does not have 'Storage Blob Data Contributor' role on the storage account. Please activate the role and try again."
-      );
+      throw new Error("The current user does not have 'Storage Blob Data Contributor' role on the storage account. Please activate the role and try again.");
     }
 
     // Step 3.5: Ensure Static Website is enabled (idempotent)

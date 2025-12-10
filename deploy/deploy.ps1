@@ -162,7 +162,7 @@ if ($Stages -contains 7) { Deploy-Ui }
 # #Initialise the resource group that will contain all components and setup minimal components to support the Terraform backend.
 # Write-Output "Initialise the resource group that will contain all components and setup minimal components to support the Terraform backend."
 # Set-Location $env:ROOT_FOLDER\deploy\initEnv
-# node ./initEnvironment.js  --auto-approve
+# node ./initEnvironment.cjs  --auto-approve
 # if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 # #Deploy the main environment, databases, securitye, etc.
