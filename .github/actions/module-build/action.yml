@@ -26,12 +26,8 @@ runs:
       run: |
         pnpm deploy --filter ${{ inputs.moduleName }} --prod ${{ inputs.buildDirName }} --config.node-linker=hoisted --config.symlink=false --config.package-import-method=copy
 
-    - name: Install zip
-      shell: bash
-      run: sudo apt-get update && sudo apt-get install -y zip
-
     - name: zip build artifacts
-      working-directory: module/${{ inputs.moduleName }}/func/deploy/code
+      working-directory: module/${{ inputs.moduleName }}/func
       shell: bash
       run: |
         zip -r ${{ inputs.zipFileName }} ${{ inputs.buildDirName }}
@@ -41,4 +37,4 @@ runs:
       with:
         name: my-artifacts-${{ inputs.moduleName }}
         path: |
-          module/${{ inputs.moduleName }}/func/deploy/code/${{ inputs.zipFileName }}
+          module/${{ inputs.moduleName }}/func/${{ inputs.zipFileName }}
