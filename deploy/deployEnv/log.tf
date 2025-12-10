@@ -73,3 +73,75 @@ resource "azurerm_application_insights" "appinsights" {
 #   #   }
 # }
 
+
+resource "azurerm_monitor_diagnostic_setting" "app_configuration_diagnostics" {
+  name                       = "standard-diagnostics-setting"
+  target_resource_id         = data.azurerm_app_configuration.appconfig.id
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.loganalytics_workspace.id
+
+  # Enable specific log categories
+  enabled_log {
+    category = "Audit"
+  }
+}
+
+resource "azurerm_monitor_diagnostic_setting" "servicebus_namespace_diagnostics" {
+  name                       = "standard-diagnostics-setting"
+  target_resource_id         = azurerm_servicebus_namespace.sb_namespace.id
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.loganalytics_workspace.id
+
+  # Enable specific log categories
+  enabled_log {
+    category = "OperationalLogs"
+  }
+  enabled_log {
+    category = "Error"
+  }
+}
+
+resource "azurerm_monitor_diagnostic_setting" "postgresql_flexible_server_diagnostics" {
+  name                       = "standard-diagnostics-setting"
+  target_resource_id         = azurerm_postgresql_flexible_server.pg_server.id
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.loganalytics_workspace.id
+
+  # Enable specific log categories
+  enabled_log {
+    category = "PostgreSQLLogs"
+  }
+  # enabled_log {
+  #   category = "QueryStoreRuntimeStatistics"
+  # }
+  # enabled_log {
+  #   category = "QueryStoreWaitStatistics"
+  # }
+}
+
+resource "azurerm_monitor_diagnostic_setting" "storage_account_diagnostics" {
+  name                       = "standard-diagnostics-setting"
+  target_resource_id         = data.azurerm_storage_account.sa.id
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.loganalytics_workspace.id
+
+  # Enable specific log categories
+  enabled_log {
+    category = "AuditEvent"
+  }
+  enabled_log {
+    category = "StorageWrite"
+  }
+  enabled_log {
+    category = "StorageDelete"
+  }
+}
+resource "azurerm_monitor_diagnostic_setting" "appinsights_diagnostics" {
+  name                       = "standard-diagnostics-setting"
+  target_resource_id         = azurerm_application_insights.appinsights.id
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.loganalytics_workspace.id
+
+  # Enable specific log categories
+  enabled_log {
+    category = "Audit"
+  }
+  enabled_log {
+    category = "Diagnostic"
+  }
+}

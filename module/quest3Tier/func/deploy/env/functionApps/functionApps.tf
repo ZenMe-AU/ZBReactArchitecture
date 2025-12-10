@@ -71,3 +71,17 @@ resource "azurerm_app_configuration_key" "endpoint" {
 #   role_definition_name = "Monitoring Metrics Publisher"
 #   principal_id         = azurerm_linux_function_app.fa.identity[0].principal_id
 # }
+
+resource "azurerm_monitor_diagnostic_setting" "function_app_diagnostics" {
+  name                       = "standard-diagnostics-setting"
+  target_resource_id         = azurerm_function_app_flex_consumption.fa.id
+  log_analytics_workspace_id = var.log_analytics_workspace_id
+
+  # Enable specific log categories
+  enabled_log {
+    category = "FunctionAppLogs"
+  }
+  enabled_log {
+    category = "AppServiceAuditLogs"
+  }
+}

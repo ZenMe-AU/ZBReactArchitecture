@@ -72,6 +72,12 @@ variable "env_type" {
   type = string
 }
 
+variable "log_analytics_workspace_name" {
+  description = "Name of the Azure Log Analytics Workspace"
+  type        = string
+
+}
+
 #-------------------------------------------------#
 # Fetch existing resources
 
@@ -102,5 +108,10 @@ data "azurerm_app_configuration" "config" {
 # Get the postgreSQL server details
 data "azurerm_postgresql_flexible_server" "main_server" {
   name                = var.pg_server_name
+  resource_group_name = data.azurerm_resource_group.main_rg.name
+}
+# Get the Log Analytics Workspace details
+data "azurerm_log_analytics_workspace" "log_analytics_workspace" {
+  name                = var.log_analytics_workspace_name
   resource_group_name = data.azurerm_resource_group.main_rg.name
 }
