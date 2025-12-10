@@ -50,12 +50,6 @@ resource "azurerm_monitor_diagnostic_setting" "storage_account_diagnostics" {
 
   # Enable specific log categories
   enabled_log {
-    category = "AuditEvent"
-  }
-  enabled_log {
-    category = "StorageWrite"
-  }
-  enabled_log {
-    category = "StorageDelete"
+    category = "StorageLogs"
   }
 }

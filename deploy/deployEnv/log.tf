@@ -94,9 +94,6 @@ resource "azurerm_monitor_diagnostic_setting" "servicebus_namespace_diagnostics"
   enabled_log {
     category = "OperationalLogs"
   }
-  enabled_log {
-    category = "Error"
-  }
 }
 
 resource "azurerm_monitor_diagnostic_setting" "postgresql_flexible_server_diagnostics" {
@@ -123,13 +120,7 @@ resource "azurerm_monitor_diagnostic_setting" "storage_account_diagnostics" {
 
   # Enable specific log categories
   enabled_log {
-    category = "AuditEvent"
-  }
-  enabled_log {
-    category = "StorageWrite"
-  }
-  enabled_log {
-    category = "StorageDelete"
+    category = "StorageLogs"
   }
 }
 resource "azurerm_monitor_diagnostic_setting" "appinsights_diagnostics" {
@@ -140,8 +131,5 @@ resource "azurerm_monitor_diagnostic_setting" "appinsights_diagnostics" {
   # Enable specific log categories
   enabled_log {
     category = "Audit"
-  }
-  enabled_log {
-    category = "Diagnostic"
   }
 }
