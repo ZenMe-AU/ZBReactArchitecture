@@ -31,8 +31,7 @@ runs:
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
-      working-directory: module/${{ inputs.moduleName }}/func/deploy/code
       with:
         name: my-artifacts-${{ inputs.moduleName }}
         path: |
-          ./${{ inputs.zipFileName }}
+          module/${{ inputs.moduleName }}/func/deploy/code/${{ inputs.zipFileName }}
