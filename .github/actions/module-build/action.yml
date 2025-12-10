@@ -17,6 +17,9 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Setup pnpm environment
+      uses: ./.github/actions/setup-pnpm
+
     - name: Build module code with pnpm
       working-directory: module/${{ inputs.moduleName }}/func/deploy/code
       shell: bash
