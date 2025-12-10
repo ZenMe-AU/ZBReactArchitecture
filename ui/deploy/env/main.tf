@@ -45,11 +45,18 @@ resource "azurerm_role_assignment" "deployer_storage_blob_contributor" {
 
 resource "azurerm_monitor_diagnostic_setting" "storage_account_diagnostics" {
   name                       = "standard-diagnostics-setting"
-  target_resource_id         = azurerm_storage_account.website.id
+  target_resource_id         = "${azurerm_storage_account.website.id}/blobServices/default"
   log_analytics_workspace_id = data.azurerm_log_analytics_workspace.log_analytics_workspace.id
+
 
   # Enable specific log categories
   enabled_log {
-    category = "StorageLogs"
+    category = "StorageRead"
+  }
+  enabled_log {
+    category = "StorageWrite"
+  }
+  enabled_log {
+    category = "StorageDelete"
   }
 }

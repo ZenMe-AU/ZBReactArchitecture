@@ -82,6 +82,6 @@ resource "azurerm_monitor_diagnostic_setting" "function_app_diagnostics" {
     category = "FunctionAppLogs"
   }
   enabled_log {
-    category = "AppServiceAuditLogs"
+    category = "AppServiceAuthenticationLogs"
   }
 }
