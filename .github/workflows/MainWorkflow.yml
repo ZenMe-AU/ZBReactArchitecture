@@ -416,7 +416,7 @@ jobs:
 
       - name: Deploy Application code
         working-directory: ui/deploy/code
-        run: node ./deploy.js  --deployFile ./downloaded-artifacts
+        run: node ./deploy.js  --deployDir ./downloaded-artifacts
 
       - name: Verify the deployment
         working-directory: ui/deploy/verify
