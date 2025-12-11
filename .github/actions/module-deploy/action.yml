@@ -60,14 +60,14 @@ runs:
         name: my-artifacts-${{ inputs.moduleName }}
         path: module/${{ inputs.moduleName }}/func/deploy/code/downloaded-artifacts
 
-    - name: Inspect downloaded zip file
-      working-directory: module/${{ inputs.moduleName }}/func/deploy/code
-      shell: bash
-      run: |
-        echo "Inspecting zip: downloaded-artifacts/${{ inputs.zipFileName }}"
-        unzip -l downloaded-artifacts/${{ inputs.zipFileName }}
-        echo "Simulating failure"
-          exit 1
+    # - name: Inspect downloaded zip file
+    #   working-directory: module/${{ inputs.moduleName }}/func/deploy/code
+    #   shell: bash
+    #   run: |
+    #     echo "Inspecting zip: downloaded-artifacts/${{ inputs.zipFileName }}"
+    #     unzip -l downloaded-artifacts/${{ inputs.zipFileName }}
+    #     echo "Simulating failure"
+    #       exit 1
 
     - name: Deploy Function App code
       working-directory: module/${{ inputs.moduleName }}/func/deploy/code

@@ -27,10 +27,10 @@ runs:
         pnpm deploy --filter ${{ inputs.moduleName }} --prod ${{ inputs.buildDirName }} --config.node-linker=hoisted --config.symlink=false --config.package-import-method=copy
 
     - name: zip build artifacts
-      working-directory: module/${{ inputs.moduleName }}/func
+      working-directory: module/${{ inputs.moduleName }}/func/${{ inputs.buildDirName }}
       shell: bash
       run: |
-        zip -r ${{ inputs.zipFileName }} ${{ inputs.buildDirName }}
+        zip -r "../${{ inputs.zipFileName }}" .
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
