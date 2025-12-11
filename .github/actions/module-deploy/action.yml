@@ -60,11 +60,6 @@ runs:
         name: my-artifacts-${{ inputs.moduleName }}
         path: module/${{ inputs.moduleName }}/func/deploy/code/downloaded-artifacts
 
-    - name: Deploy Function App code
-      working-directory: module/${{ inputs.moduleName }}/func/deploy/code
-      shell: bash
-      run: node ./deploy.js --deployFile ./downloaded-artifacts/${{ inputs.zipFileName }}
-
     - name: Inspect downloaded zip file
       working-directory: module/${{ inputs.moduleName }}/func/deploy/code
       shell: bash
@@ -73,6 +68,11 @@ runs:
         unzip -l downloaded-artifacts/${{ inputs.zipFileName }}
         echo "Simulating failure"
           exit 1
+
+    - name: Deploy Function App code
+      working-directory: module/${{ inputs.moduleName }}/func/deploy/code
+      shell: bash
+      run: node ./deploy.js --deployFile ./downloaded-artifacts/${{ inputs.zipFileName }}
 
     - name: Check if verify step exists
       working-directory: module/${{ inputs.moduleName }}/func/deploy
