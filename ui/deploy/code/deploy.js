@@ -5,7 +5,16 @@
 
 // Script to deploy static web files to Azure Storage Account's static website hosting
 // Uses Azure CLI commands; ensure Azure CLI is installed and user is logged in.
+
+/**
+ * // Deploy using default build process
+ * node deploy.js
+ *
+ * // Deploy using a pre-built directory
+ * node deploy.js --deployDir=./dist/client
+ */
 import fs from "fs";
+import minimist from "minimist";
 import { getTargetEnv } from "../../deploy/util/envSetup.cjs";
 import { getAppConfigValueByKeyLabel } from "../../deploy/util/azureCli.cjs";
 import { execSync, execFileSync, spawn } from "child_process";
@@ -18,7 +27,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const moduleDir = resolve(__dirname, "..", "..");
-const distPath = resolve(moduleDir, "dist", "client");
+const distPath = resolve(moduleDir, "dist", "client"); //setting in react-router.config.ts
+const args = minimist(process.argv.slice(2));
+const deployDirPath = args.deployDir ? resolve(args.deployDir) : null;
 
 const envFile = resolve(moduleDir, "public", "env.json");
 
@@ -95,12 +106,19 @@ async function deploy() {
     fs.writeFileSync(envFile, jsonContent, "utf-8");
 
     console.log("Step 2: Building project.");
-
-    execSync("pnpm install", { stdio: "inherit", cwd: moduleDir });
-    execSync("pnpm run build", { stdio: "inherit", cwd: moduleDir });
-    // await runCommand("pnpm install", { label: "Installing dependencies", cwd: moduleDir });
-    // await runCommand("pnpm run build", { label: "Building project", cwd: moduleDir });
-
+    let uploadDistPath = distPath;
+    if (deployDirPath) {
+      if (!fs.existsSync(deployDirPath)) {
+        throw new Error(`Deploy directory does not exist: ${deployDirPath}`);
+      }
+      console.log(`Skipping build step. Using pre-built deploy directory: ${deployDirPath}`);
+      uploadDistPath = resolve(deployDirPath);
+    } else {
+      execSync("pnpm install", { stdio: "inherit", cwd: moduleDir });
+      execSync("pnpm run build", { stdio: "inherit", cwd: moduleDir });
+      // await runCommand("pnpm install", { label: "Installing dependencies", cwd: moduleDir });
+      // await runCommand("pnpm run build", { label: "Building project", cwd: moduleDir });
+    }
     console.log("Step 3: Checking storage account access permissions.");
     const storageAccountID = execSync(`az storage account show --name ${accountName} --query id --output tsv`, { encoding: "utf8" }).trim();
     const principalName = execSync("az account show --query user.name --output tsv", { encoding: "utf8" }).trim();
@@ -157,7 +175,7 @@ async function deploy() {
       //   shell: useShell,
       //   cwd: moduleDir,
       // });
-      execFileSync("az", ["storage", "blob", "upload-batch", "--account-name", accountName, "-d", "$web", "-s", distPath, "--auth-mode", "login"], {
+      execFileSync("az", ["storage", "blob", "upload-batch", "--account-name", accountName, "-d", "$web", "-s", uploadDistPath, "--auth-mode", "login"], {
         stdio: "inherit",
         cwd: moduleDir,
         shell: useShell,

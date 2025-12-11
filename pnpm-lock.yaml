@@ -1166,6 +1166,9 @@ importers:
       jiti:
         specifier: ^2.6.1
         version: 2.6.1
+      minimist:
+        specifier: ^1.2.8
+        version: 1.2.8
       typescript:
         specifier: ^5.7.2
         version: 5.9.3
