@@ -128,7 +128,6 @@ jobs:
       - deployRootDev
     # if: always()
     runs-on: ubuntu-latest
-    environment: Dev
     steps:
       - name: Echo job name
         run: echo "Job name is ${{ github.job }}"
@@ -182,6 +181,7 @@ jobs:
       - deployRootDev
     # if: always()
     runs-on: ubuntu-latest
+    environment: Dev
     steps:
       - name: Echo job name
         run: echo "Job name is ${{ github.job }}"
@@ -344,7 +344,6 @@ jobs:
       - deployRootDev
     # if: always()
     runs-on: ubuntu-latest
-    environment: Dev
     steps:
       - name: Echo job name
         run: echo "Job name is ${{ github.job }}"
@@ -375,6 +374,7 @@ jobs:
       - deployRootDev
     # if: always()
     runs-on: ubuntu-latest
+    environment: Dev
     steps:
       - name: Echo job name
         run: echo "Job name is ${{ github.job }}"

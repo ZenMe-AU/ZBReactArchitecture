@@ -30,8 +30,8 @@ const moduleDir = resolve(__dirname, "..", "..");
 const distPath = resolve(moduleDir, "dist", "client"); //setting in react-router.config.ts
 const args = minimist(process.argv.slice(2));
 const deployDirPath = args.deployDir ? resolve(args.deployDir) : null;
-
-const envFile = resolve(moduleDir, "public", "env.json");
+const envFileName = "env.json";
+const envFile = resolve(moduleDir, "public", envFileName);
 
 const apiDir = resolve(moduleDir, "..", "module");
 let apiList = [];
@@ -113,6 +113,10 @@ async function deploy() {
       }
       console.log(`Skipping build step. Using pre-built deploy directory: ${deployDirPath}`);
       uploadDistPath = resolve(deployDirPath);
+      // Copy env.json to uploadDistPath
+      const targetEnvFile = resolve(uploadDistPath, envFileName);
+      console.log(`Copying env.json to deploy directory: ${targetEnvFile}`);
+      fs.copyFileSync(envFile, targetEnvFile);
     } else {
       execSync("pnpm install", { stdio: "inherit", cwd: moduleDir });
       execSync("pnpm run build", { stdio: "inherit", cwd: moduleDir });
