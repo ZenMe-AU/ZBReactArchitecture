@@ -45,34 +45,34 @@ jobs:
       - name: Print job name
         run: echo "Job name is ${{ github.job }}"
 
-      # - name: Checkout code
-      #   uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      # - name: setup environment
-      #   uses: ./.github/actions/setup-azure
-      #   with:
-      #     clientId: ${{ secrets.AZURE_CLIENT_ID }}
-      #     tenantId: ${{ secrets.AZURE_TENANT_ID }}
-      #     subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: setup environment
+        uses: ./.github/actions/setup-azure
+        with:
+          clientId: ${{ secrets.AZURE_CLIENT_ID }}
+          tenantId: ${{ secrets.AZURE_TENANT_ID }}
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      # - name: Create env file & echo target name
-      #   working-directory: deploy
-      #   run: |
-      #     echo "TARGET_ENV_NAME:${{ vars.TARGET_ENV_NAME }}"
-      #     echo "TARGET_ENV=${{ vars.TARGET_ENV_NAME }}" >> .env
+      - name: Create env file & echo target name
+        working-directory: deploy
+        run: |
+          echo "TARGET_ENV_NAME:${{ vars.TARGET_ENV_NAME }}"
+          echo "TARGET_ENV=${{ vars.TARGET_ENV_NAME }}" >> .env
 
-      # - name: Read env file
-      #   run: cat deploy/.env
+      - name: Read env file
+        run: cat deploy/.env
 
-      # - name: Set deployment environment
-      #   run: |
-      #     echo "TF_VAR_env_type=dev" >> $GITHUB_ENV
-      #     echo "TF_VAR_deployer_sp_object_id=${{ secrets.AZURE_DEPLOYER_SP_OBJECT_ID }}" >> $GITHUB_ENV
-      #     echo "TF_VAR_deployer_sp_name=github-oidc" >> $GITHUB_ENV
+      - name: Set deployment environment
+        run: |
+          echo "TF_VAR_env_type=dev" >> $GITHUB_ENV
+          echo "TF_VAR_deployer_sp_object_id=${{ secrets.AZURE_DEPLOYER_SP_OBJECT_ID }}" >> $GITHUB_ENV
+          echo "TF_VAR_deployer_sp_name=github-oidc" >> $GITHUB_ENV
 
-      # - name: Run Terraform for deployEnv
-      #   working-directory: deploy/deployEnv
-      #   run: node ./deployEnvironment.js  --auto-approve
+      - name: Run Terraform for deployEnv
+        working-directory: deploy/deployEnv
+        run: node ./deployEnvironment.js  --auto-approve
 
   testRootDev:
     name: Test Dev Env
@@ -388,39 +388,13 @@ jobs:
           clientId: ${{ secrets.AZURE_CLIENT_ID }}
           tenantId: ${{ secrets.AZURE_TENANT_ID }}
           subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Create env file & echo target name
-        working-directory: deploy
-        run: |
-          echo "TARGET_ENV_NAME:${{ vars.TARGET_ENV_NAME }}"
-          echo "TARGET_ENV=${{ vars.TARGET_ENV_NAME }}" >> .env
-
-      - name: Read env file
-        run: cat deploy/.env
-
-      - name: Set deployment environment
-        run: |
-          echo "TF_VAR_env_type=dev" >> $GITHUB_ENV
-          echo "TF_VAR_deployer_sp_object_id=${{ secrets.AZURE_DEPLOYER_SP_OBJECT_ID }}" >> $GITHUB_ENV
-          echo "TF_VAR_deployer_sp_name=github-oidc" >> $GITHUB_ENV
-
-      - name: Run Terraform for Function App env and database security
-        working-directory: ui/deploy/env
-        run: |
-          node ./deployEnvironment.js --auto-approve
-
-      - uses: actions/download-artifact@v4
+      - name: deploy ui
+        uses: ./.github/actions/ui-deploy
         with:
-          name: my-artifacts-ui
-          path: ui/deploy/code/downloaded-artifacts
-
-      - name: Deploy Application code
-        working-directory: ui/deploy/code
-        run: node ./deploy.js  --deployDir ./downloaded-artifacts
-
-      - name: Verify the deployment
-        working-directory: ui/deploy/verify
-        run: node ./verifyDeployment.js
+          targetEnvName: ${{ vars.TARGET_ENV_NAME }}
+          envType: dev
+          deployerObjectId: ${{ secrets.AZURE_DEPLOYER_SP_OBJECT_ID }}
+          deployerName: github-oidc
 
   testUiDev:
     name: Test Ui Dev
