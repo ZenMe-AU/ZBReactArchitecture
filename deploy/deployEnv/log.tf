@@ -94,6 +94,12 @@ resource "azurerm_monitor_diagnostic_setting" "servicebus_namespace_diagnostics"
   enabled_log {
     category = "OperationalLogs"
   }
+  enabled_log {
+    category = "DiagnosticErrorLogs"
+  }
+  enabled_log {
+    category = "VNetAndIPFilteringLogs"
+  }
 }
 
 resource "azurerm_monitor_diagnostic_setting" "postgresql_flexible_server_diagnostics" {
@@ -108,9 +114,9 @@ resource "azurerm_monitor_diagnostic_setting" "postgresql_flexible_server_diagno
   # enabled_log {
   #   category = "QueryStoreRuntimeStatistics"
   # }
-  # enabled_log {
-  #   category = "QueryStoreWaitStatistics"
-  # }
+  enabled_log {
+    category = "PostgreSQLFlexQueryStoreWaitStats"
+  }
 }
 
 resource "azurerm_monitor_diagnostic_setting" "storage_account_blob_diagnostics" {
@@ -119,9 +125,9 @@ resource "azurerm_monitor_diagnostic_setting" "storage_account_blob_diagnostics"
   log_analytics_workspace_id = azurerm_log_analytics_workspace.loganalytics_workspace.id
 
   # Enable specific log categories
-  enabled_log {
-    category = "StorageRead"
-  }
+  # enabled_log {
+  #   category = "StorageRead"
+  # }
   enabled_log {
     category = "StorageWrite"
   }
@@ -129,13 +135,27 @@ resource "azurerm_monitor_diagnostic_setting" "storage_account_blob_diagnostics"
     category = "StorageDelete"
   }
 }
-# resource "azurerm_monitor_diagnostic_setting" "appinsights_diagnostics" {
-#   name                       = "standard-diagnostics-setting"
-#   target_resource_id         = azurerm_application_insights.appinsights.id
-#   log_analytics_workspace_id = azurerm_log_analytics_workspace.loganalytics_workspace.id
+resource "azurerm_monitor_diagnostic_setting" "appinsights_diagnostics" {
+  name                       = "standard-diagnostics-setting"
+  target_resource_id         = azurerm_application_insights.appinsights.id
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.loganalytics_workspace.id
 
-#   # Enable specific log categories
-#   enabled_log {
-#     category = "Audit"
-#   }
-# }
+  # Enable specific log categories
+  enabled_log {
+    category = "AppAvailabilityResults"
+  }
+  enabled_log {
+    category = "AppExceptions"
+  }
+}
+
+resource "azurerm_monitor_diagnostic_setting" "appinsights_diagnostics" {
+  name                       = "standard-diagnostics-setting"
+  target_resource_id         = azurerm_log_analytics_workspace.loganalytics_workspace.id
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.loganalytics_workspace.id
+
+  # Enable specific log categories
+  enabled_log {
+    category = "Audit"
+  }
+}
