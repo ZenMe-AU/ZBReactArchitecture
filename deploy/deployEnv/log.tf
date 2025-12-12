@@ -149,7 +149,7 @@ resource "azurerm_monitor_diagnostic_setting" "appinsights_diagnostics" {
   }
 }
 
-resource "azurerm_monitor_diagnostic_setting" "appinsights_diagnostics" {
+resource "azurerm_monitor_diagnostic_setting" "workspace_diagnostics" {
   name                       = "standard-diagnostics-setting"
   target_resource_id         = azurerm_log_analytics_workspace.loganalytics_workspace.id
   log_analytics_workspace_id = azurerm_log_analytics_workspace.loganalytics_workspace.id
@@ -157,5 +157,19 @@ resource "azurerm_monitor_diagnostic_setting" "appinsights_diagnostics" {
   # Enable specific log categories
   enabled_log {
     category = "Audit"
+  }
+}
+
+resource "azurerm_monitor_diagnostic_setting" "activity_log_diagnostics" {
+  name               = "standard-diagnostics-setting"
+  target_resource_id = "/subscriptions/${var.subscription_id}"
+
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.loganalytics_workspace.id
+# Enable specific log categories
+  enabled_log {
+    category = "Administrative"
+  }
+  enabled_log {
+    category = "Security"
   }
 }
