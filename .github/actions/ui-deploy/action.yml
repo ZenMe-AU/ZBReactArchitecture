@@ -34,7 +34,7 @@ runs:
       shell: bash
       run: |
         echo "TF_VAR_env_type=${{ inputs.envType }}" >> $GITHUB_ENV
-        echo "TF_VAR_deployer_sp_object_id=${{ input.deployerObjectId }}" >> $GITHUB_ENV
+        echo "TF_VAR_deployer_sp_object_id=${{ inputs.deployerObjectId }}" >> $GITHUB_ENV
         echo "TF_VAR_deployer_sp_name=${{ inputs.deployerName }}" >> $GITHUB_ENV
 
     - name: Run Terraform for Function App env and database security
