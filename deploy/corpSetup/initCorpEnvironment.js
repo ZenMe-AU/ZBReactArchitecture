@@ -4,7 +4,7 @@
  */
 
 /* This script configures the corporate environment with the relevant permissions to allow automated deployments.
-*/
+ */
 import { execSync } from "child_process";
 import { createInterface } from "readline";
 import { existsSync, readFileSync, writeFileSync } from "fs";
@@ -80,37 +80,37 @@ function getTargetEnvName() {
 }
 
 /* use graph api to activate groupname membership in entra id.
-*/
+ */
 const graphClient = null;
 function graphActivatePimEntitlement(groupname) {
+  if (!graphClient) {
+    // Login to Graph
+    const credential = new AzureCliCredential();
+    graphClient = Client.initWithMiddleware({
+      authProvider: {
+        getAccessToken: async () => {
+          const tokenResponse = await credential.getToken("https://graph.microsoft.com/.default");
+          return tokenResponse.token;
+        },
+      },
+    });
+  }
 
-if (!graphClient) {
-  // Login to Graph
-  const credential = new AzureCliCredential();
-  graphClient = Client.initWithMiddleware({
-    authProvider: {
-      getAccessToken: async () => {
-        const tokenResponse = await credential.getToken("https://graph.microsoft.com/.default");
-        return tokenResponse.token;
-      }
-    }
-  });
-}
+  const requestBody = {
+    action: "activate",
+    assignmentScheduleId: "<assignmentScheduleId>", // ID of the eligible assignment
+    justification: "Need access for deployment",
+    principalId: "<userObjectId>", // Current user's object ID
+    targetId: "<groupObjectId>", // Target group ID
+    assignmentType: "member",
+    duration: "PT4H", // ISO 8601 duration format (e.g., 4 hours)
+  };
 
-const requestBody = {
-  "action": "activate",
-  "assignmentScheduleId": "<assignmentScheduleId>", // ID of the eligible assignment
-  "justification": "Need access for deployment",
-  "principalId": "<userObjectId>", // Current user's object ID
-  "targetId": "<groupObjectId>",   // Target group ID
-  "assignmentType": "member",
-  "duration": "PT4H" // ISO 8601 duration format (e.g., 4 hours)
-};
-
-const response = await graphClient
-  .api("/identityGovernance/privilegedAccess/group/assignmentScheduleRequests")
-  .post(requestBody);
-console.log("Activation response:", response);
+  // const response = await graphClient
+  //   .api("/identityGovernance/privilegedAccess/group/assignmentScheduleRequests")
+  //   .post(requestBody);
+  // console.log("Activation response:", response);
+  // }
 }
 
 /** Activate PIM role "App Configuration Data Owner" for the current user for the current tenant.
@@ -120,12 +120,8 @@ function activatePimPermissions() {
   try {
     // Get current user id from Azure CLI
     const userId = execSync("az ad signed-in-user show --query id -o tsv", { encoding: "utf8" }).trim();
-    console.log(
-      `az role assignment create --assignee ${userId} --role "App Configuration Data Owner" --scope /subscriptions/${getAzureSubscriptionId()}`
-    );
-    execSync(
-      `az role assignment create --assignee ${userId} --role "App Configuration Data Owner" --scope /subscriptions/${getAzureSubscriptionId()}`
-    );
+    console.log(`az role assignment create --assignee ${userId} --role "App Configuration Data Owner" --scope /subscriptions/${getAzureSubscriptionId()}`);
+    execSync(`az role assignment create --assignee ${userId} --role "App Configuration Data Owner" --scope /subscriptions/${getAzureSubscriptionId()}`);
   } catch (error) {
     console.error("Failed to activate PIM role:", error);
     process.exit(1);
@@ -167,59 +163,54 @@ main();
 
 export default { main };
 
-
-
-
-// const dbAdminGroupName = getDbAdminName(process.env.TF_VAR_env_type); //DbAdmin-Dev, DbAdmin-Test, DbAdmin-Prod
-// const groupObjectId = getGroupObjectId(dbAdminGroupName);
-// const memberObjectId = getObjectId();
-/*
-*  use graph api to activate groupname membership in entra id.
-*/
-let graphClient = null;
-async function graphActivatePimEntitlement(groupObjectId, memberObjectId) {
-  if (!graphClient) {
-    // Login to Graph
-    const credential = new AzureCliCredential();
-    graphClient = Client.initWithMiddleware({
-      authProvider: {
-        getAccessToken: async () => {
-          const tokenResponse = await credential.getToken("https://graph.microsoft.com/.default");
-          console.log("tokenResponse", tokenResponse);
-          return tokenResponse.token;
-        },
-      },
-    });
-  }
-  console.log("graphClient", graphClient);
-  let dbAdminGroupName = "DbAdmin-Dev";
-  groupObjectId = getGroupObjectId(dbAdminGroupName);
-  memberObjectId = getObjectId();
-  console.log("groupObjectId", groupObjectId);
-  console.log("memberObjectId", memberObjectId);
-  const eligibleAssignments = await graphClient
-    .api("/identityGovernance/privilegedAccess/group/assignmentSchedules")
-    .filter(`principalId eq '${memberObjectId}' and groupId eq '${groupObjectId}'`)
-    .get();
-  console.log("eligibleAssignments", eligibleAssignments);
-  let assignmentScheduleId = null;
-  if (eligibleAssignments.value.length > 0) {
-    assignmentScheduleId = eligibleAssignments.value[0].id;
-  }
-  // let assignmentScheduleId = "8fd99b8f-f7ed-42d7-99d3-3e26f03a399d_member_1f19b6e5-b923-473c-81d3-712ea0ffbcc6";
-  console.log("assignmentScheduleId", assignmentScheduleId);
-  const requestBody = {
-    action: "activate",
-    assignmentScheduleId: assignmentScheduleId, // ID of the eligible assignment
-    justification: "Need access for deployment",
-    principalId: memberObjectId, // Current user's object ID
-    targetId: groupObjectId, // Target group ID
-    assignmentType: "member",
-    duration: "PT4H", // ISO 8601 duration format (e.g., 4 hours)
-  };
-  console.log("requestBody", requestBody);
-  const response = await graphClient.api("/identityGovernance/privilegedAccess/group/assignmentScheduleRequests").post(requestBody);
-  console.log("Activation response:", response);
-}
- 
- 
+// // const dbAdminGroupName = getDbAdminName(process.env.TF_VAR_env_type); //DbAdmin-Dev, DbAdmin-Test, DbAdmin-Prod
+// // const groupObjectId = getGroupObjectId(dbAdminGroupName);
+// // const memberObjectId = getObjectId();
+// /*
+//  *  use graph api to activate groupname membership in entra id.
+//  */
+// let graphClient = null;
+// async function graphActivatePimEntitlement(groupObjectId, memberObjectId) {
+//   if (!graphClient) {
+//     // Login to Graph
+//     const credential = new AzureCliCredential();
+//     graphClient = Client.initWithMiddleware({
+//       authProvider: {
+//         getAccessToken: async () => {
+//           const tokenResponse = await credential.getToken("https://graph.microsoft.com/.default");
+//           console.log("tokenResponse", tokenResponse);
+//           return tokenResponse.token;
+//         },
+//       },
+//     });
+//   }
+//   console.log("graphClient", graphClient);
+//   let dbAdminGroupName = "DbAdmin-Dev";
+//   groupObjectId = getGroupObjectId(dbAdminGroupName);
+//   memberObjectId = getObjectId();
+//   console.log("groupObjectId", groupObjectId);
+//   console.log("memberObjectId", memberObjectId);
+//   const eligibleAssignments = await graphClient
+//     .api("/identityGovernance/privilegedAccess/group/assignmentSchedules")
+//     .filter(`principalId eq '${memberObjectId}' and groupId eq '${groupObjectId}'`)
+//     .get();
+//   console.log("eligibleAssignments", eligibleAssignments);
+//   let assignmentScheduleId = null;
+//   if (eligibleAssignments.value.length > 0) {
+//     assignmentScheduleId = eligibleAssignments.value[0].id;
+//   }
+//   // let assignmentScheduleId = "8fd99b8f-f7ed-42d7-99d3-3e26f03a399d_member_1f19b6e5-b923-473c-81d3-712ea0ffbcc6";
+//   console.log("assignmentScheduleId", assignmentScheduleId);
+//   const requestBody = {
+//     action: "activate",
+//     assignmentScheduleId: assignmentScheduleId, // ID of the eligible assignment
+//     justification: "Need access for deployment",
+//     principalId: memberObjectId, // Current user's object ID
+//     targetId: groupObjectId, // Target group ID
+//     assignmentType: "member",
+//     duration: "PT4H", // ISO 8601 duration format (e.g., 4 hours)
+//   };
+//   console.log("requestBody", requestBody);
+//   const response = await graphClient.api("/identityGovernance/privilegedAccess/group/assignmentScheduleRequests").post(requestBody);
+//   console.log("Activation response:", response);
+// }

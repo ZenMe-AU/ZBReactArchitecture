@@ -25,6 +25,7 @@
     "@microsoft/eslint-formatter-sarif": "^3.1.0",
     "@microsoft/microsoft-graph-client": "^3.0.7",
     "archiver": "^7.0.1",
+    "dotenv": "^16.6.1",
     "esbuild": "^0.27.0",
     "eslint": "^9.38.0",
     "eslint-config-prettier": "^10.1.8",
