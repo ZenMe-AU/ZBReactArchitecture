@@ -51,7 +51,7 @@ jobs:
             - name: Start ACA Job
               run: |
                   az containerapp job start \
-                      --name github-self-hosted-runner \
+                      --name "${{ vars.TARGET_ENV_NAME }}-runner"  \
                       --resource-group "dev-${{ vars.TARGET_ENV_NAME }}" \
 
     test-runner:
