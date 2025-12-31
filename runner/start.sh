@@ -14,14 +14,13 @@ else
 fi
 
 RUNNER_NAME="${RUNNER_NAME:-aca-runner}-$(hostname)"
-
+echo "Registering runner at: $RUNNER_URL"
 ./config.sh \
   --url "$RUNNER_URL" \
   --token "$RUNNER_TOKEN" \
   --name "$RUNNER_NAME" \
-  --labels "self-hosted,aca,ephemeral" \
+  --labels "aca" \
   --unattended \
-  --ephemeral \
-  --replace
+  --ephemeral
 
 ./run.sh
