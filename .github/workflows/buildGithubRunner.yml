@@ -5,8 +5,8 @@ on:
     push:
         branches:
             - workflow
-        paths:
-            - "runner/**"
+        # paths:
+        #     - "runner/**"
 
 jobs:
     build:
