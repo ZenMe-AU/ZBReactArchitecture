@@ -29,10 +29,10 @@ jobs:
             - name: Login to ACR
               run: az acr login --name "${{ vars.TARGET_ENV_NAME }}acr"
 
-            # - name: Build and push image
-            #   run: |
-            #       docker build -t "${{ vars.TARGET_ENV_NAME }}acr.azurecr.io/github-runner:latest" ./runner
-            #       docker push "${{ vars.TARGET_ENV_NAME }}acr.azurecr.io/github-runner:latest"
+            - name: Build and push image
+              run: |
+                  docker build -t "${{ vars.TARGET_ENV_NAME }}acr.azurecr.io/github-runner:latest" ./runner
+                  docker push "${{ vars.TARGET_ENV_NAME }}acr.azurecr.io/github-runner:latest"
 
     start-aca-runner:
         runs-on: ubuntu-latest
