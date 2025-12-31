@@ -20,7 +20,7 @@ RUNNER_NAME="${RUNNER_NAME:-aca-runner}-$(hostname)"
   --url "$RUNNER_URL" \
   --token "$RUNNER_TOKEN" \
   --name "$RUNNER_NAME" \
-  --labels "aca,ephemeral" \
+  --labels "self-hosted,aca,ephemeral" \
   --unattended \
   --ephemeral \
   --replace
