@@ -6,7 +6,7 @@ if [[ -z "$RUNNER_TOKEN" ]]; then
   exit 1
 fi
 
-Org runner or Repo runner
+# Org runner or Repo runner
 if [[ -n "$GITHUB_REPO" ]]; then
   RUNNER_URL="https://github.com/${GITHUB_ORG}/${GITHUB_REPO}"
 else
