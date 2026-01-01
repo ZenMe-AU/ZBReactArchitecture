@@ -2,10 +2,10 @@ name: MainWorkflow
 
 on:
   workflow_dispatch:
-  # push:
-  #   branches:
-  #     - main
-  #     - workflow
+  push:
+    branches:
+      #     - main
+      - workflow
 
 # concurrency:
 #   group: deploy-group
@@ -245,10 +245,10 @@ jobs:
       - name: Echo job name
         run: echo "Job name is ${{ github.job }}"
 
-      - name: Simulate failure
-        run: |
-          echo "Simulating failure"
-          exit 1
+      # - name: Simulate failure
+      #   run: |
+      #     echo "Simulating failure"
+      #     exit 1
 
       - name: Checkout code
         uses: actions/checkout@v4
@@ -258,13 +258,35 @@ jobs:
         with:
           moduleName: quest3Tier
 
-  deployQuest3TierDev:
-    name: Deploy Quest3Tier Dev
+  startRunnerQuest3TierDev:
+    name: Start Self-hosted Runner
+    runs-on: ubuntu-latest
+    environment: Dev
     needs:
       - buildQuest3Tier
       - deployRootDev
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Start ACA ephemeral runner
+        uses: ./.github/actions/start-runner
+        with:
+          runnerToken: ${{ secrets.GH_RUNNER_PAT }}
+          repoName: ${{ github.repository }}
+          targetEnvName: ${{ vars.TARGET_ENV_NAME }}
+          clientId: ${{ secrets.AZURE_CLIENT_ID }}
+          tenantId: ${{ secrets.AZURE_TENANT_ID }}
+          subscriptionId: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+  deployQuest3TierDev:
+    name: Deploy Quest3Tier Dev
+    needs:
+      - startRunnerQuest3TierDev
+      - buildQuest3Tier
+      - deployRootDev
     # if: always()
-    runs-on: ubuntu-latest
+    # runs-on: ubuntu-latest
+    runs-on: [self-hosted, aca]
     environment: Dev
     steps:
       - name: Echo job name
