@@ -26,6 +26,8 @@ RUN curl -L https://github.com/actions/runner/releases/download/v2.330.0/actions
 
 RUN ./bin/installdependencies.sh
 
+RUN curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
 COPY start.sh .
 RUN chmod +x start.sh && chown runner:runner start.sh
 
