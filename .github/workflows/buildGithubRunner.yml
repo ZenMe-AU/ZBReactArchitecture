@@ -31,10 +31,10 @@ jobs:
             - name: Login to ACR
               run: az acr login --name "${{ vars.TARGET_ENV_NAME }}acr"
 
-            # - name: Build and push image
-            #   run: |
-            #       docker build -t "${{ vars.TARGET_ENV_NAME }}acr.azurecr.io/github-runner:latest" ./runner
-            #       docker push "${{ vars.TARGET_ENV_NAME }}acr.azurecr.io/github-runner:latest"
+            - name: Build and push image
+              run: |
+                  docker build -t "${{ vars.TARGET_ENV_NAME }}acr.azurecr.io/github-runner:latest" ./runner
+                  docker push "${{ vars.TARGET_ENV_NAME }}acr.azurecr.io/github-runner:latest"
 
     start-aca-runner:
         runs-on: ubuntu-latest
@@ -67,11 +67,13 @@ jobs:
                   tenant-id: ${{ secrets.AZURE_TENANT_ID }}
                   subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
+            #env-vars only works when image is specified
             - name: Start ACA Job
               run: |
                   az containerapp job start \
                       --name "${{ vars.TARGET_ENV_NAME }}-runner"  \
                       --resource-group "dev-${{ vars.TARGET_ENV_NAME }}" \
+                      --image ${{ vars.TARGET_ENV_NAME }}acr.azurecr.io/github-runner:latest  \
                       --env-vars \
                           RUNNER_TOKEN=${{ steps.runner.outputs.token }} \
                           GITHUB_REPO=${{ github.repository }}

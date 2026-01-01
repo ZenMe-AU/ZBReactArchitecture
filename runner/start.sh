@@ -6,12 +6,18 @@ if [[ -z "$RUNNER_TOKEN" ]]; then
   exit 1
 fi
 
-# Org runner or Repo runner
-if [[ -n "$GITHUB_REPO" ]]; then
-  RUNNER_URL="https://github.com/${GITHUB_ORG}/${GITHUB_REPO}"
+if [[ -z "$GITHUB_REPO" ]]; then
+  echo "GITHUB_REPO is not set"
+  exit 1
 else
-  RUNNER_URL="https://github.com/${GITHUB_ORG}"
+  RUNNER_URL="https://github.com/${GITHUB_REPO}"
 fi
+# Org runner or Repo runner
+# if [[ -n "$GITHUB_REPO" ]]; then
+#   RUNNER_URL="https://github.com/${GITHUB_ORG}/${GITHUB_REPO}"
+# else
+#   RUNNER_URL="https://github.com/${GITHUB_ORG}"
+# fi
 
 RUNNER_NAME="${RUNNER_NAME:-aca-runner}-$(hostname)"
 echo "Registering runner at: $RUNNER_URL"
