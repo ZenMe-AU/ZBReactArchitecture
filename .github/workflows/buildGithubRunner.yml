@@ -9,10 +9,10 @@ on:
         #     - "runner/**"
 
 permissions:
-    actions: write
     id-token: write
     contents: read
-    issues: write
+    # actions: write
+    # issues: write
 
 jobs:
     build:
@@ -43,17 +43,10 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
-            - name: Azure Login
-              uses: azure/login@v2
-              with:
-                  client-id: ${{ secrets.AZURE_CLIENT_ID }}
-                  tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-                  subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-
             - name: Get runner token
               id: runner
               env:
-                  GH_TOKEN: ${{ github.token }}
+                  GH_TOKEN: ${{  secrets.GH_RUNNER_PAT  }}
               run: |
                   echo "Getting runner token..."
 
@@ -66,6 +59,13 @@ jobs:
 
                   echo "Runner token: $TOKEN"
                   echo "token=$TOKEN" >> $GITHUB_OUTPUT
+
+            - name: Azure Login
+              uses: azure/login@v2
+              with:
+                  client-id: ${{ secrets.AZURE_CLIENT_ID }}
+                  tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+                  subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
             - name: Start ACA Job
               run: |
