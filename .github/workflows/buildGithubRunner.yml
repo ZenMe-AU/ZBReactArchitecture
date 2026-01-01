@@ -9,6 +9,7 @@ on:
         #     - "runner/**"
 
 permissions:
+    actions: write
     id-token: write
     contents: read
 
