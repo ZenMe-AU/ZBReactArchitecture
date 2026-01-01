@@ -50,8 +50,20 @@ jobs:
 
             - name: Get runner token
               id: runner
+              env:
+                  GH_TOKEN: ${{ github.token }}
               run: |
-                  echo "token=$(gh api -X POST repos/${{ github.repository }}/actions/runners/registration-token --jq .token)" >> $GITHUB_OUTPUT
+                  echo "Getting runner token..."
+
+                  TOKEN=$(gh api -X POST repos/${{ github.repository }}/actions/runners/registration-token --jq .token)
+
+                  if [[ -z "$TOKEN" || "$TOKEN" == "null" ]]; then
+                      echo "Failed to get runner token. Exiting."
+                      exit 1
+                  fi
+
+                  echo "Runner token: $TOKEN"
+                  echo "token=$TOKEN" >> $GITHUB_OUTPUT
 
             - name: Start ACA Job
               run: |
