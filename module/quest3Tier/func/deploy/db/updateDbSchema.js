@@ -18,7 +18,7 @@ const migrationDir = resolve(__dirname, "migration");
   const targetEnv = getTargetEnv();
   const moduleName = getModuleName(moduleDir);
 
-  const pgAdminUserName = process.env.TF_VAR_deployer_sp_name || getDbAdminName(envType); //"getDbSchemaAdminName(moduleName)";
+  const pgAdminUserName = process.env.TF_VAR_deployer_sp_name ? `${targetEnv}-dbIdentity` : getDbAdminName(envType); //TODO: need to adjust for condition statement //"getDbSchemaAdminName(moduleName)";
   const db = await createDatabaseInstance(DB_TYPE.POSTGRES, {
     username: pgAdminUserName,
     host: getPgHost(targetEnv),
