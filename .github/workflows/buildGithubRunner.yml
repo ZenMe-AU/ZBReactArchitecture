@@ -2,11 +2,11 @@ name: Build GitHub Runner Image
 
 on:
     workflow_dispatch:
-    push:
-        branches:
-            - workflow
-        # paths:
-        #     - "runner/**"
+    # push:
+    #     branches:
+    #         - workflow
+    # paths:
+    #     - "runner/**"
 
 permissions:
     id-token: write

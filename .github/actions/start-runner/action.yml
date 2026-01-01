@@ -1,0 +1,66 @@
+name: "start a runner"
+description: "start aca job to run self-hosted runner"
+
+inputs:
+  runnerToken:
+    description: "GitHub Actions runner token"
+    required: true
+  repoName:
+    description: "GitHub repository name"
+    required: true
+  targetEnvName:
+    description: "Target environment name"
+    required: true
+  clientId:
+    description: "Azure client ID"
+    required: true
+  tenantId:
+    description: "Azure tenant ID"
+    required: true
+  subscriptionId:
+    description: "Azure subscription ID"
+    required: true
+  runnerImage:
+    description: "Docker image for the GitHub Actions runner"
+    required: false
+    default: "github-runner:latest"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Get runner token
+      shell: bash
+      id: runner
+      env:
+        GH_TOKEN: ${{  inputs.runnerToken  }}
+      run: |
+        echo "Getting runner token..."
+
+        TOKEN=$(gh api -X POST repos/${{ inputs.repoName }}/actions/runners/registration-token --jq .token)
+
+        if [[ -z "$TOKEN" || "$TOKEN" == "null" ]]; then
+            echo "Failed to get runner token. Exiting."
+            exit 1
+        fi
+        echo "::add-mask::$TOKEN"
+        echo "Runner token generated"
+        echo "token=$TOKEN" >> $GITHUB_OUTPUT
+
+    - name: Azure Login
+      uses: azure/login@v2
+      with:
+        client-id: ${{ inputs.clientId }}
+        tenant-id: ${{ inputs.tenantId }}
+        subscription-id: ${{ inputs.subscriptionId }}
+
+    # env-vars only works when image is specified (bug in az cli?)
+    - name: Start ACA Job
+      shell: bash
+      run: |
+        az containerapp job start \
+            --name "${{ inputs.targetEnvName }}-runner"  \
+            --resource-group "dev-${{ inputs.targetEnvName }}" \
+            --image ${{ inputs.targetEnvName }}acr.azurecr.io/${{ inputs.runnerImage }}  \
+            --env-vars \
+                RUNNER_TOKEN=${{ steps.runner.outputs.token }} \
+                GITHUB_REPO=${{ inputs.repoName }}
