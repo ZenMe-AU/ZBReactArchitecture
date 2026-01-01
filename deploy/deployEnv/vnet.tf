@@ -15,10 +15,10 @@ variable "db_admin_uai_name" {
   description = "Name of the User Assigned Identity for DB Admin"
   type        = string
 }
-variable "github_pat" {
-  description = "GitHub Personal Access Token"
-  type        = string
-}
+# variable "github_pat" {
+#   description = "GitHub Personal Access Token"
+#   type        = string
+# }
 
 resource "azurerm_virtual_network" "vnet" {
   name                = var.vnet_name
