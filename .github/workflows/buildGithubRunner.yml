@@ -12,6 +12,7 @@ permissions:
     actions: write
     id-token: write
     contents: read
+    issues: write
 
 jobs:
     build:
