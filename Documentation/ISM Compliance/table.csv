@@ -1,3 +1,2 @@
-system_id,system_name,owner,email,status,last_review
-SYS-001,Billing Service,Jake Vosloo,jake@example.com,Active,2025-12-10
-SYS-002,Auth Gateway,Katie Jeays,katie@example.com,Active,2025-11-30
+"Identifier","Title","Consumer Responsibility", "Consumer Implementation Required", "Consumer Configuration Required", "Consumer Guidance"
+"ISM-1997","Clear roles and responsibilities for cybersecurity","", "Not Assessed","Not Assessed",""
