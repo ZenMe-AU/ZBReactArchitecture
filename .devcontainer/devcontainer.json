@@ -5,11 +5,16 @@
     "cpus": 2
   },
   "features": {
-    "ghcr.io/devcontainers/features/powershell:1": {}
+    "ghcr.io/devcontainers/features/powershell:1": {},
+    "ghcr.io/devcontainers/features/aws-cli:1": {},
+    "ghcr.io/devcontainers/features/node:1": {"version": "lts"},
+    "ghcr.io/devcontainers/features/azure-cli:1": {},
+    "ghcr.io/azure/azcli-account-extension:1": {},
+    "ghcr.io/devcontainers/features/terraform:1": { "version": "latest" }
   },
   "waitFor": "onCreateCommand",
   "updateContentCommand": "pnpm install",
-  "postCreateCommand": "",
+  "postCreateCommand": "az extension add --name account && aws --version && az --version && terraform --version",
   "postAttachCommand": {
     "powershell": "pwsh"
   }
