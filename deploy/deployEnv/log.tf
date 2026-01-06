@@ -73,3 +73,103 @@ resource "azurerm_application_insights" "appinsights" {
 #   #   }
 # }
 
+
+resource "azurerm_monitor_diagnostic_setting" "app_configuration_diagnostics" {
+  name                       = "standard-diagnostics-setting"
+  target_resource_id         = data.azurerm_app_configuration.appconfig.id
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.loganalytics_workspace.id
+
+  # Enable specific log categories
+  enabled_log {
+    category = "Audit"
+  }
+}
+
+resource "azurerm_monitor_diagnostic_setting" "servicebus_namespace_diagnostics" {
+  name                       = "standard-diagnostics-setting"
+  target_resource_id         = azurerm_servicebus_namespace.sb_namespace.id
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.loganalytics_workspace.id
+
+  # Enable specific log categories
+  enabled_log {
+    category = "OperationalLogs"
+  }
+  enabled_log {
+    category = "DiagnosticErrorLogs"
+  }
+  enabled_log {
+    category = "VNetAndIPFilteringLogs"
+  }
+}
+
+resource "azurerm_monitor_diagnostic_setting" "postgresql_flexible_server_diagnostics" {
+  name                       = "standard-diagnostics-setting"
+  target_resource_id         = azurerm_postgresql_flexible_server.pg_server.id
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.loganalytics_workspace.id
+
+  # Enable specific log categories
+  enabled_log {
+    category = "PostgreSQLLogs"
+  }
+  # enabled_log {
+  #   category = "QueryStoreRuntimeStatistics"
+  # }
+  enabled_log {
+    category = "PostgreSQLFlexQueryStoreWaitStats"
+  }
+}
+
+resource "azurerm_monitor_diagnostic_setting" "storage_account_blob_diagnostics" {
+  name                       = "standard-diagnostics-setting"
+  target_resource_id         = "${data.azurerm_storage_account.sa.id}/blobServices/default"
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.loganalytics_workspace.id
+
+  # Enable specific log categories
+  # enabled_log {
+  #   category = "StorageRead"
+  # }
+  enabled_log {
+    category = "StorageWrite"
+  }
+  enabled_log {
+    category = "StorageDelete"
+  }
+}
+resource "azurerm_monitor_diagnostic_setting" "appinsights_diagnostics" {
+  name                       = "standard-diagnostics-setting"
+  target_resource_id         = azurerm_application_insights.appinsights.id
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.loganalytics_workspace.id
+
+  # Enable specific log categories
+  enabled_log {
+    category = "AppAvailabilityResults"
+  }
+  enabled_log {
+    category = "AppExceptions"
+  }
+}
+
+resource "azurerm_monitor_diagnostic_setting" "workspace_diagnostics" {
+  name                       = "standard-diagnostics-setting"
+  target_resource_id         = azurerm_log_analytics_workspace.loganalytics_workspace.id
+  log_analytics_workspace_id = azurerm_log_analytics_workspace.loganalytics_workspace.id
+
+  # Enable specific log categories
+  enabled_log {
+    category = "Audit"
+  }
+}
+
+# resource "azurerm_monitor_diagnostic_setting" "activity_log_diagnostics" {
+#   name               = "standard-diagnostics-setting"
+#   target_resource_id = "/subscriptions/${var.subscription_id}"
+
+#   log_analytics_workspace_id = azurerm_log_analytics_workspace.loganalytics_workspace.id
+# # Enable specific log categories
+#   enabled_log {
+#     category = "Administrative"
+#   }
+#   enabled_log {
+#     category = "Security"
+#   }
+# }

@@ -6,16 +6,9 @@
 const { existsSync, readFileSync } = require("fs");
 const { resolve, basename } = require("path");
 const { execSync } = require("child_process");
-const {
-  uniqueNamesGenerator,
-  adjectives,
-  animals,
-} = require("unique-names-generator");
+const { uniqueNamesGenerator, adjectives, animals } = require("unique-names-generator");
 
-function getTargetEnv(
-  rootDir = resolve(__dirname, "..", "..", "deploy"),
-  defaultName = null,
-) {
+function getTargetEnv(rootDir = resolve(__dirname, "..", "..", "deploy"), defaultName = null) {
   const envFilePath = resolve(rootDir, ".env");
   if (!existsSync(envFilePath)) {
     throw new Error(".env file not found at " + envFilePath);

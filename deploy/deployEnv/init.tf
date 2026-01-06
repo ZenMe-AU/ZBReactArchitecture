@@ -196,3 +196,21 @@ output "app_insights_name" {
   value       = var.app_insights_name
   description = "value of app insights name"
 }
+
+variable "deployer_sp_object_id" {
+  type        = string
+  description = "Object ID of the Service Principal to assign as AD Admin"
+  default     = null
+}
+variable "deployer_sp_name" {
+  type        = string
+  description = "Display name of the Service Principal"
+  default     = null
+}
+output "deployer_sp_name" {
+  value       = var.deployer_sp_name
+  description = "value of deployer service principal name"
+}
+locals {
+  has_deployer = var.deployer_sp_object_id != null && var.deployer_sp_name != null
+}

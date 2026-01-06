@@ -19,10 +19,7 @@ const {
   setFunctionAppCors,
 } = require("../../../../../deploy/util/azureCli.cjs");
 const { npmInstall, npmPrune, zipDir } = require("./cli.js");
-const {
-  getIdentityName,
-  getAppConfigName,
-} = require("../../../../../deploy/util/namingConvention.cjs");
+const { getIdentityName, getAppConfigName } = require("../../../../../deploy/util/namingConvention.cjs");
 const { execSync } = require("child_process");
 
 class classDeployCode {
@@ -36,6 +33,7 @@ class classDeployCode {
     storageAccountName,
     serviceBusName,
     moduleDir,
+    deployFilePath = null,
   }) {
     this.envType = envType;
     this.targetEnv = targetEnv;
@@ -47,16 +45,10 @@ class classDeployCode {
     this.serviceBusName = serviceBusName;
     this.moduleDir = moduleDir;
 
+    this.deployFilePath = deployFilePath;
     this.distPath = "dist/dist.zip";
     this.outputDir = "out";
-    this.excludeList = [
-      "dist/*",
-      ".vscode/*",
-      ".git/*",
-      "local.settings.json",
-      "local.settings.json.template",
-      "deploy/*",
-    ];
+    this.excludeList = ["dist/*", ".vscode/*", ".git/*", "local.settings.json", "local.settings.json.template", "deploy/*"];
     this.appSettings = {
       // ServiceBusConnection__fullyQualifiedNamespace: `${this.serviceBusName}.servicebus.windows.net`,
       // ServiceBusConnection__credential: "managedidentity",
@@ -65,8 +57,7 @@ class classDeployCode {
       //   resourceGroupName: this.resourceGroupName,
       // }),
       // JWT_SECRET: getAppConfigValueByKeyLabel({ appConfigName: getAppConfigName(this.targetEnv), key: "jwtSecret", label: this.envType }),
-      JWT_SECRET:
-        "bb64c67554381aff324d26669540f591e02e3e993ce85c2d1ed2962e22411634",
+      JWT_SECRET: "bb64c67554381aff324d26669540f591e02e3e993ce85c2d1ed2962e22411634",
     };
     this.deleteAppSettings = ["AzureWebJobsStorage"];
 
@@ -99,9 +90,7 @@ class classDeployCode {
       functionAppName: this.functionAppName,
       resourceGroupName: this.resourceGroupName,
     });
-    console.log(
-      `Setting environment variables for Function App ${this.functionAppName}.`,
-    );
+    console.log(`Setting environment variables for Function App ${this.functionAppName}.`);
     // Settings Env Var for the Function App
     setFunctionAppSetting({
       functionAppName: this.functionAppName,
@@ -115,11 +104,9 @@ class classDeployCode {
     });
     console.log(`Assigning roles to Function App ${this.functionAppName}.`);
     // Assign roles to the Function App
-    this.roleAssignments.forEach(
-      ({ assignee = functionAppPrincipalId, role, scope }) => {
-        assignRole({ assignee, role, scope });
-      },
-    );
+    this.roleAssignments.forEach(({ assignee = functionAppPrincipalId, role, scope }) => {
+      assignRole({ assignee, role, scope });
+    });
     if (this.queueNames.length > 0) {
       console.log(`Creating Service Bus Queues.`);
     }
@@ -140,43 +127,51 @@ class classDeployCode {
         allowedOrigins: this.allowedOrigins,
       });
     }
-    console.log(`Step 2: Creating output via pnpm.`);
-    const outputDir = resolve(funcDir, this.outputDir);
-    // delete outputDir if it exists
-    if (fs.existsSync(outputDir)) {
-      console.log(`Deleting existing output directory.`);
-      fs.rmSync(outputDir, { recursive: true, force: true });
-    }
+    if (this.deployFilePath) {
+      console.log("Step 2-4: Using pre-built deploy zipfile:", this.deployFilePath);
+      this.distPath = resolve(this.deployFilePath);
+    } else {
+      console.log(`Step 2: Creating output via pnpm.`);
+      const outputDir = resolve(funcDir, this.outputDir);
+      // delete outputDir if it exists
+      if (fs.existsSync(outputDir)) {
+        console.log(`Deleting existing output directory.`);
+        fs.rmSync(outputDir, { recursive: true, force: true });
+      }
 
-    execSync(
-      `pnpm deploy --filter ${this.moduleName} --prod ${outputDir} --config.node-linker=hoisted --config.symlink=false --config.package-import-method=copy`,
-      { stdio: "inherit", cwd: funcDir },
-    );
+      execSync(
+        `pnpm deploy --filter ${this.moduleName} --prod ${outputDir} --config.node-linker=hoisted --config.symlink=false --config.package-import-method=copy`,
+        { stdio: "inherit", cwd: funcDir }
+      );
 
-    console.log("Step 3: Creating dist directory.");
-    const distFile = resolve(funcDir, this.distPath);
-    // Ensure the directory exists
-    fs.mkdirSync(path.dirname(distFile), { recursive: true });
-    // Remove existing dist file if it exists
-    if (fs.existsSync(distFile)) {
-      console.log(`Deleting existing dist file.`);
-      fs.unlinkSync(distFile);
-    }
-    console.log("Step 4: Zipping output directory.");
-    await zipDir(distFile, outputDir, this.excludeList);
+      console.log("Step 3: Creating dist directory.");
+      const distFile = resolve(funcDir, this.distPath);
+      // Ensure the directory exists
+      fs.mkdirSync(path.dirname(distFile), { recursive: true });
+      // Remove existing dist file if it exists
+      if (fs.existsSync(distFile)) {
+        console.log(`Deleting existing dist file.`);
+        fs.unlinkSync(distFile);
+      }
+      console.log("Step 4: Zipping output directory.");
+      await zipDir(distFile, outputDir, this.excludeList);
 
-    if (fs.existsSync(outputDir)) {
-      console.log(`Deleting output directory.`);
-      fs.rmSync(outputDir, { recursive: true, force: true });
+      if (fs.existsSync(outputDir)) {
+        console.log(`Deleting output directory.`);
+        fs.rmSync(outputDir, { recursive: true, force: true });
+      }
     }
     console.log("Step 5: Deploying zip file to Azure Function App.");
+    if (!fs.existsSync(this.distPath)) {
+      throw new Error(`Deploy zip file not found at path: ${this.distPath}`);
+    }
     deployFunctionAppZip(
       {
         src: this.distPath,
         functionAppName: this.functionAppName,
         resourceGroupName: this.resourceGroupName,
       },
-      { cwd: funcDir },
+      { cwd: funcDir }
     );
 
     console.log("Deployment finished!");

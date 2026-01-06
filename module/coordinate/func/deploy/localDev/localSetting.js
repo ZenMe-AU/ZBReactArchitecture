@@ -4,10 +4,7 @@
  */
 
 const { resolve } = require("path");
-const {
-  getTargetEnv,
-  getModuleName,
-} = require("../../../../../deploy/util/envSetup.cjs");
+const { getTargetEnv, getModuleName } = require("../../../../../deploy/util/envSetup.cjs");
 const {
   getDbAdminName,
   getPgHost,
@@ -16,10 +13,7 @@ const {
   getResourceGroupName,
   getEventGridName,
 } = require("../../../../../deploy/util/namingConvention.cjs");
-const {
-  getAppInsightsConnectionString,
-  getEventGridTopicEndpoint,
-} = require("../../../../../deploy/util/azureCli.cjs");
+const { getAppInsightsConnectionString, getEventGridTopicEndpoint } = require("../../../../../deploy/util/azureCli.cjs");
 const fs = require("fs");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
@@ -42,8 +36,7 @@ const localSettingTemplate = {
 
 // Custom settings for local development
 const customSettings = {
-  JWT_SECRET:
-    "bb64c67554381aff324d26669540f591e02e3e993ce85c2d1ed2962e22411634",
+  JWT_SECRET: "bb64c67554381aff324d26669540f591e02e3e993ce85c2d1ed2962e22411634",
   BASE_URL: "http://localhost:" + localPort,
   // set your local DB details
   DB_USERNAME: "root",

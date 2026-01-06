@@ -1,1 +1,19 @@
-name: deployRootProd 
+name: deployRootProd
+on:
+    workflow_call:
+jobs:
+    deployRootProd:
+        name: Run deployRootProd
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            security-events: write
+            actions: read
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            # - name: Setup pnpm environment
+            #   uses: ./.github/actions/setup-pnpm
+            - name: print input
+              run: echo "deployRootProd"

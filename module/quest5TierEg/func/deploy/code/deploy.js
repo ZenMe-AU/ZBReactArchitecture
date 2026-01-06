@@ -4,34 +4,18 @@
  */
 
 const { resolve } = require("path");
-const {
-  getTargetEnv,
-  getModuleName,
-} = require("../../../../../deploy/util/envSetup.cjs");
-const {
-  getResourceGroupName,
-  getServiceBusName,
-  getFunctionAppName,
-  getStorageAccountName,
-} = require("../../../../../deploy/util/namingConvention.cjs");
-const {
-  getSubscriptionId,
-} = require("../../../../../deploy/util/azureCli.cjs");
+const { getTargetEnv, getModuleName } = require("../../../../../deploy/util/envSetup.cjs");
+const { getResourceGroupName, getServiceBusName, getFunctionAppName, getStorageAccountName } = require("../../../../../deploy/util/namingConvention.cjs");
+const { getSubscriptionId } = require("../../../../../deploy/util/azureCli.cjs");
 const classDeployCode = require("./classDeployCode.js");
 const funcMetaData = require("../../funcMetaData.js");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
 const subscriptionList = funcMetaData.commands
-  .map(
-    ({
-      subscriptionFilter: subscriptionFilter,
-      eventQueueName,
-      queueFuncName,
-    }) => [
-      { queueName: subscriptionFilter, funcName: queueFuncName },
-      // { queueName: eventQueueName },
-    ],
-  )
+  .map(({ subscriptionFilter: subscriptionFilter, eventQueueName, queueFuncName }) => [
+    { queueName: subscriptionFilter, funcName: queueFuncName },
+    // { queueName: eventQueueName },
+  ])
   .flat();
 
 (async () => {

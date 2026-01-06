@@ -53,6 +53,29 @@ variable "appconfig_name" {
   type        = string
 }
 
+variable "log_analytics_workspace_name" {
+  description = "Name of the Azure Log Analytics Workspace"
+  type        = string
+
+}
+variable "deployer_sp_object_id" {
+  type        = string
+  description = "Object ID of the Service Principal to assign as AD Admin"
+  default     = null
+}
+variable "deployer_sp_name" {
+  type        = string
+  description = "Display name of the Service Principal"
+  default     = null
+}
+output "deployer_sp_name" {
+  value       = var.deployer_sp_name
+  description = "value of deployer service principal name"
+}
+locals {
+  has_deployer = var.deployer_sp_object_id != null && var.deployer_sp_name != null
+}
+
 # variable "parent_domain_name" {
 #   description = "Parent domain name for the custom domain"
 #   type        = string
@@ -75,6 +98,12 @@ data "azurerm_resource_group" "main_resource" {
 
 data "azurerm_app_configuration" "main_appconfig" {
   name                = var.appconfig_name
+  resource_group_name = var.resource_group_name
+}
+
+# Get the Log Analytics Workspace details
+data "azurerm_log_analytics_workspace" "log_analytics_workspace" {
+  name                = var.log_analytics_workspace_name
   resource_group_name = var.resource_group_name
 }
 

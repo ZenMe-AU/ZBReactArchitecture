@@ -1,0 +1,56 @@
+name: "Setup Release Environment"
+description: "setup pnpm, Node.js, terraform, and cache dependencies"
+
+inputs:
+  clientId:
+    description: "Azure client ID"
+    required: true
+  tenantId:
+    description: "Azure tenant ID"
+    required: true
+  subscriptionId:
+    description: "Azure subscription ID"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+      with:
+        version: 10
+        run_install: false
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+        cache: "pnpm"
+
+    - name: Install dependencies
+      shell: bash
+      run: pnpm install --frozen-lockfile
+
+    - name: Install Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.6.6
+
+    - name: Azure Login
+      uses: azure/login@v2
+      with:
+        client-id: ${{ inputs.clientId }}
+        tenant-id: ${{ inputs.tenantId }}
+        subscription-id: ${{ inputs.subscriptionId }}
+
+    - name: Verify Azure Login
+      shell: bash
+      run: az account show
+
+    - name: Set Terraform environment variables
+      shell: bash
+      run: |
+        echo "ARM_CLIENT_ID=${{ inputs.clientId }}" >> $GITHUB_ENV
+        echo "ARM_TENANT_ID=${{ inputs.tenantId }}" >> $GITHUB_ENV
+        echo "ARM_SUBSCRIPTION_ID=${{ inputs.subscriptionId }}" >> $GITHUB_ENV
+        echo "ARM_USE_OIDC=true" >> $GITHUB_ENV

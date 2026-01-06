@@ -5,10 +5,7 @@
 
 const { resolve } = require("path");
 const classManageDataPermission = require("./classManageDataPermission.js");
-const {
-  getTargetEnv,
-  getModuleName,
-} = require("../../../../../deploy/util/envSetup.cjs");
+const { getTargetEnv, getModuleName } = require("../../../../../deploy/util/envSetup.cjs");
 const { createDatabaseInstance } = require("../../repository/model/connection");
 const DB_TYPE = require("../../enum/dbType.js");
 const {
@@ -33,11 +30,12 @@ const {
   const dbName = moduleName;
   // pg role/user name setup
   const pgServerName = getPgServerName(targetEnv);
-  const pgAdminUserName = getDbAdminName(envType);
+  const pgAdminUserName = process.env.TF_VAR_deployer_sp_name || getDbAdminName(envType);
   const rwRoleName = getRwRoleName(moduleName);
   const roRoleName = getRoRoleName(moduleName);
   const dbSchemaAdminRoleName = getDbSchemaAdminRoleName(moduleName);
   const dbSchemaAdminUserName = getDbSchemaAdminName(moduleName);
+  console.log("pgAdminUserName:", pgAdminUserName);
   // db connection setup
   const config = {
     username: pgAdminUserName,

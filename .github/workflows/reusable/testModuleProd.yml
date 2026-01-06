@@ -1,0 +1,23 @@
+name: testModuleProd
+on:
+    workflow_call:
+        inputs:
+            moduleName:
+                required: true
+                type: string
+
+jobs:
+    testModuleProd:
+        name: Run testModuleProd
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            security-events: write
+            actions: read
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+            # - name: Setup pnpm environment
+            #   uses: ./.github/actions/setup-pnpm
+            - name: Print which module is building
+              run: echo "Building module${{ inputs.moduleName }} testModuleProd"
