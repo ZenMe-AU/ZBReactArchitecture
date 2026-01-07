@@ -1,2 +1,2 @@
-"Identifier","Title","Consumer Responsibility", "Implementation Status", "Consumer Implementation Required", "Consumer Configuration Required", "Consumer Guidance"
-"ISM-1997","Clear roles and responsibilities for cybersecurity","Not Implemented", "Yes", "Yes","Not Assessed","Update Architecture Documentation & Infra Implementation"
+"Identifier","Title","Implementation Status", "Consumer Responsibility", "Consumer Implementation Required", "Consumer Configuration Required", "Consumer Guidance"
+"ISM-0263","TLS traffic is inspected","Not Implemented", "Design, Infra Configuration, Monitoring", "Yes", "Yes", "Update Architecture Documentation & Infra Implementation"
