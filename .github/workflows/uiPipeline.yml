@@ -1,0 +1,132 @@
+name: uiPipeline
+
+on:
+    workflow_call:
+        inputs:
+            build:
+                required: true
+                type: string
+            deployDev:
+                required: true
+                type: string
+            deployTest:
+                required: true
+                type: string
+            deployProd:
+                required: true
+                type: string
+
+jobs:
+    build:
+        name: Build
+        runs-on: ubuntu-latest
+        if: ${{ inputs.build == 'true' }}
+        permissions:
+            contents: read
+            security-events: write
+            actions: read
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            # - name: Setup pnpm environment
+            #   uses: ./.github/actions/setup-azure
+
+    deployDev:
+        name: Deploy Dev
+        needs: build
+        environment: Dev
+        runs-on: ubuntu-latest
+        if: ${{ inputs.deployDev == 'true' }}
+        permissions:
+            contents: read
+            security-events: write
+            actions: read
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            # - name: Setup pnpm environment
+            #   uses: ./.github/actions/setup-azure
+
+    testDev:
+        name: Test Dev
+        needs: deployDev
+        environment: Dev
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            security-events: write
+            actions: read
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            # - name: Setup pnpm environment
+            #   uses: ./.github/actions/setup-azure
+
+    deployTest:
+        name: Deploy Test
+        needs: testDev
+        environment: Test
+        runs-on: ubuntu-latest
+        if: ${{ inputs.deployTest == 'true' }}
+        permissions:
+            contents: read
+            security-events: write
+            actions: read
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            # - name: Setup pnpm environment
+            #   uses: ./.github/actions/setup-azure
+
+    testTest:
+        name: Test Test
+        environment: Test
+        needs: deployTest
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            security-events: write
+            actions: read
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            # - name: Setup pnpm environment
+            #   uses: ./.github/actions/setup-azure
+
+    deployProd:
+        name: Deploy Prod
+        needs: testTest
+        environment: Prod
+        runs-on: ubuntu-latest
+        if: ${{ inputs.deployProd == 'true' }}
+        permissions:
+            contents: read
+            security-events: write
+            actions: read
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            # - name: Setup pnpm environment
+            #   uses: ./.github/actions/setup-azure
+
+    testProd:
+        name: Test Prod
+        needs: deployProd
+        environment: Prod
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            security-events: write
+            actions: read
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            # - name: Setup pnpm environment
+            #   uses: ./.github/actions/setup-azure

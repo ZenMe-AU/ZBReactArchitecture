@@ -22,10 +22,7 @@ function zipDir(targetZip, cwd, excludeList = []) {
     output.on("error", (err) => reject(err));
     archive.on("error", (err) => reject(err));
     archive.pipe(output);
-    const ignores = normalizeExcludes([
-      ...excludeList,
-      targetZip.replace(/\\/g, "/"),
-    ]);
+    const ignores = normalizeExcludes([...excludeList, targetZip.replace(/\\/g, "/")]);
     archive.glob("**/*", {
       cwd,
       dot: true,
@@ -58,21 +55,13 @@ async function main() {
   let targetName = "New";
   try {
     targetName = getTargetEnv(__dirname);
-    fs.copyFileSync(
-      resolve(__dirname, envFileName),
-      resolve(distDir, envFileName),
-    );
+    fs.copyFileSync(resolve(__dirname, envFileName), resolve(distDir, envFileName));
   } catch (error) {
-    console.log(
-      "No target environment provided, new name will be generated during deployment.",
-    );
+    console.log("No target environment provided, new name will be generated during deployment.");
   }
 
   console.log("Step 4: copy terraform file.");
-  fs.copyFileSync(
-    resolve(__dirname, terraformFileName),
-    resolve(distDir, terraformFileName),
-  );
+  fs.copyFileSync(resolve(__dirname, terraformFileName), resolve(distDir, terraformFileName));
 
   console.log("Step 4: copy exec file.");
   //   fs.copyFileSync(resolve(__dirname, execFileName), resolve(distDir, execFileName));
@@ -81,7 +70,7 @@ async function main() {
     `Set-Location $PSScriptRoot\n$env:TF_VAR_env_type="dev"\nnode ./initEnvironment.cjs --assignDeployer=github-oidc`,
     {
       flag: "w",
-    },
+    }
   );
 
   console.log("Step 5: Zipping output directory.");

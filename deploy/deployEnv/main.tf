@@ -82,12 +82,12 @@ output "pg_id" {
 #   mail_enabled     = false
 # }
 
-data "azuread_group" "pg_admin_group" {
-  display_name = var.db_admin_group_name
-}
-output "pg_admin_group" {
-  value = data.azuread_group.pg_admin_group.display_name
-}
+# data "azuread_group" "pg_admin_group" {
+#   display_name = var.db_admin_group_name
+# }
+# output "pg_admin_group" {
+#   value = data.azuread_group.pg_admin_group.display_name
+# }
 resource "azurerm_app_configuration_key" "db_host" {
   configuration_store_id = data.azurerm_app_configuration.appconfig.id
   key                    = "DbHost"
@@ -95,14 +95,30 @@ resource "azurerm_app_configuration_key" "db_host" {
   label                  = var.env_type
 }
 
-# Set Administrator for PostgreSQL
+data "azurerm_app_configuration_key" "db_admin_group" {
+  configuration_store_id = data.azurerm_app_configuration.appconfig.id
+  key                    = "DbAdminGroupId"
+}
+
+# Set Administrator group for PostgreSQL
 resource "azurerm_postgresql_flexible_server_active_directory_administrator" "pg_admin" {
   resource_group_name = data.azurerm_resource_group.rg.name
   server_name         = azurerm_postgresql_flexible_server.pg_server.name
-  object_id           = data.azuread_group.pg_admin_group.object_id
+  object_id           = data.azurerm_app_configuration_key.db_admin_group.value
   tenant_id           = data.azurerm_client_config.current.tenant_id
-  principal_name      = data.azuread_group.pg_admin_group.display_name
+  principal_name      = var.db_admin_group_name
   principal_type      = "Group"
+}
+
+# Set github Administrator for PostgreSQL
+resource "azurerm_postgresql_flexible_server_active_directory_administrator" "pg_admin_github" {
+  count               = local.has_deployer ? 1 : 0
+  resource_group_name = data.azurerm_resource_group.rg.name
+  server_name         = azurerm_postgresql_flexible_server.pg_server.name
+  object_id           = var.deployer_sp_object_id
+  tenant_id           = data.azurerm_client_config.current.tenant_id
+  principal_name      = var.deployer_sp_name
+  principal_type      = "ServicePrincipal"
 }
 
 # Create a User Assigned Identity
@@ -147,15 +163,15 @@ resource "azurerm_role_assignment" "servicebus_receiver" {
   principal_id         = azurerm_user_assigned_identity.uai.principal_id
 }
 
-# API Management Service
-resource "azurerm_api_management" "apim" {
-  name                = "${var.target_env}-apim"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-  publisher_name      = "Zenme"
-  publisher_email     = "xxxx@xxxx.com.au"
-  sku_name            = "Developer_1" # Change to Basic/Standard/Premium if needed
-}
+# # API Management Service
+# resource "azurerm_api_management" "apim" {
+#   name                = "${var.target_env}-apim"
+#   location            = data.azurerm_resource_group.rg.location
+#   resource_group_name = data.azurerm_resource_group.rg.name
+#   publisher_name      = "Zenme"
+#   publisher_email     = "xxxx@xxxx.com.au"
+#   sku_name            = "Developer_1" # Change to Basic/Standard/Premium if needed
+# }
 
 # resource "azurerm_eventgrid_namespace" "eventgrid_namespace" {
 #   capacity              = 1

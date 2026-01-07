@@ -4,11 +4,7 @@
  */
 
 const { createInterface } = require("readline");
-const {
-  terraformInit,
-  terraformPlan,
-  terraformApply,
-} = require("./terraformCli");
+const { terraformInit, terraformPlan, terraformApply } = require("./terraformCli");
 const {
   getFunctionAppName,
   getResourceGroupName,
@@ -21,21 +17,12 @@ const {
   getModuleStorageAccountContainerName,
   getPgServerName,
   getStorageAccountWebName,
+  getLogAnalyticsWorkspaceName,
 } = require("../../../../../deploy/util/namingConvention.cjs");
-const {
-  getSubscriptionId,
-} = require("../../../../../deploy/util/azureCli.cjs");
+const { getSubscriptionId } = require("../../../../../deploy/util/azureCli.cjs");
 
 class classDeployEnvironment {
-  constructor({
-    envType,
-    targetEnv,
-    moduleName,
-    dbName,
-    backendConfig,
-    logLevel = "",
-    autoApprove = false,
-  }) {
+  constructor({ envType, targetEnv, moduleName, dbName, backendConfig, logLevel = "", autoApprove = false }) {
     this.envType = envType;
     this.targetEnv = targetEnv;
     this.moduleName = moduleName;
@@ -50,17 +37,12 @@ class classDeployEnvironment {
     this.appInsightsName = getAppInsightsName(this.targetEnv);
     this.identityName = getIdentityName(this.targetEnv);
     this.dbAdminName = getDbAdminName(this.targetEnv);
-    this.servicePlanName = getModuleServicePlanName(
-      this.targetEnv,
-      this.moduleName,
-    );
-    this.storageAccountContainerName = getModuleStorageAccountContainerName(
-      this.targetEnv,
-      this.moduleName,
-    );
+    this.servicePlanName = getModuleServicePlanName(this.targetEnv, this.moduleName);
+    this.storageAccountContainerName = getModuleStorageAccountContainerName(this.targetEnv, this.moduleName);
     this.pgServerName = getPgServerName(this.targetEnv);
     this.storageAccountWebName = getStorageAccountWebName(this.targetEnv);
     this.appConfigName = getAppConfigName(this.targetEnv);
+    this.logAnalyticsWorkspaceName = getLogAnalyticsWorkspaceName(this.targetEnv);
 
     this.backendConfig = backendConfig || {
       resource_group_name: this.resourceGroupName,
@@ -85,11 +67,11 @@ class classDeployEnvironment {
     process.env.TF_VAR_identity_name = this.identityName;
     process.env.TF_VAR_db_admin_name = this.dbAdminName;
     process.env.TF_VAR_service_plan_name = this.servicePlanName;
-    process.env.TF_VAR_storage_account_container_name =
-      this.storageAccountContainerName;
+    process.env.TF_VAR_storage_account_container_name = this.storageAccountContainerName;
     process.env.TF_VAR_pg_server_name = this.pgServerName;
     process.env.TF_VAR_storage_account_web_name = this.storageAccountWebName;
     process.env.TF_VAR_appconfig_name = this.appConfigName;
+    process.env.TF_VAR_log_analytics_workspace_name = this.logAnalyticsWorkspaceName;
     process.env.TF_VAR_frontdoor_profile_name = `${this.targetEnv}-fd-profile`;
     process.env.TF_VAR_frontdoor_endpoint_name = `${this.targetEnv}-fd-endpoint`;
 

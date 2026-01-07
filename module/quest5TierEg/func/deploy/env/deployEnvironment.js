@@ -4,10 +4,7 @@
  */
 
 const { resolve } = require("path");
-const {
-  getTargetEnv,
-  getModuleName,
-} = require("../../../../../deploy/util/envSetup.cjs");
+const { getTargetEnv, getModuleName } = require("../../../../../deploy/util/envSetup.cjs");
 const classDeployEnvironment = require("./classDeployEnvironment.js");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");

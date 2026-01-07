@@ -61,3 +61,8 @@ variable "db_database" {
 variable "db_host" {
   type = string
 }
+
+variable "log_analytics_workspace_id" {
+  type = string
+}
+

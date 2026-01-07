@@ -1,0 +1,38 @@
+name: deployModule
+on:
+  workflow_call:
+    inputs:
+      moduleName:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+
+jobs:
+  deployModule:
+    name: Deploy ${{ inputs.moduleName }} - ${{ inputs.environment }}
+    environment: ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    steps:
+      - name: Print Starting deploy
+        run: |
+          echo "Env: $GITHUB_ENVIRONMENT"
+          echo "Module: ${{ inputs.moduleName }}"
+          echo "TargetEnv: ${{ vars.targetEnv }}"
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # - name: Setup pnpm environment
+      #   uses: ./.github/actions/setup-pnpm
+
+      - name: Fail intentionally for profile
+        if: ${{ inputs.moduleName == 'profile' }}
+        run: |
+          echo "Simulating failure for profile module"
+          exit 1

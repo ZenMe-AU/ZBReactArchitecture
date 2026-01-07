@@ -4,12 +4,7 @@
  */
 
 const fs = require("fs");
-const {
-  terraformInit,
-  terraformPlan,
-  terraformApply,
-  terraformImport,
-} = require("./terraformCli");
+const { terraformInit, terraformPlan, terraformApply, terraformImport } = require("./terraformCli");
 const {
   getFunctionAppName,
   getResourceGroupName,
@@ -24,21 +19,10 @@ const {
   getStorageAccountWebName,
   getEventGridName,
 } = require("../../../../../deploy/util/namingConvention.cjs");
-const {
-  getSubscriptionId,
-  getEventGridDomainId,
-} = require("../../../../../deploy/util/azureCli.cjs");
+const { getSubscriptionId, getEventGridDomainId } = require("../../../../../deploy/util/azureCli.cjs");
 
 class classDeployEnvironment {
-  constructor({
-    envType,
-    targetEnv,
-    moduleName,
-    dbName,
-    backendConfig,
-    logLevel = "",
-    autoApprove = false,
-  }) {
+  constructor({ envType, targetEnv, moduleName, dbName, backendConfig, logLevel = "", autoApprove = false }) {
     this.envType = envType;
     this.targetEnv = targetEnv;
     this.moduleName = moduleName;
@@ -53,14 +37,8 @@ class classDeployEnvironment {
     this.appInsightsName = getAppInsightsName(this.targetEnv);
     this.identityName = getIdentityName(this.targetEnv);
     this.dbAdminName = getDbAdminName(this.targetEnv);
-    this.servicePlanName = getModuleServicePlanName(
-      this.targetEnv,
-      this.moduleName,
-    );
-    this.storageAccountContainerName = getModuleStorageAccountContainerName(
-      this.targetEnv,
-      this.moduleName,
-    );
+    this.servicePlanName = getModuleServicePlanName(this.targetEnv, this.moduleName);
+    this.storageAccountContainerName = getModuleStorageAccountContainerName(this.targetEnv, this.moduleName);
     this.pgServerName = getPgServerName(this.targetEnv);
     this.storageAccountWebName = getStorageAccountWebName(this.targetEnv);
     this.appConfigName = getAppConfigName(this.targetEnv);
@@ -90,15 +68,12 @@ class classDeployEnvironment {
     process.env.TF_VAR_identity_name = this.identityName;
     process.env.TF_VAR_db_admin_name = this.dbAdminName;
     process.env.TF_VAR_service_plan_name = this.servicePlanName;
-    process.env.TF_VAR_storage_account_container_name =
-      this.storageAccountContainerName;
+    process.env.TF_VAR_storage_account_container_name = this.storageAccountContainerName;
     process.env.TF_VAR_pg_server_name = this.pgServerName;
     process.env.TF_VAR_storage_account_web_name = this.storageAccountWebName;
     process.env.TF_VAR_appconfig_name = this.appConfigName;
     process.env.TF_VAR_event_grid_name = this.eventGridName;
-    process.env.TF_VAR_event_grid_topic_list = JSON.stringify(
-      this.eventGridTopicNameList,
-    );
+    process.env.TF_VAR_event_grid_topic_list = JSON.stringify(this.eventGridTopicNameList);
     terraformInit({ backendConfig: this.backendConfig });
     if (this.#hasEventGridModule()) {
       try {
@@ -106,14 +81,8 @@ class classDeployEnvironment {
           eventGridDomainName: this.eventGridName,
           resourceGroupName: this.resourceGroupName,
         });
-        console.log(
-          "Importing existing Event Grid Domain with ID:",
-          eventGridId,
-        );
-        terraformImport(
-          "module.event_grid.azurerm_eventgrid_topic.egtopic",
-          eventGridId,
-        );
+        console.log("Importing existing Event Grid Domain with ID:", eventGridId);
+        terraformImport("module.event_grid.azurerm_eventgrid_topic.egtopic", eventGridId);
       } catch (error) {
         console.log("Event Grid Domain not found. It will be created.");
       }
@@ -150,8 +119,7 @@ class classDeployEnvironment {
     console.log("Checking for Event Grid module in", fileName);
     if (fs.existsSync(fileName)) {
       const content = fs.readFileSync(fileName, "utf8");
-      const regex =
-        /module\s+"event_grid"\s*{[^}]*source\s*=\s*["']\.\/eventGridTopic["'][^}]*}/s;
+      const regex = /module\s+"event_grid"\s*{[^}]*source\s*=\s*["']\.\/eventGridTopic["'][^}]*}/s;
       return regex.test(content);
     }
     return false;

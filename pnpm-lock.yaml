@@ -28,6 +28,9 @@ importers:
       archiver:
         specifier: ^7.0.1
         version: 7.0.1
+      dotenv:
+        specifier: ^16.6.1
+        version: 16.6.1
       esbuild:
         specifier: ^0.27.0
         version: 0.27.0
@@ -503,6 +506,9 @@ importers:
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@20.19.23)(babel-plugin-macros@3.1.0)
+      minimist:
+        specifier: ^1.2.8
+        version: 1.2.8
       umzug:
         specifier: ^3.8.2
         version: 3.8.2(@types/node@20.19.23)
@@ -1163,6 +1169,9 @@ importers:
       jiti:
         specifier: ^2.6.1
         version: 2.6.1
+      minimist:
+        specifier: ^1.2.8
+        version: 1.2.8
       typescript:
         specifier: ^5.7.2
         version: 5.9.3

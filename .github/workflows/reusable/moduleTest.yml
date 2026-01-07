@@ -1,0 +1,32 @@
+name: testModule
+on:
+    workflow_call:
+        inputs:
+            moduleName:
+                required: true
+                type: string
+            environment:
+                required: true
+                type: string
+
+jobs:
+    testModuleDev:
+        name: Test ${{ inputs.moduleName }} - ${{ inputs.environment }}
+        environment: ${{ inputs.environment }}
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            security-events: write
+            actions: read
+        steps:
+            - name: Print Starting Test
+              run: |
+                  echo "Env: $GITHUB_ENVIRONMENT"
+                  echo "Module: ${{ inputs.moduleName }}"
+                  echo "TargetEnv: ${{ vars.targetEnv }}"
+
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            # - name: Setup pnpm environment
+            #   uses: ./.github/actions/setup-pnpm

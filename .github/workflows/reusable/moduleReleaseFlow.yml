@@ -1,0 +1,31 @@
+name: moduleReleaseFlow
+
+on:
+    workflow_call:
+        inputs:
+            moduleName:
+                required: true
+                type: string
+            environment:
+                required: true
+                type: string
+
+jobs:
+    print:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Print module name
+              run: echo "Module ${{ inputs.moduleName }}, Env ${{ github.environment }}, TargetEnv ${{ vars.TARGET_ENV_NAME }}"
+
+    deploy:
+        uses: ./.github/workflows/deployModuleDev.yml
+        with:
+            moduleName: ${{ inputs.moduleName }}
+            environment: ${{ inputs.environment }}
+
+    test:
+        needs: deploy
+        uses: ./.github/workflows/testModuleDev.yml
+        with:
+            moduleName: ${{ inputs.moduleName }}
+            environment: ${{ inputs.environment }}

@@ -1,0 +1,29 @@
+name: deployModuleDev
+on:
+    workflow_call:
+        inputs:
+            moduleName:
+                required: true
+                type: string
+
+jobs:
+    deployModuleDev:
+        name: Deploy ${{ inputs.moduleName }}
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            security-events: write
+            actions: read
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+            # - name: Setup pnpm environment
+            #   uses: ./.github/actions/setup-pnpm
+            - name: Print which module is building
+              run: echo "Building module ${{ inputs.moduleName }} deployModuleDev"
+
+            - name: Fail intentionally for profile
+              if: ${{ inputs.moduleName == 'profile' }}
+              run: |
+                  echo "Simulating failure for profile module"
+                  exit 1

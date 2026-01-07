@@ -12,5 +12,23 @@ jobs:
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
-            - name: Setup pnpm environment
-              uses: ./.github/actions/setup-pnpm
+
+            # - name: Setup pnpm environment
+            #   uses: ./.github/actions/setup-pnpm
+
+            - name: print input
+              run: echo "buildRoot"
+
+            - name: Setup environment
+              uses: ./.github/actions/setup-azure
+            #   with:
+            #       azureCreds: ${{ secrets.AZURE_CREDENTIALS }}
+
+            - name: Azure Login
+              uses: azure/login@v2
+              with:
+                  creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+            - name: Verify Azure Login
+              shell: bash
+              run: az account show

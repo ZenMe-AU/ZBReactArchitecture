@@ -5,8 +5,14 @@
 
 const { execSync } = require("child_process");
 
-function getSubscriptionId() {
+function getSubscriptionId(name = null) {
   try {
+    if (name) {
+      return execSync(`az account list --query "[?name=='${name}'].id" -o tsv`, {
+        encoding: "utf8",
+        stdio: ["pipe", "pipe", "ignore"],
+      }).trim();
+    }
     return execSync("az account show --query id -o tsv", {
       encoding: "utf8",
       stdio: ["pipe", "pipe", "ignore"],
@@ -73,12 +79,9 @@ function getAppConfigValueByKeyLabel({ appConfigName, key, label }) {
  */
 function getAppInsightsConnectionString({ appInsightsName, resourceGroupName }) {
   try {
-    return execSync(
-      `az monitor app-insights component show --app ${appInsightsName} --resource-group ${resourceGroupName} --query connectionString -o tsv`,
-      {
-        encoding: "utf8",
-      }
-    ).trim();
+    return execSync(`az monitor app-insights component show --app ${appInsightsName} --resource-group ${resourceGroupName} --query connectionString -o tsv`, {
+      encoding: "utf8",
+    }).trim();
   } catch (e) {
     throw new Error("Could not retrieve Application Insights connection string.");
   }
@@ -308,12 +311,9 @@ function getEventGridDomainId({ resourceGroupName, eventGridDomainName }) {
  */
 function getEventGridNamespaceHostname({ resourceGroupName, eventGridNamespaceName }) {
   try {
-    return execSync(
-      `az eventgrid namespace show -n ${eventGridNamespaceName} -g ${resourceGroupName} --query "topicsConfiguration.hostname" -o tsv`,
-      {
-        encoding: "utf8",
-      }
-    ).trim();
+    return execSync(`az eventgrid namespace show -n ${eventGridNamespaceName} -g ${resourceGroupName} --query "topicsConfiguration.hostname" -o tsv`, {
+      encoding: "utf8",
+    }).trim();
   } catch (error) {
     throw new Error("Could not retrieve Event Grid Namespace Hostname." + error.message);
   }
@@ -357,12 +357,9 @@ function createEventGridTopic({ resourceGroupName, eventGridNamespaceName, topic
 
 function getEventGridTopicList({ resourceGroupName, eventGridNamespaceName }) {
   try {
-    return execSync(
-      `az eventgrid namespace topic list -g ${resourceGroupName} --namespace-name ${eventGridNamespaceName} --query "[].name" -o json`,
-      {
-        encoding: "utf8",
-      }
-    ).trim();
+    return execSync(`az eventgrid namespace topic list -g ${resourceGroupName} --namespace-name ${eventGridNamespaceName} --query "[].name" -o json`, {
+      encoding: "utf8",
+    }).trim();
   } catch (error) {
     throw new Error("Could not list Event Grid Topics." + error.message);
   }

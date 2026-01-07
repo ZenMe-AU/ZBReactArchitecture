@@ -1,0 +1,40 @@
+name: "Deploy Module"
+description: "deploy terraform"
+
+inputs:
+  moduleName:
+    description: "Module name to deploy"
+    required: true
+  buildDirName:
+    description: "Directory name for build output"
+    required: false
+    default: "out"
+  zipFileName:
+    description: "Zip file name for build output"
+    required: false
+    default: "deploy-package.zip"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup pnpm environment
+      uses: ./.github/actions/setup-pnpm
+
+    - name: Build module code with pnpm
+      working-directory: module/${{ inputs.moduleName }}/func/deploy/code
+      shell: bash
+      run: |
+        pnpm deploy --filter ${{ inputs.moduleName }} --prod ${{ inputs.buildDirName }} --config.node-linker=hoisted --config.symlink=false --config.package-import-method=copy
+
+    - name: zip build artifacts
+      working-directory: module/${{ inputs.moduleName }}/func/${{ inputs.buildDirName }}
+      shell: bash
+      run: |
+        zip -r "../${{ inputs.zipFileName }}" .
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: my-artifacts-${{ inputs.moduleName }}
+        path: |
+          module/${{ inputs.moduleName }}/func/${{ inputs.zipFileName }}

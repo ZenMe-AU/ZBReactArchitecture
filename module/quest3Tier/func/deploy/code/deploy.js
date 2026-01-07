@@ -14,22 +14,15 @@
  */
 
 const { resolve } = require("path");
-const {
-  getTargetEnv,
-  getModuleName,
-} = require("../../../../../deploy/util/envSetup.cjs");
-const {
-  getResourceGroupName,
-  getServiceBusName,
-  getFunctionAppName,
-  getStorageAccountName,
-} = require("../../../../../deploy/util/namingConvention.cjs");
-const {
-  getSubscriptionId,
-} = require("../../../../../deploy/util/azureCli.cjs");
+const minimist = require("minimist");
+const { getTargetEnv, getModuleName } = require("../../../../../deploy/util/envSetup.cjs");
+const { getResourceGroupName, getServiceBusName, getFunctionAppName, getStorageAccountName } = require("../../../../../deploy/util/namingConvention.cjs");
+const { getSubscriptionId } = require("../../../../../deploy/util/azureCli.cjs");
 const classDeployCode = require("./classDeployCode.js");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
+const args = minimist(process.argv.slice(2));
+const deployFilePath = args.deployFile ? resolve(args.deployFile) : null;
 
 (async () => {
   let targetEnv, moduleName, subscriptionId, envType;
@@ -57,6 +50,7 @@ const moduleDir = resolve(__dirname, "..", "..", "..");
     storageAccountName,
     serviceBusName,
     moduleDir,
+    deployFilePath,
   });
   await codeDeployer.run();
 })();

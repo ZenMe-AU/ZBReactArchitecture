@@ -19,6 +19,7 @@ module "function_app" {
   db_username                            = var.function_app_name
   db_database                            = var.db_name
   db_host                                = data.azurerm_postgresql_flexible_server.main_server.fqdn
+  log_analytics_workspace_id             = data.azurerm_log_analytics_workspace.log_analytics_workspace.id
 }
 
 # create database
