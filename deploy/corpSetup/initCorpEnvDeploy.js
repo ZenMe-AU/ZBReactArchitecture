@@ -402,6 +402,11 @@ function main() {
         if (!dnsName) {
           throw new Error("DNS is not set in corp.env.");
         }
+        const accSubscriptionId = getSubscriptionId();
+        if (accSubscriptionId !== subscriptionId) {
+          execSync(`az account set --subscription ${subscriptionId}`, { stdio: "pipe", shell: true });
+          console.log("Switching subscription to", `${corpName}-subscription`);
+        }
         const location = getAzureLocation();
         const resourceGroupName = getResourceGroupName("root", corpName);
         const logAnalyticsWorkspaceName = getLogAnalyticsWorkspaceName(corpName);
