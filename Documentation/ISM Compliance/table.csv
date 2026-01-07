@@ -1,2 +1,2 @@
-"Identifier","Title","Consumer Responsibility", "Consumer Implementation Required", "Consumer Configuration Required", "Consumer Guidance"
-"ISM-1997","Clear roles and responsibilities for cybersecurity","", "Not Assessed","Not Assessed",""
+"Identifier","Title","Consumer Responsibility", "Implementation Status", "Consumer Implementation Required", "Consumer Configuration Required", "Consumer Guidance"
+"ISM-1997","Clear roles and responsibilities for cybersecurity","Not Implemented", "Yes", "Yes","Not Assessed","Update Architecture Documentation & Infra Implementation"
