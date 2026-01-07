@@ -2,10 +2,10 @@ name: MainWorkflow
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
-      - workflow
+  # push:
+  #   branches:
+  #     - main
+  #     - workflow
 
 # concurrency:
 #   group: deploy-group
