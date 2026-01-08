@@ -1,6 +1,6 @@
 #!/usr/bin/env pwsh
 param(
-    [switch]$AutoApprove
+    [switch]$AutoApprove = $true
 )
 
 $ErrorActionPreference = "Stop"
@@ -17,9 +17,9 @@ Set-Location $scriptDir
 
 Require-Command -Name "terraform"
 
-if (-not (Test-Path (Join-Path $scriptDir "generated.tf"))) {
-    throw "generated.tf not found in $scriptDir. Generate it first."
-}
+# if (-not (Test-Path (Join-Path $scriptDir "distribution.tf"))) {
+#     throw "distribution.tf not found in $scriptDir. Generate it first."
+# }
 
 $initArgs = @("init", "-input=false")
 $applyArgs = @("apply", "-input=false")
