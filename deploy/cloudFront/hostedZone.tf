@@ -27,12 +27,28 @@ resource "aws_route53_zone" "primary" {
 #   ]
 # }
 
-resource "aws_route53_record" "validation_cname" {
+# resource "aws_route53_record" "validation_cname" {
+#   zone_id = aws_route53_zone.primary.zone_id
+#   name    = "_659ba89699ebcbed400d045d3e68355d.z3nm3.com.au"
+#   type    = "CNAME"
+#   ttl     = 300
+#   records = [
+#     "_b9f55ceede849e2ac1b62521830d0e94.jkddzztszm.acm-validations.aws.",
+#   ]
+# }
+
+resource "aws_route53_record" "acm_validation" {
+  for_each = {
+    for dvo in aws_acm_certificate.cert.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      type   = dvo.resource_record_type
+      value  = dvo.resource_record_value
+    }
+  }
+
   zone_id = aws_route53_zone.primary.zone_id
-  name    = "_659ba89699ebcbed400d045d3e68355d.z3nm3.com.au"
-  type    = "CNAME"
+  name    = each.value.name
+  type    = each.value.type
   ttl     = 300
-  records = [
-    "_b9f55ceede849e2ac1b62521830d0e94.jkddzztszm.acm-validations.aws.",
-  ]
+  records = [each.value.value]
 }

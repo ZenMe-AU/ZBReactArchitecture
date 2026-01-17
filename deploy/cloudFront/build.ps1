@@ -15,7 +15,7 @@ New-Item -ItemType Directory -Path $distPath -Force | Out-Null
 Write-Host "Created dist folder" -ForegroundColor Green
 
 # Files to copy
-$filesToCopy = @('hostedZone.tf', 'distribution.tf', 'deploy.ps1', 'destroy.ps1', 'providers.tf')
+$filesToCopy = @('distribution.tf', 'deploy.ps1', 'destroy.ps1', 'providers.tf')
 
 foreach ($file in $filesToCopy) {
     $sourcePath = Join-Path $PSScriptRoot $file

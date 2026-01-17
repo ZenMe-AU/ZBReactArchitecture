@@ -1,6 +1,6 @@
 #!/usr/bin/env pwsh
 param(
-    [switch]$AutoApprove = $true
+    [bool]$AutoApprove = $true
 )
 
 $ErrorActionPreference = "Stop"
@@ -17,12 +17,42 @@ Set-Location $scriptDir
 
 Require-Command -Name "terraform"
 
-# if (-not (Test-Path (Join-Path $scriptDir "distribution.tf"))) {
-#     throw "distribution.tf not found in $scriptDir. Generate it first."
-# }
-
 $initArgs = @("init", "-input=false")
 $applyArgs = @("apply", "-input=false")
+
+
+# Read CENTRAL_DNS from local central.env and pass as terraform variable
+$centralEnvPath = Join-Path $scriptDir "central.env"
+$CentralDns = $null
+if (Test-Path $centralEnvPath) {
+    foreach ($line in Get-Content $centralEnvPath) {
+        if ($line -match '^\s*CENTRAL_DNS\s*=\s*(.+)\s*$') {
+            $CentralDns = $Matches[1].Trim()
+            break
+        }
+    }
+}
+if (-not $CentralDns) {
+    throw "CENTRAL_DNS not found in $centralEnvPath"
+}
+
+$applyArgs += @('-var', "central_dns=$CentralDns")
+# Read CENTRAL_DNS from local central.env and pass as terraform variable
+$centralEnvPath = Join-Path $scriptDir "central.env"
+$CentralDns = $null
+if (Test-Path $centralEnvPath) {
+    foreach ($line in Get-Content $centralEnvPath) {
+        if ($line -match '^\s*CENTRAL_DNS\s*=\s*(.+)\s*$') {
+            $CentralDns = $Matches[1].Trim()
+            break
+        }
+    }
+}
+if (-not $CentralDns) {
+    throw "CENTRAL_DNS not found in $centralEnvPath"
+}
+
+$applyArgs += @('-var', "central_dns=$CentralDns")
 
 if ($AutoApprove) {
     $applyArgs += "-auto-approve"
