@@ -13,10 +13,10 @@ provider "aws" {
   region = var.provider_region
 }
 
-# provider "azurerm" {
-#   features {}
-#   subscription_id = var.subscription_id
-# }
+provider "azurerm" {
+  features {}
+  subscription_id = var.subscription_id
+}
 
 locals {
   mime_types = {
@@ -85,10 +85,40 @@ variable "lambda_edge_auth_guard_name" {
   default     = "asleepswordtail-authGuard-func"
 }
 
+variable "dns_name" {
+  description = "The DNS name for the environment"
+  type        = string
+  # default = "z3nm3.com"
+  default = "zenblox.com.au"
+}
+
+variable "resource_group_name" {
+  description = "The name of the resource group"
+  type        = string
+  default = "root-zenblox"
+}
+
+variable "subscription_id" {
+  description = "The ID of the Azure Subscription"
+  type        = string
+  default     = "0930d9a7-2369-4a2d-a0b6-5805ef505868"
+}
+
+variable "cloudfront_oac_static_website_name" {
+  description = "The name of the S3 bucket for static website hosting"
+  type        = string
+  default     = "asleepswordtail-static-website-oac"
+}
+
+variable "cloudfront_oac_spa_name" {
+  description = "The name of the S3 bucket for the SPA"
+  type        = string
+  default     = "asleepswordtail-spa--oac"
+}
 #==========================================================
 # aws_acm_certificate
 #         ↓
-# azurerm_dns_txt_record
+# azurerm_dns_cname_record (validation)
 #         ↓
 # aws_acm_certificate_validation
 #         ↓
@@ -112,16 +142,24 @@ resource "aws_s3_object" "unavailable_page" {
   content_type = "text/html"
 }
 
+# resource "null_resource" "build_spa" {
+#   provisioner "local-exec" {
+#     command = "npm install && npm run build"
+#     working_dir = var.bucket_spa_source_folder
+#   }
+# }
+
 resource "aws_s3_object" "spa_files" {
   for_each = fileset(var.bucket_spa_source_folder, "**/*")
 
   bucket = aws_s3_bucket.spa.id
   key    = each.value
   source = "${var.bucket_spa_source_folder}/${each.value}"
+  etag   = filemd5("${var.bucket_spa_source_folder}/${each.value}")
 
   content_type = lookup(
     local.mime_types,
-    lower(regex("\\.([^.]+)$", each.value)[0]),
+    lower(element(split(".", each.value), length(split(".", each.value)) - 1)),
     "binary/octet-stream"
   )
 }
@@ -151,6 +189,7 @@ resource "aws_iam_role_policy_attachment" "lambda_edge_auth_guard_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+# TODO: Enable CloudWatch Logs for Lambda@Edges
 # resource "aws_cloudwatch_log_group" "lambda_edge_auth_guard_logs" {
 #   name              = "/aws/lambda/${var.lambda_edge_auth_guard_name}"
 #   retention_in_days = 14
@@ -183,169 +222,238 @@ resource "aws_lambda_function" "viewer_request" {
   ]
 }
 
-# variable "dns_name" {
-#   description = "The DNS name for the environment"
-#   type        = string
-# }
+resource "aws_acm_certificate" "cf" {
+  domain_name       = var.dns_name
+  validation_method = "DNS"
 
-# variable "resource_group_name" {
-#   description = "The name of the resource group"
-#   type        = string
-# }
+  subject_alternative_names = [
+    "*.${var.dns_name}"
+  ]
+   lifecycle {
+    create_before_destroy = true
+  }
+}
 
-# variable "subscription_id" {
-#   description = "The ID of the Azure Subscription"
-#   type        = string
-# }
+resource "azurerm_dns_cname_record" "acm_validation" {
+  for_each = toset([ var.dns_name, "*.${var.dns_name}"])
 
-# resource "aws_acm_certificate" "cf" {
-#   domain_name       = var.dns_name
-#   validation_method = "DNS"
+  name  = one(distinct([
+    for dvo in aws_acm_certificate.cf.domain_validation_options :
+    replace(dvo.resource_record_name, ".${var.dns_name}.", "")
+    if dvo.domain_name == each.key && dvo.resource_record_type == "CNAME"
+  ]))
 
-#   subject_alternative_names = [
-#     "*.${var.dns_name}"
-#   ]
-# }
+  record = one(distinct([
+    for dvo in aws_acm_certificate.cf.domain_validation_options :
+    dvo.resource_record_value
+    if dvo.domain_name == each.key && dvo.resource_record_type == "CNAME"
+  ]))
 
-# resource "azurerm_dns_txt_record" "acm_validation" {
-#   for_each = {
-#     for dvo in aws_acm_certificate.cf.domain_validation_options :
-#     dvo.domain_name => {
-#       name  = replace(dvo.resource_record_name, ".${var.dns_name}.", "")
-#       value = dvo.resource_record_value
-#     }
-#   }
+  zone_name           = var.dns_name
+  resource_group_name = var.resource_group_name
+  ttl                 = 3600
+}
 
-#   name                = each.value.name
-#   zone_name           = var.dns_name
-#   resource_group_name = var.resource_group_name
-#   ttl                 = 3600
+resource "aws_acm_certificate_validation" "cf" {
+  certificate_arn = aws_acm_certificate.cf.arn
 
-#   record {
-#     value = each.value.value
-#   }
-# }
-# resource "aws_acm_certificate_validation" "cf" {
-#   certificate_arn = aws_acm_certificate.cf.arn
+  validation_record_fqdns = [
+    for r in azurerm_dns_cname_record.acm_validation :
+    "${r.name}.${var.dns_name}"
+  ]
+}
 
-#   validation_record_fqdns = [
-#     for r in azurerm_dns_txt_record.acm_validation :
-#     "${r.name}.${var.dns_name}"
-#   ]
-# }
+resource "aws_cloudfront_origin_access_control" "oac_website" {
+  name                              = var.cloudfront_oac_static_website_name
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
 
-# resource "aws_cloudfront_origin_access_control" "oac" {
-#   name                              = "site-oac"
-#   origin_access_control_origin_type = "s3"
-#   signing_behavior                  = "always"
-#   signing_protocol                  = "sigv4"
-# }
+data "aws_cloudfront_cache_policy" "static_website" {
+  name = "Managed-CachingOptimized"
+}
 
-# resource "aws_cloudfront_distribution" "site" {
-#   depends_on = [
-#     aws_acm_certificate_validation.cf
-#   ]
+resource "aws_cloudfront_distribution" "website" {
+  depends_on = [
+    aws_acm_certificate_validation.cf
+  ]
 
-# aliases = [
-#     "www.example.com"
-#   ]
+  aliases = [
+    "unavailable.${var.dns_name}"
+  ]
 
-#  default_root_object = "index.html"
+  viewer_certificate {
+    acm_certificate_arn = aws_acm_certificate.cf.arn
+    ssl_support_method  = "sni-only"
+  }
 
-#   viewer_certificate {
-#     acm_certificate_arn = aws_acm_certificate.cf.arn
-#     ssl_support_method  = "sni-only"
-#   }
+  origin {
+    domain_name = aws_s3_bucket.static_website.bucket_regional_domain_name
+    origin_id   = var.bucket_static_website_name
+    origin_access_control_id = aws_cloudfront_origin_access_control.oac_website.id
+  }
 
-#   origin {
-#     domain_name = aws_s3_bucket.site.bucket_regional_domain_name
-#     origin_id   = "s3-origin"
+  default_root_object = "unavailable.html"
+  enabled             = true
+  default_cache_behavior {
+    allowed_methods = ["GET", "HEAD"]
+    cached_methods  = ["GET", "HEAD"]
 
-  # origin_access_control_id = aws_cloudfront_origin_access_control.oac.id
-#     s3_origin_config {
-#       origin_access_identity = ""
-#     }
-# }
+    target_origin_id = var.bucket_static_website_name
+    cache_policy_id  = data.aws_cloudfront_cache_policy.static_website.id
 
-# resource "azurerm_dns_cname_record" "cloudfront" {
-#   name                = "www"
-#   zone_name           = "example.com"
-#   resource_group_name = "dns-rg"
-#   ttl                 = 300
+    viewer_protocol_policy = "redirect-to-https"
 
-#   record = aws_cloudfront_distribution.site.domain_name
-# }
+    lambda_function_association {
+      event_type   = "viewer-request"
+      lambda_arn   = aws_lambda_function.viewer_request.qualified_arn
+      include_body = false
+    }
+  }
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+      locations        = []
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "static_website" {
+  bucket = aws_s3_bucket.static_website.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowCloudFrontRead"
+        Effect = "Allow"
+        Principal = {
+          Service = "cloudfront.amazonaws.com"
+        }
+        Action   = "s3:GetObject"
+        Resource = "${aws_s3_bucket.static_website.arn}/*"
+        Condition = {
+          StringEquals = {
+            "AWS:SourceArn" = aws_cloudfront_distribution.website.arn
+          }
+        }
+      }
+    ]
+  })
+}
+
+resource "azurerm_dns_cname_record" "website_cloudfront" {
+  name                = "unavailable"
+  zone_name           = var.dns_name
+  resource_group_name = var.resource_group_name
+  ttl                 = 3600
+
+  record = aws_cloudfront_distribution.website.domain_name
+}
+
+resource "aws_cloudfront_origin_access_control" "oac_spa" {
+  name                              = var.cloudfront_oac_spa_name
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
 
 
+resource "aws_cloudfront_cache_policy" "html_no_cache" {
+  name = "html-no-cache"
 
-# resource "aws_iam_role" "lambda_edge" {
-#   name = "lambda-edge-role"
+  default_ttl = 0
+  min_ttl     = 0
+  max_ttl     = 0
 
-#   assume_role_policy = jsonencode({
-#     Version = "2012-10-17"
-#     Statement = [
-#       {
-#         Effect = "Allow"
-#         Principal = {
-#           Service = [
-#             "lambda.amazonaws.com",
-#             "edgelambda.amazonaws.com"
-#           ]
-#         }
-#         Action = "sts:AssumeRole"
-#       }
-#     ]
-#   })
-# }
-# resource "aws_iam_role_policy_attachment" "lambda_logs" {
-#   role       = aws_iam_role.lambda_edge.name
-#   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-# }
+  parameters_in_cache_key_and_forwarded_to_origin {
+    cookies_config { cookie_behavior = "none" }
+    headers_config { header_behavior = "none" }
+    query_strings_config { query_string_behavior = "none" }
+  }
+}
 
+resource "aws_cloudfront_distribution" "spa" {
+  depends_on = [
+    aws_acm_certificate_validation.cf
+  ]
 
+  aliases = [
+    "login.${var.dns_name}"
+  ]
 
+  viewer_certificate {
+    acm_certificate_arn = aws_acm_certificate.cf.arn
+    ssl_support_method  = "sni-only"
+  }
 
+  origin {
+    domain_name = aws_s3_bucket.spa.bucket_regional_domain_name
+    origin_id   = var.bucket_spa_name
+    origin_access_control_id = aws_cloudfront_origin_access_control.oac_spa.id
+  }
 
+  default_root_object = "index.html"
+  enabled             = true
+  ordered_cache_behavior {
+    path_pattern    = "/assets/*"
+    allowed_methods = ["GET", "HEAD"]
+    cached_methods  = ["GET", "HEAD"]
 
+    target_origin_id = var.bucket_spa_name
+    cache_policy_id  = data.aws_cloudfront_cache_policy.static_website.id
 
-# resource "aws_s3_bucket" "site" {
-#   bucket = "my-tf-test-bucket-asleepswordtail"
-# }
-# #unavailable+login
-# resource "aws_cloudfront_distribution" "s3_distribution" {
-#   origin {
-#       domain_name = "${aws_s3_bucket.site.bucket_regional_domain_name}"
-#       origin_id   = "my_first_origin"
-#   }
+    viewer_protocol_policy = "redirect-to-https"
+}
+  default_cache_behavior {
+    allowed_methods = ["GET", "HEAD"]
+    cached_methods  = ["GET", "HEAD"]
 
-#   enabled             = true
-#   default_cache_behavior {
-#     allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-#     cached_methods   = ["GET", "HEAD"]
-#     target_origin_id = "my_first_origin"
+    target_origin_id = var.bucket_spa_name
+    cache_policy_id  = aws_cloudfront_cache_policy.html_no_cache.id
 
-#     forwarded_values {
-#       query_string = false
+    viewer_protocol_policy = "redirect-to-https"
+  }
 
-#       cookies {
-#         forward = "none"
-#       }
-#     }
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+      locations        = []
+    }
+  }
+}
 
-#     viewer_protocol_policy = "allow-all"
-#     # min_ttl                = 0
-#     # default_ttl            = 3600
-#     # max_ttl                = 86400
-#   }
+resource "azurerm_dns_cname_record" "spa_cloudfront" {
+  name                = "login"
+  zone_name           = var.dns_name
+  resource_group_name = var.resource_group_name
+  ttl                 = 3600
 
-#   restrictions {
-#     geo_restriction {
-#       restriction_type = "none"
-#       locations        = []
-#     }
-#   }
+  record = aws_cloudfront_distribution.spa.domain_name
+}
 
-#   viewer_certificate {
-#     cloudfront_default_certificate = true
-#   }
-# }
+resource "aws_s3_bucket_policy" "spa" {
+  bucket = aws_s3_bucket.spa.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowCloudFrontRead"
+        Effect = "Allow"
+        Principal = {
+          Service = "cloudfront.amazonaws.com"
+        }
+        Action   = "s3:GetObject"
+        Resource = "${aws_s3_bucket.spa.arn}/*"
+        Condition = {
+          StringEquals = {
+            "AWS:SourceArn" = aws_cloudfront_distribution.spa.arn
+          }
+        }
+      }
+    ]
+  })
+}
