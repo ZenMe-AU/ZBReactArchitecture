@@ -1,5 +1,5 @@
 "use strict";
-const jwt = require("jsonwebtoken");
+import jwt from "jsonwebtoken";
 
 const CLIENT_ID = "b0ee1412-c79a-48f3-978e-f61f740d7832";
 const TENANT_ID = "15fb0613-7977-4551-801b-6aadac824241";
@@ -12,9 +12,9 @@ VLqpjc8Ervl6yMNHyg8hyBkbV/IyeZVVJW2nu0ljkQwyTLr1GH1h2I7a/ioK6WlW
 JVhc43YexUDo+Sd/e2P3BgpdK3I0ksX5c58yO2z0OvpFHYSg2CYOdzEOj/mLKbOA
 zQIDAQAB
 -----END PUBLIC KEY-----`;
-const AUTH_DOMAIN = "logintest.zenblox.com.au";
+const AUTH_DOMAIN = "https://login.zenblox.com.au";
 
-exports.handler = async (event) => {
+export const handler = async (event) => {
   const request = event.Records[0].cf.request;
   const cookieHeader = request.headers.cookie?.[0]?.value || "";
   const cookies = Object.fromEntries(
