@@ -1,120 +1,3 @@
-terraform {
-  required_version = ">= 1.3"
-
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 6.0"
-    }
-  }
-}
-
-provider "aws" {
-  region = var.provider_region
-}
-
-provider "azurerm" {
-  features {}
-  subscription_id = var.subscription_id
-}
-
-locals {
-  mime_types = {
-    html  = "text/html"
-    css   = "text/css"
-    js    = "application/javascript"
-    json  = "application/json"
-    svg   = "image/svg+xml"
-    png   = "image/png"
-    jpg   = "image/jpeg"
-    jpeg  = "image/jpeg"
-    webp  = "image/webp"
-    ico   = "image/x-icon"
-    woff  = "font/woff"
-    woff2 = "font/woff2"
-    ttf   = "font/ttf"
-    map   = "application/json"
-  }
-}
-
-variable "provider_region" {
-  description = "The AWS region for the provider"
-  type        = string
-  default     = "us-east-1"
-}
-
-variable "bucket_static_website_name" {
-  description = "The name of the S3 bucket for static website hosting"
-  type        = string
-  default     = "asleepswordtail-static-website"
-}
-
-variable "bucket_spa_name" {
-  description = "The name of the S3 bucket for the SPA"
-  type        = string
-  default     = "asleepswordtail-spa"
-}
-
-variable "bucket_static_website_source_folder" {
-  description = "The source folder for the static website files"
-  type        = string
-  default     = "source/webpage"
-}
-
-variable "bucket_spa_source_folder" {
-  description = "The source folder for the SPA files"
-  type        = string
-  default     = "source/msalSpa/dist"
-}
-
-variable "lambda_edge_auth_guard_role" {
-  description = "The IAM role for the Lambda@Edge auth guard function"
-  type        = string
-  default     = "asleepswordtail-authGuard-func-role"
-}
-
-variable "lambda_edge_auth_guard_source_folder" {
-  description = "The source folder for the Lambda@Edge auth guard function"
-  type        = string
-  default     = "source/authGuardLambdaEdge"
-}
-
-variable "lambda_edge_auth_guard_name" {
-  description = "The name of the Lambda@Edge auth guard function"
-  type        = string
-  default     = "asleepswordtail-authGuard-func"
-}
-
-variable "dns_name" {
-  description = "The DNS name for the environment"
-  type        = string
-  # default = "z3nm3.com"
-  default = "zenblox.com.au"
-}
-
-variable "resource_group_name" {
-  description = "The name of the resource group"
-  type        = string
-  default = "root-zenblox"
-}
-
-variable "subscription_id" {
-  description = "The ID of the Azure Subscription"
-  type        = string
-  default     = "0930d9a7-2369-4a2d-a0b6-5805ef505868"
-}
-
-variable "cloudfront_oac_static_website_name" {
-  description = "The name of the S3 bucket for static website hosting"
-  type        = string
-  default     = "asleepswordtail-static-website-oac"
-}
-
-variable "cloudfront_oac_spa_name" {
-  description = "The name of the S3 bucket for the SPA"
-  type        = string
-  default     = "asleepswordtail-spa--oac"
-}
 #==========================================================
 # aws_acm_certificate
 #         ↓
@@ -150,12 +33,12 @@ resource "aws_s3_object" "unavailable_page" {
 # }
 
 resource "aws_s3_object" "spa_files" {
-  for_each = fileset(var.bucket_spa_source_folder, "**/*")
+  for_each = fileset("${var.bucket_spa_source_folder}/dist", "**/*")
 
   bucket = aws_s3_bucket.spa.id
   key    = each.value
-  source = "${var.bucket_spa_source_folder}/${each.value}"
-  etag   = filemd5("${var.bucket_spa_source_folder}/${each.value}")
+  source = "${var.bucket_spa_source_folder}/dist/${each.value}"
+  etag   = filemd5("${var.bucket_spa_source_folder}/dist/${each.value}")
 
   content_type = lookup(
     local.mime_types,
@@ -204,6 +87,8 @@ data "archive_file" "edge_zip" {
   type        = "zip"
   source_dir  = var.lambda_edge_auth_guard_source_folder
   output_path = "${var.lambda_edge_auth_guard_source_folder}/lambda.zip"
+  
+  excludes = ["lambda.zip"]
 }
 
 resource "aws_lambda_function" "viewer_request" {
