@@ -34,11 +34,29 @@ export const handler = async (event) => {
       audience: CLIENT_ID,
       issuer: `https://login.microsoftonline.com/${TENANT_ID}/v2.0`,
     });
-
     console.log("JWT verified:", verified.sub);
-    return request;
   } catch (err) {
     console.log("JWT verify failed:", err.message);
     return { status: "302", headers: { location: [{ key: "Location", value: AUTH_DOMAIN }] } };
+  }
+
+  try {
+    const host = request.headers.host?.[0]?.value || "";
+    const path = request.uri;
+
+    request.headers["x-forwarded-host"] = [{ key: "X-Forwarded-Host", value: host }];
+    request.headers["x-forwarded-path"] = [{ key: "X-Forwarded-Path", value: path }];
+
+    return request;
+  } catch (err) {
+    console.log("error while setting host headers.", err);
+    return {
+      status: "500",
+      statusDescription: "Internal Server Error",
+      headers: {
+        "content-type": [{ key: "Content-Type", value: "text/plain" }],
+      },
+      body: "error while routing request",
+    };
   }
 };
