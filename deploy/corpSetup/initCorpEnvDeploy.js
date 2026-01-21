@@ -501,6 +501,53 @@ function main() {
         }
         break;
       }
+      case "c11cloudfront": {
+        const subscriptionId = env.get("SUBSCRIPTION_ID");
+        if (!subscriptionId) {
+          throw new Error("SUBSCRIPTION_ID is not set in corp.env.");
+        }
+        const dnsName = env.get("DNS");
+        if (!dnsName) {
+          throw new Error("DNS is not set in corp.env.");
+        }
+        const accSubscriptionId = getSubscriptionId();
+        if (accSubscriptionId !== subscriptionId) {
+          execSync(`az account set --subscription ${subscriptionId}`, { stdio: "pipe", shell: true });
+          console.log("Switching subscription to", `${corpName}-subscription`);
+        }
+        const resourceGroupName = getResourceGroupName("root", corpName);
+        setTfVar("subscription_id", subscriptionId);
+        setTfVar("dns_name", dnsName);
+        setTfVar("resource_group_name", resourceGroupName);
+        // TODO: move to naming convention
+        const bucketStaticWebsiteName = `${corpName}-web`;
+        const bucketSpaName = `${corpName}-loginSpa`;
+        const bucketStaticWebsiteSourceFolder = resolve(__dirname, workingDirName, "source", "webpage");
+        const bucketSpaSourceFolder = resolve(__dirname, workingDirName, "source", "msalSpa");
+        const lambdaEdgeAuthGuardRole = `${corpName}-authGuard-func-role`;
+        const lambdaEdgeAuthGuardName = `${corpName}-authGuard-func`;
+        const lambdaEdgeAuthGuardSourceFolder = resolve(__dirname, workingDirName, "source", "authGuardLambdaEdge");
+        const cloudfrontOacStaticWebsiteName = `${corpName}-web-oac`;
+        const cloudfrontOacSpaName = `${corpName}-loginSpa-oac`;
+        setTfVar("bucket_static_website_name", bucketStaticWebsiteName);
+        setTfVar("bucket_spa_name", bucketSpaName);
+        setTfVar("bucket_static_website_source_folder", bucketStaticWebsiteSourceFolder);
+        setTfVar("bucket_spa_source_folder", bucketSpaSourceFolder);
+        setTfVar("lambda_edge_auth_guard_role", lambdaEdgeAuthGuardRole);
+        setTfVar("lambda_edge_auth_guard_name", lambdaEdgeAuthGuardName);
+        setTfVar("lambda_edge_auth_guard_source_folder", lambdaEdgeAuthGuardSourceFolder);
+        setTfVar("cloudfront_oac_static_website_name", cloudfrontOacStaticWebsiteName);
+        setTfVar("cloudfront_oac_spa_name", cloudfrontOacSpaName);
+
+        execSync(`terraform init`, { stdio: "pipe", shell: true, cwd: resolve(__dirname, workingDirName) });
+
+        // install dependencies and build for SPA
+        // execSync(`npm install && npm run build`, { stdio: "pipe", shell: true, cwd: bucketSpaSourceFolder });
+        // install dependencies for lambda@edge
+        execSync(`npm install`, { stdio: "pipe", shell: true, cwd: lambdaEdgeAuthGuardSourceFolder });
+
+        break;
+      }
     }
 
     console.log("Starting Terraform initialization.");
