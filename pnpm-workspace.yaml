@@ -2,6 +2,8 @@ packages:
   - ui
   - module/*/ui
   - module/*/func
+  - deploy/corpSetup/c11cloudfront/source/authGuardLambdaEdge
+  - deploy/corpSetup/c11cloudfront/source/msalSpa
 onlyBuiltDependencies:
   - snyk25h
   - snyk25h6
