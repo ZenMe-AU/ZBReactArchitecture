@@ -1,0 +1,13 @@
+packages:
+  - ui
+  - module/*/ui
+  - module/*/func
+onlyBuiltDependencies:
+  - snyk25h
+  - snyk25h6
+  - snyk
+  - snyk@1.1300.2
+  - scarf
+  - azure-functions-core-tools
+  - esbuild
+  - protobufjs
