@@ -1,7 +1,9 @@
 "use strict";
 import jwt from "jsonwebtoken";
+import jwksClient from "jwks-rsa";
 
-const CLIENT_ID = "b0ee1412-c79a-48f3-978e-f61f740d7832";
+// const CLIENT_ID = "b0ee1412-c79a-48f3-978e-f61f740d7832";
+const CLIENT_ID = "b0552ac8-f601-4f4f-be1f-f1c3446aae71";
 const TENANT_ID = "15fb0613-7977-4551-801b-6aadac824241";
 const MS_PUBLIC_KEY = `-----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhTfqnXJAT9zSM4Xm5QHD
@@ -13,6 +15,24 @@ JVhc43YexUDo+Sd/e2P3BgpdK3I0ksX5c58yO2z0OvpFHYSg2CYOdzEOj/mLKbOA
 zQIDAQAB
 -----END PUBLIC KEY-----`;
 const AUTH_DOMAIN = "https://login.zenblox.com.au";
+
+// Microsoft JWKS client
+const msJwks = jwksClient({
+  jwksUri: `https://login.microsoftonline.com/${TENANT_ID}/discovery/v2.0/keys`,
+  cache: true,
+  cacheMaxEntries: 5,
+  cacheMaxAge: 6 * 60 * 60 * 1000, // 6 hours
+  timeout: 3000,
+});
+
+function getSigningKeyAsync(kid) {
+  return new Promise((resolve, reject) => {
+    msJwks.getSigningKey(kid, (err, key) => {
+      if (err) return reject(err);
+      resolve(key.getPublicKey());
+    });
+  });
+}
 
 export const handler = async (event) => {
   const request = event.Records[0].cf.request;
@@ -30,7 +50,14 @@ export const handler = async (event) => {
   }
 
   try {
-    const verified = jwt.verify(idToken, MS_PUBLIC_KEY, {
+    const decoded = jwt.decode(idToken, { complete: true });
+    if (!decoded?.header?.kid) {
+      throw new Error("Missing kid");
+    }
+
+    const publicKey = await getSigningKeyAsync(decoded.header.kid);
+
+    const verified = jwt.verify(idToken, publicKey, {
       audience: CLIENT_ID,
       issuer: `https://login.microsoftonline.com/${TENANT_ID}/v2.0`,
     });

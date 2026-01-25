@@ -124,7 +124,7 @@ resource "aws_iam_role_policy_attachment" "lambda_edge_auth_guard_policy" {
 
 data "archive_file" "edge_zip" {
   type        = "zip"
-  source_dir  = var.lambda_edge_auth_guard_source_folder
+  source_dir  = "${var.lambda_edge_auth_guard_source_folder}/dist"
   output_path = "${var.lambda_edge_auth_guard_source_folder}/lambda.zip"
   
   excludes = ["lambda.zip"]
