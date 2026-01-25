@@ -146,6 +146,9 @@ resource "aws_lambda_function" "viewer_request" {
   ]
 }
 
+#==========================================================
+# AWS Certificate Manager for CloudFront with DNS validation
+#==========================================================
 resource "aws_acm_certificate" "cf" {
   domain_name       = var.dns_name
   validation_method = "DNS"
@@ -187,6 +190,76 @@ resource "aws_acm_certificate_validation" "cf" {
   ]
 }
 
+resource "aws_acm_certificate" "cf_prod" {
+  domain_name       = "prod.${var.dns_name}"
+  validation_method = "DNS"
+
+  subject_alternative_names = [
+    "*.prod.${var.dns_name}"
+  ]
+   lifecycle {
+    create_before_destroy = true
+  }
+}
+# locals {
+#   acm_validation_records = {
+#     for dvo in flatten([
+#       aws_acm_certificate.cf.domain_validation_options,
+#       aws_acm_certificate.cf_prod.domain_validation_options
+#     ]) :
+#     dvo.resource_record_name => {
+#       name  = replace(dvo.resource_record_name, ".${var.dns_name}.", "")
+#       value = dvo.resource_record_value
+#       type  = dvo.resource_record_type
+#     }
+#   }
+# }
+# resource "azurerm_dns_cname_record" "acm_validation" {
+#   for_each = local.acm_validation_records
+
+#   name                = each.value.name
+#   zone_name           = var.dns_name
+#   resource_group_name = var.resource_group_name
+#   ttl                 = 3600
+#   record              = each.value.value
+# }
+
+resource "azurerm_dns_cname_record" "acm_validation_prod" {
+  # for_each = toset([ "prod.${var.dns_name}", "*.prod.${var.dns_name}"])
+  for_each = {
+    for dvo in aws_acm_certificate.cf_prod.domain_validation_options :
+    dvo.domain_name => dvo
+  }
+
+  name  = one(distinct([
+    for dvo in aws_acm_certificate.cf_prod.domain_validation_options :
+    replace(dvo.resource_record_name, ".${var.dns_name}.", "")
+    if dvo.domain_name == each.key && dvo.resource_record_type == "CNAME"
+  ]))
+
+  record = one(distinct([
+    for dvo in aws_acm_certificate.cf_prod.domain_validation_options :
+    dvo.resource_record_value
+    if dvo.domain_name == each.key && dvo.resource_record_type == "CNAME"
+  ]))
+
+  zone_name           = var.dns_name
+  resource_group_name = var.resource_group_name
+  ttl                 = 3600
+}
+
+resource "aws_acm_certificate_validation" "cf_prod" {
+  certificate_arn = aws_acm_certificate.cf_prod.arn
+
+  validation_record_fqdns = [
+    for r in azurerm_dns_cname_record.acm_validation_prod :
+    "${r.name}.${var.dns_name}"
+  ]
+}
+
+#==========================================================
+# CloudFront Distribution for Static Website
+#==========================================================
 resource "aws_cloudfront_origin_access_control" "oac_website" {
   name                              = var.cloudfront_oac_static_website_name
   origin_access_control_origin_type = "s3"
@@ -243,30 +316,30 @@ resource "aws_cloudfront_distribution" "website" {
     }
   }
 }
+# combined policy for website and prod distributions
+# resource "aws_s3_bucket_policy" "static_website" {
+#   bucket = aws_s3_bucket.static_website.id
 
-resource "aws_s3_bucket_policy" "static_website" {
-  bucket = aws_s3_bucket.static_website.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid    = "AllowCloudFrontRead"
-        Effect = "Allow"
-        Principal = {
-          Service = "cloudfront.amazonaws.com"
-        }
-        Action   = "s3:GetObject"
-        Resource = "${aws_s3_bucket.static_website.arn}/*"
-        Condition = {
-          StringEquals = {
-            "AWS:SourceArn" = aws_cloudfront_distribution.website.arn
-          }
-        }
-      }
-    ]
-  })
-}
+#   policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [
+#       {
+#         Sid    = "AllowCloudFrontRead"
+#         Effect = "Allow"
+#         Principal = {
+#           Service = "cloudfront.amazonaws.com"
+#         }
+#         Action   = "s3:GetObject"
+#         Resource = "${aws_s3_bucket.static_website.arn}/*"
+#         Condition = {
+#           StringEquals = {
+#             "AWS:SourceArn" = aws_cloudfront_distribution.website.arn
+#           }
+#         }
+#       }
+#     ]
+#   })
+# }
 
 resource "azurerm_dns_cname_record" "website_cloudfront" {
   name                = "unavailable"
@@ -277,6 +350,9 @@ resource "azurerm_dns_cname_record" "website_cloudfront" {
   record = aws_cloudfront_distribution.website.domain_name
 }
 
+#==========================================================
+# CloudFront Distribution for SPA
+#==========================================================
 resource "aws_cloudfront_origin_access_control" "oac_spa" {
   name                              = var.cloudfront_oac_spa_name
   origin_access_control_origin_type = "s3"
@@ -380,4 +456,100 @@ resource "aws_s3_bucket_policy" "spa" {
       }
     ]
   })
+}
+
+#==========================================================
+# CloudFront Distribution for prod
+#==========================================================
+
+resource "aws_cloudfront_distribution" "prod" {
+  depends_on = [
+    aws_acm_certificate_validation.cf_prod
+  ]
+
+  aliases = [
+    "prod.${var.dns_name}",
+    "*.prod.${var.dns_name}"
+  ]
+
+  viewer_certificate {
+    acm_certificate_arn = aws_acm_certificate.cf_prod.arn
+    ssl_support_method  = "sni-only"
+  }
+
+  origin {
+    domain_name = aws_s3_bucket.static_website.bucket_regional_domain_name
+    origin_id   = var.bucket_static_website_name
+    origin_access_control_id = aws_cloudfront_origin_access_control.oac_website.id
+  }
+
+  default_root_object = "unavailable.html"
+  enabled             = true
+  default_cache_behavior {
+    allowed_methods = ["GET", "HEAD"]
+    cached_methods  = ["GET", "HEAD"]
+
+    target_origin_id = var.bucket_static_website_name
+    cache_policy_id  = data.aws_cloudfront_cache_policy.static_website.id
+
+    viewer_protocol_policy = "redirect-to-https"
+
+    lambda_function_association {
+      event_type   = "viewer-request"
+      lambda_arn   = aws_lambda_function.viewer_request.qualified_arn
+      include_body = false
+    }
+  }
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+      locations        = []
+    }
+  }
+}
+
+resource "aws_s3_bucket_policy" "static_website" {
+  bucket = aws_s3_bucket.static_website.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "AllowCloudFrontRead"
+        Effect = "Allow"
+        Principal = {
+          Service = "cloudfront.amazonaws.com"
+        }
+        Action   = "s3:GetObject"
+        Resource = "${aws_s3_bucket.static_website.arn}/*"
+        Condition = {
+          StringEquals = {
+            "AWS:SourceArn" = [
+              aws_cloudfront_distribution.website.arn,
+              aws_cloudfront_distribution.prod.arn
+            ]
+          }
+        }
+      }
+    ]
+  })
+}
+
+# locals {
+#   cloudfront_arns = [
+#     aws_cloudfront_distribution.website.arn,
+#     aws_cloudfront_distribution.prod.arn
+#   ]
+# }
+
+resource "azurerm_dns_cname_record" "prod_cloudfront" {
+  for_each = toset(["prod", "*.prod"])
+
+  name                = each.key
+  zone_name           = var.dns_name
+  resource_group_name = var.resource_group_name
+  ttl                 = 3600
+
+  record = aws_cloudfront_distribution.prod.domain_name
 }
