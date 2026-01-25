@@ -529,6 +529,7 @@ function main() {
         const lambdaEdgeAuthGuardSourceFolder = resolve(__dirname, workingDirName, "source", "authGuardLambdaEdge");
         const cloudfrontOacStaticWebsiteName = `${corpName}-web-oac`;
         const cloudfrontOacSpaName = `${corpName}-loginSpa-oac`;
+        const appRegistrationName = `${corpName}-login-app`;
         setTfVar("bucket_static_website_name", bucketStaticWebsiteName);
         setTfVar("bucket_spa_name", bucketSpaName);
         setTfVar("bucket_static_website_source_folder", bucketStaticWebsiteSourceFolder);
@@ -538,6 +539,7 @@ function main() {
         setTfVar("lambda_edge_auth_guard_source_folder", lambdaEdgeAuthGuardSourceFolder);
         setTfVar("cloudfront_oac_static_website_name", cloudfrontOacStaticWebsiteName);
         setTfVar("cloudfront_oac_spa_name", cloudfrontOacSpaName);
+        setTfVar("app_registration_name", appRegistrationName);
 
         execSync(`terraform init`, { stdio: "pipe", shell: true, cwd: resolve(__dirname, workingDirName) });
 

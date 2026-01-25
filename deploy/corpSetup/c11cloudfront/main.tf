@@ -1,3 +1,38 @@
+
+# locals {
+#   login_uri = "login.${var.dns_name}"
+# }
+
+resource "azuread_application" "msal_spa" {
+  display_name = var.app_registration_name
+
+  sign_in_audience = "AzureADMyOrg"
+
+  single_page_application {
+    redirect_uris = [
+      "https://login.${var.dns_name}/",
+    ]
+  }
+
+  required_resource_access {
+    resource_app_id = "00000003-0000-0000-c000-000000000000" # Microsoft Graph
+
+    resource_access {
+      id   = "e1fe6dd8-ba31-4d61-89e7-88639da4683d" # User.Read
+      type = "Scope"
+    }
+  }
+}
+
+
+resource "local_file" "config_js" {
+  filename = "${var.bucket_spa_source_folder}/dist/config.js"
+
+  content = templatefile("${var.bucket_spa_source_folder}/template/config.js.tpl", {
+    client_id = azuread_application.msal_spa.client_id
+    redirect_uri = "https://login.${var.dns_name}/"
+  })
+}
 #==========================================================
 # aws_acm_certificate
 #         ↓
@@ -45,6 +80,10 @@ resource "aws_s3_object" "spa_files" {
     lower(element(split(".", each.value), length(split(".", each.value)) - 1)),
     "binary/octet-stream"
   )
+
+  depends_on = [
+    local_file.config_js
+  ]
 }
 
 data "aws_iam_policy_document" "lambda_edge_assume_role" {

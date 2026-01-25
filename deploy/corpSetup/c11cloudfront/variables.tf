@@ -98,3 +98,9 @@ variable "cloudfront_oac_spa_name" {
   type        = string
 #   default     = "asleepswordtail-spa--oac"
 }
+
+variable "app_registration_name" {
+  description = "The name of the S3 bucket for static website hosting"
+  type        = string
+  # default     = "zenblox-login-app"
+}
