@@ -57,8 +57,21 @@ function getTargetEnvName(targetDir = currentDirname) {
     const envFilePath = resolve(targetDir, ".env");
     console.log("envFilePath:", envFilePath);
     if (isAvailable) {
-      TARGET_ENV = newEnvName;
-      writeFileSync(envFilePath, `TARGET_ENV=${TARGET_ENV}\n`, { flag: "w" });
+      // TARGET_ENV = newEnvName;
+      // writeFileSync(envFilePath, `TARGET_ENV=${TARGET_ENV}\n`, { flag: "w" });
+
+      const envData = {
+        TARGET_ENV: newEnvName,
+        ENV_TYPE: "dev",
+        ENTRY_URL: `${newEnvName}-apim.azure-api.net`,
+      };
+      writeFileSync(
+        envFilePath,
+        Object.entries(envData)
+          .map(([key, value]) => `${key}=${value}`)
+          .join("\n"),
+        { flag: "w" }
+      );
     } else {
       getTargetEnvName(targetDir);
     }
