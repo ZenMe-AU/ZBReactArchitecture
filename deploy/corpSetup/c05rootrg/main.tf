@@ -35,3 +35,19 @@ resource "azurerm_dns_zone" "dns_zone" {
   name                = var.dns_name
   resource_group_name = azurerm_resource_group.root_rg.name
 }
+
+# create a storage account for this environment
+resource "azurerm_storage_account" "sa" {
+  name                     = var.storage_account_name
+  resource_group_name      = azurerm_resource_group.root_rg.name
+  location                 = azurerm_resource_group.root_rg.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+}
+
+# Create a storage container for Terraform state files
+resource "azurerm_storage_container" "tfstate_container" {
+  name                  = "terraformstate"
+  storage_account_id    = azurerm_storage_account.sa.id
+  container_access_type = "private"
+}

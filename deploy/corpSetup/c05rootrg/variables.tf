@@ -40,3 +40,8 @@ variable "dns_name" {
   description = "The DNS name for the environment"
   type        = string
 }
+
+variable "storage_account_name" {
+  description = "The name of the Azure Storage Account"
+  type        = string
+}

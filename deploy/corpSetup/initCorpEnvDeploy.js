@@ -9,7 +9,7 @@ import { execSync } from "child_process";
 import { existsSync, readFileSync, writeFileSync, readdirSync } from "fs";
 import { resolve, dirname } from "path";
 // import { uniqueNamesGenerator, adjectives, animals } from "unique-names-generator";
-import { getResourceGroupName, getLogAnalyticsWorkspaceName, getAppConfigName } from "../util/namingConvention.cjs";
+import { getResourceGroupName, getLogAnalyticsWorkspaceName, getStorageAccountName } from "../util/namingConvention.cjs";
 import { getSubscriptionId, getDefaultAzureLocation, isStorageAccountNameAvailable } from "../util/azureCli.cjs";
 import minimist from "minimist";
 import { fileURLToPath } from "url";
@@ -150,11 +150,13 @@ function main() {
     }
     let tfStateList = [];
     try {
+      console.log("Loading existing terraform state in :", workingDirName);
       tfStateList = execSync("terraform state list", { cwd: resolve(__dirname, workingDirName), encoding: "utf8", stdio: "pipe" })
         .split("\n")
         .map((s) => s.trim())
         .filter(Boolean);
     } catch {}
+    console.log("tfStateList:", tfStateList);
     switch (workingDirName) {
       case "c01subscription": {
         // check necessary parameters
@@ -410,12 +412,14 @@ function main() {
         const location = getAzureLocation();
         const resourceGroupName = getResourceGroupName("root", corpName);
         const logAnalyticsWorkspaceName = getLogAnalyticsWorkspaceName(corpName);
+        const storageAccountName = getStorageAccountName(corpName);
         setTfVar("subscription_id", subscriptionId);
         setTfVar("dns_name", dnsName);
         setTfVar("location", location);
         setTfVar("resource_group_name", resourceGroupName);
         setTfVar("log_analytics_workspace_name", logAnalyticsWorkspaceName);
-        console.log("tfStateList:", tfStateList);
+        setTfVar("storage_account_name", storageAccountName);
+
         execSync(`terraform init`, { stdio: "pipe", shell: true, cwd: resolve(__dirname, workingDirName) });
 
         if (!tfStateList.includes("azurerm_resource_group.root_rg")) {
@@ -497,6 +501,51 @@ function main() {
                 cwd: resolve(__dirname, workingDirName),
               }
             );
+          }
+        }
+        if (!tfStateList.includes("azurerm_storage_account.sa")) {
+          let isExisting = (() => {
+            try {
+              execSync(`az storage account show --resource-group ${resourceGroupName} --name ${storageAccountName}`, { stdio: "ignore" });
+              return true;
+            } catch {
+              return false;
+            }
+          })();
+          if (isExisting) {
+            console.log("Importing existing Storage Account:", storageAccountName);
+            execSync(
+              `terraform import azurerm_storage_account.sa /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Storage/storageAccounts/${storageAccountName}`,
+              {
+                stdio: "pipe",
+                shell: true,
+                cwd: resolve(__dirname, workingDirName),
+              }
+            );
+            if (!tfStateList.includes("azurerm_storage_container.tfstate_container")) {
+              const containerName = "terraformstate";
+              let isContainerExisting = false;
+              try {
+                const output = execSync(`az storage container exists --name ${containerName} --account-name ${storageAccountName} --query exists -o tsv`, {
+                  encoding: "utf8",
+                  stdio: "pipe",
+                }).trim();
+                isContainerExisting = output === "true";
+              } catch {
+                throw new Error(`Failed to check container ${containerName}. Make sure you have Storage Blob Data Contributor permission.`);
+              }
+              if (isContainerExisting) {
+                console.log("Importing existing Storage Container:", containerName);
+                execSync(
+                  `terraform import azurerm_storage_container.tfstate_container /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.Storage/storageAccounts/${storageAccountName}/blobServices/default/containers/${containerName}`,
+                  {
+                    stdio: "pipe",
+                    shell: true,
+                    cwd: resolve(__dirname, workingDirName),
+                  }
+                );
+              }
+            }
           }
         }
         break;
