@@ -105,3 +105,9 @@ variable "app_registration_name" {
   # default     = "zenblox-login-app"
 }
 # need Application Administrator role to manage app registration
+
+variable "origin_request_policy_name" {
+  description = "The name of the origin request policy for APIM"
+  type        = string
+  # default     = "asleepswordtail-origin-request-policy"
+}

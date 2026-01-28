@@ -554,6 +554,29 @@ resource "azurerm_dns_cname_record" "prod_cloudfront" {
   record = aws_cloudfront_distribution.prod.domain_name
 }
 
+resource "aws_cloudfront_origin_request_policy" "apim_policy" {
+  name = var.origin_request_policy_name
+
+  headers_config {
+    header_behavior = "whitelist"
+    headers {
+      items = [
+        "X-Forwarded-Host",
+        "X-Forwarded-Path",
+        "X-Forwarded-Subdomain",
+      ]
+    }
+  }
+
+  cookies_config {
+    cookie_behavior = "all"
+  }
+
+  query_strings_config {
+    query_string_behavior = "all"
+  }
+}
+
 resource "aws_cloudfront_response_headers_policy" "security_hsts_policy" {
   # name = "HSTS-Security-Policy"
   name = "HSTS-Test"
