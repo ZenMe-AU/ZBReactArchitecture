@@ -565,6 +565,12 @@ function main() {
           console.log("Switching subscription to", `${corpName}-subscription`);
         }
         const resourceGroupName = getResourceGroupName("root", corpName);
+        const storageAccountName = getStorageAccountName(corpName);
+        try {
+          execSync(`az storage account show --resource-group ${resourceGroupName} --name ${storageAccountName}`, { stdio: "ignore" });
+        } catch {
+          throw new Error(`Storage Account ${storageAccountName} is not found. Please run c05rootrg stage first.`);
+        }
         setTfVar("subscription_id", subscriptionId);
         setTfVar("dns_name", dnsName);
         setTfVar("resource_group_name", resourceGroupName);
@@ -590,7 +596,14 @@ function main() {
         setTfVar("cloudfront_oac_spa_name", cloudfrontOacSpaName);
         setTfVar("app_registration_name", appRegistrationName);
 
-        execSync(`terraform init`, { stdio: "pipe", shell: true, cwd: resolve(__dirname, workingDirName) });
+        execSync(
+          `terraform init \
+            -backend-config="resource_group_name=${resourceGroupName}" \
+            -backend-config="storage_account_name=${storageAccountName}" \
+            -backend-config="container_name=terraformstate" \
+            -backend-config="key=${workingDirName}.tfstate"`,
+          { stdio: "pipe", shell: true, cwd: resolve(__dirname, workingDirName) }
+        );
 
         // install dependencies and build for SPA
         // execSync(`npm install && npm run build`, { stdio: "pipe", shell: true, cwd: bucketSpaSourceFolder });
