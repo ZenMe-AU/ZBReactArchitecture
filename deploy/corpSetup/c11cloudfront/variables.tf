@@ -27,13 +27,13 @@ variable "provider_region" {
 }
 
 variable "bucket_static_website_name" {
-  description = "The name of the S3 bucket for static website hosting"
+  description = "The name of the AWS S3 bucket for static website hosting"
   type        = string
 #   default     = "asleepswordtail-static-website"
 }
 
 variable "bucket_spa_name" {
-  description = "The name of the S3 bucket for the SPA"
+  description = "The name of the AWS S3 bucket for the SPA"
   type        = string
 #   default     = "asleepswordtail-spa"
 }
@@ -51,32 +51,32 @@ variable "bucket_spa_source_folder" {
 }
 
 variable "lambda_edge_auth_guard_role" {
-  description = "The IAM role for the Lambda@Edge auth guard function"
+  description = "The IAM role for the AWS Lambda@Edge auth guard function"
   type        = string
 #   default     = "asleepswordtail-authGuard-func-role"
 }
 
 variable "lambda_edge_auth_guard_source_folder" {
-  description = "The source folder for the Lambda@Edge auth guard function"
+  description = "The source folder for the AWS Lambda@Edge auth guard function"
   type        = string
 #   default     = "source/authGuardLambdaEdge"
 }
 
 variable "lambda_edge_auth_guard_name" {
-  description = "The name of the Lambda@Edge auth guard function"
+  description = "The name of the AWS Lambda@Edge auth guard function"
   type        = string
 #   default     = "asleepswordtail-authGuard-func"
 }
 
 variable "dns_name" {
-  description = "The DNS name for the environment"
+  description = "The DNS name for the corporate website"
   type        = string
   default = "z3nm3.com"
 #   default = "zenblox.com.au"
 }
 
 variable "resource_group_name" {
-  description = "The name of the resource group"
+  description = "The name of the Azure resource group"
   type        = string
 #   default = "root-zenblox"
 }
@@ -88,19 +88,20 @@ variable "subscription_id" {
 }
 
 variable "cloudfront_oac_static_website_name" {
-  description = "The name of the S3 bucket for static website hosting"
+  description = "The name of the AWS CloudFront origin access control for the static website"
   type        = string
 #   default     = "asleepswordtail-static-website-oac"
 }
 
 variable "cloudfront_oac_spa_name" {
-  description = "The name of the S3 bucket for the SPA"
+  description = "The name of the AWS CloudFront origin access control for the SPA"
   type        = string
 #   default     = "asleepswordtail-spa--oac"
 }
 
 variable "app_registration_name" {
-  description = "The name of the S3 bucket for static website hosting"
+  description = "The name of the azure app registration"
   type        = string
   # default     = "zenblox-login-app"
 }
+# need Application Administrator role to manage app registration
