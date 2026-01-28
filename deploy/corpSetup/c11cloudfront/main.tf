@@ -553,3 +553,42 @@ resource "azurerm_dns_cname_record" "prod_cloudfront" {
 
   record = aws_cloudfront_distribution.prod.domain_name
 }
+
+resource "aws_cloudfront_response_headers_policy" "security_hsts_policy" {
+  # name = "HSTS-Security-Policy"
+  name = "HSTS-Test"
+
+  security_headers_config {
+    strict_transport_security {
+      access_control_max_age_sec = 31536000
+      include_subdomains         = true
+      preload                    = true
+      override                   = true
+    }
+
+    content_type_options {
+      override = true
+    }
+    frame_options  {
+      frame_option = "SAMEORIGIN"
+      override     = true
+    }
+
+    xss_protection  {
+      protection   = true
+      mode_block   = true
+      override     = true
+    }
+
+    referrer_policy {
+      referrer_policy = "strict-origin-when-cross-origin"
+      override        = true
+    }
+
+    # content_security_policy {
+    #   content_security_policy = "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-src 'self';"
+    #   override = true
+    # }
+
+  }
+}
