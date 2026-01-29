@@ -1,4 +1,4 @@
-
+# Create a CloudFront distribution to front the Application Gateway
 resource "aws_cloudfront_distribution" "primary" {
   aliases                         = ["*.${var.central_dns}"]
   anycast_ip_list_id              = null
@@ -78,6 +78,7 @@ data "aws_route53_zone" "central" {
   name = var.central_dns
 }
 
+# Create a wildcard ACM certificate for the central domain
 resource "aws_acm_certificate" "cert" {
   domain_name       = "*.${var.central_dns}"    
   validation_method = "DNS"
@@ -104,12 +105,13 @@ resource "aws_route53_record" "acm_validation" {
   type            = each.value.type
   zone_id         = data.aws_route53_zone.central.zone_id
 }
-
+# Validate the ACM certificate using the created Route53 records
 resource "aws_acm_certificate_validation" "cert_validation" {
   certificate_arn         = aws_acm_certificate.cert.arn
   validation_record_fqdns = [for record in aws_route53_record.acm_validation : record.fqdn]
 }
 
+# Input variables
 variable "central_dns" {
   type        = string
   description = "Parent domain name (from central.env CENTRAL_DNS)"
