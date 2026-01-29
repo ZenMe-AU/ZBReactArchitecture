@@ -18,6 +18,9 @@
       <when condition='@(context.Variables.GetValueOrDefault<string>("forwardedHost") == "quest5tiereg")'>
         <set-backend-service backend-id="Quest5TierEgFunc" />
       </when>
+      <when condition='@(context.Variables.GetValueOrDefault<string>("forwardedHost") == "homepage")'>
+        <set-backend-service backend-id="HomePage" />
+      </when>
       <otherwise>
         <return-response>
           <set-status code="404" reason="Not Found" />

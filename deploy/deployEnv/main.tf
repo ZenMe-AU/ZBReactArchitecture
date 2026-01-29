@@ -341,6 +341,17 @@ resource "azurerm_api_management_backend" "chemicalfirefly-quest5TierEg-func" {
   protocol = "http"
 }
 
+resource "azurerm_api_management_backend" "chemicalfirefly-homePage" {
+  name                = "HomePage"
+  resource_group_name = data.azurerm_resource_group.target.name
+  api_management_name = azurerm_api_management.apim.name
+
+  # App Service default domain
+  url      = "https://${var.target_env}web.z8.web.core.windows.net/"
+  protocol = "http"
+}
+
+
 # Define a catch-all GET operation on the wildcard API which matches any GET path.
 resource "azurerm_api_management_api_operation" "catchall_get" {
   operation_id        = "catchall-get"
@@ -366,6 +377,14 @@ resource "azurerm_api_management_api_operation_policy" "catchall_get_policy" {
   resource_group_name = data.azurerm_resource_group.target.name
   operation_id        = azurerm_api_management_api_operation.catchall_get.operation_id
   xml_content = file("apimPolicy.xml") 
+  depends_on = [
+    azurerm_api_management_backend.chemicalfirefly_profile_func,
+    azurerm_api_management_backend.chemicalfirefly-quest3Tier-func,
+    azurerm_api_management_backend.chemicalfirefly-coordinate-func,
+    azurerm_api_management_backend.chemicalfirefly-quest5Tier-func,
+    azurerm_api_management_backend.chemicalfirefly-quest5TierEg-func,
+    azurerm_api_management_backend.chemicalfirefly-homePage,
+  ]
 }
 
 
