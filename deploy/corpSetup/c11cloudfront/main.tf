@@ -299,6 +299,8 @@ resource "aws_cloudfront_distribution" "website" {
 
     target_origin_id = var.bucket_static_website_name
     cache_policy_id  = data.aws_cloudfront_cache_policy.static_website.id
+    origin_request_policy_id = aws_cloudfront_origin_request_policy.apim_policy.id
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.security_hsts_policy.id
 
     viewer_protocol_policy = "redirect-to-https"
 
@@ -491,6 +493,9 @@ resource "aws_cloudfront_distribution" "prod" {
 
     target_origin_id = var.bucket_static_website_name
     cache_policy_id  = data.aws_cloudfront_cache_policy.static_website.id
+    origin_request_policy_id = aws_cloudfront_origin_request_policy.apim_policy.id
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.security_hsts_policy.id
+
 
     viewer_protocol_policy = "redirect-to-https"
 
@@ -578,8 +583,7 @@ resource "aws_cloudfront_origin_request_policy" "apim_policy" {
 }
 
 resource "aws_cloudfront_response_headers_policy" "security_hsts_policy" {
-  # name = "HSTS-Security-Policy"
-  name = "HSTS-Test"
+  name = "HSTS-Security-Policy"
 
   security_headers_config {
     strict_transport_security {
