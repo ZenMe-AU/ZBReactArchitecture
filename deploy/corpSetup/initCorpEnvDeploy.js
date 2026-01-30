@@ -199,7 +199,6 @@ function main() {
           //     cwd: resolve(__dirname, workingDirName),
           //   });
           // } catch {}
-          console.log("tfStateList:", tfStateList);
           console.log("azurerm_subscription.payg exists:", tfStateList.includes("azurerm_subscription.payg"));
           console.log(
             "azurerm_consumption_budget_subscription.payg_budget exists:",
@@ -584,7 +583,8 @@ function main() {
         const lambdaEdgeAuthGuardSourceFolder = resolve(__dirname, workingDirName, "source", "authGuardLambdaEdge");
         const cloudfrontOacStaticWebsiteName = `${corpName}-web-oac`;
         const cloudfrontOacSpaName = `${corpName}-loginSpa-oac`;
-        const appRegistrationName = `${corpName}-login-app`;
+        const appRegistrationName = `${corpName}-login`;
+        const originRequestPolicyName = `${corpName}-origin-request-policy`;
         setTfVar("bucket_static_website_name", bucketStaticWebsiteName);
         setTfVar("bucket_spa_name", bucketSpaName);
         setTfVar("bucket_static_website_source_folder", bucketStaticWebsiteSourceFolder);
@@ -595,6 +595,7 @@ function main() {
         setTfVar("cloudfront_oac_static_website_name", cloudfrontOacStaticWebsiteName);
         setTfVar("cloudfront_oac_spa_name", cloudfrontOacSpaName);
         setTfVar("app_registration_name", appRegistrationName);
+        setTfVar("origin_request_policy_name", originRequestPolicyName);
 
         execSync(
           `terraform init \
@@ -606,9 +607,14 @@ function main() {
         );
 
         // install dependencies and build for SPA
-        // execSync(`npm install && npm run build`, { stdio: "pipe", shell: true, cwd: bucketSpaSourceFolder });
+        execSync(`pnpm install`, { stdio: "pipe", shell: true });
+        execSync(`pnpm run build`, { stdio: "pipe", shell: true, cwd: bucketSpaSourceFolder });
         // install dependencies for lambda@edge
-        execSync(`npm install`, { stdio: "pipe", shell: true, cwd: lambdaEdgeAuthGuardSourceFolder });
+        execSync(`pnpm run build`, { stdio: "pipe", shell: true, cwd: lambdaEdgeAuthGuardSourceFolder });
+        // execSync(`npm install`, { stdio: "pipe", shell: true, cwd: lambdaEdgeAuthGuardSourceFolder });
+        // pnpm deploy --filter aws-lambda-edge --prod dist  --config.node-linker=hoisted --config.symlink=false --config.package-import-method=copy
+        // pnpm deploy --filter aws-lambda-edge --prod pkg  --no-optional --legacy --package-import-method=copy --config.node-linker=hoisted
+        // rsync -a --delete -c  --exclude='pnpm-lock.yaml' --exclude='node_modules/.pnpm/' --exclude='node_modules/.modules.yaml' --exclude='node_modules/.pnpm-workspace-state-v1.json' pkg/ dist/
 
         break;
       }

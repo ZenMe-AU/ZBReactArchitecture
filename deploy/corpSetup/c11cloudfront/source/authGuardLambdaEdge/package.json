@@ -4,8 +4,7 @@
   "main": "index.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rm -rf dist && mkdir -p dist && cp index.mjs dist/ && rsync -aL node_modules/ dist/node_modules/"
-
+    "build": "rm -rf pkg && mkdir -p pkg && pnpm deploy --filter aws-lambda-edge --prod pkg  --no-optional --legacy --package-import-method=copy --config.node-linker=hoisted && rsync -a --delete -c  --exclude='dist' --exclude='lambda.zip' --exclude='pnpm-lock.yaml' --exclude='package.json' --exclude='package-lock.json' --exclude='node_modules/.pnpm/' --exclude='node_modules/.modules.yaml' --exclude='node_modules/.pnpm-workspace-state-v1.json' pkg/ dist/"
   },
   "author": "",
   "license": "ISC",
