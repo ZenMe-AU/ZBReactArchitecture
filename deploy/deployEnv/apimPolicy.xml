@@ -1,41 +1,43 @@
 <policies>
-  <inbound>
-    <base />
-    <set-variable name="forwardedHost" value='@(context.Request.Headers.GetValueOrDefault("X-Forwarded-Subdomain", "").Trim().ToLowerInvariant())' />
-    <choose>
-      <when condition='@(context.Variables.GetValueOrDefault<string>("forwardedHost") == "profile")'>
-        <set-backend-service backend-id="ProfileFunc" />
-      </when>
-      <when condition='@(context.Variables.GetValueOrDefault<string>("forwardedHost") == "quest3tier")'>
-        <set-backend-service backend-id="Quest3TierFunc" />
-      </when>
-      <when condition='@(context.Variables.GetValueOrDefault<string>("forwardedHost") == "coordinate")'>
-        <set-backend-service backend-id="CoordinateFunc" />
-      </when>
-      <when condition='@(context.Variables.GetValueOrDefault<string>("forwardedHost") == "quest5tier")'>
-        <set-backend-service backend-id="Quest5TierFunc" />
-      </when>
-      <when condition='@(context.Variables.GetValueOrDefault<string>("forwardedHost") == "quest5tiereg")'>
-        <set-backend-service backend-id="Quest5TierEgFunc" />
-      </when>
-      <when condition='@(context.Variables.GetValueOrDefault<string>("forwardedHost") == "homepage")'>
-        <set-backend-service backend-id="HomePage" />
-      </when>
-      <otherwise>
-        <return-response>
-          <set-status code="404" reason="Not Found" />
-          <set-body>@("Unknown: " + context.Variables.GetValueOrDefault<string>("forwardedHost"))</set-body>
-        </return-response>
-      </otherwise>
-    </choose>
-  </inbound>
-  <backend>
-    <base />
-  </backend>
-  <outbound>
-    <base />
-  </outbound>
-  <on-error>
-    <base />
-  </on-error>
+    <inbound>
+        <base />
+        <set-variable name="subdomain" value="@(context.Request.Headers.GetValueOrDefault("X-Forwarded-Subdomain", "").Trim().ToLowerInvariant())" />
+        <choose>
+            <when condition="@(context.Variables.GetValueOrDefault<string>("subdomain") == "profile")">
+                <set-backend-service backend-id="ProfileFunc" />
+            </when>
+            <when condition="@(context.Variables.GetValueOrDefault<string>("subdomain") == "quest3tier")">
+                <set-backend-service backend-id="Quest3TierFunc" />
+            </when>
+            <when condition="@(context.Variables.GetValueOrDefault<string>("subdomain") == "coordinate")">
+                <set-backend-service backend-id="CoordinateFunc" />
+            </when>
+            <when condition="@(context.Variables.GetValueOrDefault<string>("subdomain") == "quest5tier")">
+                <set-backend-service backend-id="Quest5TierFunc" />
+            </when>
+            <when condition="@(context.Variables.GetValueOrDefault<string>("subdomain") == "quest5tiereg")">
+                <set-backend-service backend-id="Quest5TierEgFunc" />
+            </when>
+            <when condition="@(context.Variables.GetValueOrDefault<string>("subdomain") == "www")">
+                <set-backend-service backend-id="HomePage" />
+            </when>
+            <otherwise>
+                <return-response>
+                    <set-status code="404" reason="Not Found" />
+                    <set-body>@(
+                    "Unknown Subdomain: " + context.Variables.GetValueOrDefault<string>("subdomain") + 
+                    " FQDN: " + context.Request.Headers.GetValueOrDefault("X-Forwarded-Host", "").Trim().ToLowerInvariant())</set-body>
+                </return-response>
+            </otherwise>
+        </choose>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
 </policies>
