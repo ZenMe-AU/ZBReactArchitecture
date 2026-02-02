@@ -1003,32 +1003,32 @@ ISM-1537,Log security-relevant DB events centrally,Y,,"Security-relevant events 
 • database administrator actions
 • use of executable commands
 • database logons and logoffs."
-ISM-0264,Email usage policy maintained,Y,,"An email usage policy is developed, implemented and maintained."
-ISM-0267,Block access to non-approved webmail,Y,,Access to non-approved webmail services is blocked.
-ISM-0270,Apply protective markings as per highest sensitivity to emails,Y,,"Protective markings are applied to emails and reflect the highest sensitivity or classification of the subject, body and attachments."
-ISM-0271,Protective marking tools do not auto-insert markings,Y,,Protective marking tools do not automatically insert protective markings into emails.
-ISM-0272,Protective marking tools restrict markings to authorised levels,Y,,"Protective marking tools do not allow users to select protective markings that a system has not been authorised to process, store or communicate."
-ISM-1089,Protective marking tools prevent downgrading markings on reply/forward,Y,,Protective marking tools do not allow users replying to or forwarding emails to select protective markings lower than previously used.
-ISM-0565,Configure email servers to block/log/report emails with inappropriate markings,Y,,"Email servers are configured to block, log and report emails with inappropriate protective markings."
-ISM-1023,Notify senders/recipients of blocked emails,Y,,"The intended recipients of blocked inbound emails, and the senders of blocked outbound emails, are notified."
-ISM-0269,Do not send AUSTEO/AGAO/REL emails to distribution lists unless all recipients' nationality known,N,Protected classification; Control only applicable to SECRET and TOP SECRET classifications,"Emails containing Australian Eyes Only, Australian Government Access Only or Releasable To data are not sent to email distribution lists unless the nationality of all members of email distribution lists can be confirmed."
-ISM-0569,Route emails via centralised gateways,Y,,Emails are routed via centralised email gateways.
-ISM-0571,Use authenticated & encrypted channel to route emails via centralised email gateways,Y,,"When users send or receive emails, an authenticated and encrypted channel is used to route emails via their organisation’s centralised email gateways."
-ISM-0570,Maintain backup/alternative email gateways at same standard,Y,,"Where backup or alternative email gateways are in place, they are maintained at the same standard as the primary email gateway."
-ISM-0567,Email servers only relay for their domains,Y,,Email servers only relay emails destined for or originating from their domains (including subdomains).
-ISM-0572,Enable opportunistic TLS on email servers that connect to public networks,Y,,Opportunistic TLS encryption is enabled on email servers that make incoming or outgoing email connections over public network infrastructure.
-ISM-1589,Enable MTA-STS to prevent unencrypted transfers between email servers,Y,,MTA-STS is enabled to prevent the unencrypted transfer of emails between email servers.
-ISM-0574,SPF specifies authorised email servers,Y,,SPF is used to specify authorised email servers (or lack thereof) for an organisation’s domains (including subdomains).
-ISM-1183,Use hard fail SPF record when specifying authorised email servers,Y,,A hard fail SPF record is used when specifying authorised email servers (or lack thereof) for an organisation’s domains (including subdomains).
-ISM-1151,Use SPF to verify incoming email authenticity,Y,,SPF is used to verify the authenticity of incoming emails.
-ISM-0861,Enable DKIM signing for outgoing emails,Y,,DKIM signing is enabled on emails originating from an organisation’s domains (including subdomains).
-ISM-1026,Verify DKIM on incoming emails,Y,,DKIM signatures on incoming emails are verified.
-ISM-1027,Ensure mailing lists don't break sender's DKIM signature validity,Y,,Email distribution list applications used by external senders is configured such that it does not break the validity of the sender’s DKIM signature.
-ISM-1540,Configure DMARC to reject failed checks,Y,,DMARC records are configured for an organisation’s domains (including subdomains) such that emails are rejected if they do not pass DMARC checks.
-ISM-1799,Reject incoming emails that fail DMARC,Y,,Incoming emails are rejected if they do not pass DMARC checks.
-ISM-1234,Implement email content filtering for harmful content,Y,,Email content filtering is implemented to filter potentially harmful content in email bodies and attachments.
-ISM-1502,Block external emails spoofing internal domains,Y,,"Emails arriving via an external connection where the email source address uses an internal domain, or internal subdomain, are blocked at the email gateway."
-ISM-1024,Send undeliverable notices only to senders that can be verified with trusted means,Y,,Notifications of undeliverable emails are only sent to senders that can be verified via SPF or other trusted means.
+ISM-0264,Email usage policy maintained,N,Solution does not use email,"An email usage policy is developed, implemented and maintained."
+ISM-0267,Block access to non-approved webmail,N,Solution does not use email,Access to non-approved webmail services is blocked.
+ISM-0270,Apply protective markings as per highest sensitivity to emails,N,Solution does not use email,"Protective markings are applied to emails and reflect the highest sensitivity or classification of the subject, body and attachments."
+ISM-0271,Protective marking tools do not auto-insert markings,N,Solution does not use email,Protective marking tools do not automatically insert protective markings into emails.
+ISM-0272,Protective marking tools restrict markings to authorised levels,N,Solution does not use email,"Protective marking tools do not allow users to select protective markings that a system has not been authorised to process, store or communicate."
+ISM-1089,Protective marking tools prevent downgrading markings on reply/forward,N,Solution does not use email,Protective marking tools do not allow users replying to or forwarding emails to select protective markings lower than previously used.
+ISM-0565,Configure email servers to block/log/report emails with inappropriate markings,N,Solution does not use email,"Email servers are configured to block, log and report emails with inappropriate protective markings."
+ISM-1023,Notify senders/recipients of blocked emails,N,Solution does not use email,"The intended recipients of blocked inbound emails, and the senders of blocked outbound emails, are notified."
+ISM-0269,Do not send AUSTEO/AGAO/REL emails to distribution lists unless all recipients' nationality known,N,Protected classification; Control only applicable to SECRET and TOP SECRET classifications/ Solution does not use email,"Emails containing Australian Eyes Only, Australian Government Access Only or Releasable To data are not sent to email distribution lists unless the nationality of all members of email distribution lists can be confirmed."
+ISM-0569,Route emails via centralised gateways,N,Solution does not use email,Emails are routed via centralised email gateways.
+ISM-0571,Use authenticated & encrypted channel to route emails via centralised email gateways,N,Solution does not use email,"When users send or receive emails, an authenticated and encrypted channel is used to route emails via their organisation’s centralised email gateways."
+ISM-0570,Maintain backup/alternative email gateways at same standard,N,Solution does not use email,"Where backup or alternative email gateways are in place, they are maintained at the same standard as the primary email gateway."
+ISM-0567,Email servers only relay for their domains,N,Solution does not use email,Email servers only relay emails destined for or originating from their domains (including subdomains).
+ISM-0572,Enable opportunistic TLS on email servers that connect to public networks,N,Solution does not use email,Opportunistic TLS encryption is enabled on email servers that make incoming or outgoing email connections over public network infrastructure.
+ISM-1589,Enable MTA-STS to prevent unencrypted transfers between email servers,N,Solution does not use email,MTA-STS is enabled to prevent the unencrypted transfer of emails between email servers.
+ISM-0574,SPF specifies authorised email servers,N,Solution does not use email,SPF is used to specify authorised email servers (or lack thereof) for an organisation’s domains (including subdomains).
+ISM-1183,Use hard fail SPF record when specifying authorised email servers,N,Solution does not use email,A hard fail SPF record is used when specifying authorised email servers (or lack thereof) for an organisation’s domains (including subdomains).
+ISM-1151,Use SPF to verify incoming email authenticity,N,Solution does not use email,SPF is used to verify the authenticity of incoming emails.
+ISM-0861,Enable DKIM signing for outgoing emails,N,Solution does not use email,DKIM signing is enabled on emails originating from an organisation’s domains (including subdomains).
+ISM-1026,Verify DKIM on incoming emails,N,Solution does not use email,DKIM signatures on incoming emails are verified.
+ISM-1027,Ensure mailing lists don't break sender's DKIM signature validity,N,Solution does not use email,Email distribution list applications used by external senders is configured such that it does not break the validity of the sender’s DKIM signature.
+ISM-1540,Configure DMARC to reject failed checks,N,Solution does not use email,DMARC records are configured for an organisation’s domains (including subdomains) such that emails are rejected if they do not pass DMARC checks.
+ISM-1799,Reject incoming emails that fail DMARC,N,Solution does not use email,Incoming emails are rejected if they do not pass DMARC checks.
+ISM-1234,Implement email content filtering for harmful content,N,Solution does not use email,Email content filtering is implemented to filter potentially harmful content in email bodies and attachments.
+ISM-1502,Block external emails spoofing internal domains,N,Solution does not use email,"Emails arriving via an external connection where the email source address uses an internal domain, or internal subdomain, are blocked at the email gateway."
+ISM-1024,Send undeliverable notices only to senders that can be verified with trusted means,N,Solution does not use email,Notifications of undeliverable emails are only sent to senders that can be verified via SPF or other trusted means.
 ISM-0518,Network documentation maintained,Y,,"Network documentation is developed, implemented and maintained."
 ISM-0516,Network docs include high-level & logical diagrams,Y,,"Network documentation includes high-level network diagrams showing all connections into networks and logical network diagrams showing all critical servers, high-value servers, network devices and network security appliances."
 ISM-1912,Network docs include device settings for critical assets,Y,,"Network documentation includes device settings for all critical servers, high-value servers, network devices and network security appliances."
