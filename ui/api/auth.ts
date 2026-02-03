@@ -1,16 +1,18 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
 import { jwtFetch } from "./jwtFetch";
-import { getConfig } from "../config/loadConfig";
+import { getConfig, loadConfig } from "../config/loadConfig";
 
 // const apiDomain = import.meta.env.VITE_PROFILE_DOMAIN;
-const apiDomain = getConfig("PROFILE_DOMAIN");
+// const apiDomain = getConfig("PROFILE_DOMAIN");
 
 export const login = async (userId: string) => {
   try {
+    await loadConfig();
+    const apiDomain = getConfig("PROFILE_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/auth/login`, {
       method: "POST",
       body: JSON.stringify({ userId }),
@@ -28,6 +30,8 @@ export const login = async (userId: string) => {
 
 export const authVerify = async () => {
   try {
+    await loadConfig();
+    const apiDomain = getConfig("PROFILE_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/auth/verify`, {
       method: "GET",
     });
