@@ -36,14 +36,16 @@ Set-TFEnvType -type $type
 # Set root folder using modular function
 Set-RootFolder
 
-# If no stages specified, run all 1~7
+# If no stages specified, run all 1~9
 if (-not $Stages -or $Stages.Count -eq 0) {
-    $Stages = 1..7
+    $Stages = 1..9
 }
 
 if ($Stages -contains 1) { Ensure-DscNodeAndNpm }
 if ($Stages -contains 2) { Ensure-DscPnpm }
 if ($Stages -contains 3) { Ensure-DscTerraform }
+if ($Stages -contains 8) { Ensure-AwsCli }
+if ($Stages -contains 9) { Ensure-AzCli }
 # If any of 4~7 is selected, run Install-Dependencies (after stage 3, before stage 4)
 if ($Stages | Where-Object { $_ -in 4..7 }) {
     Install-Dependencies

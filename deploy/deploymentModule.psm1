@@ -133,6 +133,73 @@ function Ensure-DscTerraform {
     }
 }
 
+# Ensures AWS CLI is installed, and installs if missing (Windows: winget, Mac: brew)
+function Ensure-AwsCli {
+    $awsCli = Get-Command aws -ErrorAction SilentlyContinue
+    if (-not $awsCli) {
+        if ($script:IsWindows) {
+            Write-Output "AWS CLI not found. Installing AWS CLI using winget..."
+            winget install Amazon.AWSCLI -e --silent
+        } elseif ($script:IsMacOS) {
+            Write-Output "AWS CLI not found. Installing AWS CLI using Homebrew..."
+            brew install awscli
+        } else {
+            Write-Warning "Unsupported OS for automatic AWS CLI installation. Please install AWS CLI manually."
+            exit 1
+        }
+        # Re-check installation
+        $awsCli = Get-Command aws -ErrorAction SilentlyContinue
+        if (-not $awsCli) {
+            Write-Error "AWS CLI installation failed. Please install it manually. Visit https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html for instructions."
+            exit 1
+        }
+    } else {
+        Write-Output "AWS CLI is already installed."
+    }
+}
+
+# Ensures Azure CLI is installed, and installs if missing (Windows: winget, Mac: brew)
+function Ensure-AzCli {
+    $azCli = Get-Command az -ErrorAction SilentlyContinue
+    if (-not $azCli) {
+        if ($script:IsWindows) {
+            Write-Output "Azure CLI not found. Installing Azure CLI using winget..."
+            winget install Microsoft.AzureCLI -e --silent
+        } elseif ($script:IsMacOS) {
+            Write-Output "Azure CLI not found. Installing Azure CLI using Homebrew..."
+            brew install azure-cli
+        } else {
+            Write-Warning "Unsupported OS for automatic Azure CLI installation. Please install Azure CLI manually."
+            exit 1
+        }
+        # Re-check installation
+        $azCli = Get-Command az -ErrorAction SilentlyContinue
+        if (-not $azCli) {
+            Write-Error "Azure CLI installation failed. Please install it manually. Visit https://learn.microsoft.com/cli/azure/install-azure-cli for instructions."
+            exit 1
+        }
+    } else {
+        Write-Output "Azure CLI is already installed."
+    }
+
+    # Ensure 'account' extension is installed
+    try {
+        $accountExt = az extension show --name account 2>$null
+    } catch {
+        $accountExt = $null
+    }
+    if (-not $accountExt) {
+        Write-Output "Azure CLI 'account' extension not found. Installing..."
+        az extension add --name account
+        if ($LASTEXITCODE -ne 0) {
+            Write-Error "Failed to install Azure CLI 'account' extension."
+            exit 1
+        }
+    } else {
+        Write-Output "Azure CLI 'account' extension is already installed."
+    }
+}
+
 function Set-TFEnvType {
     param(
         [string]$type = "dev"
@@ -222,4 +289,4 @@ function Deploy-Ui {
     }
 }
 
-Export-ModuleMember -Function Ensure-DscPnpm,Get-RootFolder,Get-OsType,Ensure-DscNodeAndNpm,Ensure-DscTerraform,Set-TFEnvType,Set-RootFolder,Init-ResourceGroup,Deploy-MainEnv,Install-Dependencies,Deploy-Modules,Deploy-Ui
+Export-ModuleMember -Function Ensure-DscPnpm,Get-RootFolder,Get-OsType,Ensure-DscNodeAndNpm,Ensure-DscTerraform,Ensure-AwsCli,Ensure-AzCli,Set-TFEnvType,Set-RootFolder,Init-ResourceGroup,Deploy-MainEnv,Install-Dependencies,Deploy-Modules,Deploy-Ui
