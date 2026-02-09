@@ -4,12 +4,14 @@
  */
 
 import { jwtFetch } from "@zenmechat/shared-ui/api/jwtFetch";
-import { getConfig } from "@zenmechat/shared-ui/config/loadConfig";
-const apiDomain = getConfig("QUEST5TIER_DOMAIN");
+import { getConfig, loadConfig } from "@zenmechat/shared-ui/config/loadConfig";
+// const apiDomain = getConfig("QUEST5TIER_DOMAIN");
 // Fetch list of questions for a specific user
 export const getQuestionsByUser = async () => {
   const profileId = localStorage.getItem("profileId");
   try {
+    await loadConfig();
+    const apiDomain = getConfig("QUEST5TIER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/questionQry/getQuestions/${profileId}`, {
       method: "GET",
     });
@@ -32,6 +34,8 @@ export const getQuestionsByUser = async () => {
 export const createQuestion = async (title: string, questionText: string, option: string[] | null) => {
   const profileId = localStorage.getItem("profileId");
   try {
+    await loadConfig();
+    const apiDomain = getConfig("QUEST5TIER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/questionCmd/createQuestion`, {
       method: "POST",
       body: JSON.stringify({
@@ -57,6 +61,8 @@ export const createQuestion = async (title: string, questionText: string, option
 // Get question detail
 export const getQuestionById = async (id: string) => {
   try {
+    await loadConfig();
+    const apiDomain = getConfig("QUEST5TIER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/questionQry/getQuestion/${id}`, {
       method: "GET",
     });
@@ -76,6 +82,8 @@ export const getQuestionById = async (id: string) => {
 // Update an existing question
 export const updateQuestion = async (id: string, data: { title: string; questionText: string; option: string[] | null }) => {
   try {
+    await loadConfig();
+    const apiDomain = getConfig("QUEST5TIER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/questionCmd/updateQuestion/${id}`, {
       method: "POST",
       body: JSON.stringify({
@@ -107,6 +115,8 @@ export const shareQuestion = async (id: string, profileId: string, receiverIds: 
     //     receiver_ids: receiverIds,
     //   }),
     // });
+    await loadConfig();
+    const apiDomain = getConfig("QUEST5TIER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/questionCmd/shareQuestion`, {
       method: "POST",
       body: JSON.stringify({
@@ -136,6 +146,8 @@ export const submitAnswer = async (
 ) => {
   const profileId = localStorage.getItem("profileId");
   try {
+    await loadConfig();
+    const apiDomain = getConfig("QUEST5TIER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/questionCmd/createAnswer/${id}`, {
       method: "POST",
       body: JSON.stringify({
@@ -163,6 +175,8 @@ export const submitAnswer = async (
 
 export const getAnswerListByQuestionId = async (id: string) => {
   try {
+    await loadConfig();
+    const apiDomain = getConfig("QUEST5TIER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/questionQry/getAnswers/${id}`, {
       method: "GET",
     });
@@ -182,6 +196,8 @@ export const getAnswerListByQuestionId = async (id: string) => {
 export const getSharedQuestionList = async () => {
   const profileId = localStorage.getItem("profileId");
   try {
+    await loadConfig();
+    const apiDomain = getConfig("QUEST5TIER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/questionQry/getSharedQuestions/${profileId}`, {
       method: "GET",
     });
@@ -207,6 +223,8 @@ type PatchOperation = {
 export const updateQuestionPatch = async (id: string, patches: PatchOperation[]) => {
   const profileId = localStorage.getItem("profileId");
   try {
+    await loadConfig();
+    const apiDomain = getConfig("QUEST5TIER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/questionCmd/updateQuestion/${id}`, {
       method: "POST",
       headers: {
@@ -242,6 +260,8 @@ export const sendFollowUpQuestion = async (
 ) => {
   const profileId = localStorage.getItem("profileId");
   try {
+    await loadConfig();
+    const apiDomain = getConfig("QUEST5TIER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/questionCmd/sendFollowUp`, {
       method: "POST",
       body: JSON.stringify({

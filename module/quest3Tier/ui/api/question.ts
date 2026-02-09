@@ -4,12 +4,14 @@
  */
 
 import { jwtFetch } from "@zenmechat/shared-ui/api/jwtFetch";
-import { getConfig } from "@zenmechat/shared-ui/config/loadConfig";
-const apiDomain = getConfig("QUEST3TIER_DOMAIN");
+import { getConfig, loadConfig } from "@zenmechat/shared-ui/config/loadConfig";
+// const apiDomain = getConfig("QUEST3TIER_DOMAIN");
 // Fetch list of questions for a specific user
 export const getQuestionsByUser = async () => {
   const profileId = localStorage.getItem("profileId");
   try {
+    await loadConfig();
+    const apiDomain = getConfig("QUEST3TIER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/profile/${profileId}/question`, {
       method: "GET",
     });
@@ -32,6 +34,8 @@ export const getQuestionsByUser = async () => {
 export const createQuestion = async (title: string, questionText: string, option: string[] | null) => {
   const profileId = localStorage.getItem("profileId");
   try {
+    await loadConfig();
+    const apiDomain = getConfig("QUEST3TIER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/question`, {
       method: "POST",
       body: JSON.stringify({
@@ -57,6 +61,8 @@ export const createQuestion = async (title: string, questionText: string, option
 // Get question detail
 export const getQuestionById = async (id: string) => {
   try {
+    await loadConfig();
+    const apiDomain = getConfig("QUEST3TIER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/question/${id}`, {
       method: "GET",
     });
@@ -76,6 +82,8 @@ export const getQuestionById = async (id: string) => {
 // Update an existing question
 export const updateQuestion = async (id: string, data: { title: string; questionText: string; option: string[] | null }) => {
   try {
+    await loadConfig();
+    const apiDomain = getConfig("QUEST3TIER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/question/${id}`, {
       method: "PUT",
       body: JSON.stringify({
@@ -107,6 +115,8 @@ export const shareQuestion = async (id: string, profileId: string, receiverIds: 
     //     receiver_ids: receiverIds,
     //   }),
     // });
+    await loadConfig();
+    const apiDomain = getConfig("QUEST3TIER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/shareQuestionCmd`, {
       method: "POST",
       body: JSON.stringify({
@@ -136,6 +146,8 @@ export const submitAnswer = async (
 ) => {
   const profileId = localStorage.getItem("profileId");
   try {
+    await loadConfig();
+    const apiDomain = getConfig("QUEST3TIER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/question/${id}/answer`, {
       method: "POST",
       body: JSON.stringify({
@@ -162,6 +174,8 @@ export const submitAnswer = async (
 
 export const getAnswerListByQuestionId = async (id: string) => {
   try {
+    await loadConfig();
+    const apiDomain = getConfig("QUEST3TIER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/question/${id}/answer`, {
       method: "GET",
     });
@@ -181,6 +195,8 @@ export const getAnswerListByQuestionId = async (id: string) => {
 export const getSharedQuestionList = async () => {
   const profileId = localStorage.getItem("profileId");
   try {
+    await loadConfig();
+    const apiDomain = getConfig("QUEST3TIER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/profile/${profileId}/sharedQuestion`, {
       method: "GET",
     });
@@ -206,6 +222,8 @@ type PatchOperation = {
 export const updateQuestionPatch = async (id: string, patches: PatchOperation[]) => {
   const profileId = localStorage.getItem("profileId");
   try {
+    await loadConfig();
+    const apiDomain = getConfig("QUEST3TIER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/question/${id}`, {
       method: "PATCH",
       headers: {
@@ -241,6 +259,8 @@ export const sendFollowUpQuestion = async (
 ) => {
   const profileId = localStorage.getItem("profileId");
   try {
+    await loadConfig();
+    const apiDomain = getConfig("QUEST3TIER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/sendFollowUpCmd`, {
       method: "POST",
       body: JSON.stringify({

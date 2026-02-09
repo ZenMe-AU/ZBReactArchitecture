@@ -2,26 +2,22 @@
 
 ## Development
 
-From your terminal:
+1. Add `env.json` with proper data
 
-```sh
-npm run dev
-```
-
-This starts your app in development mode, rebuilding assets on file changes.
+2. Run `pnpm run dev`
 
 ## Deployment
 
 First, build your app for production:
 
 ```sh
-npm run build
+pnpm run build
 ```
 
 Then run the app in production mode:
 
 ```sh
-npm start
+pnpm start
 ```
 
 Now you'll need to pick a host to deploy it to.

@@ -1,19 +1,21 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
 import { isRouteErrorResponse } from "react-router";
 import type { Route } from "./+types/root";
 import { error } from "console";
-import { getConfig } from "../config/loadConfig";
+// import { getConfig, loadConfig } from "../config/loadConfig";
 // The top most error boundary for the app, rendered when your app throws an error
 // For more information, see https://reactrouter.com/start/framework/route-module#errorboundary
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let message = "Oops!";
   let details = "An unexpected error occurred.";
   let stack: string | undefined;
-  const isDev = getConfig("DEV") || false;
+  // await loadConfig();
+  // const isDev = getConfig("DEV") || false;
+  const isDev = false;
 
   if (isRouteErrorResponse(error)) {
     message = error.status === 404 ? "404" : "Error";

@@ -1,16 +1,18 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
 import { jwtFetch } from "./jwtFetch";
-import { getConfig } from "../config/loadConfig";
+import { getConfig, loadConfig } from "../config/loadConfig";
 // const apiDomain = import.meta.env.VITE_quest5Tier_DOMAIN;
-const apiDomain = getConfig("QUEST5TIER_DOMAIN");
+// const apiDomain = getConfig("QUEST5TIER_DOMAIN");
 // Fetch list of questions for a specific user
 export const getQuestionsByUser = async () => {
   const profileId = localStorage.getItem("profileId");
   try {
+    await loadConfig();
+    const apiDomain = getConfig("QUEST5TIER_DOMAIN");
     console.log("Fetching questions for profileId:", profileId, `${apiDomain}/profile/${profileId}/question`);
     const response = await jwtFetch(`${apiDomain}/profile/${profileId}/question`, {
       method: "GET",
@@ -34,6 +36,8 @@ export const getQuestionsByUser = async () => {
 export const createQuestion = async (title: string, questionText: string, option: string[] | null) => {
   const profileId = localStorage.getItem("profileId");
   try {
+    await loadConfig();
+    const apiDomain = getConfig("QUEST5TIER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/question`, {
       method: "POST",
       body: JSON.stringify({
@@ -59,6 +63,8 @@ export const createQuestion = async (title: string, questionText: string, option
 // Get question detail
 export const getQuestionById = async (id: string) => {
   try {
+    await loadConfig();
+    const apiDomain = getConfig("QUEST5TIER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/question/${id}`, {
       method: "GET",
     });
@@ -78,6 +84,8 @@ export const getQuestionById = async (id: string) => {
 // Update an existing question
 export const updateQuestion = async (id: string, data: { title: string; questionText: string; option: string[] | null }) => {
   try {
+    await loadConfig();
+    const apiDomain = getConfig("QUEST5TIER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/question/${id}`, {
       method: "PUT",
       body: JSON.stringify({
@@ -109,6 +117,8 @@ export const shareQuestion = async (id: string, profileId: string, receiverIds: 
     //     receiver_ids: receiverIds,
     //   }),
     // });
+    await loadConfig();
+    const apiDomain = getConfig("QUEST5TIER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/shareQuestionCmd`, {
       method: "POST",
       body: JSON.stringify({
@@ -138,6 +148,8 @@ export const submitAnswer = async (
 ) => {
   const profileId = localStorage.getItem("profileId");
   try {
+    await loadConfig();
+    const apiDomain = getConfig("QUEST5TIER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/question/${id}/answer`, {
       method: "POST",
       body: JSON.stringify({
@@ -164,6 +176,8 @@ export const submitAnswer = async (
 
 export const getAnswerListByQuestionId = async (id: string) => {
   try {
+    await loadConfig();
+    const apiDomain = getConfig("QUEST5TIER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/question/${id}/answer`, {
       method: "GET",
     });
@@ -183,6 +197,8 @@ export const getAnswerListByQuestionId = async (id: string) => {
 export const getSharedQuestionList = async () => {
   const profileId = localStorage.getItem("profileId");
   try {
+    await loadConfig();
+    const apiDomain = getConfig("QUEST5TIER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/profile/${profileId}/sharedQuestion`, {
       method: "GET",
     });
@@ -202,12 +218,14 @@ export const getSharedQuestionList = async () => {
 type PatchOperation = {
   op: "add" | "remove" | "replace" | "move" | "copy" | "test";
   path: string;
-  value?: any;
+  value?: unknown;
 };
 
 export const updateQuestionPatch = async (id: string, patches: PatchOperation[]) => {
   const profileId = localStorage.getItem("profileId");
   try {
+    await loadConfig();
+    const apiDomain = getConfig("QUEST5TIER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/question/${id}`, {
       method: "PATCH",
       headers: {
@@ -243,6 +261,8 @@ export const sendFollowUpQuestion = async (
 ) => {
   const profileId = localStorage.getItem("profileId");
   try {
+    await loadConfig();
+    const apiDomain = getConfig("QUEST5TIER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/sendFollowUpCmd`, {
       method: "POST",
       body: JSON.stringify({
