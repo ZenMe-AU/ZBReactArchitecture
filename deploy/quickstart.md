@@ -32,6 +32,10 @@ Follow these steps to run the corpSetUp script:
 
         git clone https://github.com/ZenMe-AU/ZBCorpArchitecture.git
 
+        npm install -g pnpm --prefix ~/.local
+
+        pnpm install
+
         node ./ZBCorpArchitecture/corpSetup/initCorpEnvDeploy.js
 
 1.  after the .js has finished running the corpSetUp should be fully installed
