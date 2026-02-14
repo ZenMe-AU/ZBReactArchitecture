@@ -1,5 +1,5 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
@@ -44,10 +44,13 @@ export default function HomePage({ loaderData }: { loaderData: { isAuthenticated
             }}
           >
             <Button component={Link} to="/quest3Tier" variant="contained">
-              Question
+              Quest 3 Tier
             </Button>
             <Button component={Link} to="/quest5Tier" variant="contained">
-              Question V3
+              Quest 5 Tier
+            </Button>
+            <Button component={Link} to="/quest5TierEg" variant="contained">
+              Quest 5 Tier EG
             </Button>
           </Box>
         </Box>

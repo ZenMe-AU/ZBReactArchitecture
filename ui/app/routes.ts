@@ -1,5 +1,5 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
@@ -7,6 +7,7 @@ import type { RouteConfig } from "@react-router/dev/routes";
 import { route, index, layout } from "@react-router/dev/routes";
 import { protectedRoutes as quest3TierProtectedRoutes, publicRoutes as quest3TierPublicRoutes } from "../../module/quest3Tier/ui/routes";
 import { protectedRoutes as quest5TierProtectedRoutes, publicRoutes as quest5TierPublicRoutes } from "../../module/quest5Tier/ui/routes";
+import { protectedRoutes as quest5TierEgProtectedRoutes, publicRoutes as quest5TierEgPublicRoutes } from "../../module/quest5TierEg/ui/routes";
 import { protectedRoutes as profileProtectedRoutes, publicRoutes as profilePublicRoutes } from "../../module/profile/ui/routes";
 // console.log("Question Routes:", questionRoutes);
 // const modules = import.meta.glob("../../module/question/ui/routes.ts", { eager: true });
@@ -26,10 +27,12 @@ export default [
   ...quest3TierPublicRoutes,
   ...profilePublicRoutes,
   ...quest5TierPublicRoutes,
+  ...quest5TierEgPublicRoutes,
   layout("./layouts/protected.tsx", [
     route("logout", "./routes/Logout.tsx"),
     ...quest3TierProtectedRoutes,
     ...profileProtectedRoutes,
     ...quest5TierProtectedRoutes,
+    ...quest5TierEgProtectedRoutes,
   ]),
 ] satisfies RouteConfig;
