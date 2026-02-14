@@ -1,20 +1,15 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
 import { useEffect } from "react";
-import {
-  Scripts,
-  ScrollRestoration,
-  isRouteErrorResponse,
-  Outlet,
-  useLocation,
-} from "react-router";
+import { Scripts, ScrollRestoration, isRouteErrorResponse, Outlet, useLocation } from "react-router";
 import type { LoaderFunctionArgs } from "react-router";
 import { logPageView } from "../monitor/telemetry";
 import { loadConfig } from "../config/loadConfig";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "./root.css";
 
 export default function App() {
   return (
@@ -74,19 +69,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function ErrorBoundary({ error }: any) {
+export function ErrorBoundary({ error }: unknown) {
   const is404 = isRouteErrorResponse(error) && error.status === 404;
   const message = is404 ? "404" : "Error";
-  const details = is404
-    ? "The requested page could not be found."
-    : isRouteErrorResponse(error)
-      ? error.statusText
-      : "An unexpected error occurred.";
+  const details = is404 ? "The requested page could not be found." : isRouteErrorResponse(error) ? error.statusText : "An unexpected error occurred.";
   return (
-    <main
-      id="error-page"
-      style={{ textAlign: "center", padding: "2rem", width: "100vw" }}
-    >
+    <main id="error-page" style={{ textAlign: "center", padding: "2rem", width: "100vw" }}>
       <h1>{message}</h1>
       <p>{details}</p>
     </main>
