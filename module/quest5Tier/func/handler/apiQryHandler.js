@@ -1,5 +1,5 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
@@ -76,7 +76,7 @@ async function GetQuestionById(request, context) {
  */
 async function GetAnswerById(request, context) {
   const { answerId } = request.params;
-  const answer = await QuestionQueryService.getAnswerById(questionId, answerId);
+  const answer = await QuestionQueryService.getAnswerById(answerId);
   return { return: { detail: answer } };
 }
 /**
