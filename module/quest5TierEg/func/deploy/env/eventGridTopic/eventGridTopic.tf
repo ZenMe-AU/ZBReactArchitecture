@@ -20,3 +20,8 @@ resource "azurerm_eventgrid_topic" "egtopic" {
 #     url = "https://<your-function-app>.azurewebsites.net/runtime/webhooks/eventgrid?functionName=StdTopicQueue"
 #   }
 # }
+resource "azurerm_role_assignment" "eg_data_contributor" {
+  scope                = azurerm_eventgrid_topic.egtopic.id
+  role_definition_name = "EventGrid Data Contributor"
+  principal_id         = var.user_assigned_identity_principal_id
+}

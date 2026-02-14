@@ -1,5 +1,5 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
@@ -48,6 +48,7 @@ class classDeployCode {
     this.deleteAppSettings = ["AzureWebJobsStorage"];
 
     this.roleAssignments = [
+      // { role: "EventGrid Data Contributor", scope: this._eventGridScope() },
       //   { role: "Storage Blob Data Contributor", scope: this._storageScope() },
       //   { role: "Storage Queue Data Contributor", scope: this._storageScope() },
       //   { role: "Storage Table Data Contributor", scope: this._storageScope() },
@@ -61,6 +62,10 @@ class classDeployCode {
     this.topicNames = [];
     this.eventSubscriptionList = [];
   }
+
+  // _eventGridScope() {
+  //   return `/subscriptions/${this.subscriptionId}/resourceGroups/${this.resourceGroupName}/providers/Microsoft.EventGrid/topics/${this.eventGridName}`;
+  // }
 
   // _storageScope() {
   //   return `/subscriptions/${this.subscriptionId}/resourceGroups/${this.resourceGroupName}/providers/Microsoft.Storage/storageAccounts/${this.storageAccountName}`;

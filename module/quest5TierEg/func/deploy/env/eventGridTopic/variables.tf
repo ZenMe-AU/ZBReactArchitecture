@@ -18,3 +18,7 @@ variable "env_type" {
 variable "event_grid_name" {
   type = string
 }
+
+variable "user_assigned_identity_principal_id" {
+  type = string
+}

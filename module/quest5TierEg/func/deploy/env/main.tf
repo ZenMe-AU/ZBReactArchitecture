@@ -29,12 +29,13 @@ module "database" {
 }
 
 module "event_grid" {
-  source                  = "./eventGridTopic"
-  event_grid_name         = var.event_grid_name
-  event_grid_topic_list   = var.event_grid_topic_list
-  resource_group_name     = data.azurerm_resource_group.main_rg.name
-  resource_group_location = data.azurerm_resource_group.main_rg.location
-  env_type                = var.env_type
+  source                              = "./eventGridTopic"
+  event_grid_name                     = var.event_grid_name
+  event_grid_topic_list               = var.event_grid_topic_list
+  resource_group_name                 = data.azurerm_resource_group.main_rg.name
+  resource_group_location             = data.azurerm_resource_group.main_rg.location
+  env_type                            = var.env_type
+  user_assigned_identity_principal_id = data.azurerm_user_assigned_identity.uai.principal_id
 }
 
 # module "event_grid_domain" {
