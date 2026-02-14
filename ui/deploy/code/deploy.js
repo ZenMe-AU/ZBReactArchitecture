@@ -1,5 +1,5 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
@@ -67,14 +67,16 @@ async function deploy() {
     // Fetch API domains from App Config
     apiList.forEach((module) => {
       try {
-        const key = `FunctionAppHost:${getFunctionAppName(targetEnv, module)}`;
-        const value = getAppConfigValueByKeyLabel({
-          appConfigName,
-          key,
-          label: envType,
-        });
+        // const key = `FunctionAppHost:${getFunctionAppName(targetEnv, module)}`;
+        // const value = getAppConfigValueByKeyLabel({
+        //   appConfigName,
+        //   key,
+        //   label: envType,
+        // });
+        const value = module.toLowerCase() + ".app.z3nm3.com";
         envMap.set(`${module.toUpperCase()}_DOMAIN`, `https://${value}`);
-      } catch (err) {
+      } catch {
+        // } catch (err) {
         // console.error(`Failed to fetch ${module}:`, err);
         console.warn(`Warning: Failed to fetch ${module} domain from App Config.`);
       }
