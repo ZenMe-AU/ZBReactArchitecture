@@ -189,6 +189,70 @@ resource "azurerm_api_management_api_operation" "catchall_get" {
     }
 }
 
+resource "azurerm_api_management_api_operation" "catchall_delete" {
+  operation_id        = "catchall-delete"
+  api_name            = azurerm_api_management_api.http_api.name
+  api_management_name = azurerm_api_management.apim.name
+  resource_group_name = data.azurerm_resource_group.target.name
+
+  display_name  = "CatchAllDelete"
+  method        = "DELETE"
+  url_template  = "/*"
+
+    response {
+        status_code = 200
+        description = "Successful response"
+    }
+}
+
+resource "azurerm_api_management_api_operation" "catchall_patch" {
+  operation_id        = "catchall-patch"
+  api_name            = azurerm_api_management_api.http_api.name
+  api_management_name = azurerm_api_management.apim.name
+  resource_group_name = data.azurerm_resource_group.target.name
+
+  display_name  = "CatchAllPatch"
+  method        = "PATCH"
+  url_template  = "/*"
+
+    response {
+        status_code = 200
+        description = "Successful response"
+    }
+}
+
+resource "azurerm_api_management_api_operation" "catchall_post" {
+  operation_id        = "catchall-post"
+  api_name            = azurerm_api_management_api.http_api.name
+  api_management_name = azurerm_api_management.apim.name
+  resource_group_name = data.azurerm_resource_group.target.name
+
+  display_name  = "CatchAllPost"
+  method        = "POST"
+  url_template  = "/*"
+
+    response {
+        status_code = 200
+        description = "Successful response"
+    }
+}
+
+resource "azurerm_api_management_api_operation" "catchall_put" {
+  operation_id        = "catchall-put"
+  api_name            = azurerm_api_management_api.http_api.name
+  api_management_name = azurerm_api_management.apim.name
+  resource_group_name = data.azurerm_resource_group.target.name
+
+  display_name  = "CatchAllPut"
+  method        = "PUT"
+  url_template  = "/*"
+
+    response {
+        status_code = 200
+        description = "Successful response"
+    }
+}
+
 # Todo: replace this policy with custom domains when Managed certificates are available (March 2026)
 # The CatchAll Policy routes requests based on the X-Forwarded-Host header instead of the Custom Domain.
 resource "azurerm_api_management_api_operation_policy" "catchall_get_policy" { 
@@ -199,6 +263,37 @@ resource "azurerm_api_management_api_operation_policy" "catchall_get_policy" {
   xml_content = file("apimPolicy.xml") 
 }
 
+resource "azurerm_api_management_api_operation_policy" "catchall_delete_policy" { 
+  api_name            = azurerm_api_management_api.http_api.name
+  api_management_name = azurerm_api_management.apim.name
+  resource_group_name = data.azurerm_resource_group.target.name
+  operation_id        = azurerm_api_management_api_operation.catchall_delete.operation_id
+  xml_content = file("apimPolicyDefault.xml") 
+}
+
+resource "azurerm_api_management_api_operation_policy" "catchall_patch_policy" { 
+  api_name            = azurerm_api_management_api.http_api.name
+  api_management_name = azurerm_api_management.apim.name
+  resource_group_name = data.azurerm_resource_group.target.name
+  operation_id        = azurerm_api_management_api_operation.catchall_patch.operation_id
+  xml_content = file("apimPolicyDefault.xml") 
+}
+
+resource "azurerm_api_management_api_operation_policy" "catchall_post_policy" { 
+  api_name            = azurerm_api_management_api.http_api.name
+  api_management_name = azurerm_api_management.apim.name
+  resource_group_name = data.azurerm_resource_group.target.name
+  operation_id        = azurerm_api_management_api_operation.catchall_post.operation_id
+  xml_content = file("apimPolicyDefault.xml") 
+}
+
+resource "azurerm_api_management_api_operation_policy" "catchall_put_policy" { 
+  api_name            = azurerm_api_management_api.http_api.name
+  api_management_name = azurerm_api_management.apim.name
+  resource_group_name = data.azurerm_resource_group.target.name
+  operation_id        = azurerm_api_management_api_operation.catchall_put.operation_id
+  xml_content = file("apimPolicyDefault.xml") 
+}
 
 # API-level diagnostic for WildcardApi (sends telemetry to Application Insights)
 resource "azurerm_api_management_api_diagnostic" "wildcardapi_diag" {
