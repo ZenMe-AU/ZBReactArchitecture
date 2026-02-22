@@ -10,16 +10,9 @@ import { logPageView } from "../monitor/telemetry";
 import { loadConfig } from "../config/loadConfig";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./root.css";
+import RootLayout from "./layouts/root";
 
 export default function App() {
-  return (
-    <div>
-      <Outlet />
-    </div>
-  );
-}
-
-export function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   useEffect(() => {
     try {
@@ -27,49 +20,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
     } catch {}
   }, [location]);
 
-  // TODO: Review redirect options for frontdoor
-  // const redirectScript = [
-  //   '(function(){',
-  //   ' try {',
-  //   '   function doRedirect(targetHost){',
-  //   '     try {',
-  //   '       if(!targetHost) return;',
-  //   '       var h = window.location.hostname || "";',
-  //   '       var isStatic = /\\.web\\.core\\.windows\\.net$/i.test(h);',
-  //   '       if(isStatic && h.toLowerCase() !== String(targetHost).toLowerCase()){',
-  //   '         var dest = "https://" + targetHost + window.location.pathname + window.location.search + window.location.hash;',
-  //   '         window.location.replace(dest);',
-  //   '       }',
-  //   '     } catch(e){}',
-  //   '   }',
-  //   '   var host = (window.__env && window.__env.FRONTEND_CUSTOM_DOMAIN_HOST) || null;',
-  //   '   if(host){ doRedirect(host); } else {',
-  //   '     fetch("/env.json", { cache: "no-store" })',
-  //   '       .then(function(r){ return r && r.ok ? r.json() : null; })',
-  //   '       .then(function(cfg){ if(cfg && cfg.FRONTEND_CUSTOM_DOMAIN_HOST){ window.__env = cfg; doRedirect(cfg.FRONTEND_CUSTOM_DOMAIN_HOST); } })',
-  //   '       .catch(function(){});',
-  //   '   }',
-  //   ' } catch(e){}',
-  //   '})();'
-  // ].join("\n");
-  // {/* <script dangerouslySetInnerHTML={{ __html: redirectScript }} /> */}
-
   return (
-    <html lang="en">
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-      </head>
-      <body>
-        {children}
-        <ScrollRestoration />
-        <Scripts />
-      </body>
-    </html>
+    <div>
+      <Outlet />
+    </div>
   );
 }
 
-export function ErrorBoundary({ error }: unknown) {
+export const Layout = RootLayout;
+
+export function ErrorBoundary({ error }: { error: unknown }) {
   const is404 = isRouteErrorResponse(error) && error.status === 404;
   const message = is404 ? "404" : "Error";
   const details = is404 ? "The requested page could not be found." : isRouteErrorResponse(error) ? error.statusText : "An unexpected error occurred.";
@@ -81,16 +41,16 @@ export function ErrorBoundary({ error }: unknown) {
   );
 }
 
-export function HydrateFallback() {
-  return (
-    <div id="loading-splash">
-      <div id="loading-splash-spinner" />
-      <p>Loading, please wait...</p>
-    </div>
-  );
-}
+// export function HydrateFallback() {
+//   return (
+//     <div id="loading-splash">
+//       <div id="loading-splash-spinner" />
+//       <p>Loading, please wait...</p>
+//     </div>
+//   );
+// }
 
-export async function clientLoader({ request }: LoaderFunctionArgs) {
-  await loadConfig();
-  return null;
-}
+// export async function clientLoader({ request }: LoaderFunctionArgs) {
+//   await loadConfig();
+//   return null;
+// }
