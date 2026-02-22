@@ -5,6 +5,7 @@
 
 import { getOperationId } from "../monitor/telemetry";
 import { AuthExpiredError } from "../error/authExpired";
+import { useErrorHandler } from "../app/hooks/useErrorHandler";
 
 export const jwtFetch = async (url: string, options: RequestInit = {}) => {
   const token = localStorage.getItem("token");
@@ -34,10 +35,10 @@ export const jwtFetch = async (url: string, options: RequestInit = {}) => {
   if (!response.ok) {
     if (response?.status === 403) {
       const { message, loginUrl } = await response.json();
-      throw new AuthExpiredError(message, loginUrl);
+      useErrorHandler(new AuthExpiredError(message, loginUrl));
     }
     const errorText = await response.text();
-    throw new Error(`Request failed with status ${response.status}: ${errorText}`);
+    useErrorHandler(new Error(`Request failed with status ${response.status}: ${errorText}`));
   }
 
   return response;
