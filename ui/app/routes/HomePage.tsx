@@ -8,7 +8,7 @@ import { Link } from "react-router";
 import { Button, Box } from "@mui/material";
 
 export async function clientLoader() {
-  const isAuthenticated = localStorage.getItem("token") ? true : false;
+  const isAuthenticated = localStorage.getItem("token") && localStorage.getItem("token") !== "" ? true : false;
   return { isAuthenticated };
 }
 

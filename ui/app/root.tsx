@@ -11,6 +11,8 @@ import { loadConfig } from "../config/loadConfig";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./root.css";
 import RootLayout from "./layouts/root";
+import { AuthProvider } from "./providers/AuthProvider";
+import { msalInstance } from "../auth/msalInstance";
 
 export default function App() {
   const location = useLocation();
@@ -18,18 +20,19 @@ export default function App() {
     try {
       logPageView(location.pathname);
     } catch {}
-  }, [location]);
+  }, [location.pathname]);
 
   return (
-    <div>
+    <AuthProvider msalInstance={msalInstance}>
       <Outlet />
-    </div>
+    </AuthProvider>
   );
 }
 
 export const Layout = RootLayout;
 
 export function ErrorBoundary({ error }: { error: unknown }) {
+  console.error("ErrorBoundary caught an error:", error);
   const is404 = isRouteErrorResponse(error) && error.status === 404;
   const message = is404 ? "404" : "Error";
   const details = is404 ? "The requested page could not be found." : isRouteErrorResponse(error) ? error.statusText : "An unexpected error occurred.";
