@@ -3,58 +3,70 @@
  * @license SPDX-License-Identifier: MIT
  */
 
+import { EditNote as EditNoteIcon, EmojiEvents as EmojiEventsIcon, InfoOutline, Shield as ShieldIcon } from "@mui/icons-material";
+import { Alert, Grid, Typography } from "@mui/material";
 import { Helmet } from "react-helmet";
-import { Link } from "react-router";
-import { Button, Box } from "@mui/material";
+import { useRouteLoaderData } from "react-router";
+import QuestTierCard from "../components/QuestTierCard";
 
-export async function clientLoader() {
-  const isAuthenticated = localStorage.getItem("token") ? true : false;
-  return { isAuthenticated };
-}
+const questTiers = [
+  {
+    title: "Quest 3 Tier",
+    description: "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore.",
+    tierLabel: "3 Tier",
+    tierColor: "#1976d2",
+    icon: <ShieldIcon />,
+    updatedAgo: "Updated 2h ago",
+    href: "/quest3Tier",
+  },
+  {
+    title: "Quest 5 Tier",
+    description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla.",
+    tierLabel: "5 Tier",
+    tierColor: "#2e7d32",
+    icon: <EditNoteIcon />,
+    updatedAgo: "Updated 5h ago",
+    href: "/quest5Tier",
+  },
+  {
+    title: "Quest 5 Tier EG",
+    description: "Ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.",
+    tierLabel: "5 Tier EG",
+    tierColor: "#6a1b9a",
+    icon: <EmojiEventsIcon />,
+    updatedAgo: "Updated 1d ago",
+    href: "/quest5TierEg",
+  },
+];
 
-export default function HomePage({ loaderData }: { loaderData: { isAuthenticated: boolean } }) {
-  const { isAuthenticated } = loaderData;
+export default function HomePage() {
+  const parentData = useRouteLoaderData("layouts/protected") as { profile: { id: string; name?: string } } | undefined;
+  const userName = parentData?.profile?.name ?? "User";
+
   return (
-    <main>
+    <>
       <Helmet>
-        <title>HomePage</title>
+        <title>Portal - Home</title>
       </Helmet>
-      <div style={{ textAlign: "center", marginTop: "5rem", width: "100vw" }}>
-        <h1>Welcome to the Portal</h1>
-        <p>This is the main entry of the application.</p>
-        {isAuthenticated && (
-          <>
-            <p>You are logged in.</p>
-          </>
-        )}
-        <Box
-          sx={{
-            // height: "100vh",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 2,
-              minWidth: 200,
-            }}
-          >
-            <Button component={Link} to="/quest3Tier" variant="contained">
-              Quest 3 Tier
-            </Button>
-            <Button component={Link} to="/quest5Tier" variant="contained">
-              Quest 5 Tier
-            </Button>
-            <Button component={Link} to="/quest5TierEg" variant="contained">
-              Quest 5 Tier EG
-            </Button>
-          </Box>
-        </Box>
-      </div>
-    </main>
+
+      <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
+        Welcome to the Portal
+      </Typography>
+      <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+        Select a quest tier to get started, or browse all available quests below.
+      </Typography>
+
+      <Alert icon={<InfoOutline />} severity="success" sx={{ mb: 4, bgcolor: "#e8f5e9", color: "text.primary" }}>
+        You are logged in as <strong>{userName}</strong>.
+      </Alert>
+
+      <Grid container spacing={3}>
+        {questTiers.map((tier) => (
+          <Grid size={{ xs: 12, sm: 6, md: 4 }} key={tier.href}>
+            <QuestTierCard {...tier} />
+          </Grid>
+        ))}
+      </Grid>
+    </>
   );
 }

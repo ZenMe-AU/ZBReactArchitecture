@@ -22,13 +22,13 @@ import { protectedRoutes as profileProtectedRoutes, publicRoutes as profilePubli
 
 // console.log("Modules Routes:", modules);
 export default [
-  index("./routes/HomePage.tsx"),
   route("login", "./routes/Login.tsx"),
   ...quest3TierPublicRoutes,
   ...profilePublicRoutes,
   ...quest5TierPublicRoutes,
   ...quest5TierEgPublicRoutes,
   layout("./layouts/protected.tsx", [
+    index("./routes/HomePage.tsx"),
     route("logout", "./routes/Logout.tsx"),
     ...quest3TierProtectedRoutes,
     ...profileProtectedRoutes,
