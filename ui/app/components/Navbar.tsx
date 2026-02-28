@@ -6,6 +6,7 @@
 import { ArrowBack as ArrowBackIcon, Menu as MenuIcon, NotificationsOutlined as NotificationsIcon } from "@mui/icons-material";
 import { AppBar, Avatar, Badge, Box, IconButton, Toolbar, Typography } from "@mui/material";
 import { useLocation, useNavigate } from "react-router";
+import type { Profile } from "types/interfaces";
 
 const ROUTE_TITLES: Record<string, string> = {
   "/": "Portal",
@@ -33,13 +34,7 @@ function getInitials(name?: string): string {
     .slice(0, 2);
 }
 
-export default function Navbar({
-  loaderData,
-  onMenuToggle,
-}: {
-  loaderData: { profile: { id: string; name?: string; avatar?: string; role?: string } };
-  onMenuToggle?: () => void;
-}) {
+export default function Navbar({ loaderData, onMenuToggle }: { loaderData: { profile: Profile }; onMenuToggle?: () => void }) {
   const { profile } = loaderData;
   const navigate = useNavigate();
   const pageTitle = usePageTitle();
@@ -72,7 +67,7 @@ export default function Navbar({
             </Badge>
           </IconButton>
           <Avatar
-            src={profile?.avatar}
+            src={profile?.avatar ?? undefined}
             sx={{ width: 36, height: 36, bgcolor: "primary.main", fontSize: 14, cursor: "pointer" }}
             onClick={() => navigate("/logout")}
           >

@@ -6,8 +6,8 @@
 import { EditNote as EditNoteIcon, EmojiEvents as EmojiEventsIcon, InfoOutline, Shield as ShieldIcon } from "@mui/icons-material";
 import { Alert, Grid, Typography } from "@mui/material";
 import { Helmet } from "react-helmet";
-import { useRouteLoaderData } from "react-router";
 import QuestTierCard from "../components/QuestTierCard";
+import { useAuthState } from "../providers/AuthProvider";
 
 const questTiers = [
   {
@@ -45,8 +45,8 @@ export async function clientLoader() {
 }
 
 export default function HomePage() {
-  const parentData = useRouteLoaderData("layouts/protected") as { profile: { id: string; name?: string } } | undefined;
-  const userName = parentData?.profile?.name ?? "User";
+  const { profile } = useAuthState();
+  const userName = profile?.name ?? "User";
 
   return (
     <>

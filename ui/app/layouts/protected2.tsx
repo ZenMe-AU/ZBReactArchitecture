@@ -51,7 +51,7 @@ function useBreadcrumbs() {
 }
 
 export default function Layout() {
-  const { account, isAuthenticated, isAuthReady } = useAuthState();
+  const { profile, isAuthenticated, isAuthReady } = useAuthState();
   const navigate = useNavigate();
   const location = useLocation();
   const breadcrumbs = useBreadcrumbs();
@@ -70,17 +70,7 @@ export default function Layout() {
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
       <Sidebar open={sidebarOpen} />
-      <Navbar
-        loaderData={{
-          profile: {
-            name: account?.idTokenClaims?.preferred_username,
-            id: account?.idTokenClaims?.oid ?? "",
-            avatar: "",
-            role: (account?.idTokenClaims?.roles ?? []).join(","),
-          },
-        }}
-        onMenuToggle={() => setSidebarOpen((prev) => !prev)}
-      />
+      <Navbar loaderData={{ profile }} onMenuToggle={() => setSidebarOpen((prev) => !prev)} />
       <Box
         component="main"
         sx={{
