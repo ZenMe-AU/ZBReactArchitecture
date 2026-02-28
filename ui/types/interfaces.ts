@@ -1,5 +1,5 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
@@ -8,6 +8,7 @@ export interface Profile {
   id: string;
   name: string;
   avatar: string | null;
+  role?: string;
 }
 
 export interface Question {

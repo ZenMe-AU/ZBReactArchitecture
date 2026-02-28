@@ -3,9 +3,10 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import type { AccountInfo, IPublicClientApplication } from "@azure/msal-browser";
 import { MsalProvider, useMsal } from "@azure/msal-react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import type { Profile } from "types/interfaces";
 import { useRefreshDomainCookie } from "../hooks/useRefreshDomainCookie";
 
 /**
@@ -19,8 +20,9 @@ type AuthMode = "SSO" | "OTHER" | null;
 /**
  * Shape of the authentication context exposed to the app.
  */
-interface AuthContextType {
+export interface AuthContextType {
   account: AccountInfo | null;
+  profile: Profile;
   mode: AuthMode;
   isAuthenticated: boolean;
   isAuthReady: boolean;
@@ -54,6 +56,13 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
   const [isAuthReady, setIsAuthReady] = useState(false);
   // Ensure the domain cookie is fresh on app load
   useRefreshDomainCookie();
+
+  const profile: Profile = {
+    name: account?.idTokenClaims?.preferred_username ?? "",
+    id: account?.idTokenClaims?.oid ?? "",
+    avatar: "",
+    role: (account?.idTokenClaims?.roles ?? []).join(","),
+  };
 
   /**
    * Synchronize MSAL accounts with local React state.
@@ -138,6 +147,7 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{
         account,
+        profile,
         mode,
         isAuthenticated: !!account,
         isAuthReady,
