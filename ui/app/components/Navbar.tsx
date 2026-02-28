@@ -22,6 +22,7 @@ function usePageTitle(): string {
   return match ? ROUTE_TITLES[match] : "Portal";
 }
 
+// e.g."John Doe" -> "JD"
 function getInitials(name?: string): string {
   if (!name) return "?";
   return name
