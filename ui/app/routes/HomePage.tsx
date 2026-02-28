@@ -39,6 +39,11 @@ const questTiers = [
   },
 ];
 
+export async function clientLoader() {
+  const isAuthenticated = localStorage.getItem("token") && localStorage.getItem("token") !== "" ? true : false;
+  return { isAuthenticated };
+}
+
 export default function HomePage() {
   const parentData = useRouteLoaderData("layouts/protected") as { profile: { id: string; name?: string } } | undefined;
   const userName = parentData?.profile?.name ?? "User";

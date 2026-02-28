@@ -36,7 +36,7 @@ export default function Navbar({
   loaderData,
   onMenuToggle,
 }: {
-  loaderData: { profile: { id: string; name?: string; avatar?: string } };
+  loaderData: { profile: { id: string; name?: string; avatar?: string; role?: string } };
   onMenuToggle?: () => void;
 }) {
   const { profile } = loaderData;
