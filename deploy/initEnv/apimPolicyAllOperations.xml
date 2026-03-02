@@ -1,29 +1,61 @@
+<!--
+    APIM routes subdomains to the correct backend based on the host header passed from the reverse proxy.
+    Where possible, make the DNS name match the name of the backend service to enable this to be automated in future.
+-->
 <policies>
-  <inbound>
-    <base />
-    <set-variable name="forwardedHost" value='@(context.Request.Headers.GetValueOrDefault("X-Forwarded-Subdomain", "").Trim().ToLowerInvariant())' />
-    <choose>
-      <when condition='@(context.Variables.GetValueOrDefault<string>("forwardedHost") == "profile")'>
-        <set-backend-service backend-id="ProfileFunc" />
-      </when>
-      <when condition='@(context.Variables.GetValueOrDefault<string>("forwardedHost") == "quest3tier")'>
-        <set-backend-service backend-id="Quest3TierFunc" />
-      </when>
-      <otherwise>
-        <return-response>
-          <set-status code="404" reason="Not Found" />
-          <set-body>@("Unknown: " + context.Variables.GetValueOrDefault<string>("forwardedHost"))</set-body>
-        </return-response>
-      </otherwise>
-    </choose>
-  </inbound>
-  <backend>
-    <base />
-  </backend>
-  <outbound>
-    <base />
-  </outbound>
-  <on-error>
-    <base />
-  </on-error>
+    <!-- Inbound: Throttle, authorize, validate, cache, or transform the requests -->
+    <inbound>
+        <base />
+        <set-variable name="forwardedHost" value="@(context.Request.Headers.GetValueOrDefault("X-Forwarded-Subdomain", "").Trim().ToLowerInvariant())" />
+        <choose>
+            <when condition="@(context.Variables.GetValueOrDefault<string>("forwardedHost") == "profile")">
+                <set-backend-service backend-id="ProfileFunc" />
+            </when>
+            <when condition="@(context.Variables.GetValueOrDefault<string>("forwardedHost") == "quest3tier")">
+                <set-backend-service backend-id="Quest3TierFunc" />
+            </when>
+            <when condition="@(context.Variables.GetValueOrDefault<string>("forwardedHost") == "coordinate")">
+                <set-backend-service backend-id="CoordinateFunc" />
+            </when>
+            <when condition="@(context.Variables.GetValueOrDefault<string>("forwardedHost") == "quest5tier")">
+                <set-backend-service backend-id="Quest5TierFunc" />
+            </when>
+            <when condition="@(context.Variables.GetValueOrDefault<string>("forwardedHost") == "quest5tiereg")">
+                <set-backend-service backend-id="Quest5TierEgFunc" />
+            </when>
+            <when condition="@(context.Variables.GetValueOrDefault<string>("forwardedHost") == "www")">
+                <set-backend-service backend-id="HomePage" />
+            </when>
+            <when condition="@(context.Variables.GetValueOrDefault<string>("forwardedHost") == "prod")">
+                <set-backend-service backend-id="HomePage" />
+                <return-response>  
+                    <set-status code="303" reason="Redirecting" />  
+                    <set-header name="Location" exists-action="override">  
+                        <value>@("https://www." + context.Request.Headers.GetValueOrDefault("X-Forwarded-Host", ""))</value>  
+                    </set-header>  
+                </return-response>  
+                <!-- TODO: Redirect to www -->
+                <!-- TODO: How do we handle multiple URLs for the same website, should we have a list here? -->
+            </when>
+            <otherwise>
+                <return-response>
+                    <set-status code="404" reason="Not Found" />
+                    <set-body>@("Unknown host: " + context.Variables.GetValueOrDefault<string>("forwardedHost") + ", X-Forwarded-Subdomain: " + context.Request.Headers.GetValueOrDefault("X-Forwarded-Subdomain") + ", X-Forwarded-Host: " + context.Request.Headers.GetValueOrDefault("X-Forwarded-Host", ""))</set-body>
+                </return-response>
+            </otherwise>
+        </choose>
+        <include-fragment fragment-id="transform-x-auth-token" />
+    </inbound>
+    <!-- Backend: Control if and how the requests are forwarded to services  -->
+    <backend>
+        <base />
+    </backend>
+    <!-- Outbound: Customize the responses -->
+    <outbound>
+        <base />
+    </outbound>
+    <!-- on-error: Handle exceptions and customize error responses  -->
+    <on-error>
+        <base />
+    </on-error>
 </policies>
