@@ -258,6 +258,16 @@ resource "azurerm_api_management_api_operation" "catchall_put" {
 
 #TODO: Add all operations section and import file apimPolicyAllpOperations.xml
 
+# API-level policy for all operations
+resource "azurerm_api_management_api_operation_policy" "all_operations_policy" {
+  api_name            = azurerm_api_management_api.http_api.name
+  api_management_name = azurerm_api_management.apim.name
+  resource_group_name = data.azurerm_resource_group.target.name
+  operation_id        = "*"
+  xml_content         = file("apimPolicyAllOperations.xml")
+}
+
+
 resource "azurerm_api_management_api_operation_policy" "catchall_get_policy" { 
   api_name            = azurerm_api_management_api.http_api.name
   api_management_name = azurerm_api_management.apim.name
