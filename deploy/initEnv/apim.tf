@@ -31,7 +31,7 @@ data "azurerm_role_definition" "apim_contributor" {
   scope = "/subscriptions/${var.subscription_id}"
 }
 
-# Create an API Management instance inside the dev-chemicalfirefly resource group
+# Create an API Management instance inside the resource group
 resource "azurerm_api_management" "apim" {
   name                = var.apim_name
   location            = azurerm_resource_group.rg.location
@@ -70,7 +70,7 @@ resource "time_sleep" "wait_for_role" {
 # TODO: should i move this to deployEnv?
 # reference existing Application Insights instance
 data "azurerm_application_insights" "apim_ai" {
-  name                = "chemicalfirefly-appinsights"
+  name                = "${var.target_env}-appinsights"
   resource_group_name = azurerm_resource_group.rg.name
 }
 # APIM logger to send diagnostics to Application Insights
@@ -104,31 +104,31 @@ resource "azurerm_api_management_api" "http_api" {
 }
 
 # TODO: should i move this to each module?
-# # Backend that points to the existing App Service chemicalfirefly-profile-func
-# resource "azurerm_api_management_backend" "chemicalfirefly_profile_func" {
-#   name                = "chemicalfireflyProfileFunc"
-#   resource_group_name = azurerm_resource_group.rg.name
-#   api_management_name = azurerm_api_management.apim.name
+# Backend that points to the existing App Service
+resource "azurerm_api_management_backend" "profile_func" {
+  name                = "${var.target_env}-profile-func"
+  resource_group_name = azurerm_resource_group.rg.name
+  api_management_name = azurerm_api_management.apim.name
 
-#   # App Service default domain
-#   url      = "https://chemicalfirefly-profile-func.azurewebsites.net"
-#   protocol = "http"
+  # App Service default domain
+  url      = "https://${var.target_env}-profile-func.azurewebsites.net"
+  protocol = "http"
 
-#   # No credentials required for this public App Service; adjust if needed.
-# }
+  # No credentials required for this public App Service; adjust if needed.
+}
 
-# # Backend that points to the existing App Service chemicalfirefly-quest3tier-func
-# resource "azurerm_api_management_backend" "chemicalfirefly-quest3Tier-func" {
-#   name                = "chemicalfireflyQuest3TierFunc"
-#   resource_group_name = azurerm_resource_group.rg.name
-#   api_management_name = azurerm_api_management.apim.name
+# Backend that points to the existing App Service chemicalfirefly-quest3tier-func
+resource "azurerm_api_management_backend" "quest3tier_func" {
+  name                = "${var.target_env}-quest3tier-func"
+  resource_group_name = azurerm_resource_group.rg.name
+  api_management_name = azurerm_api_management.apim.name
 
-#   # App Service default domain
-#   url      = "https://chemicalfirefly-quest3tier-func.azurewebsites.net"
-#   protocol = "http"
+  # App Service default domain
+  url      = "https://${var.target_env}-quest3tier-func.azurewebsites.net"
+  protocol = "http"
 
-#   # No credentials required for this public App Service; adjust if needed.
-# }
+  # No credentials required for this public App Service; adjust if needed.
+}
 
 # TODO: move this to deployEnv?
 # Catch-all GET operation (matches GET /* in portal)
