@@ -250,8 +250,6 @@ resource "azurerm_api_management_api_operation" "catchall_put" {
 # TODO: replace this policy with custom domains when Managed certificates are available (March 2026)
 # The CatchAll Policy routes requests based on the X-Forwarded-Host header instead of the Custom Domain for all operations.
 
-#TODO: Add all operations section and import file apimPolicyAllpOperations.xml
-
 # API-level policy for all operations
 resource "azurerm_api_management_api_operation_policy" "all_operations_policy" {
   api_name            = azurerm_api_management_api.http_api.name
