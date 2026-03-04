@@ -103,7 +103,6 @@ resource "azurerm_api_management_api" "http_api" {
   service_url = azurerm_api_management.apim.gateway_url
 }
 
-# TODO: should i move this to each module?
 # Backend that points to the existing App Service
 resource "azurerm_api_management_backend" "profile_func" {
   name                = "${var.target_env}-profile-func"
@@ -125,6 +124,42 @@ resource "azurerm_api_management_backend" "quest3tier_func" {
 
   # App Service default domain
   url      = "https://${var.target_env}-quest3tier-func.azurewebsites.net"
+  protocol = "http"
+
+  # No credentials required for this public App Service; adjust if needed.
+}
+
+resource "azurerm_api_management_backend" "coordinate_func" {
+  name                = "${var.target_env}-coordinate-func"
+  resource_group_name = azurerm_resource_group.rg.name
+  api_management_name = azurerm_api_management.apim.name
+
+  # App Service default domain
+  url      = "https://${var.target_env}-coordinate-func.azurewebsites.net"
+  protocol = "http"
+
+  # No credentials required for this public App Service; adjust if needed.
+}
+
+resource "azurerm_api_management_backend" "homePage" {
+  name                = "${var.target_env}-HomePage"
+  resource_group_name = azurerm_resource_group.rg.name
+  api_management_name = azurerm_api_management.apim.name
+
+  # App Service default domain
+  url      = "https://${var.target_env}web.z8.web.core.windows.net/"
+  protocol = "http"
+
+  # No credentials required for this public App Service; adjust if needed.
+}
+
+resource "azurerm_api_management_backend" "quest5tier_func" {
+  name                = "${var.target_env}-quest5tier-func"
+  resource_group_name = azurerm_resource_group.rg.name
+  api_management_name = azurerm_api_management.apim.name
+
+  # App Service default domain
+  url      = "https://${var.target_env}-quest5tier-func.azurewebsites.net"
   protocol = "http"
 
   # No credentials required for this public App Service; adjust if needed.
