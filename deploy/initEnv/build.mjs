@@ -7,6 +7,7 @@ import { generateNewEnvName, getTargetEnv } from "../util/envSetup.cjs";
 import { isStorageAccountNameAvailable } from "../util/azureCli.cjs";
 import { fileURLToPath } from "url";
 import { exit } from "process";
+import { glob } from "glob";
 
 function normalizeExcludes(excludeList) {
   return excludeList.map((e) => e.replace(/\\/g, "/"));
@@ -36,7 +37,6 @@ async function main() {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = dirname(__filename);
   const envFileName = ".env";
-  const terraformFileName = "main.tf";
   const execFileName = "deployEnv.ps1";
   const distDirName = "dist";
   const distDir = resolve(__dirname, distDirName);
@@ -48,7 +48,7 @@ async function main() {
     console.log("Deleting existing output directory.");
     fs.rmSync(distDir, { recursive: true, force: true });
   }
-  execSync("pnpm run build:init", { stdio: "inherit" });
+  execSync("pnpm run build:init", { stdio: "pipe" });
 
   console.log("Step 3: copy env file if existing.");
   // use existing env name if .env exists in initEnv folder otherwise it will be generated at deploy time
@@ -61,9 +61,16 @@ async function main() {
   }
 
   console.log("Step 4: copy terraform file.");
-  fs.copyFileSync(resolve(__dirname, terraformFileName), resolve(distDir, terraformFileName));
+  const whitelist = ["*.tf", "apimPolicyAllOperations.xml", "apimPolicyDefault.xml"];
+  const files = glob.sync(whitelist, { cwd: __dirname, nodir: true });
+  files.forEach((fileName) => {
+    const sourcePath = resolve(__dirname, fileName);
+    const targetPath = resolve(distDir, fileName);
+    fs.mkdirSync(dirname(targetPath), { recursive: true });
+    fs.copyFileSync(sourcePath, targetPath);
+  });
 
-  console.log("Step 4: copy exec file.");
+  console.log("Step 5: copy exec file.");
   //   fs.copyFileSync(resolve(__dirname, execFileName), resolve(distDir, execFileName));
   fs.writeFileSync(
     resolve(distDir, execFileName),
@@ -73,7 +80,7 @@ async function main() {
     }
   );
 
-  console.log("Step 5: Zipping output directory.");
+  console.log("Step 6: Zipping output directory.");
   const zipFileName = `deployEnv-${targetName}.zip`;
   const zipFile = resolve(__dirname, zipFileName);
   if (fs.existsSync(zipFile)) {

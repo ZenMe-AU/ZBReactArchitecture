@@ -18,6 +18,9 @@ function getStorageAccountName(targetEnv) {
 function getAppConfigName(targetEnv) {
   return `${targetEnv}-appconfig`;
 }
+function getApimName(targetEnv) {
+  return `${targetEnv}-apim`;
+}
 function getPgServerName(targetEnv) {
   return `${targetEnv}-postgresqlserver`;
 }
@@ -80,6 +83,7 @@ module.exports = {
   getResourceGroupName,
   getStorageAccountName,
   getAppConfigName,
+  getApimName,
   getPgServerName,
   getDbAdminName,
   getPgHost,

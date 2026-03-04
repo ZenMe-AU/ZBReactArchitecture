@@ -1,39 +1,3 @@
-# APIM origin group for wildcard traffic
-
-terraform {
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = ">= 4.0"
-    }
-    time = {
-      source  = "hashicorp/time"
-      version = ">= 0.7.2"
-    }
-  }
-  required_version = ">= 1.4.0"
-}
-
-# Subscription to use for provider operations. Set via TF_VAR_subscription_id,
-# or edit this file to set a default value for non-interactive runs.
-variable "subscription_id" {
-  description = "Azure subscription id for provider authentication"
-  type        = string
-  default     = "0930d9a7-2369-4a2d-a0b6-5805ef505868"
-}
-
-provider "azurerm" {
-  features {}
-  subscription_id = var.subscription_id
-}
-
-variable "envName" {
-    description = "Environment name"
-    type        = string
-    default = "dev-chemicalfirefly"
-}
-
-
 variable "apim_publisher_name" {
   description = "Publisher name for APIM"
   type        = string
@@ -46,15 +10,16 @@ variable "apim_publisher_email" {
   default     = "admin@zenme.local"
 }
 
-# reference existing resource group where APIM should be created
-data "azurerm_resource_group" "target" {
-  name = "dev-chemicalfirefly"
+variable "apim_name" {
+  description = "Name of the API Management instance"
+  type        = string
 }
 
-# reference existing Application Insights instance
-data "azurerm_application_insights" "apim_ai" {
-  name                = "chemicalfirefly-appinsights"
-  resource_group_name = data.azurerm_resource_group.target.name
+variable "http_api_path" {
+  description = "Path segment for the HTTP API in APIM"
+  type        = string
+  # empty = host root (no suffix). If provider rejects empty, we can map '/'
+  default     = ""
 }
 
 # current CLI/SDK principal details (used to assign roles)
@@ -68,9 +33,9 @@ data "azurerm_role_definition" "apim_contributor" {
 
 # Create an API Management instance inside the dev-chemicalfirefly resource group
 resource "azurerm_api_management" "apim" {
-  name                = "${var.envName}-apim"
-  location            = data.azurerm_resource_group.target.location
-  resource_group_name = data.azurerm_resource_group.target.name
+  name                = var.apim_name
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
 
   publisher_name  = var.apim_publisher_name
   publisher_email = var.apim_publisher_email
@@ -82,10 +47,11 @@ resource "azurerm_api_management" "apim" {
   ]
 }
 
+# TODO: assign role to group instead of user? or both?
 # Assign the current principal the API Management Service Contributor role
 # scoped to the resource group to allow APIM sub-resource operations.
 resource "azurerm_role_assignment" "user_apim_contributor" {
-  scope              = data.azurerm_resource_group.target.id
+  scope              = azurerm_resource_group.rg.id
   role_definition_id = data.azurerm_role_definition.apim_contributor.id
   principal_id       = data.azurerm_client_config.current.object_id
 
@@ -101,10 +67,16 @@ resource "time_sleep" "wait_for_role" {
   create_duration = "30s"
 }
 
+# TODO: should i move this to deployEnv?
+# reference existing Application Insights instance
+data "azurerm_application_insights" "apim_ai" {
+  name                = "chemicalfirefly-appinsights"
+  resource_group_name = azurerm_resource_group.rg.name
+}
 # APIM logger to send diagnostics to Application Insights
 resource "azurerm_api_management_logger" "appinsights" {
   name                = "appinsights"
-  resource_group_name = data.azurerm_resource_group.target.name
+  resource_group_name = azurerm_resource_group.rg.name
   api_management_name = azurerm_api_management.apim.name
 
   application_insights {
@@ -113,25 +85,10 @@ resource "azurerm_api_management_logger" "appinsights" {
 }
 
 
-
-
-variable "http_api_path" {
-  description = "Path segment for the HTTP API in APIM"
-  type        = string
-  # empty = host root (no suffix). If provider rejects empty, we can map '/'
-  default     = ""
-}
-
-variable "http_api_service_url" {
-  description = "Backend service URL for the HTTP API"
-  type        = string
-  default     = "https://chemicalfirefly-apim.azure-api.net"
-}
-
 # Create a simple HTTP API inside the API Management instance
 resource "azurerm_api_management_api" "http_api" {
   name                = "wildcardapi"
-  resource_group_name = data.azurerm_resource_group.target.name
+  resource_group_name = azurerm_resource_group.rg.name
   api_management_name = azurerm_api_management.apim.name
 
   revision     = "1"
@@ -143,41 +100,43 @@ resource "azurerm_api_management_api" "http_api" {
   # allow anonymous access (no subscription required)
   subscription_required = false
 
-  service_url = var.http_api_service_url
+  service_url = azurerm_api_management.apim.gateway_url
 }
 
-# Backend that points to the existing App Service chemicalfirefly-profile-func
-resource "azurerm_api_management_backend" "chemicalfirefly_profile_func" {
-  name                = "chemicalfireflyProfileFunc"
-  resource_group_name = data.azurerm_resource_group.target.name
-  api_management_name = azurerm_api_management.apim.name
+# TODO: should i move this to each module?
+# # Backend that points to the existing App Service chemicalfirefly-profile-func
+# resource "azurerm_api_management_backend" "chemicalfirefly_profile_func" {
+#   name                = "chemicalfireflyProfileFunc"
+#   resource_group_name = azurerm_resource_group.rg.name
+#   api_management_name = azurerm_api_management.apim.name
 
-  # App Service default domain
-  url      = "https://chemicalfirefly-profile-func.azurewebsites.net"
-  protocol = "http"
+#   # App Service default domain
+#   url      = "https://chemicalfirefly-profile-func.azurewebsites.net"
+#   protocol = "http"
 
-  # No credentials required for this public App Service; adjust if needed.
-}
+#   # No credentials required for this public App Service; adjust if needed.
+# }
 
-# Backend that points to the existing App Service chemicalfirefly-quest3tier-func
-resource "azurerm_api_management_backend" "chemicalfirefly-quest3Tier-func" {
-  name                = "chemicalfireflyQuest3TierFunc"
-  resource_group_name = data.azurerm_resource_group.target.name
-  api_management_name = azurerm_api_management.apim.name
+# # Backend that points to the existing App Service chemicalfirefly-quest3tier-func
+# resource "azurerm_api_management_backend" "chemicalfirefly-quest3Tier-func" {
+#   name                = "chemicalfireflyQuest3TierFunc"
+#   resource_group_name = azurerm_resource_group.rg.name
+#   api_management_name = azurerm_api_management.apim.name
 
-  # App Service default domain
-  url      = "https://chemicalfirefly-quest3tier-func.azurewebsites.net"
-  protocol = "http"
+#   # App Service default domain
+#   url      = "https://chemicalfirefly-quest3tier-func.azurewebsites.net"
+#   protocol = "http"
 
-  # No credentials required for this public App Service; adjust if needed.
-}
+#   # No credentials required for this public App Service; adjust if needed.
+# }
 
+# TODO: move this to deployEnv?
 # Catch-all GET operation (matches GET /* in portal)
 resource "azurerm_api_management_api_operation" "catchall_get" {
   operation_id        = "catchall-get"
   api_name            = azurerm_api_management_api.http_api.name
   api_management_name = azurerm_api_management.apim.name
-  resource_group_name = data.azurerm_resource_group.target.name
+  resource_group_name = azurerm_resource_group.rg.name
 
   display_name  = "CatchAllGet"
   method        = "GET"
@@ -193,7 +152,7 @@ resource "azurerm_api_management_api_operation" "catchall_delete" {
   operation_id        = "catchall-delete"
   api_name            = azurerm_api_management_api.http_api.name
   api_management_name = azurerm_api_management.apim.name
-  resource_group_name = data.azurerm_resource_group.target.name
+  resource_group_name = azurerm_resource_group.rg.name
 
   display_name  = "CatchAllDelete"
   method        = "DELETE"
@@ -209,7 +168,7 @@ resource "azurerm_api_management_api_operation" "catchall_patch" {
   operation_id        = "catchall-patch"
   api_name            = azurerm_api_management_api.http_api.name
   api_management_name = azurerm_api_management.apim.name
-  resource_group_name = data.azurerm_resource_group.target.name
+  resource_group_name = azurerm_resource_group.rg.name
 
   display_name  = "CatchAllPatch"
   method        = "PATCH"
@@ -225,7 +184,7 @@ resource "azurerm_api_management_api_operation" "catchall_post" {
   operation_id        = "catchall-post"
   api_name            = azurerm_api_management_api.http_api.name
   api_management_name = azurerm_api_management.apim.name
-  resource_group_name = data.azurerm_resource_group.target.name
+  resource_group_name = azurerm_resource_group.rg.name
 
   display_name  = "CatchAllPost"
   method        = "POST"
@@ -241,7 +200,7 @@ resource "azurerm_api_management_api_operation" "catchall_put" {
   operation_id        = "catchall-put"
   api_name            = azurerm_api_management_api.http_api.name
   api_management_name = azurerm_api_management.apim.name
-  resource_group_name = data.azurerm_resource_group.target.name
+  resource_group_name = azurerm_resource_group.rg.name
 
   display_name  = "CatchAllPut"
   method        = "PUT"
@@ -271,7 +230,7 @@ resource "azurerm_api_management_api_operation_policy" "all_operations_policy" {
 resource "azurerm_api_management_api_operation_policy" "catchall_get_policy" { 
   api_name            = azurerm_api_management_api.http_api.name
   api_management_name = azurerm_api_management.apim.name
-  resource_group_name = data.azurerm_resource_group.target.name
+  resource_group_name = azurerm_resource_group.rg.name
   operation_id        = azurerm_api_management_api_operation.catchall_get.operation_id
   xml_content = file("apimPolicyDefault.xml") 
 }
@@ -279,7 +238,7 @@ resource "azurerm_api_management_api_operation_policy" "catchall_get_policy" {
 resource "azurerm_api_management_api_operation_policy" "catchall_delete_policy" { 
   api_name            = azurerm_api_management_api.http_api.name
   api_management_name = azurerm_api_management.apim.name
-  resource_group_name = data.azurerm_resource_group.target.name
+  resource_group_name = azurerm_resource_group.rg.name
   operation_id        = azurerm_api_management_api_operation.catchall_delete.operation_id
   xml_content = file("apimPolicyDefault.xml") 
 }
@@ -287,7 +246,7 @@ resource "azurerm_api_management_api_operation_policy" "catchall_delete_policy" 
 resource "azurerm_api_management_api_operation_policy" "catchall_patch_policy" { 
   api_name            = azurerm_api_management_api.http_api.name
   api_management_name = azurerm_api_management.apim.name
-  resource_group_name = data.azurerm_resource_group.target.name
+  resource_group_name = azurerm_resource_group.rg.name
   operation_id        = azurerm_api_management_api_operation.catchall_patch.operation_id
   xml_content = file("apimPolicyDefault.xml") 
 }
@@ -295,7 +254,7 @@ resource "azurerm_api_management_api_operation_policy" "catchall_patch_policy" {
 resource "azurerm_api_management_api_operation_policy" "catchall_post_policy" { 
   api_name            = azurerm_api_management_api.http_api.name
   api_management_name = azurerm_api_management.apim.name
-  resource_group_name = data.azurerm_resource_group.target.name
+  resource_group_name = azurerm_resource_group.rg.name
   operation_id        = azurerm_api_management_api_operation.catchall_post.operation_id
   xml_content = file("apimPolicyDefault.xml") 
 }
@@ -303,14 +262,14 @@ resource "azurerm_api_management_api_operation_policy" "catchall_post_policy" {
 resource "azurerm_api_management_api_operation_policy" "catchall_put_policy" { 
   api_name            = azurerm_api_management_api.http_api.name
   api_management_name = azurerm_api_management.apim.name
-  resource_group_name = data.azurerm_resource_group.target.name
+  resource_group_name = azurerm_resource_group.rg.name
   operation_id        = azurerm_api_management_api_operation.catchall_put.operation_id
   xml_content = file("apimPolicyDefault.xml") 
 }
 
 # API-level diagnostic for WildcardApi (sends telemetry to Application Insights)
 resource "azurerm_api_management_api_diagnostic" "wildcardapi_diag" {
-  resource_group_name      = data.azurerm_resource_group.target.name
+  resource_group_name      = azurerm_resource_group.rg.name
   api_management_name      = azurerm_api_management.apim.name
   api_name                 = azurerm_api_management_api.http_api.name
 

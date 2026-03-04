@@ -6,7 +6,7 @@
 const { execSync } = require("child_process");
 const { existsSync, readFileSync, writeFileSync } = require("fs");
 const { resolve, dirname } = require("path");
-const { getResourceGroupName, getStorageAccountName, getAppConfigName, getDbAdminName } = require("../util/namingConvention.cjs");
+const { getResourceGroupName, getStorageAccountName, getAppConfigName, getDbAdminName, getApimName } = require("../util/namingConvention.cjs");
 const { generateNewEnvName, getTargetEnv } = require("../util/envSetup.cjs");
 const { getSubscriptionId, getDefaultAzureLocation, isStorageAccountNameAvailable, addMemberToAadGroup } = require("../util/azureCli.cjs");
 const minimist = require("minimist");
@@ -137,6 +137,10 @@ function initEnvironment() {
   const dbAdminGroupName = getDbAdminName(envType);
   process.env.TF_VAR_db_admin_group_name = dbAdminGroupName;
   console.log(`Setting db_admin_group_name to: ${process.env.TF_VAR_db_admin_group_name}`);
+  // set the apim name
+  const apimName = getApimName(targetEnv);
+  process.env.TF_VAR_apim_name = apimName;
+  console.log(`Setting apim_name to: ${process.env.TF_VAR_apim_name}`);
 
   activatePimPermissions(); // activate PIM role for current user to allow adding app configuration items
 
@@ -162,6 +166,14 @@ function initEnvironment() {
       );
       execSync(
         `az role assignment create --assignee ${spId} --role "Contributor" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`,
+        { stdio: "inherit" }
+      );
+
+      console.log(
+        `az role assignment create --assignee ${spId} --role "API Management Service Contributor" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`
+      );
+      execSync(
+        `az role assignment create --assignee ${spId} --role "API Management Service Contributor" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`,
         { stdio: "inherit" }
       );
 
