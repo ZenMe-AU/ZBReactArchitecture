@@ -3,12 +3,20 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import type { AccountInfo, IPublicClientApplication, AuthenticationResult } from "@azure/msal-browser";
+import type { AccountInfo, AuthenticationResult, IPublicClientApplication } from "@azure/msal-browser";
 import { MsalProvider, useMsal } from "@azure/msal-react";
-import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import type { Profile } from "types/interfaces";
 import { useRefreshDomainCookie } from "../hooks/useRefreshDomainCookie";
 import { getInitials } from "../utils/getInitials";
+
+/** OIDC ID token claims we read from MSAL (idTokenClaims is typed as object). */
+type IdTokenClaims = {
+  oid?: string;
+  preferred_username?: string;
+  name?: string;
+  roles?: string[];
+};
 
 const scopes = ["openid", "profile", "email", "User.Read"];
 /**
@@ -126,9 +134,10 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
   const syncTokenToLocalStorage = async (res?: AuthenticationResult) => {
     console.log("syncTokenToLocalStorage called with res:", res);
     if (res) {
+      const claims = res.idTokenClaims as IdTokenClaims | undefined;
       localStorage.setItem("token", res.accessToken || "");
-      localStorage.setItem("profileId", res.idTokenClaims?.oid || "");
-      localStorage.setItem("preferred_username", res.idTokenClaims?.preferred_username || "");
+      localStorage.setItem("profileId", claims?.oid || "");
+      localStorage.setItem("preferred_username", claims?.preferred_username || "");
       localStorage.setItem("account_id", res.account?.homeAccountId ?? "");
       fetchPhotoForAccount(res);
     } else {

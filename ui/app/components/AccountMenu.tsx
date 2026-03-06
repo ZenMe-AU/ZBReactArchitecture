@@ -17,7 +17,7 @@ interface AccountMenuProps {
 }
 
 export default function AccountMenu({ anchorEl, onClose, profile }: AccountMenuProps) {
-  const { account: activeAccount, accounts, loginWithOther } = useAuthState();
+  const { account: activeAccount, accounts, switchAccount, loginWithOther } = useAuthState();
   const navigate = useNavigate();
 
   const userName = profile?.preferredUserName ?? "User";
@@ -72,8 +72,8 @@ export default function AccountMenu({ anchorEl, onClose, profile }: AccountMenuP
                 key={cachedAccount.homeAccountId}
                 selected={isActive}
                 onClick={() => {
-                  // selectAccount(cachedAccount);
-                  onClose();
+                  switchAccount(cachedAccount);
+                  window.location.reload();
                 }}
                 sx={{ py: 1, mx: 1, borderRadius: 1 }}
               >
