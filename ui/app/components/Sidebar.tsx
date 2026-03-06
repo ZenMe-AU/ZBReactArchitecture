@@ -78,7 +78,7 @@ export default function Sidebar({ open = true }: { open?: boolean }) {
           {decorationItems.map((item) => navItem(item.label, item.icon, { disabled: true }))}
         </List>
 
-        <List subheader={<ListSubheader sx={{ fontWeight: 700, fontSize: "0.7rem", letterSpacing: 1 }}>APPLICATIONS</ListSubheader>}>
+        <List subheader={<ListSubheader sx={{ fontWeight: 700, fontSize: "0.7rem", letterSpacing: 1 }}>MODULES</ListSubheader>}>
           {questTiers.map((tier) =>
             navItem(tier.label, <Box sx={{ color: tier.color, display: "flex" }}>{tier.icon}</Box>, {
               component: Link,
