@@ -3,33 +3,38 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import type { AccountInfo, IPublicClientApplication } from "@azure/msal-browser";
+import type { AccountInfo, IPublicClientApplication, AuthenticationResult } from "@azure/msal-browser";
 import { MsalProvider, useMsal } from "@azure/msal-react";
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from "react";
 import type { Profile } from "types/interfaces";
 import { useRefreshDomainCookie } from "../hooks/useRefreshDomainCookie";
 
+const scopes = ["openid", "profile", "email", "User.Read"];
 /**
+ * --DEPRECATED--
  * Represents which login method was used.
  * - "SSO": Silent SSO login (main domain account)
  * - "OTHER": User explicitly selected another Microsoft account
  * - null: Not logged in
  */
-type AuthMode = "SSO" | "OTHER" | null;
+// type AuthMode = "SSO" | "OTHER" | null;
 
 /**
  * Shape of the authentication context exposed to the app.
  */
 export interface AuthContextType {
   account: AccountInfo | null;
+  accounts: AccountInfo[];
   profile: Profile;
-  mode: AuthMode;
   isAuthenticated: boolean;
   isAuthReady: boolean;
   instance: IPublicClientApplication;
   loginWithSSO: (loginHint?: string) => Promise<void>;
   loginWithOther: () => Promise<void>;
   logout: () => Promise<void>;
+  switchAccount: (acc: AccountInfo) => Promise<void>;
+  forgetAccount: (acc: AccountInfo) => Promise<void>;
+  forgetAllAccounts: () => Promise<void>;
 }
 
 /**
@@ -50,19 +55,64 @@ interface AuthProviderProps {
  */
 function AuthProviderInner({ children }: { children: ReactNode }) {
   const { instance, accounts, inProgress } = useMsal();
-
   const [account, setAccount] = useState<AccountInfo | null>(null);
-  const [mode, setMode] = useState<AuthMode>(null);
-  const [isAuthReady, setIsAuthReady] = useState(false);
+  const [photos, setPhotos] = useState<Record<string, string>>({});
   // Ensure the domain cookie is fresh on app load
   useRefreshDomainCookie();
 
   const profile: Profile = {
+    homeAccountId: account?.homeAccountId ?? "",
     name: account?.idTokenClaims?.preferred_username ?? "",
     id: account?.idTokenClaims?.oid ?? "",
-    avatar: "",
+    avatar: photos[account?.homeAccountId ?? ""] ?? "",
     role: (account?.idTokenClaims?.roles ?? []).join(","),
   };
+
+  const initAuth = useCallback(async () => {
+    if (inProgress !== "none") return;
+    const active = instance.getActiveAccount();
+    // automatically set active account if only one is present
+    // if (!active && accounts.length === 1) {
+    //   active = accounts[0];
+    //   instance.setActiveAccount(active);
+    // }
+    if (active) {
+      const tokenRes = await instance.acquireTokenSilent({
+        scopes: ["User.Read"],
+        account: active,
+      });
+      setAccount(active);
+      syncTokenToLocalStorage(tokenRes);
+      return;
+    }
+
+    // fallback: ssoSilent if we have a previous login hint (homeAccountId) stored in localStorage
+    // const homeAccId = localStorage.getItem("account_id");
+    // if (homeAccId) {
+    //   try {
+    //     const tokenRes = await instance.ssoSilent({
+    //       scopes: ["User.Read"],
+    //       loginHint: homeAccId,
+    //     });
+    //     if (tokenRes?.account) {
+    //       instance.setActiveAccount(tokenRes.account);
+    //       setAccount(tokenRes.account);
+    //       syncTokenToLocalStorage(tokenRes);
+    //     }
+    //   } catch (err) {
+    //     console.warn("ssoSilent failed", err);
+    //   }
+    //   return;
+    // }
+
+    // fallback: handle redirect promise
+    const res = await instance.handleRedirectPromise();
+    if (res?.account) {
+      instance.setActiveAccount(res.account);
+      setAccount(res.account);
+      syncTokenToLocalStorage(res);
+    }
+  }, [inProgress, accounts, instance]);
 
   /**
    * Synchronize MSAL accounts with local React state.
@@ -74,15 +124,59 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
    * We simply mirror the first account into our context state.
    */
   useEffect(() => {
-    if (inProgress !== "none") return; // Wait until MSAL is done initializing or processing a login/logout
-    setAccount(accounts[0] ?? null);
-    setIsAuthReady(true);
-    setMode(null);
+    initAuth();
+  }, [initAuth]);
 
-    localStorage.setItem("token", accounts[0]?.idToken || "");
-    localStorage.setItem("profileId", accounts[0]?.idTokenClaims?.oid || "");
-    localStorage.setItem("preferred_username", accounts[0]?.idTokenClaims?.preferred_username || "");
-  }, [accounts, inProgress]);
+  /**
+   * Helper to sync token and profile info to localStorage for API calls.
+   * Clears localStorage on logout.
+   */
+  const syncTokenToLocalStorage = async (res?: AuthenticationResult) => {
+    console.log("syncTokenToLocalStorage called with res:", res);
+    if (res) {
+      localStorage.setItem("token", res.accessToken || "");
+      localStorage.setItem("profileId", res.idTokenClaims?.oid || "");
+      localStorage.setItem("preferred_username", res.idTokenClaims?.preferred_username || "");
+      localStorage.setItem("account_id", res.account?.homeAccountId ?? "");
+      fetchPhotoForAccount(res);
+    } else {
+      localStorage.removeItem("token");
+      localStorage.removeItem("profileId");
+      localStorage.removeItem("preferred_username");
+      localStorage.removeItem("account_id");
+    }
+  };
+
+  /**
+   * Fetch user photo from Microsoft Graph API and cache it in state.
+   * Uses the access token from authentication result for authorization.
+   * Caches photos by account ID to avoid redundant fetches.
+   */
+  const fetchPhotoForAccount = async (res?: AuthenticationResult) => {
+    if (!res) return;
+    const id = res.account.homeAccountId;
+    if (!id || photos[id]) return; // if no account ID or photo already set, skip fetch
+    try {
+      const tokenRes = res.accessToken
+        ? res
+        : await instance.acquireTokenSilent({
+            account: res.account,
+            scopes: ["User.Read"],
+          });
+      // Use Microsoft Graph API to fetch user photo, 48x48 size for avatar
+      const r = await fetch("https://graph.microsoft.com/v1.0/me/photos/48x48/$value", {
+        headers: { Authorization: `Bearer ${tokenRes.accessToken}` },
+      });
+      let url = null;
+      if (r.ok) {
+        const blob = await r.blob();
+        url = URL.createObjectURL(blob);
+      }
+      setPhotos((prev) => ({ ...prev, [id]: url || "" })); // if no photo, set empty string to avoid refetching
+    } catch (err) {
+      console.warn("Failed to fetch photo", err);
+    }
+  };
 
   /**
    * Attempt silent SSO login using a known login hint.
@@ -92,17 +186,17 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
    */
   const loginWithSSO = async (loginHint?: string) => {
     try {
-      await instance.ssoSilent({
-        scopes: ["openid", "profile", "email"],
+      const res = await instance.ssoSilent({
+        scopes,
         loginHint,
       });
-
-      setMode("SSO");
+      console.log("Silent SSO login successful:", res);
+      instance.setActiveAccount(res.account);
+      syncTokenToLocalStorage(res);
     } catch {
-      setMode("SSO");
-      // Silent login failed → fallback to interactive login
+      // Silent login failed -> fallback to interactive login
       await instance.loginRedirect({
-        scopes: ["openid", "profile", "email"],
+        scopes,
         loginHint,
       });
     }
@@ -115,46 +209,70 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
    */
   const loginWithOther = async () => {
     await instance.loginRedirect({
-      scopes: ["openid", "profile", "email"],
+      scopes,
       prompt: "select_account",
     });
-
-    setMode("OTHER");
   };
 
   /**
    * Logout current user and clear session.
    */
   const logout = async () => {
-    // const caches = instance.getTokenCache();
-    // caches.storage.clear(); // Clear MSAL cache to remove any residual tokens or accounts
-    // msalInstance.logoutRedirect();
-    Object.keys(localStorage).forEach((key) => {
-      if (key.startsWith("msal.")) {
-        localStorage.removeItem(key);
-      }
-    });
-    // await instance.logout({
-    //   account: instance.getActiveAccount() ?? undefined,
-    //   logoutHint: instance.getActiveAccount()?.username,
+    // instance.logout({
+    //   account,
+    //   logoutHint: account?.idTokenClaims?.preferred_username ?? undefined,
     // });
-    // instance.setActiveAccount(null);
+    instance.setActiveAccount(null);
     setAccount(null);
-    setMode(null);
+    syncTokenToLocalStorage();
+  };
+
+  /**
+   * Helper to switch active account (if multiple accounts are present).
+   */
+  const switchAccount = async (acc: AccountInfo) => {
+    instance.setActiveAccount(acc);
+    const tokenRes = await instance.acquireTokenSilent({
+      scopes: ["User.Read"],
+      account: acc,
+    });
+    setAccount(tokenRes.account);
+    syncTokenToLocalStorage(tokenRes);
+  };
+
+  /**
+   * Helper to forget a specific account and its tokens from MSAL cache.
+   * Useful for "Forget this account" functionality in account management.
+   */
+  const forgetAccount = async (account: AccountInfo) => {
+    await instance.clearCache({ account });
+    if (instance.getActiveAccount()?.homeAccountId === account.homeAccountId) logout(); // If the forgotten account is currently active, log out to clear session
+  };
+
+  /**
+   * Clear all accounts and tokens from MSAL cache.
+   * Useful for scenarios like "Forget all accounts" or "Clear session".
+   */
+  const forgetAllAccounts = async () => {
+    await instance.clearCache(); // Clear MSAL cache to remove any residual tokens or accounts
+    logout();
   };
 
   return (
     <AuthContext.Provider
       value={{
         account,
+        accounts,
         profile,
-        mode,
         isAuthenticated: !!account,
-        isAuthReady,
+        isAuthReady: inProgress === "none", //&& accounts.length > 0,
         instance,
         loginWithSSO,
         loginWithOther,
         logout,
+        switchAccount,
+        forgetAccount,
+        forgetAllAccounts,
       }}
     >
       {children}
