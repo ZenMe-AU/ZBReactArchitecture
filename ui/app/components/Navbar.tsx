@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import { ArrowBack as ArrowBackIcon, Menu as MenuIcon, NotificationsOutlined as NotificationsIcon } from "@mui/icons-material";
+import { Menu as MenuIcon, NotificationsOutlined as NotificationsIcon } from "@mui/icons-material";
 import { AppBar, Avatar, Badge, Box, IconButton, Toolbar, Typography } from "@mui/material";
 import { useLocation, useNavigate } from "react-router";
 import type { Profile } from "types/interfaces";
@@ -50,9 +50,6 @@ export default function Navbar({ loaderData, onMenuToggle }: { loaderData: { pro
       }}
     >
       <Toolbar>
-        <IconButton edge="start" onClick={() => navigate(-1)} sx={{ mr: 0.5 }}>
-          <ArrowBackIcon />
-        </IconButton>
         <IconButton sx={{ mr: 1 }} onClick={onMenuToggle}>
           <MenuIcon />
         </IconButton>
