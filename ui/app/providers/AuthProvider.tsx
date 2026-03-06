@@ -246,9 +246,10 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
    * Helper to forget a specific account and its tokens from MSAL cache.
    * Useful for "Forget this account" functionality in account management.
    */
-  const forgetAccount = async (account: AccountInfo) => {
-    await instance.clearCache({ account });
-    if (instance.getActiveAccount()?.homeAccountId === account.homeAccountId) logout(); // If the forgotten account is currently active, log out to clear session
+  const forgetAccount = async (acc: AccountInfo) => {
+    const isLoginAccount = instance.getActiveAccount()?.homeAccountId === acc.homeAccountId;
+    await instance.clearCache({ account: acc }); // Clear tokens for the specific account
+    if (isLoginAccount) logout(); // If the forgotten account is currently active, log out to clear session
   };
 
   /**
