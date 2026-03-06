@@ -4,8 +4,8 @@
  */
 
 import { Box, Toolbar } from "@mui/material";
-import { useEffect, useState } from "react";
-import { Outlet, useLocation, useNavigate } from "react-router";
+import { useState } from "react";
+import { Navigate, Outlet, useLocation } from "react-router";
 import Navbar from "../components/Navbar";
 import PortalBreadcrumbs from "../components/PortalBreadcrumbs";
 import Sidebar, { SIDEBAR_COLLAPSED_WIDTH, SIDEBAR_WIDTH } from "../components/Sidebar";
@@ -52,20 +52,19 @@ function useBreadcrumbs() {
 
 export default function Layout() {
   const { profile, isAuthenticated, isAuthReady } = useAuthState();
-  const navigate = useNavigate();
   const location = useLocation();
   const breadcrumbs = useBreadcrumbs();
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  useEffect(() => {
-    if (!isAuthReady) return;
-
-    if (!isAuthenticated) {
-      if (location.pathname !== "/logout") sessionStorage.setItem("postLoginRedirect", location.pathname + location.search);
-      // Redirect to login
-      navigate("/login", { replace: true });
+  if (!isAuthReady) {
+    return;
+  }
+  if (!isAuthenticated) {
+    if (location.pathname !== "/logout") {
+      sessionStorage.setItem("postLoginRedirect", location.pathname + location.search);
+      return <Navigate to="/login" replace />;
     }
-  }, [isAuthReady, isAuthenticated, navigate]);
+  }
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
