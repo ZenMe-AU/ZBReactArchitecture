@@ -30,8 +30,8 @@ export default function AccountMenu({ anchorEl, onClose, profile }: AccountMenuP
       <MenuItem
         key={account.homeAccountId}
         selected={isActive}
-        onClick={() => {
-          switchAccount(account);
+        onClick={async () => {
+          await switchAccount(account);
           window.location.reload();
         }}
         sx={{ py: 1, mx: 1, borderRadius: 1 }}
