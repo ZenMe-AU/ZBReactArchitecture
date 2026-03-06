@@ -38,10 +38,8 @@ const questTiers = [
   },
 ];
 
-export async function clientLoader() {
-  const isAuthenticated = localStorage.getItem("token") && localStorage.getItem("token") !== "" ? true : false;
-  return { isAuthenticated };
-}
+// export async function clientLoader() {
+// }
 
 export default function HomePage() {
   return (
