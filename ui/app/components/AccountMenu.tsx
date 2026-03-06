@@ -17,10 +17,10 @@ interface AccountMenuProps {
 }
 
 export default function AccountMenu({ anchorEl, onClose, profile }: AccountMenuProps) {
-  const { loginWithOther } = useAuthState();
+  const { account: activeAccount, accounts, loginWithOther } = useAuthState();
   const navigate = useNavigate();
 
-  const userName = profile?.name ?? "User";
+  const userName = profile?.preferredUserName ?? "User";
 
   return (
     <Popover
@@ -50,7 +50,7 @@ export default function AccountMenu({ anchorEl, onClose, profile }: AccountMenuP
 
       <Box sx={{ display: "flex", alignItems: "center", gap: 2, px: 2, py: 2 }}>
         <Avatar src={profile?.avatar ?? undefined} sx={{ width: 64, height: 64, bgcolor: "primary.main", fontSize: 22 }}>
-          {getInitials(profile?.name)}
+          {profile?.initials}
         </Avatar>
         <Typography variant="body2" sx={{ wordBreak: "break-all" }}>
           {userName}
@@ -58,6 +58,42 @@ export default function AccountMenu({ anchorEl, onClose, profile }: AccountMenuP
       </Box>
 
       <Divider />
+
+      {accounts.length > 0 && (
+        <Box sx={{ py: 1 }}>
+          <Typography variant="overline" color="text.secondary" sx={{ px: 2 }}>
+            Accounts
+          </Typography>
+          {accounts.map((cachedAccount) => {
+            const isActive = activeAccount?.homeAccountId === cachedAccount.homeAccountId;
+            const initials = getInitials(cachedAccount.name ?? cachedAccount.username);
+            return (
+              <MenuItem
+                key={cachedAccount.homeAccountId}
+                selected={isActive}
+                onClick={() => {
+                  // selectAccount(cachedAccount);
+                  onClose();
+                }}
+                sx={{ py: 1, mx: 1, borderRadius: 1 }}
+              >
+                <ListItemIcon sx={{ minWidth: 36 }}>
+                  <Avatar sx={{ width: 28, height: 28, fontSize: 12, bgcolor: isActive ? "primary.main" : "grey.400" }}>{initials}</Avatar>
+                </ListItemIcon>
+                <ListItemText
+                  primary={cachedAccount.name}
+                  secondary={cachedAccount.username}
+                  slotProps={{
+                    primary: { variant: "body2", sx: { fontWeight: isActive ? 700 : 500 } },
+                    secondary: { variant: "caption" },
+                  }}
+                />
+              </MenuItem>
+            );
+          })}
+          <Divider sx={{ my: 1 }} />
+        </Box>
+      )}
 
       <MenuItem
         onClick={() => {
@@ -69,7 +105,7 @@ export default function AccountMenu({ anchorEl, onClose, profile }: AccountMenuP
         <ListItemIcon>
           <PersonAddIcon />
         </ListItemIcon>
-        <ListItemText primary="Sign in with a different account" />
+        <ListItemText primary="Choose another account" />
       </MenuItem>
     </Popover>
   );

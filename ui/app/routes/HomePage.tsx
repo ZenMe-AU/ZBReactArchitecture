@@ -7,7 +7,6 @@ import { EditNote as EditNoteIcon, EmojiEvents as EmojiEventsIcon, Shield as Shi
 import { Grid, Typography } from "@mui/material";
 import { Helmet } from "react-helmet";
 import QuestTierCard from "../components/QuestTierCard";
-import { useAuthState } from "../providers/AuthProvider";
 
 const questTiers = [
   {
@@ -45,9 +44,6 @@ export async function clientLoader() {
 }
 
 export default function HomePage() {
-  const { profile } = useAuthState();
-  const userName = profile?.name ?? "User";
-
   return (
     <>
       <Helmet>

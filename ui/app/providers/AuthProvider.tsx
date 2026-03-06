@@ -8,7 +8,7 @@ import { MsalProvider, useMsal } from "@azure/msal-react";
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import type { Profile } from "types/interfaces";
 import { useRefreshDomainCookie } from "../hooks/useRefreshDomainCookie";
-
+import { getInitials } from "../utils/getInitials";
 /**
  * Represents which login method was used.
  * - "SSO": Silent SSO login (main domain account)
@@ -27,6 +27,7 @@ export interface AuthContextType {
   isAuthenticated: boolean;
   isAuthReady: boolean;
   instance: IPublicClientApplication;
+  accounts: AccountInfo[];
   loginWithSSO: (loginHint?: string) => Promise<void>;
   loginWithOther: () => Promise<void>;
   logout: () => Promise<void>;
@@ -58,7 +59,9 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
   useRefreshDomainCookie();
 
   const profile: Profile = {
-    name: account?.idTokenClaims?.preferred_username ?? "",
+    preferredUserName: account?.idTokenClaims?.preferred_username ?? "",
+    name: account?.idTokenClaims?.name ?? "",
+    initials: getInitials(account?.idTokenClaims?.name ?? ""),
     id: account?.idTokenClaims?.oid ?? "",
     avatar: "",
     role: (account?.idTokenClaims?.roles ?? []).join(","),
@@ -152,6 +155,7 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
         isAuthenticated: !!account,
         isAuthReady,
         instance,
+        accounts,
         loginWithSSO,
         loginWithOther,
         logout,
