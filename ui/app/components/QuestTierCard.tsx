@@ -3,8 +3,8 @@
  * @license SPDX-License-Identifier: MIT
  */
 
+import { Box, Card, CardActionArea, CardContent, Chip, Typography } from "@mui/material";
 import type { ReactNode } from "react";
-import { Card, CardContent, Box, Typography, Chip } from "@mui/material";
 import { Link } from "react-router";
 
 interface QuestTierCardProps {
@@ -26,61 +26,55 @@ export default function QuestTierCard({ title, description, tierLabel, tierColor
         height: "100%",
         display: "flex",
         flexDirection: "column",
+        transition: "box-shadow 0.2s ease, border-color 0.2s ease",
+        "&:hover": {
+          boxShadow: 2,
+        },
       }}
     >
-      <CardContent sx={{ flexGrow: 1 }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>
-          <Box
-            sx={{
-              width: 48,
-              height: 48,
-              borderRadius: 1.5,
-              bgcolor: tierColor,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "white",
-            }}
-          >
-            {icon}
+      <CardActionArea component={Link} to={href} sx={{ flexGrow: 1, display: "flex", flexDirection: "column", alignItems: "stretch" }}>
+        <CardContent sx={{ flexGrow: 1, width: "100%" }}>
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>
+            <Box
+              sx={{
+                width: 48,
+                height: 48,
+                borderRadius: 1.5,
+                bgcolor: tierColor,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "white",
+              }}
+            >
+              {icon}
+            </Box>
+            <Chip label={tierLabel} size="small" variant="outlined" sx={{ borderColor: tierColor, color: tierColor, fontWeight: 600 }} />
           </Box>
-          <Chip label={tierLabel} size="small" variant="outlined" sx={{ borderColor: tierColor, color: tierColor, fontWeight: 600 }} />
-        </Box>
-        <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
-          {title}
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          {description}
-        </Typography>
-      </CardContent>
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          px: 2,
-          py: 1.5,
-          borderTop: "1px solid",
-          borderColor: "divider",
-        }}
-      >
-        <Typography variant="caption" color="text.secondary">
-          {updatedAgo ?? ""}
-        </Typography>
-        <Typography
-          component={Link}
-          to={href}
-          variant="body2"
+          <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+            {title}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {description}
+          </Typography>
+        </CardContent>
+        <Box
           sx={{
-            color: tierColor,
-            fontWeight: 600,
-            textDecoration: "none",
-            "&:hover": { textDecoration: "underline" },
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            px: 2,
+            py: 1.5,
+            borderTop: "1px solid",
+            borderColor: "divider",
+            width: "100%",
           }}
         >
-          Open
-        </Typography>
-      </Box>
+          <Typography variant="caption" color="text.secondary">
+            {updatedAgo ?? ""}
+          </Typography>
+        </Box>
+      </CardActionArea>
     </Card>
   );
 }

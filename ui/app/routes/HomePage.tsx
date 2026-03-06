@@ -3,11 +3,10 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import { EditNote as EditNoteIcon, EmojiEvents as EmojiEventsIcon, InfoOutline, Shield as ShieldIcon } from "@mui/icons-material";
-import { Alert, Grid, Typography } from "@mui/material";
+import { EditNote as EditNoteIcon, EmojiEvents as EmojiEventsIcon, Shield as ShieldIcon } from "@mui/icons-material";
+import { Grid, Typography } from "@mui/material";
 import { Helmet } from "react-helmet";
 import QuestTierCard from "../components/QuestTierCard";
-import { useAuthState } from "../providers/AuthProvider";
 
 const questTiers = [
   {
@@ -43,9 +42,6 @@ const questTiers = [
 // }
 
 export default function HomePage() {
-  const { profile } = useAuthState();
-  const userName = profile?.name ?? "User";
-
   return (
     <>
       <Helmet>
@@ -56,12 +52,8 @@ export default function HomePage() {
         Welcome to the Portal
       </Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-        Select a quest tier to get started, or browse all available quests below.
+        Select a quest tier module to get started, or browse all available modules below.
       </Typography>
-
-      <Alert icon={<InfoOutline />} severity="success" sx={{ mb: 4, bgcolor: "#e8f5e9", color: "text.primary" }}>
-        You are logged in as <strong>{userName}</strong>.
-      </Alert>
 
       <Grid container spacing={3}>
         {questTiers.map((tier) => (

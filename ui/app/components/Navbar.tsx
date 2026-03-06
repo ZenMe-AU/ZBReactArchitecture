@@ -3,10 +3,13 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import { ArrowBack as ArrowBackIcon, Menu as MenuIcon, NotificationsOutlined as NotificationsIcon } from "@mui/icons-material";
+import { Menu as MenuIcon, NotificationsOutlined as NotificationsIcon } from "@mui/icons-material";
 import { AppBar, Avatar, Badge, Box, IconButton, Toolbar, Typography } from "@mui/material";
-import { useLocation, useNavigate } from "react-router";
+import { useState } from "react";
+import { useLocation } from "react-router";
 import type { Profile } from "types/interfaces";
+import AccountMenu from "./AccountMenu";
+import { getInitials } from "../utils/getInitials";
 
 const ROUTE_TITLES: Record<string, string> = {
   "/": "Portal",
@@ -23,21 +26,10 @@ function usePageTitle(): string {
   return match ? ROUTE_TITLES[match] : "Portal";
 }
 
-// e.g."John Doe" -> "JD"
-function getInitials(name?: string): string {
-  if (!name) return "?";
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-}
-
 export default function Navbar({ loaderData, onMenuToggle }: { loaderData: { profile: Profile }; onMenuToggle?: () => void }) {
   const { profile } = loaderData;
-  const navigate = useNavigate();
   const pageTitle = usePageTitle();
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 
   return (
     <AppBar
@@ -50,9 +42,6 @@ export default function Navbar({ loaderData, onMenuToggle }: { loaderData: { pro
       }}
     >
       <Toolbar>
-        <IconButton edge="start" onClick={() => navigate(-1)} sx={{ mr: 0.5 }}>
-          <ArrowBackIcon />
-        </IconButton>
         <IconButton sx={{ mr: 1 }} onClick={onMenuToggle}>
           <MenuIcon />
         </IconButton>
@@ -69,12 +58,14 @@ export default function Navbar({ loaderData, onMenuToggle }: { loaderData: { pro
           <Avatar
             src={profile?.avatar ?? undefined}
             sx={{ width: 36, height: 36, bgcolor: "primary.main", fontSize: 14, cursor: "pointer" }}
-            onClick={() => navigate("/logout")}
+            onClick={(e) => setAnchorEl(e.currentTarget)}
           >
             {getInitials(profile?.name)}
           </Avatar>
         </Box>
       </Toolbar>
+
+      <AccountMenu anchorEl={anchorEl} onClose={() => setAnchorEl(null)} profile={profile} />
     </AppBar>
   );
 }

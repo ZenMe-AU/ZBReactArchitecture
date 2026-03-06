@@ -6,7 +6,10 @@
 // Define the Profile interface
 export interface Profile {
   id: string;
-  name: string;
+  preferredUserName: string; // john.doe@example.com"
+  name: string; // "John Doe"
+  initials: string; // "J D"
+  homeAccountId: string;
   avatar: string | null;
   role?: string;
 }
