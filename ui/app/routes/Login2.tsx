@@ -86,7 +86,7 @@ export default function Login({ loaderData }: { loaderData: { preferred_username
         <Card sx={{ maxWidth: 400, width: "100%", borderRadius: 4, boxShadow: 12 }}>
           <CardContent sx={{ textAlign: "center", py: 4 }}>
             <Typography variant="h5" fontWeight="bold" sx={{ mb: 3 }}>
-              Continue with
+              Pick an account
             </Typography>
 
             <Box
@@ -95,7 +95,6 @@ export default function Login({ loaderData }: { loaderData: { preferred_username
                 loginWithSSO(preferred_username);
               }}
               sx={{
-                width: "100%",
                 borderRadius: 3,
                 px: 2,
                 py: 1.5,
