@@ -87,23 +87,11 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
     }
 
     // fallback: ssoSilent if we have a previous login hint (homeAccountId) stored in localStorage
-    // const homeAccId = localStorage.getItem("account_id");
-    // if (homeAccId) {
-    //   try {
-    //     const tokenRes = await instance.ssoSilent({
-    //       scopes: ["User.Read"],
-    //       loginHint: homeAccId,
-    //     });
-    //     if (tokenRes?.account) {
-    //       instance.setActiveAccount(tokenRes.account);
-    //       setAccount(tokenRes.account);
-    //       syncTokenToLocalStorage(tokenRes);
-    //     }
-    //   } catch (err) {
-    //     console.warn("ssoSilent failed", err);
-    //   }
-    //   return;
-    // }
+    const homeAccId = localStorage.getItem("account_id");
+    if (homeAccId) {
+      loginWithSSO(localStorage.getItem("preferred_username") ?? undefined);
+      return;
+    }
 
     // fallback: handle redirect promise
     const res = await instance.handleRedirectPromise();
@@ -195,6 +183,7 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
       syncTokenToLocalStorage(res);
     } catch {
       // Silent login failed -> fallback to interactive login
+      syncTokenToLocalStorage(); // clear localStorage
       await instance.loginRedirect({
         scopes,
         loginHint,
