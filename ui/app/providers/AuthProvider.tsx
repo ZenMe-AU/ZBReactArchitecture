@@ -3,20 +3,12 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import type { AccountInfo, AuthenticationResult, IPublicClientApplication } from "@azure/msal-browser";
+import type { AccountInfo, AuthenticationResult, IPublicClientApplication, IdTokenClaims } from "@azure/msal-browser";
 import { MsalProvider, useMsal } from "@azure/msal-react";
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import type { Profile } from "types/interfaces";
 import { useRefreshDomainCookie } from "../hooks/useRefreshDomainCookie";
 import { getInitials } from "../utils/getInitials";
-
-/** OIDC ID token claims we read from MSAL (idTokenClaims is typed as object). */
-type IdTokenClaims = {
-  oid?: string;
-  preferred_username?: string;
-  name?: string;
-  roles?: string[];
-};
 
 const scopes = ["openid", "profile", "email", "User.Read"];
 /**
