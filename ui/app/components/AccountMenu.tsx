@@ -30,11 +30,20 @@ export default function AccountMenu({ anchorEl, onClose, profile }: AccountMenuP
       <MenuItem
         key={account.homeAccountId}
         selected={isActive}
+        disabled={isActive}
         onClick={async () => {
+          if (isActive) return;
           await switchAccount(account);
           window.location.reload();
         }}
-        sx={{ py: 1, mx: 1, borderRadius: 1 }}
+        sx={{
+          py: 1,
+          mx: 1,
+          borderRadius: 1,
+          "&.Mui-disabled": {
+            opacity: 1,
+          },
+        }}
       >
         <ListItemIcon sx={{ minWidth: 36 }}>
           <Avatar sx={{ width: 28, height: 28, fontSize: 12, bgcolor: isActive ? "primary.main" : "grey.400" }}>{initials}</Avatar>
