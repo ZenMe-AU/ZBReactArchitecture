@@ -57,7 +57,7 @@ function getTargetEnvName(targetDir = currentDirname) {
     const envFilePath = resolve(targetDir, ".env");
     console.log("envFilePath:", envFilePath);
     if (isAvailable) {
-      // TARGET_ENV = newEnvName;
+      TARGET_ENV = newEnvName;
       // writeFileSync(envFilePath, `TARGET_ENV=${TARGET_ENV}\n`, { flag: "w" });
 
       const envData = {
@@ -137,10 +137,6 @@ function initEnvironment() {
   const dbAdminGroupName = getDbAdminName(envType);
   process.env.TF_VAR_db_admin_group_name = dbAdminGroupName;
   console.log(`Setting db_admin_group_name to: ${process.env.TF_VAR_db_admin_group_name}`);
-  // set the apim name
-  const apimName = getApimName(targetEnv);
-  process.env.TF_VAR_apim_name = apimName;
-  console.log(`Setting apim_name to: ${process.env.TF_VAR_apim_name}`);
 
   activatePimPermissions(); // activate PIM role for current user to allow adding app configuration items
 
@@ -154,10 +150,10 @@ function initEnvironment() {
     if (assignDeployer) {
       const spId = execSync(`az ad sp list --display-name "${assignDeployer}" --query "[0].id" -o tsv`, { encoding: "utf8" }).trim();
       console.log(
-        `az role assignment create --assignee ${spId} --role "App Configuration Data Owner" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`
+        `az role assignment create --assignee ${spId} --role "App Configuration Data Owner" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.AppConfiguration/configurationStores/${appConfigName}`
       );
       execSync(
-        `az role assignment create --assignee ${spId} --role "App Configuration Data Owner" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`,
+        `az role assignment create --assignee ${spId} --role "App Configuration Data Owner" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.AppConfiguration/configurationStores/${appConfigName}`,
         { stdio: "inherit" }
       );
 
@@ -166,14 +162,6 @@ function initEnvironment() {
       );
       execSync(
         `az role assignment create --assignee ${spId} --role "Contributor" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`,
-        { stdio: "inherit" }
-      );
-
-      console.log(
-        `az role assignment create --assignee ${spId} --role "API Management Service Contributor" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`
-      );
-      execSync(
-        `az role assignment create --assignee ${spId} --role "API Management Service Contributor" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`,
         { stdio: "inherit" }
       );
 

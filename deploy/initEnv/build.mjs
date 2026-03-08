@@ -61,7 +61,7 @@ async function main() {
   }
 
   console.log("Step 4: copy terraform file.");
-  const whitelist = ["*.tf", "apimPolicyAllOperations.xml", "apimPolicyDefault.xml"];
+  const whitelist = ["*.tf"];
   const files = glob.sync(whitelist, { cwd: __dirname, nodir: true });
   files.forEach((fileName) => {
     const sourcePath = resolve(__dirname, fileName);
