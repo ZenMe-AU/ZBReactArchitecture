@@ -202,6 +202,8 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
    * Forces account selection UI.
    */
   const loginWithOther = async () => {
+    syncTokenToLocalStorage(); // clear localStorage
+    instance.setActiveAccount(null);
     await instance.loginRedirect({
       scopes,
       prompt: "select_account",
