@@ -33,7 +33,7 @@ export default function QuestTierCard({ title, description, tierLabel, tierColor
       }}
     >
       <CardActionArea component={Link} to={href} sx={{ flexGrow: 1, display: "flex", flexDirection: "column", alignItems: "stretch" }}>
-        <CardContent sx={{ flexGrow: 1, width: "100%" }}>
+        <CardContent>
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>
             <Box
               sx={{
