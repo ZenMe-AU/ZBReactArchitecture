@@ -9,6 +9,29 @@
  * At deploy time, these names will be saved to the relevant configuration settings location
  * (e.g. .env file, Azure App Configuration, etc.) so that the application code can reference them.
  */
+
+function getBucketName(targetEnv, functionName) {
+  return `${targetEnv}-${functionName}`.toLocaleLowerCase();
+}
+function getLambdaFunctionName(targetEnv, functionName) {
+  return `${targetEnv}-${functionName}-func`;
+}
+function getCloudfrontDistributionName(targetEnv, functionName) {
+  return `${targetEnv}-cf-${functionName}`;
+}
+function getLambdaFunctionRoleName(targetEnv, functionName) {
+  return getLambdaFunctionName(targetEnv, functionName) + `-role`;
+}
+function getCloudfrontOriginAccessControlName(targetEnv, functionName) {
+  return getCloudfrontDistributionName(targetEnv, functionName) + `-oac`;
+}
+function getOriginRequestPolicyName(targetEnv, functionName) {
+  return `${targetEnv}-${functionName}-orp`;
+}
+function getAppRegistrationName(targetEnv, applicationName) {
+  return `${targetEnv}-${applicationName}`;
+}
+
 function getResourceGroupName(envType, targetEnv) {
   return `${envType}-${targetEnv}`;
 }
@@ -80,6 +103,13 @@ function getEventGridName(targetEnv) {
 }
 
 module.exports = {
+  getBucketName,
+  getLambdaFunctionName,
+  getCloudfrontDistributionName,
+  getLambdaFunctionRoleName,
+  getCloudfrontOriginAccessControlName,
+  getOriginRequestPolicyName,
+  getAppRegistrationName,
   getResourceGroupName,
   getStorageAccountName,
   getAppConfigName,
