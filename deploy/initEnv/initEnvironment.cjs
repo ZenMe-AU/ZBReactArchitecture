@@ -6,7 +6,16 @@
 const { execSync } = require("child_process");
 const { existsSync, readFileSync, writeFileSync } = require("fs");
 const { resolve, dirname } = require("path");
-const { getResourceGroupName, getStorageAccountName, getAppConfigName, getDbAdminName, getApimName } = require("../util/namingConvention.cjs");
+const {
+  getResourceGroupName,
+  getStorageAccountName,
+  getAppConfigName,
+  getDbAdminName,
+  getLambdaFunctionName,
+  getCloudfrontDistributionName,
+  getOriginRequestPolicyName,
+  getAppRegistrationName,
+} = require("../util/namingConvention.cjs");
 const { generateNewEnvName, getTargetEnv } = require("../util/envSetup.cjs");
 const { getSubscriptionId, getDefaultAzureLocation, isStorageAccountNameAvailable, addMemberToAadGroup } = require("../util/azureCli.cjs");
 const minimist = require("minimist");
@@ -57,13 +66,13 @@ function getTargetEnvName(targetDir = currentDirname) {
     const envFilePath = resolve(targetDir, ".env");
     console.log("envFilePath:", envFilePath);
     if (isAvailable) {
-      // TARGET_ENV = newEnvName;
+      TARGET_ENV = newEnvName;
       // writeFileSync(envFilePath, `TARGET_ENV=${TARGET_ENV}\n`, { flag: "w" });
 
       const envData = {
         TARGET_ENV: newEnvName,
         ENV_TYPE: "dev",
-        ENTRY_URL: `${newEnvName}-apim.azure-api.net`,
+        ENTRY_URL: getApimUrl(newEnvName),
       };
       writeFileSync(
         envFilePath,
@@ -79,6 +88,16 @@ function getTargetEnvName(targetDir = currentDirname) {
   return TARGET_ENV;
 }
 
+function getApimUrl(targetEnv) {
+  return `${targetEnv}-apim.azure-api.net`;
+}
+
+function setTfVar(name, value) {
+  const envKey = `TF_VAR_${name}`;
+  process.env[envKey] = value;
+
+  console.log(`Setting terraform variable ${name} to: ${value}`);
+}
 /** Activate PIM role "App Configuration Data Owner" for the current user for the current tenant.
  * This activation will usually expire within 8 hours and need to be re-activated every time it's needed.
  */
@@ -137,10 +156,23 @@ function initEnvironment() {
   const dbAdminGroupName = getDbAdminName(envType);
   process.env.TF_VAR_db_admin_group_name = dbAdminGroupName;
   console.log(`Setting db_admin_group_name to: ${process.env.TF_VAR_db_admin_group_name}`);
-  // set the apim name
-  const apimName = getApimName(targetEnv);
-  process.env.TF_VAR_apim_name = apimName;
-  console.log(`Setting apim_name to: ${process.env.TF_VAR_apim_name}`);
+
+  const corpName = "z3nm3";
+  setTfVar("corp_resource_group_name", getResourceGroupName("root", corpName));
+  setTfVar("login_app_name", getAppRegistrationName(resourceGroupName, "app"));
+  setTfVar("dns_name", `${corpName}.com`); //TODO: this should be get from resource group or corp.env
+  setTfVar("cf_rg_name", getCloudfrontDistributionName(targetEnv, envType));
+  setTfVar("cf_resource_group_origin_domain", getApimUrl(targetEnv));
+  setTfVar("origin_request_policy_name", getOriginRequestPolicyName(targetEnv, envType));
+  setTfVar("origin_response_headers_policy_name", `${corpName}-hsts-policy`);
+  setTfVar("lambda_viewer_request_function_name", getLambdaFunctionName(targetEnv, "authGuard"));
+  setTfVar("lambda_viewer_response_function_name", getLambdaFunctionName(targetEnv, "rewriteHeader"));
+
+  // TODO: align the hardcoded names with the corp repo naming convention functions
+  setTfVar("origin_request_policy_name", "z3nm3-origin-request-policy");
+  setTfVar("origin_response_headers_policy_name", "HSTS-Security-Policy");
+  setTfVar("lambda_viewer_request_function_name", "z3nm3-authGuard-func");
+  setTfVar("lambda_viewer_response_function_name", "z3nm3-rewriteHeader-func");
 
   activatePimPermissions(); // activate PIM role for current user to allow adding app configuration items
 
@@ -154,10 +186,10 @@ function initEnvironment() {
     if (assignDeployer) {
       const spId = execSync(`az ad sp list --display-name "${assignDeployer}" --query "[0].id" -o tsv`, { encoding: "utf8" }).trim();
       console.log(
-        `az role assignment create --assignee ${spId} --role "App Configuration Data Owner" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`
+        `az role assignment create --assignee ${spId} --role "App Configuration Data Owner" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.AppConfiguration/configurationStores/${appConfigName}`
       );
       execSync(
-        `az role assignment create --assignee ${spId} --role "App Configuration Data Owner" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`,
+        `az role assignment create --assignee ${spId} --role "App Configuration Data Owner" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.AppConfiguration/configurationStores/${appConfigName}`,
         { stdio: "inherit" }
       );
 
@@ -166,14 +198,6 @@ function initEnvironment() {
       );
       execSync(
         `az role assignment create --assignee ${spId} --role "Contributor" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`,
-        { stdio: "inherit" }
-      );
-
-      console.log(
-        `az role assignment create --assignee ${spId} --role "API Management Service Contributor" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`
-      );
-      execSync(
-        `az role assignment create --assignee ${spId} --role "API Management Service Contributor" --scope /subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}`,
         { stdio: "inherit" }
       );
 
