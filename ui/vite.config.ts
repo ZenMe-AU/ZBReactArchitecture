@@ -7,7 +7,7 @@ import { reactRouter } from "@react-router/dev/vite";
 import { defineConfig } from "vite";
 import federation from "@originjs/vite-plugin-federation";
 
-export default defineConfig(({ isSsrBuild }) => {
+export default defineConfig(() => {
   const mfPlugin = federation({
     name: "uiHost",
     remotes: {
@@ -17,10 +17,9 @@ export default defineConfig(({ isSsrBuild }) => {
     },
     shared: ["react", "react-dom", "react-router", "react-router-dom"],
   });
-  const plugins = isSsrBuild ? [reactRouter()] : [mfPlugin, reactRouter()];
 
   return {
-    plugins,
+    plugins: [mfPlugin, reactRouter()],
     build: {
       target: "esnext",
     },
