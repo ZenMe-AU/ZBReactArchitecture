@@ -143,6 +143,18 @@ function activatePimPermissions(resourceGroupName) {
   }
 }
 
+function getApimBackendList(subscriptionId, resourceGroupName, apimName) {
+  const url = `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.ApiManagement/service/${apimName}/backends?api-version=2023-05-01-preview`;
+
+  try {
+    const result = execSync(`az rest --method get --url "${url}" --query "value[].name" -o json`, { encoding: "utf8" });
+    return JSON.parse(result);
+  } catch (error) {
+    console.error("Failed to fetch APIM backends:", error.message);
+    return [];
+  }
+}
+
 function initEnvironment() {
   const autoApprove = process.argv.includes("--auto-approve");
   const envType = process.env.TF_VAR_env_type || "dev";
@@ -150,7 +162,8 @@ function initEnvironment() {
   const targetEnv = getTargetEnvName();
   process.env.TF_VAR_target_env = targetEnv;
   console.log(`Setting TARGET_ENV to: ${process.env.TF_VAR_target_env}`);
-  process.env.TF_VAR_subscription_id = getAzureSubscriptionId();
+  const subscriptionId = getAzureSubscriptionId();
+  process.env.TF_VAR_subscription_id = subscriptionId;
   console.log(`Setting subscription_id to: ${process.env.TF_VAR_subscription_id}`);
   const resourceGroupName = getResourceGroupName(envType, targetEnv);
   process.env.TF_VAR_resource_group_name = resourceGroupName;
@@ -255,8 +268,12 @@ function initEnvironment() {
   process.env.TF_VAR_app_insights_name = getAppInsightsName(targetEnv);
   console.log(`Setting app_insights_name to: ${process.env.TF_VAR_app_insights_name}`);
   // set the apim name
-  process.env.TF_VAR_apim_name = getApimName(targetEnv);
+  const apimName = getApimName(targetEnv);
+  process.env.TF_VAR_apim_name = apimName;
   console.log(`Setting apim_name to: ${process.env.TF_VAR_apim_name}`);
+  const apimBackendList = getApimBackendList(subscriptionId, resourceGroupName, apimName);
+  process.env.TF_VAR_apim_backend_list = `[${apimBackendList.map((b) => `"${b}"`).join(",")}]`;
+  console.log(`Setting apim_backend_list to: ${process.env.TF_VAR_apim_backend_list}`);
   //  process.env.TF_LOG = "DEBUG";
   //  console.log(`Setting TF_LOG to: ${process.env.TF_LOG}`);
   activatePimPermissions(resourceGroupName);

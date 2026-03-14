@@ -116,76 +116,6 @@ resource "azurerm_api_management_api" "http_api" {
   service_url = azurerm_api_management.apim.gateway_url
 }
 
-# # Create variable for to make url less hard coded
-# variable "url_ending" {
-#   description = "Backend service URL ending for the HTTP API"
-#   type        = string
-#   default     = "func.azurewebsites.net"
-# }
-
-# # Register an APIM backend referencing the profile function App Service.
-# resource "azurerm_api_management_backend" "chemicalfirefly_profile_func" {
-#   name                = "ProfileFunc"
-#   resource_group_name = data.azurerm_resource_group.rg.name
-#   api_management_name = azurerm_api_management.apim.name
-
-#   # App Service default domain
-#   url      = "https://${var.target_env}-profile-${var.url_ending}"
-#   protocol = "http"
-# }
-
-# # Register an APIM backend referencing the quest3Tier function App Service.
-# resource "azurerm_api_management_backend" "chemicalfirefly-quest3Tier-func" {
-#   name                = "Quest3TierFunc"
-#   resource_group_name = data.azurerm_resource_group.rg.name
-#   api_management_name = azurerm_api_management.apim.name
-
-#   # App Service default domain
-#   url      = "https://${var.target_env}-quest3tier-${var.url_ending}"
-#   protocol = "http"
-# }
-
-# # Register an APIM backend referencing the other function App Services not yet added.
-# resource "azurerm_api_management_backend" "chemicalfirefly-coordinate-func" {
-#   name                = "CoordinateFunc"
-#   resource_group_name = data.azurerm_resource_group.rg.name
-#   api_management_name = azurerm_api_management.apim.name
-
-#   # App Service default domain
-#   url      = "https://${var.target_env}-coordinate-${var.url_ending}"
-#   protocol = "http"
-# }
-
-# resource "azurerm_api_management_backend" "chemicalfirefly-quest5Tier-func" {
-#   name                = "Quest5TierFunc"
-#   resource_group_name = data.azurerm_resource_group.rg.name
-#   api_management_name = azurerm_api_management.apim.name
-
-#   # App Service default domain
-#   url      = "https://${var.target_env}-quest5tier-${var.url_ending}"
-#   protocol = "http"
-# }
-
-# resource "azurerm_api_management_backend" "chemicalfirefly-quest5TierEg-func" {
-#   name                = "Quest5TierEgFunc"
-#   resource_group_name = data.azurerm_resource_group.rg.name
-#   api_management_name = azurerm_api_management.apim.name
-
-#   # App Service default domain
-#   url      = "https://${var.target_env}-quest5tier-eg-${var.url_ending}"
-#   protocol = "http"
-# }
-
-# resource "azurerm_api_management_backend" "chemicalfirefly-homePage" {
-#   name                = "HomePage"
-#   resource_group_name = data.azurerm_resource_group.rg.name
-#   api_management_name = azurerm_api_management.apim.name
-
-#   # App Service default domain
-#   url      = "https://${var.target_env}web.z8.web.core.windows.net/"
-#   protocol = "http"
-# }
-
 # Catch-all GET operation (matches GET /* in portal)
 resource "azurerm_api_management_api_operation" "catchall_get" {
   operation_id        = "catchall-get"
@@ -276,8 +206,11 @@ resource "azurerm_api_management_api_policy" "all_operations_policy" {
   api_management_name = azurerm_api_management.apim.name
   resource_group_name = data.azurerm_resource_group.rg.name
   xml_content         = file("apimPolicyAllOperations.xml")
+  depends_on = [
+    azurerm_api_management_policy_fragment.routing,
+    azurerm_api_management_policy_fragment.auth_token
+    ]
 }
-
 
 resource "azurerm_api_management_api_operation_policy" "catchall_get_policy" {
   api_name            = azurerm_api_management_api.http_api.name
@@ -316,7 +249,7 @@ resource "azurerm_api_management_api_operation_policy" "catchall_put_policy" {
   api_management_name = azurerm_api_management.apim.name
   resource_group_name = data.azurerm_resource_group.rg.name
   operation_id        = azurerm_api_management_api_operation.catchall_put.operation_id
-  xml_content = file("apimPolicyDefault.xml") 
+  xml_content = file("apimPolicyDefault.xml")
 }
 
 
@@ -349,4 +282,22 @@ resource "azurerm_api_management_api_diagnostic" "wildcardapi_diag" {
   }
 
   depends_on = [azurerm_api_management_logger.appinsights]
+}
+
+resource "azurerm_api_management_policy_fragment" "routing" {
+  api_management_id = azurerm_api_management.apim.id
+  name              = "backend-routing-fragment"
+  format            = "rawxml"
+
+  value = templatefile("${path.module}/routing_fragment.tpl", {
+    backends = var.apim_backend_list
+    targetEnv = var.target_env
+  })
+}
+
+resource "azurerm_api_management_policy_fragment" "auth_token" {
+  api_management_id = azurerm_api_management.apim.id
+  name              = "transform-x-auth-token"
+  format            = "rawxml"
+  value             = file("transform-x-auth-token.xml")
 }
