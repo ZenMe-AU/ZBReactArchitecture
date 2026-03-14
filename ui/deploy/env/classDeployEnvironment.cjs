@@ -1,5 +1,5 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
@@ -19,7 +19,8 @@ const {
   getStorageAccountWebName,
   getEventGridName,
   getLogAnalyticsWorkspaceName,
-} = require("../../deploy/util/namingConvention.cjs");
+  getApimName,
+} = require("../../../deploy/util/namingConvention.cjs");
 const { getSubscriptionId, getEventGridDomainId } = require("../../deploy/util/azureCli.cjs");
 
 class classDeployEnvironment {
@@ -44,8 +45,10 @@ class classDeployEnvironment {
     this.storageAccountWebName = getStorageAccountWebName(this.targetEnv);
     this.appConfigName = getAppConfigName(this.targetEnv);
     this.logAnalyticsWorkspaceName = getLogAnalyticsWorkspaceName(this.targetEnv);
-    this.eventGridName = getEventGridName(this.targetEnv);
-    this.eventGridTopicNameList = [];
+    this.apiManagementName = getApimName(this.targetEnv);
+    this.apimBackendName = "www";
+    // this.eventGridName = getEventGridName(this.targetEnv);
+    // this.eventGridTopicNameList = [];
 
     this.backendConfig = backendConfig || {
       resource_group_name: this.resourceGroupName,
@@ -75,29 +78,32 @@ class classDeployEnvironment {
     process.env.TF_VAR_storage_account_web_name = this.storageAccountWebName;
     process.env.TF_VAR_appconfig_name = this.appConfigName;
     process.env.TF_VAR_log_analytics_workspace_name = this.logAnalyticsWorkspaceName;
-    process.env.TF_VAR_event_grid_name = this.eventGridName;
-    process.env.TF_VAR_event_grid_topic_list = JSON.stringify(this.eventGridTopicNameList);
+    // process.env.TF_VAR_event_grid_name = this.eventGridName;
+    // process.env.TF_VAR_event_grid_topic_list = JSON.stringify(this.eventGridTopicNameList);
+    process.env.TF_VAR_api_management_name = this.apiManagementName;
+    process.env.TF_VAR_apim_backend_name = this.apimBackendName;
+
     terraformInit({ backendConfig: this.backendConfig });
-    if (this.#hasEventGridModule()) {
-      try {
-        const eventGridId = getEventGridDomainId({
-          eventGridDomainName: this.eventGridName,
-          resourceGroupName: this.resourceGroupName,
-        });
-        console.log("Importing existing Event Grid Domain with ID:", eventGridId);
-        terraformImport("module.event_grid.azurerm_eventgrid_topic.egtopic", eventGridId);
-      } catch (error) {
-        console.log("Event Grid Domain not found. It will be created.");
-      }
-      // event grid module exists
-      // try {
-      //   const eventGridId = getEventGridNamespaceId({ eventGridNamespaceName: this.eventGridName, resourceGroupName: this.resourceGroupName });
-      //   console.log("Importing existing Event Grid Namespace with ID:", eventGridId);
-      //   terraformImport("module.event_grid.azurerm_eventgrid_namespace.egns", eventGridId);
-      // } catch (error) {
-      //   console.log("Event Grid Namespace not found. It will be created.");
-      // }
-    }
+    // if (this.#hasEventGridModule()) {
+    //   try {
+    //     const eventGridId = getEventGridDomainId({
+    //       eventGridDomainName: this.eventGridName,
+    //       resourceGroupName: this.resourceGroupName,
+    //     });
+    //     console.log("Importing existing Event Grid Domain with ID:", eventGridId);
+    //     terraformImport("module.event_grid.azurerm_eventgrid_topic.egtopic", eventGridId);
+    //   } catch (error) {
+    //     console.log("Event Grid Domain not found. It will be created.");
+    //   }
+    //   // event grid module exists
+    //   // try {
+    //   //   const eventGridId = getEventGridNamespaceId({ eventGridNamespaceName: this.eventGridName, resourceGroupName: this.resourceGroupName });
+    //   //   console.log("Importing existing Event Grid Namespace with ID:", eventGridId);
+    //   //   terraformImport("module.event_grid.azurerm_eventgrid_namespace.egns", eventGridId);
+    //   // } catch (error) {
+    //   //   console.log("Event Grid Namespace not found. It will be created.");
+    //   // }
+    // }
     terraformApply(this.autoApprove);
     // terraformPlan();
 
@@ -116,17 +122,17 @@ class classDeployEnvironment {
     // }
   }
 
-  // private method
-  #hasEventGridModule() {
-    const fileName = "./main.tf";
-    console.log("Checking for Event Grid module in", fileName);
-    if (fs.existsSync(fileName)) {
-      const content = fs.readFileSync(fileName, "utf8");
-      const regex = /module\s+"event_grid"\s*{[^}]*source\s*=\s*["']\.\/eventGridTopic["'][^}]*}/s;
-      return regex.test(content);
-    }
-    return false;
-  }
+  // // private method
+  // #hasEventGridModule() {
+  //   const fileName = "./main.tf";
+  //   console.log("Checking for Event Grid module in", fileName);
+  //   if (fs.existsSync(fileName)) {
+  //     const content = fs.readFileSync(fileName, "utf8");
+  //     const regex = /module\s+"event_grid"\s*{[^}]*source\s*=\s*["']\.\/eventGridTopic["'][^}]*}/s;
+  //     return regex.test(content);
+  //   }
+  //   return false;
+  // }
 }
 
 module.exports = classDeployEnvironment;

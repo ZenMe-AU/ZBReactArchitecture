@@ -81,7 +81,15 @@ variable "event_grid_topic_list" {
   description = "List of Event Grid topic names."
   type        = list(string)
 }
+variable "api_management_name" {
+  description = "The name of the API Management instance"
+  type        = string
+}
 
+variable "apim_backend_name" {
+  description = "The name of the API Management backend"
+  type        = string
+}
 #-------------------------------------------------#
 # Fetch existing resources
 

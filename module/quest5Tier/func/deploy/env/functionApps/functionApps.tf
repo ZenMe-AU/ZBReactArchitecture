@@ -52,6 +52,18 @@ resource "azurerm_function_app_flex_consumption" "fa" {
   }
 }
 
+# Set up API Management backend pointing to the Function App
+resource "azurerm_api_management_backend" "apim_backend" {
+  name                = var.apim_backend_name
+  resource_group_name = var.resource_group_name
+  api_management_name = var.api_management_name
+
+  # App Service default domain
+  url         = "https://${azurerm_function_app_flex_consumption.fa.default_hostname}"
+  resource_id = "https://management.azure.com${azurerm_function_app_flex_consumption.fa.id}"
+  protocol    = "http"
+}
+
 # Store the Function App endpoint in App Configuration
 resource "azurerm_app_configuration_key" "endpoint" {
   configuration_store_id = var.appconfig_id

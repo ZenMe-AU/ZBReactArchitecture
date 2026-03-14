@@ -74,7 +74,15 @@ variable "env_type" {
   type = string
 }
 
+variable "api_management_name" {
+  description = "The name of the API Management instance"
+  type        = string
+}
 
+variable "apim_backend_name" {
+  description = "The name of the API Management backend"
+  type        = string
+}
 # variable "dns_resource_group_name" {
 #   description = "Resource group containing the public DNS zone"
 #   type        = string

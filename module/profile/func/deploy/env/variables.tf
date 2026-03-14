@@ -78,6 +78,15 @@ variable "log_analytics_workspace_name" {
 
 }
 
+variable "api_management_name" {
+  description = "The name of the API Management instance"
+  type        = string
+}
+
+variable "apim_backend_name" {
+  description = "The name of the API Management backend"
+  type        = string
+}
 #-------------------------------------------------#
 # Fetch existing resources
 

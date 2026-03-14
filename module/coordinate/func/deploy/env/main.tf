@@ -18,6 +18,8 @@ module "function_app" {
   db_username                            = var.function_app_name
   db_database                            = var.db_name
   db_host                                = data.azurerm_postgresql_flexible_server.main_server.fqdn
+  api_management_name                    = var.api_management_name
+  apim_backend_name                      = var.apim_backend_name
 }
 
 # create database

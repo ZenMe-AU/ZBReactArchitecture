@@ -66,3 +66,10 @@ variable "log_analytics_workspace_id" {
   type = string
 }
 
+variable "api_management_name" {
+  type = string
+}
+
+variable "apim_backend_name" {
+  type = string
+}

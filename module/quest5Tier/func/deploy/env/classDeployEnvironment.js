@@ -1,5 +1,5 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
@@ -17,6 +17,7 @@ const {
   getModuleStorageAccountContainerName,
   getPgServerName,
   getStorageAccountWebName,
+  getApimName,
 } = require("../../../../../deploy/util/namingConvention.cjs");
 const { getSubscriptionId } = require("../../../../../deploy/util/azureCli.cjs");
 
@@ -41,6 +42,8 @@ class classDeployEnvironment {
     this.pgServerName = getPgServerName(this.targetEnv);
     this.storageAccountWebName = getStorageAccountWebName(this.targetEnv);
     this.appConfigName = getAppConfigName(this.targetEnv);
+    this.apiManagementName = getApimName(this.targetEnv);
+    this.apimBackendName = moduleName.toLowerCase();
 
     this.backendConfig = backendConfig || {
       resource_group_name: this.resourceGroupName,
@@ -69,8 +72,8 @@ class classDeployEnvironment {
     process.env.TF_VAR_pg_server_name = this.pgServerName;
     process.env.TF_VAR_storage_account_web_name = this.storageAccountWebName;
     process.env.TF_VAR_appconfig_name = this.appConfigName;
-    process.env.TF_VAR_frontdoor_profile_name = `${this.targetEnv}-fd-profile`;
-    process.env.TF_VAR_frontdoor_endpoint_name = `${this.targetEnv}-fd-endpoint`;
+    process.env.TF_VAR_api_management_name = this.apiManagementName;
+    process.env.TF_VAR_apim_backend_name = this.apimBackendName;
 
     terraformInit({ backendConfig: this.backendConfig });
     terraformApply(this.autoApprove);

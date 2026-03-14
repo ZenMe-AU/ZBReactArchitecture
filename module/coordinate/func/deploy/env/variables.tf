@@ -72,15 +72,25 @@ variable "env_type" {
   type = string
 }
 
-variable "event_grid_name" {
-  description = "The name of the event grid"
+variable "api_management_name" {
+  description = "The name of the API Management instance"
   type        = string
 }
 
-variable "event_grid_topic_list" {
-  description = "List of Event Grid topic names."
-  type        = list(string)
+variable "apim_backend_name" {
+  description = "The name of the API Management backend"
+  type        = string
 }
+
+# variable "event_grid_name" {
+#   description = "The name of the event grid"
+#   type        = string
+# }
+
+# variable "event_grid_topic_list" {
+#   description = "List of Event Grid topic names."
+#   type        = list(string)
+# }
 
 #-------------------------------------------------#
 # Fetch existing resources
