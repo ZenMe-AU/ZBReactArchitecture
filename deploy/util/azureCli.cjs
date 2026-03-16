@@ -38,6 +38,18 @@ function getObjectId() {
   }
 }
 
+function getApimBackendList(subscriptionId, resourceGroupName, apimName) {
+  const url = `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.ApiManagement/service/${apimName}/backends?api-version=2024-05-01`;
+
+  try {
+    const result = execSync(`az rest --method get --url "${url}" --query "value[].name" -o json`, { encoding: "utf8" });
+    return JSON.parse(result);
+  } catch (error) {
+    console.error("Failed to fetch APIM backends:", error.message);
+    return [];
+  }
+}
+
 /**
  * Get default Azure location
  */
@@ -382,6 +394,7 @@ function getEventGridSubscriptionList({ resourceGroupName, eventGridName }) {
 module.exports = {
   getSubscriptionId,
   getObjectId,
+  getApimBackendList,
   getDefaultAzureLocation,
   getIdentityClientId,
   getAppInsightsConnectionString,

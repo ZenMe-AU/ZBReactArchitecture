@@ -20,6 +20,7 @@ import {
   getAppInsightsName,
   getApimName,
 } from "../util/namingConvention.cjs";
+import { getApimBackendList } from "../util/azureCli.cjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -140,18 +141,6 @@ function activatePimPermissions(resourceGroupName) {
   } catch (error) {
     console.error("Failed to activate PIM role:", error);
     process.exit(1);
-  }
-}
-
-function getApimBackendList(subscriptionId, resourceGroupName, apimName) {
-  const url = `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroupName}/providers/Microsoft.ApiManagement/service/${apimName}/backends?api-version=2023-05-01-preview`;
-
-  try {
-    const result = execSync(`az rest --method get --url "${url}" --query "value[].name" -o json`, { encoding: "utf8" });
-    return JSON.parse(result);
-  } catch (error) {
-    console.error("Failed to fetch APIM backends:", error.message);
-    return [];
   }
 }
 
