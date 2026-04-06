@@ -81,7 +81,7 @@ async function main() {
   //   fs.copyFileSync(resolve(__dirname, execFileName), resolve(distDir, execFileName));
   fs.writeFileSync(
     resolve(distDir, execFileName),
-    `Set-Location $PSScriptRoot\n$env:TF_VAR_env_type="dev"\nnode ./initEnvironment.cjs --assignDeployer=github-oidc`,
+    `Set-Location $PSScriptRoot\n$env:TF_VAR_env_type="dev"\nnode ./initEnvironment.cjs --assignDeployer=github-oidc --envDir=.`,
     {
       flag: "w",
     }

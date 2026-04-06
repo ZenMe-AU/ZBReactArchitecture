@@ -20,6 +20,7 @@ const { generateNewEnvName, getTargetEnv } = require("../util/envSetup.cjs");
 const { getSubscriptionId, getDefaultAzureLocation, isStorageAccountNameAvailable, addMemberToAadGroup } = require("../util/azureCli.cjs");
 const minimist = require("minimist");
 const currentDirname = __dirname;
+const dotenv = require("dotenv");
 
 let cachedSubscriptionId = null;
 function getAzureSubscriptionId() {
@@ -86,6 +87,16 @@ function getTargetEnvName(targetDir = currentDirname) {
     }
   }
   return TARGET_ENV;
+}
+
+function readEnvFile({ targetDir = currentDirname, envFileName = "central.env" }) {
+  const filePath = resolve(targetDir, envFileName);
+  if (existsSync(filePath)) {
+    const content = readFileSync(filePath, "utf8");
+    return dotenv.parse(content);
+  } else {
+    throw new Error(`Environment file not found at path: ${filePath}`);
+  }
 }
 
 function getApimUrl(targetEnv) {
@@ -157,22 +168,21 @@ function initEnvironment() {
   process.env.TF_VAR_db_admin_group_name = dbAdminGroupName;
   console.log(`Setting db_admin_group_name to: ${process.env.TF_VAR_db_admin_group_name}`);
 
-  const corpName = "z3nm3";
+  const corpEnv = readEnvFile({ targetDir: envDir, envFileName: "central.env" });
+  const corpName = corpEnv.CENTRAL_ENV;
+  const corpDns = corpEnv.CENTRAL_DNS;
+  if (!corpName || !corpDns) {
+    throw new Error("CENTRAL_ENV and CENTRAL_DNS must be defined in central.env");
+  }
   setTfVar("corp_resource_group_name", getResourceGroupName("root", corpName));
   setTfVar("login_app_name", getAppRegistrationName(resourceGroupName, "app"));
-  setTfVar("dns_name", `${corpName}.com`); //TODO: this should be get from resource group or corp.env
+  setTfVar("dns_name", corpDns);
   setTfVar("cf_rg_name", getCloudfrontDistributionName(targetEnv, envType));
   setTfVar("cf_resource_group_origin_domain", getApimUrl(targetEnv));
   setTfVar("origin_request_policy_name", getOriginRequestPolicyName(targetEnv, envType));
   setTfVar("origin_response_headers_policy_name", `${corpName}-hsts-policy`);
   setTfVar("lambda_viewer_request_function_name", getLambdaFunctionName(targetEnv, "authGuard"));
   setTfVar("lambda_viewer_response_function_name", getLambdaFunctionName(targetEnv, "rewriteHeader"));
-
-  // TODO: align the hardcoded names with the corp repo naming convention functions
-  setTfVar("origin_request_policy_name", "z3nm3-origin-request-policy");
-  setTfVar("origin_response_headers_policy_name", "HSTS-Security-Policy");
-  setTfVar("lambda_viewer_request_function_name", "z3nm3-authGuard-func");
-  setTfVar("lambda_viewer_response_function_name", "z3nm3-rewriteHeader-func");
 
   activatePimPermissions(); // activate PIM role for current user to allow adding app configuration items
 
