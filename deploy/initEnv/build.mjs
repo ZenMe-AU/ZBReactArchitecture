@@ -36,10 +36,12 @@ function zipDir(targetZip, cwd, excludeList = []) {
 async function main() {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = dirname(__filename);
+  const __envdir = dirname(__dirname);
   const envFileName = ".env";
   const execFileName = "deployEnv.ps1";
   const distDirName = "dist";
   const distDir = resolve(__dirname, distDirName);
+  const centralEnvFileName = "central.env";
   console.log("Step 1: Building project.");
   //   execSync("pnpm install", { stdio: "inherit" });
 
@@ -51,11 +53,16 @@ async function main() {
   execSync("pnpm run build:init", { stdio: "pipe" });
 
   console.log("Step 3: copy env file if existing.");
+  try {
+    fs.copyFileSync(resolve(__envdir, centralEnvFileName), resolve(distDir, centralEnvFileName));
+  } catch (error) {
+    throw new Error("No central environment file found, build cannot continue.", { cause: error });
+  }
   // use existing env name if .env exists in initEnv folder otherwise it will be generated at deploy time
   let targetName = "New";
   try {
-    targetName = getTargetEnv(__dirname);
-    fs.copyFileSync(resolve(__dirname, envFileName), resolve(distDir, envFileName));
+    targetName = getTargetEnv(__envdir);
+    fs.copyFileSync(resolve(__envdir, envFileName), resolve(distDir, envFileName));
   } catch (error) {
     console.log("No target environment provided, new name will be generated during deployment.");
   }
