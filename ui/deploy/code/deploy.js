@@ -127,7 +127,7 @@ async function deploy() {
     }
     console.log("Step 3: Checking storage account access permissions.");
     const storageAccountID = execSync(`az storage account show --name ${accountName} --query id --output tsv`, { encoding: "utf8" }).trim();
-    const principalName = execSync("az account show --query user.name --output tsv", { encoding: "utf8" }).trim();
+    const principalName = execSync("az ad signed-in-user show --query userPrincipalName -o tsv", { encoding: "utf8" }).trim();
     // console.log(`Storage Account ID: ${storageAccountID}`);
     // console.log(`Principal Name: ${principalName}`);
     const roleAssignment = execSync(
