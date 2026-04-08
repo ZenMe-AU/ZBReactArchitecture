@@ -44,7 +44,7 @@ function renderTemplate(tplPath, inputs) {
 
 const fragmentName = "backend-routing-fragment";
 
-export async function main() {
+async function main() {
   try {
     console.log("Starting updating apim routing policy fragment.");
     const envType = process.env.TF_VAR_env_type || "dev";
@@ -63,6 +63,13 @@ export async function main() {
   }
 }
 
+export function run() {
+  main().catch((error) => {
+    console.error("Error in updateApimRoutingPolicy:", error);
+    process.exit(1);
+  });
+}
+
 if (process.argv[1] === new URL(import.meta.url).pathname) {
-  main();
+  await main();
 }

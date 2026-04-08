@@ -21,6 +21,7 @@ const {
   getApimName,
 } = require("../../../../../deploy/util/namingConvention.cjs");
 const { getSubscriptionId, getEventGridDomainId } = require("../../../../../deploy/util/azureCli.cjs");
+const { main: updateApimPolicy } = require("../../../../../deploy/deployEnv/updateApimRoutingPolicy.js");
 
 class classDeployEnvironment {
   constructor({ envType, targetEnv, moduleName, dbName, backendConfig, logLevel = "", autoApprove = false }) {
@@ -56,7 +57,7 @@ class classDeployEnvironment {
     };
   }
 
-  run() {
+  async run() {
     process.env.TF_VAR_env_type = this.envType;
     process.env.TF_VAR_target_env = this.targetEnv;
     process.env.TF_VAR_module_name = this.moduleName;
@@ -116,6 +117,7 @@ class classDeployEnvironment {
     //     }
     //   });
     // }
+    await updateApimPolicy();
   }
 
   // private method
