@@ -2,8 +2,18 @@
 provider "azurerm" {
   alias           = "z3nm3"
   features {}
-  # subscription_id = var.subscription_id_root
-  subscription_id = "2514b48a-ec41-410f-8a1c-ab9c0b2119be"
+  subscription_id = var.subscription_id
+}
+
+variable "provider_region" {
+  description = "AWS region for the provider"
+  type        = string
+  default     = "us-east-1" # remove default to make it required
+}
+
+provider "aws" {
+  region = var.provider_region
+  profile = "default"
 }
 
 variable "corp_resource_group_name" {

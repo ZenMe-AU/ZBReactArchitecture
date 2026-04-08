@@ -79,13 +79,9 @@ async function main() {
 
   console.log("Step 5: copy exec file.");
   //   fs.copyFileSync(resolve(__dirname, execFileName), resolve(distDir, execFileName));
-  fs.writeFileSync(
-    resolve(distDir, execFileName),
-    `Set-Location $PSScriptRoot\n$env:TF_VAR_env_type="dev"\nnode ./initEnvironment.cjs --assignDeployer=github-oidc --envDir=.`,
-    {
-      flag: "w",
-    }
-  );
+  fs.writeFileSync(resolve(distDir, execFileName), `Set-Location $PSScriptRoot\n$env:TF_VAR_env_type="dev"\nnode ./initEnvironment.cjs --envDir=.`, {
+    flag: "w",
+  });
 
   console.log("Step 6: Zipping output directory.");
   const zipFileName = `deployEnv-${targetName}.zip`;

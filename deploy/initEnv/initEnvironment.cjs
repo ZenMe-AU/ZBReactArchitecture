@@ -179,10 +179,10 @@ function initEnvironment() {
   setTfVar("dns_name", corpDns);
   setTfVar("cf_rg_name", getCloudfrontDistributionName(targetEnv, envType));
   setTfVar("cf_resource_group_origin_domain", getApimUrl(targetEnv));
-  setTfVar("origin_request_policy_name", getOriginRequestPolicyName(targetEnv, envType));
-  setTfVar("origin_response_headers_policy_name", `${corpName}-hsts-policy`);
-  setTfVar("lambda_viewer_request_function_name", getLambdaFunctionName(targetEnv, "authGuard"));
-  setTfVar("lambda_viewer_response_function_name", getLambdaFunctionName(targetEnv, "rewriteHeader"));
+  setTfVar("origin_request_policy_name", getOriginRequestPolicyName(corpName, "restricted"));
+  setTfVar("origin_response_headers_policy_name", "HSTS-Security-Policy");
+  setTfVar("lambda_viewer_request_function_name", getLambdaFunctionName(corpName, "guard"));
+  setTfVar("lambda_viewer_response_function_name", getLambdaFunctionName(corpName, "rewriteHeader"));
 
   activatePimPermissions(); // activate PIM role for current user to allow adding app configuration items
 
