@@ -15,7 +15,7 @@
  */
 import fs from "fs";
 import minimist from "minimist";
-import { getTargetEnv } from "../../deploy/util/envSetup.cjs";
+import { getTargetEnv, getDnsName } from "../../deploy/util/envSetup.cjs";
 import { getAppConfigValueByKeyLabel } from "../../deploy/util/azureCli.cjs";
 import { execSync, execFileSync, spawn } from "child_process";
 import { fileURLToPath } from "url";
@@ -48,6 +48,7 @@ async function deploy() {
   const accountName = getStorageAccountWebName(targetEnv);
   const appConfigName = getAppConfigName(targetEnv);
   const useShell = process.platform === "win32";
+  const dnsName = getDnsName();
 
   try {
     console.log(`Start: Deploying static web to storage account`);
@@ -73,7 +74,8 @@ async function deploy() {
         //   key,
         //   label: envType,
         // });
-        const value = module.toLowerCase() + ".app.z3nm3.com";
+        // const value = module.toLowerCase() + ".prod.z3nm3.com";
+        const value = module.toLowerCase() + `.${targetEnv}.${envType}.${dnsName}`;
         envMap.set(`${module.toUpperCase()}_DOMAIN`, `https://${value}`);
       } catch {
         // } catch (err) {

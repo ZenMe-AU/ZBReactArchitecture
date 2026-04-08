@@ -1,5 +1,5 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
@@ -53,4 +53,19 @@ function getCurrentPublicIP() {
   }
 }
 
-module.exports = { getTargetEnv, getModuleName, generateNewEnvName, getCurrentPublicIP };
+function getDnsName(rootDir = resolve(__dirname, "..", "..", "..")) {
+  const envFilePath = resolve(rootDir, "deploy", "central.env");
+  if (!existsSync(envFilePath)) {
+    throw new Error("central.env file not found at " + envFilePath);
+  }
+
+  const envContent = readFileSync(envFilePath, "utf8");
+  const match = envContent.match(/^CENTRAL_DNS=(.+)$/m);
+  if (!match) {
+    throw new Error("CENTRAL_DNS not found in central.env file.");
+  }
+
+  return match[1].trim();
+}
+
+module.exports = { getTargetEnv, getModuleName, generateNewEnvName, getCurrentPublicIP, getDnsName };
