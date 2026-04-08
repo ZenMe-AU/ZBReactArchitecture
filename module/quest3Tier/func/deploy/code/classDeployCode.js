@@ -1,5 +1,5 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
@@ -162,7 +162,7 @@ class classDeployCode {
       }
     }
     console.log("Step 5: Deploying zip file to Azure Function App.");
-    if (!fs.existsSync(this.distPath)) {
+    if (!fs.existsSync(resolve(funcDir, this.distPath))) {
       throw new Error(`Deploy zip file not found at path: ${this.distPath}`);
     }
     deployFunctionAppZip(
