@@ -46,11 +46,11 @@ if ($Stages -contains 2) { Ensure-DscPnpm }
 if ($Stages -contains 3) { Ensure-DscTerraform }
 if ($Stages -contains 8) { Ensure-AwsCli }
 if ($Stages -contains 9) { Ensure-AzCli }
-# If any of 4~7 is selected, run Install-Dependencies (after stage 3, before stage 4)
-if ($Stages | Where-Object { $_ -in 4..7 }) {
+if ($Stages -contains 4) { Check-InitEnv }
+# If any of 5~7 is selected, run Install-Dependencies (after stage 3, before stage 4)
+if ($Stages | Where-Object { $_ -in 5..7 }) {
     Install-Dependencies
 }
-if ($Stages -contains 4) { Init-ResourceGroup }
 if ($Stages -contains 5) { Deploy-MainEnv }
 if ($Stages -contains 6) { Deploy-Modules }
 if ($Stages -contains 7) { Deploy-Ui }
@@ -64,7 +64,7 @@ if ($Stages -contains 7) { Deploy-Ui }
 # #install dependencies when stage4-7
 # Install-Dependencies
 # # Stage4
-# Init-ResourceGroup
+# Check-InitEnv
 # # Stage5
 # Deploy-MainEnv
 # # Stage6

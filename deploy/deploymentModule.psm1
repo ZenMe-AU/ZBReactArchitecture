@@ -289,4 +289,22 @@ function Deploy-Ui {
     }
 }
 
-Export-ModuleMember -Function Ensure-DscPnpm,Get-RootFolder,Get-OsType,Ensure-DscNodeAndNpm,Ensure-DscTerraform,Ensure-AwsCli,Ensure-AzCli,Set-TFEnvType,Set-RootFolder,Init-ResourceGroup,Deploy-MainEnv,Install-Dependencies,Deploy-Modules,Deploy-Ui
+# Check if the .env file exists and contains the TARGET_ENV variable. If not, prompt the user to run initEnv.
+function Check-InitEnv {
+    Write-Output "Checking .env file"
+    $envFile = Join-Path $env:ROOT_FOLDER "deploy\.env"
+    if (-not (Test-Path $envFile)) {
+        Write-Error ".env file not found. Please run initEnv manually."
+        exit 1
+    }
+    $content = Get-Content $envFile -Raw
+    if ($content -notmatch "^TARGET_ENV\s*=\s*.+") {
+        Write-Error "TARGET_ENV is missing or empty. Please run initEnv manually."
+        exit 1
+    }
+    $match = [regex]::Match($content, "^TARGET_ENV\s*=\s*(.+)", [System.Text.RegularExpressions.RegexOptions]::Multiline)
+    $targetEnv = $match.Groups[1].Value.Trim()
+    Write-Output ".env TARGET_ENV was set to $targetEnv"
+}
+
+Export-ModuleMember -Function Ensure-DscPnpm,Get-RootFolder,Get-OsType,Ensure-DscNodeAndNpm,Ensure-DscTerraform,Ensure-AwsCli,Ensure-AzCli,Set-TFEnvType,Set-RootFolder,Init-ResourceGroup,Deploy-MainEnv,Install-Dependencies,Deploy-Modules,Deploy-Ui,Check-InitEnv
