@@ -39,9 +39,9 @@ async function waitFragmentReady(subscriptionId, resourceGroup, apimName, fragme
 }
 
 function renderTemplate(tplPath, inputs) {
-  // const cmd = `terraform console -no-color -input=false <<< 'templatefile("${tplPath}", ${JSON.stringify(inputs)})'`;
-  const cmd = `echo 'templatefile("${tplPath}", ${JSON.stringify(inputs)})' | terraform console -no-color -input=false`;
-  const raw = execSync(cmd, { encoding: "utf8", stdio: "pipe" }).trim();
+  const safeTplPath = tplPath.replace(/\\/g, "/");
+  const expr = `templatefile("${safeTplPath}", ${JSON.stringify(inputs)})`;
+  const raw = execSync("terraform console -no-color -input=false", { encoding: "utf8", stdio: ["pipe", "pipe", "pipe"], input: expr + "\n" }).trim();
   const match = raw.match(/<<EOT\n([\s\S]*?)\nEOT/);
   if (!match) throw new Error(`Unexpected terraform output:\n${raw}`);
   return match[1].trim();
