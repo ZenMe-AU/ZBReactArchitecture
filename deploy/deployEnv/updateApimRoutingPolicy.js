@@ -2,6 +2,11 @@ import { execSync } from "child_process";
 import { getResourceGroupName, getApimName } from "../util/namingConvention.cjs";
 import { getSubscriptionId, getApimBackendList } from "../util/azureCli.cjs";
 import { getTargetEnv } from "../util/envSetup.cjs";
+import { fileURLToPath } from "url";
+import { dirname, resolve } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 function getApimFragmentUrl(subscriptionId, resourceGroup, apimName, fragmentName) {
   return `https://management.azure.com/subscriptions/${subscriptionId}/resourceGroups/${resourceGroup}/providers/Microsoft.ApiManagement/service/${apimName}/policyFragments/${fragmentName}?api-version=2024-05-01`;
@@ -44,7 +49,7 @@ function renderTemplate(tplPath, inputs) {
 
 const fragmentName = "backend-routing-fragment";
 
-async function main() {
+export async function main() {
   try {
     console.log("Starting updating apim routing policy fragment.");
     const envType = process.env.TF_VAR_env_type || "dev";
@@ -53,7 +58,7 @@ async function main() {
     const resourceGroup = getResourceGroupName(envType, targetEnv);
     const apimName = getApimName(targetEnv);
     const backends = getApimBackendList(subscriptionId, resourceGroup, apimName);
-    const xml = renderTemplate("routing_fragment.tpl", { backends, targetEnv });
+    const xml = renderTemplate(resolve(__dirname, "routing_fragment.tpl"), { backends, targetEnv });
     updateFragment(subscriptionId, resourceGroup, apimName, fragmentName, xml, "rawxml");
     await waitFragmentReady(subscriptionId, resourceGroup, apimName, fragmentName);
     console.log("Policy fragment updated successfully.");

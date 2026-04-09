@@ -20,7 +20,6 @@ const {
   getApimName,
 } = require("../../../../../deploy/util/namingConvention.cjs");
 const { getSubscriptionId } = require("../../../../../deploy/util/azureCli.cjs");
-const { main: updateApimPolicy } = require("../../../../../deploy/deployEnv/updateApimRoutingPolicy.js");
 
 class classDeployEnvironment {
   constructor({ envType, targetEnv, moduleName, dbName, backendConfig, logLevel = "", autoApprove = false }) {
@@ -97,7 +96,8 @@ class classDeployEnvironment {
     //     }
     //   });
     // }
-    await updateApimPolicy();
+    const updateApimPolicyModule = await import("../../../../../deploy/deployEnv/updateApimRoutingPolicy.js");
+    await updateApimPolicyModule.main();
   }
 }
 
