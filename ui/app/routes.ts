@@ -6,9 +6,6 @@
 import type { RouteConfig } from "@react-router/dev/routes";
 import { index, layout, route } from "@react-router/dev/routes";
 import { protectedRoutes as profileProtectedRoutes, publicRoutes as profilePublicRoutes } from "../../module/profile/ui/routes";
-import { protectedRoutes as quest3TierProtectedRoutes, publicRoutes as quest3TierPublicRoutes } from "../../module/quest3Tier/ui/routes";
-import { protectedRoutes as quest5TierProtectedRoutes, publicRoutes as quest5TierPublicRoutes } from "../../module/quest5Tier/ui/routes";
-import { protectedRoutes as quest5TierEgProtectedRoutes, publicRoutes as quest5TierEgPublicRoutes } from "../../module/quest5TierEg/ui/routes";
 // console.log("Question Routes:", questionRoutes);
 // const modules = import.meta.glob("../../module/question/ui/routes.ts", { eager: true });
 
@@ -23,16 +20,13 @@ import { protectedRoutes as quest5TierEgProtectedRoutes, publicRoutes as quest5T
 // console.log("Modules Routes:", modules);
 export default [
   route("login", "./routes/Login2.tsx"),
-  ...quest3TierPublicRoutes,
   ...profilePublicRoutes,
-  ...quest5TierPublicRoutes,
-  ...quest5TierEgPublicRoutes,
   layout("./layouts/protected2.tsx", [
     index("./routes/HomePage.tsx"),
     route("logout", "./routes/Logout2.tsx"),
-    ...quest3TierProtectedRoutes,
     ...profileProtectedRoutes,
-    ...quest5TierProtectedRoutes,
-    ...quest5TierEgProtectedRoutes,
+    route("quest3Tier/*", "./routes/remotes/Quest3TierRemote.tsx"),
+    route("quest5Tier/*", "./routes/remotes/Quest5TierRemote.tsx"),
+    route("quest5TierEg/*", "./routes/remotes/Quest5TierEgRemote.tsx"),
   ]),
 ] satisfies RouteConfig;

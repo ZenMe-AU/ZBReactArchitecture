@@ -4,7 +4,10 @@
   "type": "module",
   "scripts": {
     "build": "cross-env NODE_ENV=production react-router build",
+    "build:federation": "vite build",
     "dev": "react-router dev",
+    "dev:federation": "vite",
+    "preview:federation": "vite preview --port 5175 --strictPort",
     "start": "cross-env NODE_ENV=production react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc"
   },
@@ -36,6 +39,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.38.0",
+    "@originjs/vite-plugin-federation": "^1.4.1",
     "@react-router/dev": "^7.6.2",
     "@types/lodash": "^4.17.17",
     "@types/node": "^20",
