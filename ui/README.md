@@ -2,9 +2,12 @@
 
 ## Development
 
-1. Add `env.json` with proper data
-
-2. Run `pnpm run dev`
+1. Run pnpm i
+1. Copy env.json.example and rename to `env.json`
+1. Open MS Entra ID and create a new app registration called 'Localhost Dev App on Port 5173'
+1. Copy the Application (client) ID and Directory (tenant) ID
+1. Edit ui\auth\msalInstance.ts and insert the above Client ID and Tenant ID.
+1. Run `pnpm run dev`
 
 ## Deployment
 

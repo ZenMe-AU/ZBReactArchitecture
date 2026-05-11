@@ -113,7 +113,7 @@ function Ensure-DscTerraform {
     if (-not $terraformInstalled) {
         if ($script:IsWindows) {
             Write-Output "Terraform not found. Installing Terraform using winget..."
-            winget install HashiCorp.Terraform -e --silent
+            winget install Hashicorp.Terraform -e --silent
         } elseif ($script:IsMacOS) {
             Write-Output "Terraform not found. Installing Terraform using Homebrew..."
             brew tap hashicorp/tap
