@@ -16,6 +16,7 @@ As the foundation matures, we plan to publish a fully working sample environment
 
 **Running Locally**  
 To run this code on your local computer you need to do the following:
+
 1. Check out the code to a local folder.
 2. Run pnpm i in the root folder.
-3. 
+3. Continue in the UI subfolder README.MD
