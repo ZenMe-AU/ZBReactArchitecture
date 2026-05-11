@@ -50,10 +50,15 @@
       "ui>react-router": "^7.x.x"
     },
     "onlyBuiltDependencies": [
+      "@scarf/scarf",
+      "azure-functions-core-tools",
+      "esbuild",
+      "protobufjs",
+      "scarf",
       "snyk",
-      "snyk@1.1300.2",
       "snyk25h",
-      "snyk25h6"
+      "snyk25h6",
+      "snyk@1.1300.2"
     ]
   },
   "engines": {

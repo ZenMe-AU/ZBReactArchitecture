@@ -44,8 +44,8 @@ if (-not $Stages -or $Stages.Count -eq 0) {
 if ($Stages -contains 1) { Ensure-DscNodeAndNpm }
 if ($Stages -contains 2) { Ensure-DscPnpm }
 if ($Stages -contains 3) { Ensure-DscTerraform }
-if ($Stages -contains 8) { Ensure-AwsCli }
-if ($Stages -contains 9) { Ensure-AzCli }
+if ($Stages -contains 8) { Ensure-AzCli }
+if ($Stages -contains 9) { Ensure-AwsCli }
 if ($Stages -contains 4) { Check-InitEnv }
 # If any of 5~7 is selected, run Install-Dependencies (after stage 3, before stage 4)
 if ($Stages | Where-Object { $_ -in 5..7 }) {
