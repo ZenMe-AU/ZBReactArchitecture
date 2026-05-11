@@ -82,15 +82,44 @@ function Get-RootFolder {
 function Ensure-DscNodeAndNpm {
     $nodeInstalled = Get-Command node -ErrorAction SilentlyContinue
     $npmInstalled = Get-Command npm -ErrorAction SilentlyContinue
+    $requiredNodeVersion = [version]"22.0.0"
+    $nodeNeedsInstallOrUpgrade = $false
     if (-not $nodeInstalled -or -not $npmInstalled) {
+        $nodeNeedsInstallOrUpgrade = $true
+        Write-Output "Node.js or npm not found. Will install Node.js."
+    } else {
+        # Check Node.js version
+        try {
+            $nodeVersionOutput = node --version 2>$null
+            if ($nodeVersionOutput) {
+                $nodeVersionString = $nodeVersionOutput.TrimStart("vV").Trim()
+                $nodeVersion = [version]$nodeVersionString
+                if ($nodeVersion -lt $requiredNodeVersion) {
+                    Write-Output "Node.js version $nodeVersion is less than required $requiredNodeVersion. Will upgrade Node.js."
+                    $nodeNeedsInstallOrUpgrade = $true
+                } else {
+                    Write-Output "Node.js version $nodeVersion meets the minimum required version $requiredNodeVersion."
+                }
+            } else {
+                Write-Output "Unable to determine Node.js version. Will install Node.js."
+                $nodeNeedsInstallOrUpgrade = $true
+            }
+        } catch {
+            Write-Output "Error checking Node.js version. Will install Node.js."
+            $nodeNeedsInstallOrUpgrade = $true
+        }
+    }
+
+    if ($nodeNeedsInstallOrUpgrade) {
         if ($script:IsWindows) {
-            Write-Output "Node.js or npm not found. Installing Node.js using winget..."
-            winget install OpenJS.NodeJS -e --silent
+            Write-Output "Installing or upgrading Node.js using winget..."
+            winget install OpenJS.NodeJS.22 -e --silent
         } elseif ($script:IsMacOS) {
-            Write-Output "Node.js or npm not found. Installing Node.js using Homebrew..."
-            brew install node
+            Write-Output "Installing or upgrading Node.js using Homebrew..."
+            brew install node@22
+            brew link --overwrite --force node@22
         } else {
-            Write-Warning "Unsupported OS for automatic Node.js installation. Please install Node.js manually."
+            Write-Warning "Unsupported OS for automatic Node.js installation. Please install Node.js version 22 manually."
             exit 1
         }
         # Get the updated path from environment
@@ -102,9 +131,18 @@ function Ensure-DscNodeAndNpm {
             Write-Error "Node.js or npm installation failed. Please install them manually. Visit https://nodejs.org/en/download/ for installation instructions."
             exit 1
         }
-    } else {
-        Write-Output "Node.js and npm are installed."
+        # Confirm version
+        $nodeVersionOutput = node --version 2>$null
+        if ($nodeVersionOutput) {
+            $nodeVersionString = $nodeVersionOutput.TrimStart("vV").Trim()
+            $nodeVersion = [version]$nodeVersionString
+            if ($nodeVersion -lt $requiredNodeVersion) {
+                Write-Error "Node.js upgrade failed or version is still less than $requiredNodeVersion. Please upgrade Node.js manually."
+                exit 1
+            }
+        }
     }
+    Write-Output "Node.js and npm are installed and meet the required version."
 }
 
 # Ensure Terraform is installed
