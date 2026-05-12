@@ -1,5 +1,5 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
@@ -23,7 +23,7 @@ const localSettingTemplate = {
     "The local.settings.json file is loaded by Azure Functions Core Tools when you run your Azure Functions project locally (for example, using func start or the Functions Host task in VS Code). The settings under the Values section are set as environment variables for your local function app. This file is only used for local development and is not uploaded or used when you deploy your function app to Azure—you must configure equivalent settings in the Azure portal or your deployment pipeline.",
   IsEncrypted: false,
   Values: {
-    AzureWebJobsStorage: "",
+    AzureWebJobsStorage: "UseDevelopmentStorage=true",
     AzureWebJobsSecretStorageType: "Files",
     FUNCTIONS_WORKER_RUNTIME: "node",
     FUNCTIONS_EXTENSION_VERSION: "~4",
@@ -39,18 +39,30 @@ const customSettings = {
   JWT_SECRET: "bb64c67554381aff324d26669540f591e02e3e993ce85c2d1ed2962e22411634",
   BASE_URL: "http://localhost:" + localPort,
   // set your local DB details
-  DB_USERNAME: "root",
-  DB_HOST: "localhost",
-  DB_PASSWORD: "DatabasePassword123!",
+  // DB_USERNAME: "root",
+  // DB_HOST: "localhost",
+  // DB_PASSWORD: "DatabasePassword123!",
 };
 
 (async () => {
   const fileName = "local.settings.json";
   const path = resolve(moduleDir, "func", fileName);
-  let targetEnv, moduleName, envType, json;
+  let targetEnv,
+    moduleName,
+    envType,
+    json,
+    isEnvSetUp = true;
   try {
     envType = process.env.TF_VAR_env_type || "dev";
-    targetEnv = getTargetEnv();
+    targetEnv = (() => {
+      try {
+        return getTargetEnv();
+      } catch (err) {
+        isEnvSetUp = false;
+        console.warn("[WARNING] Failed to determine target environment, defaulting to 'localDev':", err.message);
+        return "localDev";
+      }
+    })();
     moduleName = getModuleName(moduleDir);
     json = localSettingTemplate;
 
@@ -60,15 +72,28 @@ const customSettings = {
 
     json.Values = {
       ...json.Values,
-      // APPLICATIONINSIGHTS_CONNECTION_STRING: getAppInsightsConnectionString({
-      //   appInsightsName: getAppInsightsName(targetEnv),
-      //   resourceGroupName: getResourceGroupName(envType, targetEnv),
-      // }),
+      APPLICATIONINSIGHTS_CONNECTION_STRING: (() => {
+        try {
+          return getAppInsightsConnectionString({
+            appInsightsName: getAppInsightsName(targetEnv),
+            resourceGroupName: getResourceGroupName(envType, targetEnv),
+          });
+        } catch (err) {
+          console.warn(err.message);
+          return "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/";
+        }
+      })(),
       DB_USERNAME: getDbAdminName(envType),
       DB_DATABASE: moduleName,
       DB_HOST: getPgHost(targetEnv),
       ...customSettings,
     };
+
+    if (!isEnvSetUp) {
+      json.Values.DB_USERNAME = "root";
+      json.Values.DB_HOST = "localhost";
+      json.Values.DB_PASSWORD = "DatabasePassword123!";
+    }
 
     fs.writeFileSync(path, JSON.stringify(json, null, 2));
     console.log(`Environment variables initialized in ${fileName}`);

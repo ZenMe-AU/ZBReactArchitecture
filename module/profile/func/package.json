@@ -6,8 +6,9 @@
   "main": "index.js",
   "scripts": {
     "setup:local": "node deploy/localDev/localSetting.js",
-    "prestart": "npm run setup:local",
+    "prestart": "pnpm run setup:local",
     "start": "func start",
+    "deploy": "pnpm deploy --filter profile --prod out",
     "build": "esbuild src/index.js --bundle --minify --outdir=dist",
     "test:local": "env-cmd -f .env.local jest",
     "test:prod": "env-cmd -f .env jest",
