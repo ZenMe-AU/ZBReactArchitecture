@@ -9,6 +9,12 @@
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "name": "Dependencies root",
+      "type": "node",
+      "request": "launch",
+      "preLaunchTask": "Install Dependencies"
     }
   ]
 }

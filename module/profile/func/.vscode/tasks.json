@@ -7,17 +7,17 @@
       "command": "host start",
       "problemMatcher": "$func-node-watch",
       "isBackground": true,
-      "dependsOn": "npm install (functions)"
+      "dependsOn": "Install Dependencies"
     },
     {
       "type": "shell",
-      "label": "npm install (functions)",
-      "command": "npm install"
+      "label": "Install Dependencies",
+      "command": "pnpm install --filter=profile"
     },
     {
       "type": "shell",
       "label": "npm prune (functions)",
-      "command": "npm prune --production",
+      "command": "pnpm prune --production",
       "problemMatcher": []
     }
   ]

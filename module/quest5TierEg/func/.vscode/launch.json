@@ -13,7 +13,7 @@
       "name": "Dependencies quest5TierEg",
       "type": "node",
       "request": "launch",
-      "preLaunchTask": "install (functions)"
+      "preLaunchTask": "Install Dependencies"
     }
   ]
 }
