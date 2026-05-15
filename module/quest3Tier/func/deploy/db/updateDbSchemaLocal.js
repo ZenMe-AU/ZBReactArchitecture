@@ -4,7 +4,7 @@
  */
 
 const { resolve } = require("path");
-const classRunMigration = require("./classRunMigration.js");
+const classRunMigration = require("./classRunMigrationLocal.js");
 const { getTargetEnv, getModuleName } = require("../../../../../deploy/util/envSetup.cjs");
 const { createDatabaseInstance } = require("../../repository/model/connection/index.js");
 const DB_TYPE = require("../../enum/dbType.js");
