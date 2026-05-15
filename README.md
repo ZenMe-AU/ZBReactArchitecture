@@ -18,7 +18,9 @@ As the foundation matures, we plan to publish a fully working sample environment
 To run this code on your local computer you need to do the following:
 
 1. Check out the code to a local folder
+1. Open the folder in VSCode as a workspace, this is a monorepo and scripts require to be run from a workspace.
 1. In a terminal run `deployLocalDependencies.bat` in the root folder
 1. In a terminal run `npm install -g azure-functions-core-tools`
 1. In a terminal run `pnpm setup`
-1. Continue in the UI subfolder README.MD
+1. Open the VSCode "Run and Debug" menu, and start the task: "Start Fullstack App (workspace)"
+1. If the above has errors, go to the individual READMe.md files in each of the following folder to run them individually: \ui, \modules\
