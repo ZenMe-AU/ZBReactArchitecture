@@ -22,6 +22,7 @@ To run this code on your local computer you need to do the following:
 3. In a terminal run `deployLocalDependencies.bat` in the root folder. If components are installed, you must restart VSCode.
 4. In a terminal run `npm install -g azure-functions-core-tools`
 5. In a terminal run `pnpm setup`
-6. Open the VSCode "Run and Debug" menu, and start the task: "Start Fullstack App (workspace)"
-7. If any commands are not found, restart VSCode or your computer and run `deployLocalDependencies.bat` again to confirm that no depdencies are missing.
-8. If the above has errors, go to the individual READMe.md files in each of the following folder to run them individually: \ui, \modules\
+6. In a terminal within `./module/quest3Tier/func` run `pnpm exec sequelize-cli db:migrate`
+7. Open the VSCode "Run and Debug" menu, and start the task: "Start Fullstack App (workspace)"
+8. If any commands are not found, restart VSCode or your computer and run `deployLocalDependencies.bat` again to confirm that no depdencies are missing.
+9. If the above has errors, go to the individual READMe.md files in each of the following folder to run them individually: \ui, \modules\

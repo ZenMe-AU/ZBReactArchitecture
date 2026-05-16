@@ -23,7 +23,12 @@ This folder contains all full-stack modules. Each subfolder represents a distinc
   - **routes**: Application routes.
   - **types**: Type definitions.
 
-**Running Locally**
+**Running UI Locally**
+
+1. Ensure you have followed the global setup steps in the main README.MD related to azure-functions-core-tools
+2.
+
+**Running Everything Locally**
 
 1. Ensure you have followed the global setup steps in the main README.MD related to azure-functions-core-tools
 2. In each module/modulename/func folder run the following:
