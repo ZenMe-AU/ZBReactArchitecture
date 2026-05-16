@@ -11,6 +11,7 @@ const fs = require("fs");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
 const localPort = 7074;
+const frontendUrl = "http://localhost:5173";
 const localSettingTemplate = {
   IsEncrypted: false,
   Values: {
@@ -20,7 +21,8 @@ const localSettingTemplate = {
   },
   Host: {
     LocalHttpPort: localPort,
-    CORS: "*",
+    CORS: frontendUrl,
+    CORSCredentials: true,
   },
 };
 
