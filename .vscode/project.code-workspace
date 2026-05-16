@@ -2,50 +2,50 @@
   "folders": [
     {
       "name": "ROOT",
-      "path": "../"
+      "path": "../",
     },
     {
       "name": "ui",
-      "path": "../ui"
+      "path": "../ui",
     },
     {
       "name": "quest5TierEg/func",
-      "path": "../module/quest5TierEg/func"
+      "path": "../module/quest5TierEg/func",
     },
     {
       "name": "quest5Tier/func",
-      "path": "../module/quest5Tier/func"
+      "path": "../module/quest5Tier/func",
     },
     {
       "name": "quest3Tier/func",
-      "path": "../module/quest3Tier/func"
+      "path": "../module/quest3Tier/func",
     },
     {
       "name": "profile/func",
-      "path": "../module/profile/func"
+      "path": "../module/profile/func",
     },
     {
       "name": "coordinate/func",
-      "path": "../module/coordinate/func"
-    }
+      "path": "../module/coordinate/func",
+    },
   ],
   "launch": {
     "version": "0.2.0",
     "compounds": [
       {
         "name": "Start Full Stack App",
-        "configurations": ["Start ui", "Start quest5Tier", "Start profile"]
+        "configurations": ["Start ui", "Start quest5Tier", "Start profile"],
       },
       {
         "name": "Install Dependencies",
-        "configurations": ["Dependencies shared", "Dependencies ui", "Dependencies quest5Tier", "Dependencies profile"]
-      }
-    ]
+        "configurations": ["Dependencies ui", "Dependencies quest5Tier", "Dependencies profile"],
+      },
+    ],
   },
   "settings": {
     // These settings apply to all workspaces.
     "files.exclude": {
-      "node_modules/": false
+      "node_modules/": false,
     },
     //Jest configuration
     "jest.runMode": { "type": "on-demand", "deferred": true },
@@ -59,7 +59,7 @@
     "debug.internalConsoleOptions": "neverOpen",
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
-      "source.fixAll.eslint": "explicit"
+      "source.fixAll.eslint": "explicit",
     },
     // ESLint settings
     "eslint.enable": true,
@@ -71,17 +71,10 @@
       "../module/quest5Tier/func",
       "../module/quest3Tier/func",
       "../module/profile/func",
-      "../module/coordinate/func"
+      "../module/coordinate/func",
     ],
     // Snyk settings
     "snyk.scanningMode": "manual",
-    "snyk.trustedFolders": [
-      "../",
-      "../ui",
-      "../module/quest5Tier/func",
-      "../module/quest3Tier/func",
-      "../module/profile/func",
-      "../module/coordinate/func"
-    ]
-  }
+    "snyk.trustedFolders": ["../", "../ui", "../module/quest5Tier/func", "../module/quest3Tier/func", "../module/profile/func", "../module/coordinate/func"],
+  },
 }

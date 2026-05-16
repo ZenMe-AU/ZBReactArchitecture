@@ -14,8 +14,8 @@
     },
     {
       "type": "shell",
-      "label": "npm install (functions)",
-      "command": "npm install",
+      "label": "pnpm install (functions)",
+      "command": "pnpm install",
       "options": {
         "cwd": "${workspaceFolder}"
       }
@@ -23,7 +23,7 @@
     {
       "type": "shell",
       "label": "backend: prune-functions-deps",
-      "command": "npm prune --production",
+      "command": "pnpm prune --production",
       "problemMatcher": [],
       "options": {
         "cwd": "${workspaceFolder}"
@@ -32,7 +32,7 @@
     {
       "type": "shell",
       "label": "frontend: start-dev-server",
-      "command": "npm run dev",
+      "command": "pnpm run dev",
       "isBackground": true,
       "options": {
         "cwd": "${workspaceFolder:ui}"

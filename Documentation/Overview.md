@@ -146,13 +146,13 @@ flowchart LR
 
 ## Module Architecture Mapping
 
-| Module     | Architecture Pattern             | Notes                                 |
-| ---------- | -------------------------------- | ------------------------------------- |
-| questionV1 | Basic 3-Tier                     | Simple CRUD, direct API-DB            |
-| profile    | Basic 3-Tier                     | User profile management               |
-| coordinate | Basic 3-Tier                     | Location/coordinate logic             |
-| questionV2 | Incomplete 5-Tier w/ Event Queue | Event-driven, async business logic    |
-| quest5Tier | 5-Tier CQRS + Event Sourcing     | Full separation, event sourcing, CQRS |
+| Module       | Architecture Pattern             | Notes                                 |
+| ------------ | -------------------------------- | ------------------------------------- |
+| quest3Tier   | Basic 3-Tier                     | Simple CRUD, direct API-DB            |
+| profile      | Basic 3-Tier                     | User profile management               |
+| coordinate   | Basic 3-Tier                     | Location/coordinate logic             |
+| quest5Tier   | Incomplete 5-Tier w/ Event Queue | Event-driven, async business logic    |
+| quest5TierEG | 5-Tier CQRS + Event Sourcing     | Full separation, event sourcing, CQRS |
 
 ---
 

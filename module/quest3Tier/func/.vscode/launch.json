@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Start questionV1",
+      "name": "Start quest3Tier",
       "type": "node",
       "request": "attach",
       "restart": true,
@@ -10,7 +10,7 @@
       "preLaunchTask": "func: host start"
     },
     {
-      "name": "Dependencies questionV1",
+      "name": "Dependencies quest3Tier",
       "type": "node",
       "request": "launch",
       "preLaunchTask": "install (functions)"

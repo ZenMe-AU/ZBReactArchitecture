@@ -12,12 +12,12 @@
     {
       "type": "shell",
       "label": "install (functions)",
-      "command": "npm install"
+      "command": "pnpm install"
     },
     {
       "type": "shell",
       "label": "prune (functions)",
-      "command": "npm prune --production",
+      "command": "pnpm prune --production",
       "problemMatcher": []
     }
   ]

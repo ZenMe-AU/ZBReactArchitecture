@@ -20,7 +20,7 @@ To run this code on your local computer you need to do the following:
 1. Check out the code to a local folder
 2. Open the folder in VSCode as a workspace, this is a monorepo and scripts require to be run from a workspace.
 3. In a terminal run `deployLocalDependencies.bat` in the root folder. If components are installed, you must restart VSCode.
-4. In a terminal run `npm install -g azure-functions-core-tools`
+4. In a terminal run `pnpm install -g azure-functions-core-tools`
 5. In a terminal run `pnpm setup`
 6. In a terminal within `./module/quest3Tier/func` run `pnpm exec sequelize-cli db:migrate`
 7. Open the VSCode "Run and Debug" menu, and start the task: "Start Fullstack App (workspace)"
