@@ -23,7 +23,7 @@ function Get-OsType {
 # Determine the OS type and set variables in script scope
 Get-OsType
 
-function Ensure-DscPnpm {
+function Ensure-Pnpm {
     # Ensure pnpm is installed and setup
     if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
         Write-Output "pnpm is not installed. Installing pnpm globally using npm..."
@@ -79,7 +79,7 @@ function Get-RootFolder {
 
 # Ensure Node.js and npm is installed on Win and MacOs. If not, install with winget or homebrew.
 # Check if Node.js and npm are installed
-function Ensure-DscNodeAndNpm {
+function Ensure-NodeAndNpm {
     $nodeInstalled = Get-Command node -ErrorAction SilentlyContinue
     $npmInstalled = Get-Command npm -ErrorAction SilentlyContinue
     $requiredNodeVersion = [version]"22.0.0"
@@ -146,7 +146,7 @@ function Ensure-DscNodeAndNpm {
 }
 
 # Ensure Terraform is installed
-function Ensure-DscTerraform {
+function Ensure-Terraform {
     $terraformInstalled = Get-Command terraform -ErrorAction SilentlyContinue
     if (-not $terraformInstalled) {
         if ($script:IsWindows) {
@@ -168,6 +168,30 @@ function Ensure-DscTerraform {
         }
     } else {
         Write-Output "Terraform is already installed."
+    }
+}
+
+function Ensure-Postgresql {
+    $postgresqlInstalled = $postgresqlInstalled = (Get-Service *postgres* -ErrorAction SilentlyContinue | Where-Object {$_.Status -eq 'Running'}).Count -gt 0
+    if (-not $postgresqlInstalled) {
+        if ($script:IsWindows) {
+            Write-Output "postgresql not found. Installing postgresql using winget..."
+            winget install PostgreSQL.PostgreSQL -e --silent
+        } elseif ($script:IsMacOS) {
+            Write-Output "postgresql not found. Installing postgresql using Homebrew..."
+            brew install postgresql
+        } else {
+            Write-Warning "Unsupported OS for automatic postgresql installation. Please install postgresql manually."
+            exit 1
+        }
+        # Re-check installation
+        $postgresqlInstalled = Get-Command postgresql -ErrorAction SilentlyContinue
+        if (-not $postgresqlInstalled) {
+            Write-Error "postgresql installation failed. Please install it manually. Visit https://www.postgresql.org/download/ for instructions."
+            exit 1
+        }
+    } else {
+        Write-Output "postgresql is already installed."
     }
 }
 
@@ -345,4 +369,4 @@ function Check-InitEnv {
     Write-Output ".env TARGET_ENV was set to $targetEnv"
 }
 
-Export-ModuleMember -Function Ensure-DscPnpm,Get-RootFolder,Get-OsType,Ensure-DscNodeAndNpm,Ensure-DscTerraform,Ensure-AwsCli,Ensure-AzCli,Set-TFEnvType,Set-RootFolder,Init-ResourceGroup,Deploy-MainEnv,Install-Dependencies,Deploy-Modules,Deploy-Ui,Check-InitEnv
+Export-ModuleMember -Function Ensure-Pnpm,Get-RootFolder,Get-OsType,Ensure-NodeAndNpm,Ensure-Terraform,Ensure-AwsCli,Ensure-AzCli,Set-TFEnvType,Set-RootFolder,Init-ResourceGroup,Deploy-MainEnv,Install-Dependencies,Deploy-Modules,Deploy-Ui,Check-InitEnv,Ensure-Postgresql

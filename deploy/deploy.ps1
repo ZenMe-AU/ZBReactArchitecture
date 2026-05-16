@@ -41,23 +41,25 @@ if (-not $Stages -or $Stages.Count -eq 0) {
     $Stages = 1..10
 }
 
-if ($Stages -contains 1) { Ensure-DscNodeAndNpm }
-if ($Stages -contains 2) { Ensure-DscPnpm }
+if ($Stages -contains 1) { Ensure-NodeAndNpm }
+if ($Stages -contains 2) { Ensure-Pnpm }
 if ($Stages -contains 3) { Ensure-AzCli }
 if ($Stages -contains 4) { Ensure-AwsCli }
-if ($Stages -contains 5) { Ensure-DscTerraform }
+if ($Stages -contains 5) { Ensure-Terraform }
 if ($Stages -contains 6) { Check-InitEnv }
 if ($Stages -contains 7) { Install-Dependencies } # If any of 7~9 is selected, run Install-Dependencies
 if ($Stages -contains 8) { Deploy-MainEnv }
 if ($Stages -contains 9) { Deploy-Modules }
 if ($Stages -contains 10) { Deploy-Ui }
 
+if ($Stages -contains 21) { Ensure-Postgresql }
+
 # # Stage1
-# Ensure-DscNodeAndNpm
+# Ensure-NodeAndNpm
 # # Stage2
-# Ensure-DscPnpm
+# Ensure-Pnpm
 # # Stage3
-# Ensure-DscTerraform
+# Ensure-Terraform
 # #install dependencies when stage4-7
 # Install-Dependencies
 # # Stage4
