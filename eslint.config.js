@@ -39,6 +39,7 @@ export default [
           " */",
         ],
       ],
+      "linebreak-style": "off", // Do not check line endings
     },
     linterOptions: {
       reportUnusedDisableDirectives: true,
