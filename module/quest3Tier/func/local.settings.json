@@ -9,7 +9,6 @@
     "DB_DATABASE": "quest3Tier",
     "DB_HOST": "127.0.0.1",
     "JWT_SECRET": "bb64c67554381aff324d26669540f591e02e3e993ce85c2d1ed2962e22411634",
-    "QUESTION_URL": "http://127.0.0.1:7074",
     "DB_PASSWORD": "vscode"
   },
   "Host": {
