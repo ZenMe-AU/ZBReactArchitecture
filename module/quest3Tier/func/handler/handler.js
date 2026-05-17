@@ -1,5 +1,5 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
@@ -394,8 +394,8 @@ async function GetAnswerListByQuestionId(request, context) {
   const { id: questionId } = request.params;
   const authorization = request.headers.get("authorization");
   const token = authorization.split(" ")[1];
-  const decoded = decode(token);
-  const profileId = decoded.profileId;
+  const decoded = await decode(token);
+  const profileId = decoded.oid;
   const answers = await Question.getAnswerListByQuestionId(questionId);
   const processedAnswers = answers.map((ans) => {
     return {
