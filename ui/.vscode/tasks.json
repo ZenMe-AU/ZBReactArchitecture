@@ -4,7 +4,7 @@
     {
       "label": "frontend: start-dev-server",
       "type": "shell",
-      "command": "npm run dev",
+      "command": "pnpm run dev",
       "isBackground": true,
       "options": {
         "cwd": "${workspaceFolder}"
@@ -28,8 +28,8 @@
     },
     {
       "type": "shell",
-      "label": "pnpm install",
-      "command": "pnpm install"
+      "label": "Install Dependencies",
+      "command": "pnpm install --filter=ui"
     }
   ]
 }

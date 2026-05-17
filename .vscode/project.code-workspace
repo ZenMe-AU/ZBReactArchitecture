@@ -34,11 +34,18 @@
     "compounds": [
       {
         "name": "Start Full Stack App",
-        "configurations": ["Start ui", "Start quest5Tier", "Start profile"],
+        "configurations": ["Start ui", "Start quest5TierEg", "Start quest5Tier", "Start quest3Tier", "Start profile", "Start coordinate"],
       },
       {
         "name": "Install Dependencies",
-        "configurations": ["Dependencies ui", "Dependencies quest5Tier", "Dependencies profile"],
+        "configurations": [
+          "Dependencies ui",
+          "Dependencies quest5TierEg",
+          "Dependencies quest5Tier",
+          "Dependencies quest3Tier",
+          "Dependencies profile",
+          "Dependencies coordinate",
+        ],
       },
     ],
   },

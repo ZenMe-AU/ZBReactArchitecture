@@ -7,16 +7,16 @@
       "command": "host start",
       "problemMatcher": "$func-node-watch",
       "isBackground": true,
-      "dependsOn": "install (functions)"
+      "dependsOn": "Install Dependencies"
     },
     {
       "type": "shell",
-      "label": "install (functions)",
-      "command": "pnpm install"
+      "label": "Install Dependencies",
+      "command": "pnpm install --filter=quest3Tier"
     },
     {
       "type": "shell",
-      "label": "prune (functions)",
+      "label": "npm prune (functions)",
       "command": "pnpm prune --production",
       "problemMatcher": []
     }

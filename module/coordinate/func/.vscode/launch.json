@@ -13,7 +13,7 @@
       "name": "Dependencies coordinate",
       "type": "node",
       "request": "launch",
-      "preLaunchTask": "pnpm install (functions)"
+      "preLaunchTask": "Install Dependencies"
     }
   ]
 }
