@@ -10,7 +10,8 @@ import type { Profile } from "types/interfaces";
 import { useRefreshDomainCookie } from "../hooks/useRefreshDomainCookie";
 import { getInitials } from "../utils/getInitials";
 
-const scopes = ["openid", "profile", "email", "User.Read"];
+const graphScopes = ["openid", "profile", "email", "User.Read"];
+const appScopes = ["87aa3687-66a4-4fab-bf59-70de6bf768fa/.default"];
 /**
  * --DEPRECATED--
  * Represents which login method was used.
@@ -127,17 +128,38 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
     console.log("syncTokenToLocalStorage called with res:", res);
     if (res) {
       const claims = res.idTokenClaims as IdTokenClaims | undefined;
-      localStorage.setItem("token", res.accessToken || "");
+      localStorage.setItem("graphToken", res.accessToken || "");
+      localStorage.setItem("appToken", (await fetchAppToken(res)) || "");
       localStorage.setItem("profileId", claims?.oid || "");
       localStorage.setItem("preferred_username", claims?.preferred_username || "");
       localStorage.setItem("account_id", res.account?.homeAccountId ?? "");
       fetchPhotoForAccount(res);
     } else {
-      localStorage.removeItem("token");
+      localStorage.removeItem("graphToken");
+      localStorage.removeItem("appToken");
       localStorage.removeItem("profileId");
       localStorage.removeItem("preferred_username");
       localStorage.removeItem("account_id");
     }
+  };
+
+  /**
+   * Fetch application token for API calls and cache it in localStorage.
+   */
+  const fetchAppToken = async (res?: AuthenticationResult) => {
+    if (!res) return;
+    const id = res.account.homeAccountId;
+    //if (!id || photos[id]) return; // if no account ID or photo already set, skip fetch
+    try {
+      const appToken = await instance.acquireTokenSilent({
+        account: res.account,
+        scopes: appScopes,
+      });
+      return appToken.accessToken;
+    } catch (err) {
+      console.warn("Failed to fetch app token", err);
+    }
+    return null;
   };
 
   /**
@@ -180,7 +202,7 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
   const loginWithSSO = async (loginHint?: string) => {
     try {
       const res = await instance.ssoSilent({
-        scopes,
+        scopes: graphScopes,
         loginHint,
       });
       console.log("Silent SSO login successful:", res);
@@ -190,7 +212,7 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
       // Silent login failed -> fallback to interactive login
       syncTokenToLocalStorage(); // clear localStorage
       await instance.loginRedirect({
-        scopes,
+        scopes: graphScopes,
         loginHint,
       });
     }
