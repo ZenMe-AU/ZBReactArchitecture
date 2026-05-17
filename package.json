@@ -47,8 +47,8 @@
   },
   "pnpm": {
     "overrides": {
-      "ui>react": "18.x.x",
-      "ui>react-router": "^7.9.x"
+      "react": "18.x.x",
+      "react-router": "^7.x.x"
     },
     "onlyBuiltDependencies": [
       "@scarf/scarf",
