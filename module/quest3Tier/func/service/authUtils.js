@@ -46,7 +46,7 @@ const decode = async (token) => {
     const verified = jwt.verify(token, publicKey, {
       algorithms: ["RS256"],
       issuer: `https://sts.windows.net/${TENANT_ID}/`,
-      audience: CLIENT_ID,
+      audience: `api://${CLIENT_ID}`,
     });
     return verified;
   } catch (error) {
