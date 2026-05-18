@@ -59,8 +59,12 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
   const { instance, accounts, inProgress } = useMsal();
   const [account, setAccount] = useState<AccountInfo | null>(null);
   const [photos, setPhotos] = useState<Record<string, string>>({});
-  // Ensure the domain cookie is fresh on app load
-  useRefreshDomainCookie();
+
+  console.log(process.env.NODE_ENV);
+  if (process.env.NODE_ENV !== "development") {
+    // Ensure the domain cookie is fresh on app load
+    useRefreshDomainCookie();
+  }
 
   const profile: Profile = {
     preferredUserName: account?.idTokenClaims?.preferred_username ?? "",
@@ -242,7 +246,7 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
   const switchAccount = async (acc: AccountInfo) => {
     instance.setActiveAccount(acc);
     const tokenRes = await instance.acquireTokenSilent({
-      scopes: ["User.Read"],
+      scopes: graphScopes,
       account: acc,
     });
     setAccount(tokenRes.account);
