@@ -11,7 +11,7 @@ import { useRefreshDomainCookie } from "../hooks/useRefreshDomainCookie";
 import { getInitials } from "../utils/getInitials";
 
 const graphScopes = ["openid", "profile"];
-const appScopes = ["api://87aa3687-66a4-4fab-bf59-70de6bf768fa/.default"];
+const appScopes = ["api://87aa3687-66a4-4fab-bf59-70de6bf768fa/access_as_user"];
 /**
  * --DEPRECATED--
  * Represents which login method was used.
