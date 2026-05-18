@@ -1,0 +1,19 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "FUNCTIONS_EXTENSION_VERSION": "~4",
+    "APPLICATIONINSIGHTS_CONNECTION_STRING": "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/",
+    "DB_USERNAME": "vscode",
+    "DB_DATABASE": "profile",
+    "DB_HOST": "127.0.0.1",
+    "JWT_SECRET": "bb64c67554381aff324d26669540f591e02e3e993ce85c2d1ed2962e22411634",
+    "DB_PASSWORD": "vscode"
+  },
+  "Host": {
+    "LocalHttpPort": 7072,
+    "CORS": "http://localhost:5173",
+    "CORSCredentials": true
+  }
+}
