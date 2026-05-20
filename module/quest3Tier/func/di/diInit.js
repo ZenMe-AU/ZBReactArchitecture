@@ -1,10 +1,10 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
 const path = require("path");
-const { register } = require("./diRegistry");
+const { register, startup } = require("./diRegistry");
 const container = require("./diContainer");
 
 // register db
@@ -32,3 +32,6 @@ register("db", async () => {
 });
 
 // register something else...(e.g. telemetry etc)
+(async () => {
+  await startup();
+})();
