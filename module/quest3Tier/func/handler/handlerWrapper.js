@@ -21,7 +21,7 @@ const requestHandler =
     const correlationId = request.headers.get("X-Correlation-Id");
 
     const parentCtx = trace.setSpanContext(sContext.active(), buildSpanContext(correlationId));
-    const span = tracer.startSpan(
+    const tracerSpan = tracer.startSpan(
       functionName + "-API",
       {
         // kind: SpanKind.SERVER,
@@ -50,7 +50,7 @@ const requestHandler =
         const decoded = await decode(token);
         const profileId = decoded.oid;
         user = { profileId };
-        span.setAttribute("app.profile_id", profileId);
+        tracerSpan.setAttribute("app.profile_id", profileId);
       }
       request.userData = user;
       request.correlationId = request.headers.get("X-Correlation-Id");
@@ -77,9 +77,9 @@ const requestHandler =
       //   },
       // });
       let result;
-      await sContext.with(trace.setSpan(parentCtx, span), async () => {
+      await sContext.with(trace.setSpan(parentCtx, tracerSpan), async () => {
         result = await fn(request, context);
-        span.setStatus({ code: SpanStatusCode.OK });
+        tracerSpan.setStatus({ code: SpanStatusCode.OK });
       });
       return {
         status: result?.status || 200,
@@ -96,8 +96,8 @@ const requestHandler =
       console.log("message:", error.message || "no"); // "Hello"
       console.log("name:", error.name || "no");
       console.log("stack:", error.stack || "no");
-      span.recordException(error);
-      span.setStatus({ code: SpanStatusCode.ERROR, message: error.message || "error" });
+      tracerSpan.recordException(error);
+      tracerSpan.setStatus({ code: SpanStatusCode.ERROR, message: error.message || "error" });
       // context.log.error(error);
       // appInsights.defaultClient.trackException({
       //   exception: error,
@@ -119,63 +119,9 @@ const requestHandler =
         },
       };
     } finally {
-      span.end();
+      tracerSpan.end();
     }
   };
-
-const serviceBusHandler = (fn) => async (message, context) => {
-  // await startup();
-  console.log("context:", context);
-  console.log("bindingData:", context.bindingData || "no bindingData");
-  console.log("message:", message);
-  const tracer = trace.getTracer("serviceBusTracer");
-
-  // const invocationId = context.invocationId;
-  // const messageId = context.triggerMetadata.messageId;
-  // const correlationId = context.triggerMetadata.correlationId;
-  // const functionName = context.functionName || "unknown serviceBus";
-  // const { messageId, correlationId } = context.triggerMetadata;
-  // const { invocationId, functionName = "unknown serviceBus" } = context;
-  const { invocationId, functionName = "unknown serviceBus", triggerMetadata = {} } = context;
-  const { messageId } = triggerMetadata;
-  const { correlationId } = message;
-  console.log("✨✨correlationId:", correlationId);
-  console.log("💁functionName:", functionName);
-
-  const parentCtx = trace.setSpanContext(sContext.active(), buildSpanContext(correlationId));
-  const span = tracer.startSpan(
-    functionName + "-ServiceBus",
-    {
-      // kind: SpanKind.CONSUMER,
-      attributes: {
-        "app.invocation_id": invocationId || "unknown invocationId",
-        "app.message_id": messageId || "unknown messageId",
-        "app.correlation_id": correlationId,
-        "messaging.system": "azure.servicebus",
-        // "messaging.destination": metadata.entityName || options.queue || "unknown",
-        "messaging.operation": "process",
-      },
-    },
-    parentCtx
-  );
-
-  try {
-    await sContext.with(trace.setSpan(parentCtx, span), async () => {
-      const messageBody = {
-        ...message,
-        messageId,
-      };
-      const result = await fn(messageBody, context);
-      span.setStatus({ code: SpanStatusCode.OK });
-    });
-  } catch (error) {
-    span.recordException(error);
-    span.setStatus({ code: SpanStatusCode.ERROR, message: error.message || "error" });
-    throw error;
-  } finally {
-    span.end();
-  }
-};
 
 const validate = async (request, schemas) => {
   for (const schema of schemas) {
@@ -198,5 +144,4 @@ const buildSpanContext = (traceId) => {
 
 module.exports = {
   requestHandler,
-  serviceBusHandler,
 };
