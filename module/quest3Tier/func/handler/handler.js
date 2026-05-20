@@ -392,10 +392,7 @@ async function GetQuestionListByUser(request, context) {
  */
 async function GetAnswerListByQuestionId(request, context) {
   const { id: questionId } = request.params;
-  const authorization = request.headers.get("authorization");
-  const token = authorization.split(" ")[1];
-  const decoded = await decode(token);
-  const profileId = decoded.oid;
+  const profileId = request.userData?.profileId;
   const answers = await Question.getAnswerListByQuestionId(questionId);
   const processedAnswers = answers.map((ans) => {
     return {

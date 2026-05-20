@@ -26,6 +26,8 @@ const localSettingTemplate = {
 
 // Custom settings for local development
 const customSettings = {
+  CLIENT_ID: "87aa3687-66a4-4fab-bf59-70de6bf768fa",
+  TENANT_ID: "15fb0613-7977-4551-801b-6aadac824241",
   JWT_SECRET: "bb64c67554381aff324d26669540f591e02e3e993ce85c2d1ed2962e22411634",
   BASE_URL: "http://localhost:" + localPort,
   // ServiceBusConnection:
