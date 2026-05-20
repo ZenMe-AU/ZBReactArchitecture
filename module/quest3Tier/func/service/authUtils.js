@@ -6,18 +6,19 @@
 const jwt = require("jsonwebtoken");
 const jwksClient = require("jwks-rsa");
 
+/* deprecated */
 const jwtSecret = process.env.JWT_SECRET;
 const jwtSignOptions = {
   algorithm: "HS256",
   expiresIn: "10h",
 };
-
-const CLIENT_ID = process.env.CLIENT_ID;
-const TENANT_ID = process.env.TENANT_ID;
-
 const generateToken = (payload) => {
   return jwt.sign(payload, jwtSecret, jwtSignOptions);
 };
+/* --------- */
+
+const CLIENT_ID = process.env.CLIENT_ID;
+const TENANT_ID = process.env.TENANT_ID;
 
 // Microsoft JWKS client
 const msJwks = jwksClient({
@@ -51,7 +52,9 @@ const decode = async (token) => {
     return verified;
   } catch (error) {
     console.log("JWT verification failed:", error.message);
-    throw new Error("Invalid or expired token");
+    const err = new Error("Invalid or expired token");
+    err.status = 401;
+    throw err;
   }
 };
 
