@@ -1,8 +1,13 @@
+//import { development } from './deploy/db/config.cjs';
+
 const path = require('path');
 
 module.exports = {
-  'config': path.resolve('./deploy/db', 'config.json'),
-  'models-path': path.resolve('./deploy/db', 'models'),
-  'seeders-path': path.resolve('./deploy/db', 'seeders'),
+  'config': path.resolve('./deploy/db', 'config.cjs'),
+  'models-path': path.resolve('./repository', 'model'),
+  'seeders-path': path.resolve('./deploy/db', 'seeder'),
   'migrations-path': path.resolve('./deploy/db', 'migration')
 };
+
+// npx sequelize-cli db:migrate --env local
+// npx sequelize-cli db:seed:all --env local
