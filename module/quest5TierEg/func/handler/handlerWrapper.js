@@ -1,5 +1,5 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
@@ -7,6 +7,7 @@
 const { trace, context: sContext, TraceFlags, SpanKind, SpanStatusCode } = require("@opentelemetry/api");
 const { randomBytes } = require("crypto");
 // const { startup } = require("../di/diRegistry");
+const { decode } = require("../service/authUtils.js");
 
 const requestHandler =
   (fn, { schemas = [], customParams = {}, requireAuth = true } = {}) =>
@@ -37,6 +38,21 @@ const requestHandler =
     );
 
     try {
+      let user = null;
+      if (requireAuth) {
+        const authorization = request.headers.get("authorization");
+        if (!authorization) {
+          const err = new Error("Authorization header is missing");
+          err.status = 401;
+          throw err;
+        }
+        const token = authorization.replace("Bearer ", "");
+        const decoded = await decode(token);
+        const profileId = decoded.oid;
+        user = { profileId };
+        span.setAttribute("app.profile_id", profileId);
+      }
+      request.userData = user;
       request.correlationId = request.headers.get("X-Correlation-Id");
       if (!request.clientParams) {
         const contentType = request.headers.get("content-type");
