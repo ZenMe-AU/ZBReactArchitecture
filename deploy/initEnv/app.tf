@@ -101,6 +101,12 @@ resource "azuread_application" "rg" {
   }
 }
 
+resource "azurerm_app_configuration_key" "app_client_id" {
+  configuration_store_id = azurerm_app_configuration.appconfig.id
+  key                    = "AppClientId"
+  value                  = azuread_application.rg.client_id
+}
+
 #==========================================================
 # AWS Certificate Manager for CloudFront with DNS validation
 #==========================================================

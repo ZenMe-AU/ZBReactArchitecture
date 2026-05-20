@@ -105,6 +105,7 @@ variable "apim_backend_name" {
 #-------------------------------------------------#
 # Fetch existing resources
 
+data "azurerm_client_config" "current" {}
 # Get the Resource Group resource
 data "azurerm_resource_group" "main_rg" {
   name = var.resource_group_name
@@ -128,6 +129,10 @@ data "azurerm_user_assigned_identity" "uai" {
 data "azurerm_app_configuration" "config" {
   name                = var.appconfig_name
   resource_group_name = data.azurerm_resource_group.main_rg.name
+}
+data "azurerm_app_configuration_key" "app_client_id" {
+  configuration_store_id = data.azurerm_app_configuration.config.id
+  key                    = "AppClientId"
 }
 # Get the postgreSQL server details
 data "azurerm_postgresql_flexible_server" "main_server" {

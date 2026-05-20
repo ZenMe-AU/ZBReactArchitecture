@@ -44,11 +44,19 @@ resource "azurerm_function_app_flex_consumption" "fa" {
     DB_USERNAME                          = var.db_username
     DB_DATABASE                          = var.db_database
     DB_HOST                              = var.db_host
+    CLIENT_ID                            = var.app_client_id
+    TENANT_ID                            = var.tenant_id
   }
 
   site_config {
     application_insights_connection_string = var.application_insights_connection_string
     application_insights_key               = var.application_insights_key
+  }
+
+  lifecycle {
+    ignore_changes = [
+      app_settings["AzureWebJobsStorage"],
+    ]
   }
 }
 

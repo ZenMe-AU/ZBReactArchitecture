@@ -73,3 +73,11 @@ variable "api_management_name" {
 variable "apim_backend_name" {
   type = string
 }
+
+variable "tenant_id" {
+  type = string
+}
+
+variable "app_client_id" {
+  type = string
+}

@@ -20,6 +20,8 @@ module "function_app" {
   db_host                                = data.azurerm_postgresql_flexible_server.main_server.fqdn
   api_management_name                    = var.api_management_name
   apim_backend_name                      = var.apim_backend_name
+  tenant_id                              = data.azurerm_client_config.current.tenant_id
+  app_client_id                          = data.azurerm_app_configuration_key.app_client_id.value
 }
 
 # create database
