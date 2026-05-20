@@ -37,6 +37,7 @@ const migrationDir = resolve(__dirname, "migration");
     config.authMode = "password";
     config.password = process.env.DB_PASSWORD;
   }
+  console.log("🚧 Starting migration with config:", config);
   const db = await createDatabaseInstance(DB_TYPE.POSTGRES, config);
   const direction = process.argv[2] || "up";
   await new classRunMigration({ db, migrationDir, envType }).run(direction);
