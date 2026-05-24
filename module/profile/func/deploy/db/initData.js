@@ -7,11 +7,11 @@
 import { resolve } from "path";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
-import classRunMigration from "./classRunMigration.js";
+import { classRunMigration } from "./classRunMigration.js";
 import __req6ime4c from "../../../../../deploy/util/envSetup.cjs";
 const { getTargetEnv, getModuleName } = __req6ime4c;
 import { createDatabaseInstance } from "../../repository/model/connection/index.js";
-import DB_TYPE from "../../enum/dbType.js";
+import { DB_TYPE } from "../../enum/dbType.js";
 import __reqle0v8s from "../../../../../deploy/util/namingConvention.cjs";
 
 const __filename = fileURLToPath(import.meta.url);

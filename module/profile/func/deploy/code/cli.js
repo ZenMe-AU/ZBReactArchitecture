@@ -55,8 +55,4 @@ function zipDir(targetZip, cwd, excludeList = []) {
   });
 }
 
-export default {
-  npmInstall,
-  npmPrune,
-  zipDir,
-};
+export { npmInstall, npmPrune, zipDir };

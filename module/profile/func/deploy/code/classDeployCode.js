@@ -19,8 +19,7 @@ const {
   getAppConfigValueByKeyLabel,
   setFunctionAppCors,
 } = __reqnjyf2r;
-import __reqt0992n from "./cli.js";
-const { npmInstall, npmPrune, zipDir } = __reqt0992n;
+import { npmInstall, npmPrune, zipDir } from "./cli.js";
 import __reqpq4o4h from "../../../../../deploy/util/namingConvention.cjs";
 const { getIdentityName, getAppConfigName } = __reqpq4o4h;
 import { execSync } from "child_process";
@@ -162,4 +161,4 @@ class classDeployCode {
   }
 }
 
-export default classDeployCode;
+export { classDeployCode };

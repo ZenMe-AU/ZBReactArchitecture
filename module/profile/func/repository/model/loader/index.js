@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import DB_TYPE from "../../../enum/dbType.js";
+import { DB_TYPE } from "../../../enum/dbType.js";
 import { loadModels } from "./sequelize.js";
 
 async function createModelsLoader(type, db, modelsDir) {

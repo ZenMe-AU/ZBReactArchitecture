@@ -37,4 +37,4 @@ class classRunMigration {
   }
 }
 
-export default classRunMigration;
+export { classRunMigration };

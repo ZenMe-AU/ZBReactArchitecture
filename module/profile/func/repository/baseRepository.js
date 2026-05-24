@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import container from "../di/diContainer.js";
+import { container } from "../di/diContainer.js";
 
 class BaseRepository {
   constructor(modelMap = {}) {
@@ -29,4 +29,4 @@ class BaseRepository {
   }
 }
 
-export default BaseRepository;
+export { BaseRepository };

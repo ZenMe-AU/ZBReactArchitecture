@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import AttributeRepo from "../repository/attributeRepository.js";
+import { attributeRepository } from "../repository/attributeRepository.js";
 
 /**
  * get user's attributes
@@ -13,7 +13,7 @@ import AttributeRepo from "../repository/attributeRepository.js";
  */
 async function getUserAttributeList(profileId) {
   try {
-    return AttributeRepo.getByProfileId(profileId);
+    return attributeRepository.getByProfileId(profileId);
   } catch (err) {
     console.log(err);
     throw new Error(`Function failed: ${err.message}`, { cause: err });
@@ -29,7 +29,7 @@ async function getUserAttributeList(profileId) {
  */
 async function updateAttribute(profileId, tags) {
   try {
-    return AttributeRepo.updateAttribute(profileId, tags);
+    return attributeRepository.updateAttribute(profileId, tags);
   } catch (err) {
     console.log(err);
     throw new Error(`Function failed: ${err.message}`, { cause: err });

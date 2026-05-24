@@ -12,7 +12,7 @@ import __reqxje0u2 from "../../../../../deploy/util/namingConvention.cjs";
 const { getResourceGroupName, getServiceBusName, getFunctionAppName, getStorageAccountName } = __reqxje0u2;
 import __reqpvwojq from "../../../../../deploy/util/azureCli.cjs";
 const { getSubscriptionId } = __reqpvwojq;
-import classDeployCode from "./classDeployCode.js";
+import { classDeployCode } from "./classDeployCode.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

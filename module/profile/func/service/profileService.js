@@ -3,11 +3,11 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import ProfileRepo from "../repository/profileRepository.js";
+import { profileRepository } from "../repository/profileRepository.js";
 
 function searchProfile(tags) {
   try {
-    return ProfileRepo.getList(tags);
+    return profileRepository.getList(tags);
   } catch (err) {
     console.log(err);
     throw new Error(`Function failed: ${err.message}`, { cause: err });
@@ -16,7 +16,7 @@ function searchProfile(tags) {
 
 function createProfile(name, tags = [], avatar = null) {
   try {
-    return ProfileRepo.insertProfile(name, tags, avatar);
+    return profileRepository.insertProfile(name, tags, avatar);
   } catch (err) {
     console.log(err);
     throw new Error(`Function failed: ${err.message}`, { cause: err });
@@ -25,7 +25,7 @@ function createProfile(name, tags = [], avatar = null) {
 
 function getProfileById(profileId) {
   try {
-    return ProfileRepo.getProfile(profileId);
+    return profileRepository.getProfile(profileId);
   } catch (err) {
     console.log(err);
     throw new Error(`Function failed: ${err.message}`, { cause: err });

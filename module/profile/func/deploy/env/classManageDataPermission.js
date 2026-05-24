@@ -8,8 +8,7 @@ import __reqxkxabu from "../../../../../deploy/util/envSetup.cjs";
 const { getCurrentPublicIP } = __reqxkxabu;
 import __reqoo8bdj from "../../../../../deploy/util/azureCli.cjs";
 const { getObjectId, getFunctionAppPrincipalId, addTemporaryFirewallRule, removeTemporaryFirewallRule, addMemberToAadGroup } = __reqoo8bdj;
-import __reqsquze9 from "./postgresql.js";
-const { createDbReadWriteRole, createDbReadOnlyRole, createDbSchemaAdminRole, createAadLoginRole, grantRole } = __reqsquze9;
+import { createDbReadWriteRole, createDbReadOnlyRole, createDbSchemaAdminRole, createAadLoginRole, grantRole } from "./postgresql.js";
 
 class classManageDataPermission {
   constructor({
@@ -86,4 +85,4 @@ class classManageDataPermission {
   }
 }
 
-export default classManageDataPermission;
+export { classManageDataPermission };

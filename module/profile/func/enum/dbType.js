@@ -4,7 +4,9 @@
  */
 
 // Default settings
-export default Object.freeze({
+const DB_TYPE = Object.freeze({
   POSTGRES: "POSTGRES",
   MYSQL: "MYSQL",
 });
+
+export { DB_TYPE };

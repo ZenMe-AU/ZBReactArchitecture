@@ -3,9 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import __reqrlfqqg from "./terraformCli.js";
-
-const { terraformInit, terraformPlan, terraformApply } = __reqrlfqqg;
+import { terraformInit, terraformPlan, terraformApply } from "./terraformCli.js";
 import __reqqonhy3 from "../../../../../deploy/util/namingConvention.cjs";
 const {
   getFunctionAppName,
@@ -105,4 +103,4 @@ class classDeployEnvironment {
   }
 }
 
-export default classDeployEnvironment;
+export { classDeployEnvironment };

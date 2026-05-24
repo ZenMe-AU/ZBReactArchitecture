@@ -26,4 +26,4 @@ function terraformApply(autoApprove = false, planfile = "") {
   execSync(`terraform apply ${args} ${planfile}`, { stdio: "inherit", shell: true });
 }
 
-export default { terraformInit, terraformPlan, terraformApply };
+export { terraformInit, terraformPlan, terraformApply };

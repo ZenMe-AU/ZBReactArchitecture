@@ -9,8 +9,8 @@ import { dirname } from "node:path";
 import { register, startup } from "./diRegistry.js";
 import { createDatabaseInstance } from "../repository/model/connection/index.js";
 import { createModelsLoader } from "../repository/model/loader/index.js";
-import DB_TYPE from "../enum/dbType.js";
-import container from "./diContainer.js";
+import { DB_TYPE } from "../enum/dbType.js";
+import { container } from "./diContainer.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

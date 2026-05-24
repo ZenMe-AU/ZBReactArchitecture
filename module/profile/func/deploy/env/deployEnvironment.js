@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
 import __reqavitdg from "../../../../../deploy/util/envSetup.cjs";
 const { getTargetEnv, getModuleName } = __reqavitdg;
-import classDeployEnvironment from "./classDeployEnvironment.js";
+import { classDeployEnvironment } from "./classDeployEnvironment.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
