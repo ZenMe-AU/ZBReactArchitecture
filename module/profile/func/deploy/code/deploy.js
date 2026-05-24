@@ -6,12 +6,12 @@
 import { resolve } from "path";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
-import __reqkwkzuu from "../../../../../deploy/util/envSetup.cjs";
-const { getTargetEnv, getModuleName } = __reqkwkzuu;
-import __reqxje0u2 from "../../../../../deploy/util/namingConvention.cjs";
-const { getResourceGroupName, getServiceBusName, getFunctionAppName, getStorageAccountName } = __reqxje0u2;
-import __reqpvwojq from "../../../../../deploy/util/azureCli.cjs";
-const { getSubscriptionId } = __reqpvwojq;
+import __envSetup from "../../../../../deploy/util/envSetup.cjs";
+const { getTargetEnv, getModuleName } = __envSetup;
+import __namingConvention from "../../../../../deploy/util/namingConvention.cjs";
+const { getResourceGroupName, getServiceBusName, getFunctionAppName, getStorageAccountName } = __namingConvention;
+import __azureCli from "../../../../../deploy/util/azureCli.cjs";
+const { getSubscriptionId } = __azureCli;
 import { classDeployCode } from "./classDeployCode.js";
 
 const __filename = fileURLToPath(import.meta.url);

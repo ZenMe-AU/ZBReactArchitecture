@@ -5,7 +5,7 @@
 
 // classDeployCode.js
 import path from "path";
-import __reqnjyf2r from "../../../../../deploy/util/azureCli.cjs";
+import __azureCli from "../../../../../deploy/util/azureCli.cjs";
 const { resolve } = path;
 import fs from "fs";
 const {
@@ -18,10 +18,10 @@ const {
   getIdentityClientId,
   getAppConfigValueByKeyLabel,
   setFunctionAppCors,
-} = __reqnjyf2r;
+} = __azureCli;
 import { npmInstall, npmPrune, zipDir } from "./cli.js";
-import __reqpq4o4h from "../../../../../deploy/util/namingConvention.cjs";
-const { getIdentityName, getAppConfigName } = __reqpq4o4h;
+import __namingConvention from "../../../../../deploy/util/namingConvention.cjs";
+const { getIdentityName, getAppConfigName } = __namingConvention;
 import { execSync } from "child_process";
 
 class classDeployCode {

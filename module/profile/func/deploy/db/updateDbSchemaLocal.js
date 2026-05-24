@@ -7,12 +7,12 @@ import { resolve } from "path";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
 import { classRunMigration } from "./classRunMigrationLocal.js";
-import __reqcgadm0 from "../../../../../deploy/util/envSetup.cjs";
-const { getTargetEnv, getModuleName } = __reqcgadm0;
+import __envSetup from "../../../../../deploy/util/envSetup.cjs";
+const { getTargetEnv, getModuleName } = __envSetup;
 import { createDatabaseInstance } from "../../repository/model/connection/index.js";
 import { DB_TYPE } from "../../enum/dbType.js";
-import __reqtlnuzi from "../../../../../deploy/util/namingConvention.cjs";
-const { getDbAdminName, getPgHost } = __reqtlnuzi;
+import __namingConvention from "../../../../../deploy/util/namingConvention.cjs";
+const { getDbAdminName, getPgHost } = __namingConvention;
 import fs from "fs";
 import path from "path";
 
