@@ -6,7 +6,7 @@
 const { resolve } = require("path");
 const classManageDataPermission = require("./classManageDataPermission.js");
 const { getTargetEnv, getModuleName } = require("../../../../../deploy/util/envSetup.cjs");
-const { createDatabaseInstance } = require("../../repository/model/connection");
+const { createDatabaseInstance } = require("../../repository/model/connection/index.mjs");
 const DB_TYPE = require("../../enum/dbType.js");
 const {
   getFunctionAppName,

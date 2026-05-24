@@ -4,14 +4,14 @@
  */
 
 const path = require("path");
-const { register, startup } = require("./diRegistry");
-const container = require("./diContainer");
+const { register, startup } = require("./diRegistry.mjs");
+const container = require("./diContainer.mjs").default;
 
 // register db
 register("db", async () => {
-  const { createDatabaseInstance } = require("../repository/model/connection");
-  const { createModelsLoader } = require("../repository/model/loader/index");
-  const DB_TYPE = require("../enum/dbType");
+  const { createDatabaseInstance } = require("../repository/model/connection/index.mjs");
+  const { createModelsLoader } = require("../repository/model/loader/index.mjs");
+  const DB_TYPE = require("../enum/dbType.mjs").default;
   const modelDir = path.join(__dirname, "..", "repository", "model");
   const config = {
     username: process.env.DB_USERNAME,

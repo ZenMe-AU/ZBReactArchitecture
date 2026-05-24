@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const container = require("../di/diContainer");
+const container = require("../di/diContainer.mjs").default;
 
 class BaseRepository {
   constructor(modelMap = {}) {

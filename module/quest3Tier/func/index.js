@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-require("./di/diInit");
+require("./di/diInit.js");
 require("./monitoring/instrumentation");
 require("./route");
 require("./swagger/route");
