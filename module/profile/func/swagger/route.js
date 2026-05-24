@@ -4,9 +4,9 @@
  */
 
 import { app } from "@azure/functions";
-import swaggerUI from "./swaggerUI.js";
-import swaggerJSON from "./swaggerJSON.js";
-import swaggerPath from "./swaggerPath.js";
+import { swaggerUI } from "./swaggerUI.js";
+import { swaggerJSON } from "./swaggerJSON.js";
+import { swaggerPath } from "./swaggerPath.js";
 
 app.http("swagger", {
   route: "swagger",

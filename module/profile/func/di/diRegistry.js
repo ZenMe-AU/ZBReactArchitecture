@@ -22,4 +22,4 @@ async function startup(context = {}) {
   return initPromise;
 }
 
-export default { register, startup };
+export { register, startup };

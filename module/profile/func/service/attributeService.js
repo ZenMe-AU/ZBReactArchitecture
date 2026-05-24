@@ -36,7 +36,4 @@ async function updateAttribute(profileId, tags) {
   }
 }
 
-export default {
-  getUserAttributeList,
-  updateAttribute,
-};
+export { getUserAttributeList, updateAttribute };

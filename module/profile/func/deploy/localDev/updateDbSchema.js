@@ -10,8 +10,7 @@ import fs from "fs";
 import MigrationRunner from "../db/classRunMigrationLocal.js";
 import __reqc5tkmz from "../../../../../deploy/util/envSetup.cjs";
 const { getTargetEnv, getModuleName } = __reqc5tkmz;
-import __reqfrttgf from "../../repository/model/connection/index.js";
-const { createDatabaseInstance } = __reqfrttgf;
+import { createDatabaseInstance } from "../../repository/model/connection/index.js";
 import DB_TYPE from "../../enum/dbType.js";
 // const { getDbAdminName, getPgHost } = require("../../../../../deploy/util/namingConvention.cjs");
 

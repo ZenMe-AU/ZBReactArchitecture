@@ -13,7 +13,7 @@ const jwtSignOptions = {
   expiresIn: "10h",
 };
 
-const generateToken = (payload) => {
+export const generateToken = (payload) => {
   return jwt.sign(payload, jwtSecret, jwtSignOptions);
 };
 /* --------- */
@@ -38,7 +38,7 @@ async function getSigningKey(kid) {
     });
   });
 }
-const decode = async (token) => {
+export const decode = async (token) => {
   try {
     const decoded = jwt.decode(token, { complete: true });
     if (!decoded?.header?.kid) {
@@ -58,5 +58,3 @@ const decode = async (token) => {
     throw err;
   }
 };
-
-export default { generateToken, decode };

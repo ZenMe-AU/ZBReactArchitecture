@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import "dotenv/config"; // Load environment variables
+//import "dotenv/config"; // Load environment variables
 
 //npm run test:local testSearchProfileAttribute
 //npm run test:prod testSearchProfileAttribute

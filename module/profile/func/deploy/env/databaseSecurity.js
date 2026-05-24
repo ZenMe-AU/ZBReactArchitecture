@@ -9,8 +9,7 @@ import { dirname } from "node:path";
 import classManageDataPermission from "./classManageDataPermission.js";
 import __req243ix2 from "../../../../../deploy/util/envSetup.cjs";
 const { getTargetEnv, getModuleName } = __req243ix2;
-import __requ6f19j from "../../repository/model/connection/index.js";
-const { createDatabaseInstance } = __requ6f19j;
+import { createDatabaseInstance } from "../../repository/model/connection/index.js";
 import DB_TYPE from "../../enum/dbType.js";
 import __reqrqd2ra from "../../../../../deploy/util/namingConvention.cjs";
 

@@ -4,8 +4,7 @@
  */
 
 import path from "path";
-import __requy8p86 from "./migration/tool/index.js";
-const { createMigrationInstance } = __requy8p86;
+import { createMigrationInstance } from "./migration/tool/index.js";
 import __reqoc62vl from "../../../../../deploy/util/envSetup.cjs";
 const { getCurrentPublicIP, getTargetEnv } = __reqoc62vl;
 import __reqozwxzc from "../../../../../deploy/util/namingConvention.cjs";

@@ -3,9 +3,9 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import swaggerDocs from "./swagger.js";
+import { swaggerDocs } from "./swagger.js";
 
-export default async function swaggerJSON(context, req) {
+export async function swaggerJSON(context, req) {
   //   context.res = {
   //     status: 200,
   //     body: swaggerDocs,

@@ -4,8 +4,7 @@
  */
 
 import DB_TYPE from "../../../enum/dbType.js";
-import sequelizeLoader from "./sequelize.js";
-const { loadModels } = sequelizeLoader;
+import { loadModels } from "./sequelize.js";
 
 async function createModelsLoader(type, db, modelsDir) {
   switch (type) {
@@ -18,4 +17,4 @@ async function createModelsLoader(type, db, modelsDir) {
   }
 }
 
-export default { createModelsLoader };
+export { createModelsLoader };

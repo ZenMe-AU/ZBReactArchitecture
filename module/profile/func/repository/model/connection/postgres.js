@@ -53,4 +53,4 @@ async function getAzureAccessToken() {
   return tokenObj.token;
 }
 
-export default { createPostgresInstance };
+export { createPostgresInstance };

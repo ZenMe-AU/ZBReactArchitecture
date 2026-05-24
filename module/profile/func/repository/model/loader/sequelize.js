@@ -41,4 +41,4 @@ async function loadModels(sequelize, modelsDir) {
   return models;
 }
 
-export default { loadModels };
+export { loadModels };

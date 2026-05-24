@@ -7,8 +7,7 @@
 import { trace, context as sContext, TraceFlags, SpanKind, SpanStatusCode } from "@opentelemetry/api";
 import { randomBytes } from "crypto";
 // const { startup } = require("../di/diRegistry");
-import __reqjxc6ue from "../service/authUtils.js";
-const { decode } = __reqjxc6ue;
+import { decode } from "../service/authUtils.js";
 
 const requestHandler =
   (fn, { schemas = [], customParams = {}, requireAuth = true } = {}) =>
@@ -198,7 +197,4 @@ const buildSpanContext = (traceId) => {
   };
 };
 
-export default {
-  requestHandler,
-  serviceBusHandler,
-};
+export { requestHandler, serviceBusHandler };

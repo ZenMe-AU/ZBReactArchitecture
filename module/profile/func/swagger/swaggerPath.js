@@ -11,7 +11,7 @@ import path from "path";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-export default async function (request, context) {
+export async function swaggerPath(request, context) {
   const filePath = path.join(__dirname, "../node_modules/swagger-ui-dist", request.params.path || "index.html");
   console.log(filePath);
   if (fs.existsSync(filePath)) {

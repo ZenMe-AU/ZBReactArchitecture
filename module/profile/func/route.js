@@ -4,49 +4,48 @@
  */
 
 import { app } from "@azure/functions";
-import __req1wytxr from "./handler/handlerWrapper.js";
-const { requestHandler } = __req1wytxr;
-import authHandler from "./handler/authHandler.js";
-import profileHandler from "./handler/handler.js";
+import { requestHandler } from "./handler/handlerWrapper.js";
+import { loginUser, verify } from "./handler/authHandler.js";
+import { GetAttributes, PutAttributes, CreateProfile, SearchProfile } from "./handler/handler.js";
 
 app.http("Login", {
   route: "auth/login",
   methods: ["POST"],
   authLevel: "anonymous",
-  handler: requestHandler(authHandler.loginUser),
+  handler: requestHandler(loginUser),
 });
 
 app.http("Verify", {
   route: "auth/verify",
   methods: ["GET"],
   authLevel: "anonymous",
-  handler: requestHandler(authHandler.verify),
+  handler: requestHandler(verify),
 });
 
 app.http("GetAttributes", {
   route: "attributes/{userId}",
   methods: ["GET"],
   authLevel: "anonymous",
-  handler: requestHandler(profileHandler.GetAttributes),
+  handler: requestHandler(GetAttributes),
 });
 
 app.http("PutAttributes", {
   route: "attributes/{userId}",
   methods: ["PUT"],
   authLevel: "anonymous",
-  handler: requestHandler(profileHandler.PutAttributes),
+  handler: requestHandler(PutAttributes),
 });
 
 app.http("CreateProfile", {
   route: "profile",
   methods: ["POST"],
   authLevel: "anonymous",
-  handler: requestHandler(profileHandler.CreateProfile),
+  handler: requestHandler(CreateProfile),
 });
 
 app.http("SearchProfile", {
   route: "profile",
   methods: ["GET"],
   authLevel: "anonymous",
-  handler: requestHandler(profileHandler.SearchProfile),
+  handler: requestHandler(SearchProfile),
 });

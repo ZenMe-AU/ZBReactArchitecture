@@ -9,8 +9,7 @@ import { dirname } from "node:path";
 import classRunMigration from "./classRunMigration.js";
 import __reqdew92u from "../../../../../deploy/util/envSetup.cjs";
 const { getTargetEnv, getModuleName } = __reqdew92u;
-import __reqkr4q63 from "../../repository/model/connection/index.js";
-const { createDatabaseInstance } = __reqkr4q63;
+import { createDatabaseInstance } from "../../repository/model/connection/index.js";
 import DB_TYPE from "../../enum/dbType.js";
 import __reqef2h2j from "../../../../../deploy/util/namingConvention.cjs";
 

@@ -4,8 +4,7 @@
  */
 
 import DB_TYPE from "../../../enum/dbType.js";
-import postgres from "./postgres.js";
-const { createPostgresInstance } = postgres;
+import { createPostgresInstance } from "./postgres.js";
 
 function createDatabaseInstance(type, config) {
   switch (type) {
@@ -18,4 +17,4 @@ function createDatabaseInstance(type, config) {
   }
 }
 
-export default { createDatabaseInstance };
+export { createDatabaseInstance };

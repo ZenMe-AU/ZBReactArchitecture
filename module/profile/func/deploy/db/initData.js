@@ -10,8 +10,7 @@ import { dirname } from "node:path";
 import classRunMigration from "./classRunMigration.js";
 import __req6ime4c from "../../../../../deploy/util/envSetup.cjs";
 const { getTargetEnv, getModuleName } = __req6ime4c;
-import __reqtlgtqr from "../../repository/model/connection/index.js";
-const { createDatabaseInstance } = __reqtlgtqr;
+import { createDatabaseInstance } from "../../repository/model/connection/index.js";
 import DB_TYPE from "../../enum/dbType.js";
 import __reqle0v8s from "../../../../../deploy/util/namingConvention.cjs";
 

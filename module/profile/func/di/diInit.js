@@ -6,13 +6,10 @@
 import path from "path";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
-import __reqnk5yhl from "./diRegistry.js";
-import __reqyaxa5h from "../repository/model/connection/index.js";
-import __reqvg8yy7 from "../repository/model/loader/index.js";
+import { register, startup } from "./diRegistry.js";
+import { createDatabaseInstance } from "../repository/model/connection/index.js";
+import { createModelsLoader } from "../repository/model/loader/index.js";
 import DB_TYPE from "../enum/dbType.js";
-const { register, startup } = __reqnk5yhl;
-const { createDatabaseInstance } = __reqyaxa5h;
-const { createModelsLoader } = __reqvg8yy7;
 import container from "./diContainer.js";
 
 const __filename = fileURLToPath(import.meta.url);

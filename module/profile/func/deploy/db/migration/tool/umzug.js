@@ -32,4 +32,4 @@ function createUmzugInstance(sequelize, migrationDir) {
   });
 }
 
-export default { createUmzugInstance };
+export { createUmzugInstance };

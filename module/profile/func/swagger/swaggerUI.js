@@ -7,7 +7,7 @@ import fs from "fs";
 import path from "path";
 import swaggerUi from "swagger-ui-dist";
 
-export default async function swaggerUI(context, req) {
+export async function swaggerUI(context, req) {
   const swaggerFilePath = path.join(swaggerUi.getAbsoluteFSPath(), "index.html");
 
   let swaggerHtml = fs.readFileSync(swaggerFilePath, "utf-8");

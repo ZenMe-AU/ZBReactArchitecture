@@ -32,8 +32,4 @@ function getProfileById(profileId) {
   }
 }
 
-export default {
-  searchProfile,
-  createProfile,
-  getProfileById,
-};
+export { searchProfile, createProfile, getProfileById };

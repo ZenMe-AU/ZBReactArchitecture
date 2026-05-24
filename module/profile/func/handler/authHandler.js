@@ -3,9 +3,8 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import Profile from "../service/profileService.js";
-import __req4q9ri1 from "../service/authUtils.js";
-const { generateToken, decode } = __req4q9ri1;
+import { getProfileById } from "../service/profileService.js";
+import { generateToken, decode } from "../service/authUtils.js";
 
 /**
  * @swagger
@@ -47,7 +46,7 @@ async function loginUser(request, context) {
     throw err;
   }
 
-  const profile = await Profile.getProfileById(userId);
+  const profile = await getProfileById(userId);
 
   if (!profile) {
     const err = new Error("User not found");
@@ -119,7 +118,7 @@ async function verify(request, context) {
       throw err;
     }
 
-    const profile = await Profile.getProfileById(decoded.profileId);
+    const profile = await getProfileById(decoded.profileId);
     if (!profile) {
       const err = new Error("User not found");
       err.statusCode = 404;
@@ -133,4 +132,4 @@ async function verify(request, context) {
   }
 }
 
-export default { loginUser, verify };
+export { loginUser, verify };
