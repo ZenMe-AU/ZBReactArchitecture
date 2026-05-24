@@ -3,8 +3,8 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const BaseRepository = require("./baseRepository");
-const { Op, Sequelize, QueryTypes, literal, fn, col } = require("sequelize");
+import BaseRepository from "./baseRepository.js";
+import { Op, Sequelize, QueryTypes, literal, fn, col } from "sequelize";
 
 class ProfileRepo extends BaseRepository {
   constructor() {
@@ -71,4 +71,4 @@ class ProfileRepo extends BaseRepository {
   }
 }
 
-module.exports = new ProfileRepo();
+export default new ProfileRepo();

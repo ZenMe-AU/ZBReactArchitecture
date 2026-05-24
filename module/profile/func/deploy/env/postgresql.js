@@ -112,7 +112,7 @@ async function grantRole(sequelize, roleName, memberName) {
   console.log(`Granted ${roleName} to ${memberName}`);
 }
 
-module.exports = {
+export default {
   createDbReadWriteRole,
   createDbReadOnlyRole,
   createDbSchemaAdminRole,

@@ -4,9 +4,10 @@
  */
 
 // classDeployCode.js
-const path = require("path");
+import path from "path";
+import __reqnjyf2r from "../../../../../deploy/util/azureCli.cjs";
 const { resolve } = path;
-const fs = require("fs");
+import fs from "fs";
 const {
   getFunctionAppPrincipalId,
   setFunctionAppSetting,
@@ -17,10 +18,12 @@ const {
   getIdentityClientId,
   getAppConfigValueByKeyLabel,
   setFunctionAppCors,
-} = require("../../../../../deploy/util/azureCli.cjs");
-const { npmInstall, npmPrune, zipDir } = require("./cli.js");
-const { getIdentityName, getAppConfigName } = require("../../../../../deploy/util/namingConvention.cjs");
-const { execSync } = require("child_process");
+} = __reqnjyf2r;
+import __reqt0992n from "./cli.js";
+const { npmInstall, npmPrune, zipDir } = __reqt0992n;
+import __reqpq4o4h from "../../../../../deploy/util/namingConvention.cjs";
+const { getIdentityName, getAppConfigName } = __reqpq4o4h;
+import { execSync } from "child_process";
 
 class classDeployCode {
   constructor({ envType, targetEnv, moduleName, subscriptionId, functionAppName, resourceGroupName, storageAccountName, serviceBusName, moduleDir }) {
@@ -159,4 +162,4 @@ class classDeployCode {
   }
 }
 
-module.exports = classDeployCode;
+export default classDeployCode;

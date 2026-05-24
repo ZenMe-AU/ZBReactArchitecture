@@ -8,4 +8,4 @@ const cmdName = Object.freeze({
   QuestionShareCmd: "QuestionShareCmd",
 });
 
-module.exports = cmdName;
+export default cmdName;

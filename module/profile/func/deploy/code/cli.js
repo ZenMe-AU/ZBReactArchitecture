@@ -1,11 +1,12 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
-const { execSync } = require("child_process");
-const fs = require("fs");
-const path = require("path");
+import { execSync } from "child_process";
+import fs from "fs";
+import path from "path";
+import archiver from "archiver";
 
 function npmInstall(cwd, options = "") {
   execSync(`npm install ${options}`, { stdio: "inherit", cwd });
@@ -27,13 +28,6 @@ function normalizeExcludes(excludeList = []) {
 function zipDir(targetZip, cwd, excludeList = []) {
   // Fallback: use archiver for cross-platform support (Windows, etc.)
   return new Promise((resolve, reject) => {
-    let archiver;
-    try {
-      archiver = require("archiver");
-    } catch (e) {
-      return reject(new Error("Missing dependency 'archiver'. Please run npm install before deployment or add it to dependencies."));
-    }
-
     const outputPath = path.resolve(cwd, targetZip);
     fs.mkdirSync(path.dirname(outputPath), { recursive: true });
 
@@ -61,7 +55,7 @@ function zipDir(targetZip, cwd, excludeList = []) {
   });
 }
 
-module.exports = {
+export default {
   npmInstall,
   npmPrune,
   zipDir,

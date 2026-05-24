@@ -3,8 +3,8 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const jwt = require("jsonwebtoken");
-const jwksClient = require("jwks-rsa");
+import jwt from "jsonwebtoken";
+import jwksClient from "jwks-rsa";
 
 /* deprecated */
 const jwtSecret = process.env.JWT_SECRET;
@@ -59,4 +59,4 @@ const decode = async (token) => {
   }
 };
 
-module.exports = { generateToken, decode };
+export default { generateToken, decode };

@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const AttributeRepo = require("../repository/attributeRepository");
+import AttributeRepo from "../repository/attributeRepository.js";
 
 /**
  * get user's attributes
@@ -36,7 +36,7 @@ async function updateAttribute(profileId, tags) {
   }
 }
 
-module.exports = {
+export default {
   getUserAttributeList,
   updateAttribute,
 };

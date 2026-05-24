@@ -3,11 +3,16 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const path = require("path");
-const { createMigrationInstance } = require("./migration/tool/index.js");
-const { getCurrentPublicIP, getTargetEnv } = require("../../../../../deploy/util/envSetup.cjs");
-const { getResourceGroupName, getPgServerName } = require("../../../../../deploy/util/namingConvention.cjs");
-const { addTemporaryFirewallRule, removeTemporaryFirewallRule } = require("../../../../../deploy/util/azureCli.cjs");
+import path from "path";
+import __requy8p86 from "./migration/tool/index.js";
+const { createMigrationInstance } = __requy8p86;
+import __reqoc62vl from "../../../../../deploy/util/envSetup.cjs";
+const { getCurrentPublicIP, getTargetEnv } = __reqoc62vl;
+import __reqozwxzc from "../../../../../deploy/util/namingConvention.cjs";
+const { getResourceGroupName, getPgServerName } = __reqozwxzc;
+import __reqkx04sk from "../../../../../deploy/util/azureCli.cjs";
+const { addTemporaryFirewallRule, removeTemporaryFirewallRule } = __reqkx04sk;
+const { addPgServerExtensionsList, getSubscriptionId } = __reqkx04sk;
 
 class classRunMigration {
   constructor({ db, migrationDir, envType, targetEnv }) {
@@ -23,7 +28,6 @@ class classRunMigration {
   async run(direction = "up") {
     const ip = getCurrentPublicIP();
     if (this.extensionNames.length > 0) {
-      const { addPgServerExtensionsList, getSubscriptionId } = require("../../../../../deploy/util/azureCli.cjs");
       addPgServerExtensionsList({
         resourceGroup: this.resourceGroupName,
         serverName: this.pgServerName,
@@ -60,4 +64,4 @@ class classRunMigration {
   }
 }
 
-module.exports = classRunMigration;
+export default classRunMigration;

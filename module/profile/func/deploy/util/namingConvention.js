@@ -73,7 +73,7 @@ function getDbSchemaAdminName(moduleName) {
   return `${moduleName}-dbschemaadmins`;
 }
 
-module.exports = {
+export default {
   getResourceGroupName,
   getStorageAccountName,
   getAppConfigName,

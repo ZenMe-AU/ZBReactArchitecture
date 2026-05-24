@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const { execSync } = require("child_process");
+import { execSync } from "child_process";
 
 function getSubscriptionId() {
   try {
@@ -73,12 +73,9 @@ function getAppConfigValueByKeyLabel({ appConfigName, key, label }) {
  */
 function getAppInsightsConnectionString({ appInsightsName, resourceGroupName }) {
   try {
-    return execSync(
-      `az monitor app-insights component show --app ${appInsightsName} --resource-group ${resourceGroupName} --query connectionString -o tsv`,
-      {
-        encoding: "utf8",
-      }
-    ).trim();
+    return execSync(`az monitor app-insights component show --app ${appInsightsName} --resource-group ${resourceGroupName} --query connectionString -o tsv`, {
+      encoding: "utf8",
+    }).trim();
   } catch (e) {
     // throw new Error("Could not retrieve Application Insights connection string.");
   }
@@ -277,7 +274,7 @@ function addPgServerExtensionsList({ resourceGroup, serverName, subscriptionId, 
   --value ${extensionNames.join(",")}`);
 }
 
-module.exports = {
+export default {
   getSubscriptionId,
   getObjectId,
   getDefaultAzureLocation,

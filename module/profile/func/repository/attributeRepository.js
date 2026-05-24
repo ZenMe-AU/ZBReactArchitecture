@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const BaseRepository = require("./baseRepository");
+import BaseRepository from "./baseRepository.js";
 
 class AttributeRepo extends BaseRepository {
   constructor() {
@@ -66,4 +66,4 @@ class AttributeRepo extends BaseRepository {
   }
 }
 
-module.exports = new AttributeRepo();
+export default new AttributeRepo();

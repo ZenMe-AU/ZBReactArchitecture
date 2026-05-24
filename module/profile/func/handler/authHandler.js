@@ -3,8 +3,9 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const Profile = require("../service/profileService");
-const { generateToken, decode } = require("../service/authUtils");
+import Profile from "../service/profileService.js";
+import __req4q9ri1 from "../service/authUtils.js";
+const { generateToken, decode } = __req4q9ri1;
 
 /**
  * @swagger
@@ -132,4 +133,4 @@ async function verify(request, context) {
   }
 }
 
-module.exports = { loginUser, verify };
+export default { loginUser, verify };

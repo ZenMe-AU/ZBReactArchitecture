@@ -3,15 +3,13 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const { getCurrentPublicIP } = require("../../../../../deploy/util/envSetup.cjs");
-const {
-  getObjectId,
-  getFunctionAppPrincipalId,
-  addTemporaryFirewallRule,
-  removeTemporaryFirewallRule,
-  addMemberToAadGroup,
-} = require("../../../../../deploy/util/azureCli.cjs");
-const { createDbReadWriteRole, createDbReadOnlyRole, createDbSchemaAdminRole, createAadLoginRole, grantRole } = require("./postgresql.js");
+import __reqxkxabu from "../../../../../deploy/util/envSetup.cjs";
+
+const { getCurrentPublicIP } = __reqxkxabu;
+import __reqoo8bdj from "../../../../../deploy/util/azureCli.cjs";
+const { getObjectId, getFunctionAppPrincipalId, addTemporaryFirewallRule, removeTemporaryFirewallRule, addMemberToAadGroup } = __reqoo8bdj;
+import __reqsquze9 from "./postgresql.js";
+const { createDbReadWriteRole, createDbReadOnlyRole, createDbSchemaAdminRole, createAadLoginRole, grantRole } = __reqsquze9;
 
 class classManageDataPermission {
   constructor({
@@ -88,4 +86,4 @@ class classManageDataPermission {
   }
 }
 
-module.exports = classManageDataPermission;
+export default classManageDataPermission;

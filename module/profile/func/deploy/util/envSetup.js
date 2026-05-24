@@ -3,10 +3,15 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const { existsSync, readFileSync } = require("fs");
-const { resolve, basename } = require("path");
-const { execSync } = require("child_process");
-const { uniqueNamesGenerator, adjectives, animals } = require("unique-names-generator");
+import { existsSync, readFileSync } from "fs";
+import { fileURLToPath } from "node:url";
+import { dirname } from "node:path";
+import { resolve, basename } from "path";
+import { execSync } from "child_process";
+import { uniqueNamesGenerator, adjectives, animals } from "unique-names-generator";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 function getTargetEnv(rootDir = resolve(__dirname, "..", "..", "..", "..", "..")) {
   const envFilePath = resolve(rootDir, "deploy", ".env");
@@ -53,4 +58,4 @@ function getCurrentPublicIP() {
   }
 }
 
-module.exports = { getTargetEnv, getModuleName, generateNewEnvName, getCurrentPublicIP };
+export default { getTargetEnv, getModuleName, generateNewEnvName, getCurrentPublicIP };

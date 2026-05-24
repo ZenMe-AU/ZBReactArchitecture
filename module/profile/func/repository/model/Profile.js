@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-module.exports = (sequelize, DataTypes) => {
+export default (sequelize, DataTypes) => {
   const Profile = sequelize.define(
     "Profile",
     {

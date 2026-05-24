@@ -3,8 +3,8 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const swaggerJsDoc = require("swagger-jsdoc");
-const path = require("path");
+import swaggerJsDoc from "swagger-jsdoc";
+import path from "path";
 
 const swaggerOptions = {
   swaggerDefinition: {
@@ -38,4 +38,4 @@ const swaggerOptions = {
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
-module.exports = swaggerDocs;
+export default swaggerDocs;

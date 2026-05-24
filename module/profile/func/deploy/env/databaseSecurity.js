@@ -3,11 +3,19 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const { resolve } = require("path");
-const classManageDataPermission = require("./classManageDataPermission.js");
-const { getTargetEnv, getModuleName } = require("../../../../../deploy/util/envSetup.cjs");
-const { createDatabaseInstance } = require("../../repository/model/connection");
-const DB_TYPE = require("../../enum/dbType.js");
+import { resolve } from "path";
+import { fileURLToPath } from "node:url";
+import { dirname } from "node:path";
+import classManageDataPermission from "./classManageDataPermission.js";
+import __req243ix2 from "../../../../../deploy/util/envSetup.cjs";
+const { getTargetEnv, getModuleName } = __req243ix2;
+import __requ6f19j from "../../repository/model/connection/index.js";
+const { createDatabaseInstance } = __requ6f19j;
+import DB_TYPE from "../../enum/dbType.js";
+import __reqrqd2ra from "../../../../../deploy/util/namingConvention.cjs";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 const {
   getFunctionAppName,
   getResourceGroupName,
@@ -18,7 +26,7 @@ const {
   getDbSchemaAdminRoleName,
   getDbAdminName,
   getPgHost,
-} = require("../../../../../deploy/util/namingConvention.cjs");
+} = __reqrqd2ra;
 
 (async () => {
   //basic environment setup

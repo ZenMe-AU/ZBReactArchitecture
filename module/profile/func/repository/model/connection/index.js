@@ -1,14 +1,16 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
-const DB_TYPE = require("../../../enum/dbType");
+import DB_TYPE from "../../../enum/dbType.js";
+import postgres from "./postgres.js";
+const { createPostgresInstance } = postgres;
 
 function createDatabaseInstance(type, config) {
   switch (type) {
     case DB_TYPE.POSTGRES:
-      return require("./postgres").createPostgresInstance(config);
+      return createPostgresInstance(config);
     // case  DB_TYPE.REDIS:
     // return require("./redis").createRedisInstance(config);
     default:
@@ -16,4 +18,4 @@ function createDatabaseInstance(type, config) {
   }
 }
 
-module.exports = { createDatabaseInstance };
+export default { createDatabaseInstance };

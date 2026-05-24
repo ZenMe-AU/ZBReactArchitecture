@@ -3,11 +3,15 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const path = require("path");
-const { createMigrationInstance } = require("./migration/tool/index.js");
-const { getCurrentPublicIP, getTargetEnv } = require("../../../../../deploy/util/envSetup.cjs");
-const { getResourceGroupName, getPgServerName } = require("../../../../../deploy/util/namingConvention.cjs");
-const { addTemporaryFirewallRule, removeTemporaryFirewallRule } = require("../../../../../deploy/util/azureCli.cjs");
+import path from "path";
+import __req0j8ogk from "./migration/tool/index.js";
+const { createMigrationInstance } = __req0j8ogk;
+import __reqhct4cq from "../../../../../deploy/util/envSetup.cjs";
+const { getCurrentPublicIP, getTargetEnv } = __reqhct4cq;
+import __reqmhv2dp from "../../../../../deploy/util/namingConvention.cjs";
+const { getResourceGroupName, getPgServerName } = __reqmhv2dp;
+import __reqe6aw82 from "../../../../../deploy/util/azureCli.cjs";
+const { addTemporaryFirewallRule, removeTemporaryFirewallRule } = __reqe6aw82;
 
 class classRunMigration {
   constructor({ db, migrationDir, envType, targetEnv }) {
@@ -34,4 +38,4 @@ class classRunMigration {
   }
 }
 
-module.exports = classRunMigration;
+export default classRunMigration;

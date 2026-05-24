@@ -4,12 +4,20 @@
  */
 
 // Initialize or seed data to the database
-const { resolve } = require("path");
-const classRunMigration = require("./classRunMigration.js");
-const { getTargetEnv, getModuleName } = require("../../../../../deploy/util/envSetup.cjs");
-const { createDatabaseInstance } = require("../../repository/model/connection/index.js");
-const DB_TYPE = require("../../enum/dbType.js");
-const { getDbAdminName, getPgHost } = require("../../../../../deploy/util/namingConvention.cjs");
+import { resolve } from "path";
+import { fileURLToPath } from "node:url";
+import { dirname } from "node:path";
+import classRunMigration from "./classRunMigration.js";
+import __req6ime4c from "../../../../../deploy/util/envSetup.cjs";
+const { getTargetEnv, getModuleName } = __req6ime4c;
+import __reqtlgtqr from "../../repository/model/connection/index.js";
+const { createDatabaseInstance } = __reqtlgtqr;
+import DB_TYPE from "../../enum/dbType.js";
+import __reqle0v8s from "../../../../../deploy/util/namingConvention.cjs";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const { getDbAdminName, getPgHost } = __reqle0v8s;
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
 const migrationDir = resolve(__dirname, "seeder");

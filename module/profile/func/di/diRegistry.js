@@ -22,4 +22,4 @@ async function startup(context = {}) {
   return initPromise;
 }
 
-module.exports = { register, startup };
+export default { register, startup };

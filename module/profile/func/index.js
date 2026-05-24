@@ -3,11 +3,11 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-require("./di/diInit");
+import "./di/diInit.js";
 // require("./monitoring/instrumentation");
-require("./route");
-require("./swagger/route");
-const { app } = require("@azure/functions");
+import "./route.js";
+import "./swagger/route.js";
+import { app } from "@azure/functions";
 
 app.setup({
   enableHttpStream: true,

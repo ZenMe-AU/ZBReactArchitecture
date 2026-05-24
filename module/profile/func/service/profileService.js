@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const ProfileRepo = require("../repository/profileRepository");
+import ProfileRepo from "../repository/profileRepository.js";
 
 function searchProfile(tags) {
   try {
@@ -32,7 +32,7 @@ function getProfileById(profileId) {
   }
 }
 
-module.exports = {
+export default {
   searchProfile,
   createProfile,
   getProfileById,

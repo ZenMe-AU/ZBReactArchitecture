@@ -3,10 +3,11 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const { app } = require("@azure/functions");
-const { requestHandler } = require("./handler/handlerWrapper.js");
-const authHandler = require("./handler/authHandler.js");
-const profileHandler = require("./handler/handler.js");
+import { app } from "@azure/functions";
+import __req1wytxr from "./handler/handlerWrapper.js";
+const { requestHandler } = __req1wytxr;
+import authHandler from "./handler/authHandler.js";
+import profileHandler from "./handler/handler.js";
 
 app.http("Login", {
   route: "auth/login",

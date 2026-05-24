@@ -4,7 +4,7 @@
  */
 
 // Default settings
-module.exports = Object.freeze({
+export default Object.freeze({
   POSTGRES: "POSTGRES",
   MYSQL: "MYSQL",
 });

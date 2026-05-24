@@ -3,12 +3,14 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const DB_TYPE = require("../../../enum/dbType");
+import DB_TYPE from "../../../enum/dbType.js";
+import sequelizeLoader from "./sequelize.js";
+const { loadModels } = sequelizeLoader;
 
-function createModelsLoader(type, db, modelsDir) {
+async function createModelsLoader(type, db, modelsDir) {
   switch (type) {
     case DB_TYPE.POSTGRES:
-      return require("./sequelize").loadModels(db, modelsDir);
+      return loadModels(db, modelsDir);
     // case  DB_TYPE.REDIS:
     // return;
     default:
@@ -16,4 +18,4 @@ function createModelsLoader(type, db, modelsDir) {
   }
 }
 
-module.exports = { createModelsLoader };
+export default { createModelsLoader };

@@ -31,4 +31,4 @@ class Container {
 
 const container = new Container();
 
-module.exports = container;
+export default container;

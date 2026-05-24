@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const { Op, Sequelize, QueryTypes } = require("sequelize");
+import { Op, Sequelize, QueryTypes } from "sequelize";
 // const { Profiles, Attributes } = require("../db/model");
 // const { Location } = require("@zenmechat/shared/db/model");
 // const { sequelize } = require("../db");
@@ -32,10 +32,7 @@ function getUsers(coord, tFrom, tTo, distance, CountOnly, tags = null) {
         attributes: [],
         where: [
           { createdAt: { [Op.between]: [tFrom + "Z", tTo + "Z"] } },
-          Sequelize.where(
-            Sequelize.fn("ST_DWithin", Sequelize.col("geom"), "SRID=4326;POINT(" + coord[0] + " " + coord[1] + ")", distance, true),
-            true
-          ),
+          Sequelize.where(Sequelize.fn("ST_DWithin", Sequelize.col("geom"), "SRID=4326;POINT(" + coord[0] + " " + coord[1] + ")", distance, true), true),
         ],
         group: ["tid"],
       },
@@ -135,7 +132,7 @@ async function getUsersNearby(deviceId, startTime, endTime, distance, limited) {
   }
 }
 
-module.exports = {
+export default {
   getUsers,
   getUsersNearby,
 };

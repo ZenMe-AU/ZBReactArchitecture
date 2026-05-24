@@ -16,4 +16,4 @@ async function withTransaction(sequelizeInstance, callback) {
   }
 }
 
-module.exports = { withTransaction };
+export default { withTransaction };

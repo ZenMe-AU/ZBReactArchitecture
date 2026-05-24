@@ -3,11 +3,11 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const fs = require("fs");
-const path = require("path");
-const swaggerUi = require("swagger-ui-dist");
+import fs from "fs";
+import path from "path";
+import swaggerUi from "swagger-ui-dist";
 
-module.exports = async function swaggerUI(context, req) {
+export default async function swaggerUI(context, req) {
   const swaggerFilePath = path.join(swaggerUi.getAbsoluteFSPath(), "index.html");
 
   let swaggerHtml = fs.readFileSync(swaggerFilePath, "utf-8");
@@ -33,4 +33,4 @@ module.exports = async function swaggerUI(context, req) {
     headers: { "Content-Type": "text/html" },
     body: swaggerHtml,
   };
-};
+}

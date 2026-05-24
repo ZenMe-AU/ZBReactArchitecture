@@ -3,8 +3,8 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const Profile = require("../service/profileService.js");
-const Attribute = require("../service/attributeService.js");
+import Profile from "../service/profileService.js";
+import Attribute from "../service/attributeService.js";
 
 /**
  * @swagger
@@ -223,7 +223,7 @@ async function SearchProfile(request, context) {
   return { return: { profile: profile } };
 }
 
-module.exports = {
+export default {
   GetAttributes,
   PutAttributes,
   CreateProfile,

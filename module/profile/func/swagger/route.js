@@ -3,10 +3,10 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const { app } = require("@azure/functions");
-const swaggerUI = require("./swaggerUI.js");
-const swaggerJSON = require("./swaggerJSON.js");
-const swaggerPath = require("./swaggerPath.js");
+import { app } from "@azure/functions";
+import swaggerUI from "./swaggerUI.js";
+import swaggerJSON from "./swaggerJSON.js";
+import swaggerPath from "./swaggerPath.js";
 
 app.http("swagger", {
   route: "swagger",
