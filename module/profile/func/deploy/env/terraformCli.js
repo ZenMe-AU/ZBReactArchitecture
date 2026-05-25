@@ -1,9 +1,9 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
-const { execSync } = require("child_process");
+import { execSync } from "child_process";
 
 function terraformInit({ backendConfig = {} }) {
   if (!backendConfig || Object.keys(backendConfig).length === 0) {
@@ -26,4 +26,4 @@ function terraformApply(autoApprove = false, planfile = "") {
   execSync(`terraform apply ${args} ${planfile}`, { stdio: "inherit", shell: true });
 }
 
-module.exports = { terraformInit, terraformPlan, terraformApply };
+export { terraformInit, terraformPlan, terraformApply };

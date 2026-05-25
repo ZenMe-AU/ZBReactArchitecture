@@ -1,10 +1,10 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
-const { Sequelize } = require("sequelize");
-const { DefaultAzureCredential } = require("@azure/identity");
+import { Sequelize } from "sequelize";
+import { DefaultAzureCredential } from "@azure/identity";
 
 async function createPostgresInstance(config) {
   if (!config.port) config.port = 5432;
@@ -53,4 +53,4 @@ async function getAzureAccessToken() {
   return tokenObj.token;
 }
 
-module.exports = { createPostgresInstance };
+export { createPostgresInstance };

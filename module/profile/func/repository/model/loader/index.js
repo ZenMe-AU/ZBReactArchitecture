@@ -1,14 +1,15 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
-const DB_TYPE = require("../../../enum/dbType");
+import { DB_TYPE } from "../../../enum/dbType.js";
+import { loadModels } from "./sequelize.js";
 
-function createModelsLoader(type, db, modelsDir) {
+async function createModelsLoader(type, db, modelsDir) {
   switch (type) {
     case DB_TYPE.POSTGRES:
-      return require("./sequelize").loadModels(db, modelsDir);
+      return loadModels(db, modelsDir);
     // case  DB_TYPE.REDIS:
     // return;
     default:
@@ -16,4 +17,4 @@ function createModelsLoader(type, db, modelsDir) {
   }
 }
 
-module.exports = { createModelsLoader };
+export { createModelsLoader };

@@ -1,12 +1,13 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
 // classDeployCode.js
-const path = require("path");
+import path from "path";
+import __azureCli from "../../../../../deploy/util/azureCli.cjs";
 const { resolve } = path;
-const fs = require("fs");
+import fs from "fs";
 const {
   getFunctionAppPrincipalId,
   setFunctionAppSetting,
@@ -17,10 +18,11 @@ const {
   getIdentityClientId,
   getAppConfigValueByKeyLabel,
   setFunctionAppCors,
-} = require("../../../../../deploy/util/azureCli.cjs");
-const { npmInstall, npmPrune, zipDir } = require("./cli.js");
-const { getIdentityName, getAppConfigName } = require("../../../../../deploy/util/namingConvention.cjs");
-const { execSync } = require("child_process");
+} = __azureCli;
+import { npmInstall, npmPrune, zipDir } from "./cli.js";
+import __namingConvention from "../../../../../deploy/util/namingConvention.cjs";
+const { getIdentityName, getAppConfigName } = __namingConvention;
+import { execSync } from "child_process";
 
 class classDeployCode {
   constructor({ envType, targetEnv, moduleName, subscriptionId, functionAppName, resourceGroupName, storageAccountName, serviceBusName, moduleDir }) {
@@ -159,4 +161,4 @@ class classDeployCode {
   }
 }
 
-module.exports = classDeployCode;
+export { classDeployCode };

@@ -3,21 +3,28 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const { resolve } = require("path");
-const classRunMigration = require("./classRunMigrationLocal.js");
-const { getTargetEnv, getModuleName } = require("../../../../../deploy/util/envSetup.cjs");
-const { createDatabaseInstance } = require("../../repository/model/connection/index.js");
-const DB_TYPE = require("../../enum/dbType.js");
-const { getDbAdminName, getPgHost } = require("../../../../../deploy/util/namingConvention.cjs");
-const fs = require("fs");
-const path = require("path");
+import { resolve } from "path";
+import { fileURLToPath } from "node:url";
+import { dirname } from "node:path";
+import { classRunMigration } from "./classRunMigrationLocal.js";
+import __envSetup from "../../../../../deploy/util/envSetup.cjs";
+const { getTargetEnv, getModuleName } = __envSetup;
+import { createDatabaseInstance } from "../../repository/model/connection/index.js";
+import { DB_TYPE } from "../../enum/dbType.js";
+import __namingConvention from "../../../../../deploy/util/namingConvention.cjs";
+const { getDbAdminName, getPgHost } = __namingConvention;
+import fs from "fs";
+import path from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
 const migrationDir = resolve(__dirname, "migration");
 
 (async () => {
   const settingsPath = path.resolve(__dirname, "../../local.settings.json");
-  if (require.main === module && fs.existsSync(settingsPath)) {
+  if (fs.existsSync(settingsPath)) {
     const raw = fs.readFileSync(settingsPath, "utf8");
     const json = JSON.parse(raw);
     Object.assign(process.env, json.Values);

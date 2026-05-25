@@ -3,7 +3,8 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const { terraformInit, terraformPlan, terraformApply } = require("./terraformCli");
+import { terraformInit, terraformPlan, terraformApply } from "./terraformCli.js";
+import __reqqonhy3 from "../../../../../deploy/util/namingConvention.cjs";
 const {
   getFunctionAppName,
   getResourceGroupName,
@@ -18,8 +19,9 @@ const {
   getStorageAccountWebName,
   getLogAnalyticsWorkspaceName,
   getApimName,
-} = require("../../../../../deploy/util/namingConvention.cjs");
-const { getSubscriptionId } = require("../../../../../deploy/util/azureCli.cjs");
+} = __reqqonhy3;
+import __reqddk9ce from "../../../../../deploy/util/azureCli.cjs";
+const { getSubscriptionId } = __reqddk9ce;
 
 class classDeployEnvironment {
   constructor({ envType, targetEnv, moduleName, dbName, backendConfig, logLevel = "", autoApprove = false }) {
@@ -101,4 +103,4 @@ class classDeployEnvironment {
   }
 }
 
-module.exports = classDeployEnvironment;
+export { classDeployEnvironment };

@@ -1,13 +1,15 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
+
+import { createUmzugInstance } from "./umzug.js";
 
 function createMigrationInstance({ type = "default", db, migrationDir }) {
   switch (type) {
     default:
-      return require("./umzug").createUmzugInstance(db, migrationDir);
+      return createUmzugInstance(db, migrationDir);
   }
 }
 
-module.exports = { createMigrationInstance };
+export { createMigrationInstance };

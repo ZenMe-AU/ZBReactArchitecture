@@ -4,11 +4,11 @@
  */
 
 "use strict";
-const { faker } = require("@faker-js/faker");
+import { faker } from "@faker-js/faker";
 
 const tableName = "profiles";
 
-module.exports = {
+export default {
   async up(queryInterface, Sequelize) {
     const users = Array.from({ length: 2 }).map(() => {
       const uuid = faker.string.uuid();

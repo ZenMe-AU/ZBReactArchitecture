@@ -1,9 +1,9 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
-const container = require("../di/diContainer");
+import { container } from "../di/diContainer.js";
 
 class BaseRepository {
   constructor(modelMap = {}) {
@@ -29,4 +29,4 @@ class BaseRepository {
   }
 }
 
-module.exports = BaseRepository;
+export { BaseRepository };

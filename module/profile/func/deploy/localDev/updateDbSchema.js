@@ -1,15 +1,21 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
-const { resolve } = require("path");
-const fs = require("fs");
-const MigrationRunner = require("../db/migrationRunner");
-const { getTargetEnv, getModuleName } = require("../../../../../deploy/util/envSetup.cjs");
-const { createDatabaseInstance } = require("../../repository/model/connection");
-const DB_TYPE = require("../enum/dbType.js");
+import { resolve } from "path";
+import { fileURLToPath } from "node:url";
+import { dirname } from "node:path";
+import fs from "fs";
+import { classRunMigration as MigrationRunner } from "../db/classRunMigrationLocal.js";
+import __reqc5tkmz from "../../../../../deploy/util/envSetup.cjs";
+const { getTargetEnv, getModuleName } = __reqc5tkmz;
+import { createDatabaseInstance } from "../../repository/model/connection/index.js";
+import { DB_TYPE } from "../../enum/dbType.js";
 // const { getDbAdminName, getPgHost } = require("../../../../../deploy/util/namingConvention.cjs");
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
 const migrationDir = resolve(__dirname, "..", "db", "migration");
@@ -20,7 +26,7 @@ const migrationDir = resolve(__dirname, "..", "db", "migration");
     console.warn(`Error: file not found at ${localSettingsPath}`);
     return;
   }
-  const settings = require(localSettingsPath);
+  const settings = JSON.parse(fs.readFileSync(localSettingsPath, "utf8"));
 
   if (settings.Values) {
     for (const [key, value] of Object.entries(settings.Values)) {

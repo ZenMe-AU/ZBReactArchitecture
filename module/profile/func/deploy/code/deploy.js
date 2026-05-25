@@ -1,13 +1,21 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
-const { resolve } = require("path");
-const { getTargetEnv, getModuleName } = require("../../../../../deploy/util/envSetup.cjs");
-const { getResourceGroupName, getServiceBusName, getFunctionAppName, getStorageAccountName } = require("../../../../../deploy/util/namingConvention.cjs");
-const { getSubscriptionId } = require("../../../../../deploy/util/azureCli.cjs");
-const classDeployCode = require("./classDeployCode");
+import { resolve } from "path";
+import { fileURLToPath } from "node:url";
+import { dirname } from "node:path";
+import __envSetup from "../../../../../deploy/util/envSetup.cjs";
+const { getTargetEnv, getModuleName } = __envSetup;
+import __namingConvention from "../../../../../deploy/util/namingConvention.cjs";
+const { getResourceGroupName, getServiceBusName, getFunctionAppName, getStorageAccountName } = __namingConvention;
+import __azureCli from "../../../../../deploy/util/azureCli.cjs";
+const { getSubscriptionId } = __azureCli;
+import { classDeployCode } from "./classDeployCode.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
 

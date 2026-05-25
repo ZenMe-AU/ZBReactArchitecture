@@ -1,10 +1,10 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
-const Profile = require("../service/profileService.js");
-const Attribute = require("../service/attributeService.js");
+import { searchProfile, createProfile } from "../service/profileService.js";
+import { getUserAttributeList, updateAttribute } from "../service/attributeService.js";
 
 /**
  * @swagger
@@ -42,7 +42,7 @@ const Attribute = require("../service/attributeService.js");
  */
 async function GetAttributes(request, context) {
   const userId = request.params.userId;
-  let attributes = await Attribute.getUserAttributeList(userId);
+  let attributes = await getUserAttributeList(userId);
   return { return: { attributes: attributes } };
 }
 
@@ -96,7 +96,7 @@ async function GetAttributes(request, context) {
 async function PutAttributes(request, context) {
   const userId = request.params.userId;
   const { attributes } = request.clientParams;
-  const attrData = await Attribute.updateAttribute(userId, attributes);
+  const attrData = await updateAttribute(userId, attributes);
   return { return: { attributes: attrData } };
 }
 
@@ -148,7 +148,7 @@ async function PutAttributes(request, context) {
  */
 async function CreateProfile(request, context) {
   const { name, avatar = null, attributes = [] } = request.clientParams;
-  const profile = await Profile.createProfile(name, attributes, avatar);
+  const profile = await createProfile(name, attributes, avatar);
   return { return: { id: profile.id } };
 }
 
@@ -219,13 +219,8 @@ async function SearchProfile(request, context) {
       attributes = attributes.map((tag) => "%" + tag + "%");
     }
   }
-  let profile = await Profile.searchProfile(attributes);
+  let profile = await searchProfile(attributes);
   return { return: { profile: profile } };
 }
 
-module.exports = {
-  GetAttributes,
-  PutAttributes,
-  CreateProfile,
-  SearchProfile,
-};
+export { GetAttributes, PutAttributes, CreateProfile, SearchProfile };
