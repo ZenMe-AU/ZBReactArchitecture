@@ -34,7 +34,7 @@
     "eslint-plugin-license-header": "^0.8.0",
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-react": "^7.37.5",
-    "glob": "^11.0.3",
+    "glob": "^13.0.6",
     "globals": "^16.4.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.6",
