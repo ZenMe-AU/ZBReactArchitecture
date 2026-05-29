@@ -3,8 +3,8 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-require("./di/diInit.js");
-require("./monitoring/instrumentation");
+require("./di/diInit.mjs");
+require("./monitoring/instrumentation.js");
 require("./route");
 require("./swagger/route");
 const { app } = require("@azure/functions");
