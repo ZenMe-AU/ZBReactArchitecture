@@ -7,17 +7,33 @@
 
 function Get-OsType {
     if ($PSVersionTable.PSVersion.Major -lt 6) {
-        Write-Warning "You are using a version of powershell older than 6, upgrade when possible"
+        Write-Warning "You are using a Windows only version of powershell, upgrade to Powerhsell Core when possible"
         Set-Variable -Name IsWindows -Value ($env:OS -eq 'Windows_NT') -Scope Script
         Set-Variable -Name IsMacOS -Value $false -Scope Script
+        Set-Variable -Name IsUbuntu -Value $false -Scope Script
         if ($env:OSTYPE -eq 'darwin') { Set-Variable -Name IsMacOS -Value $true -Scope Script }
         elseif ((Get-Command uname -ErrorAction SilentlyContinue) -and (uname) -eq 'Darwin') { Set-Variable -Name IsMacOS -Value $true -Scope Script }
     } else {
-        # PowerShell 6+ (Core) cross-platform
-        $isMac = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::OSX)
-        Set-Variable -Name IsMacOS -Value $isMac -Scope Script
+        # PowerShell 6+ (Core) cross-platform means this could be Windows or any other OS that supports powershell core.
+        # Check for Windows        
         $isWin = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows)
         Set-Variable -Name IsWindows -Value $isWin -Scope Script
+        # Check for MacOS
+        $isMac = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::OSX)
+        Set-Variable -Name IsMacOS -Value $isMac -Scope Script
+        # Check for Ubuntu
+        $isUbuntu = $false
+        if (-not $isWin -and -not $isMac) {
+            if ((Get-Command lsb_release -ErrorAction SilentlyContinue) -and ((lsb_release -is 2>$null).Trim() -eq 'Ubuntu')) {
+                $isUbuntu = $true
+            } elseif (Test-Path '/etc/os-release') {
+                $osRelease = Get-Content '/etc/os-release' -ErrorAction SilentlyContinue
+                if ($osRelease -match '^ID=ubuntu$' -or $osRelease -match '^ID="ubuntu"$') {
+                    $isUbuntu = $true
+                }
+            }
+        }
+        Set-Variable -Name IsUbuntu -Value $isUbuntu -Scope Script
     }
 }
 # Determine the OS type and set variables in script scope

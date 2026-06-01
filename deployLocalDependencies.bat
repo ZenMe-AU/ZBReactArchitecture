@@ -25,7 +25,7 @@ if %errorlevel%==0 (
     goto :continue
 )
 
-echo Failed to install PowerShell 7. Falling back to Windows PowerShell.
+echo Failed to install PowerShell 7. Falling back to Windows PowerShell before v6.
 powershell -Command "Set-ExecutionPolicy -Scope CurrentUser RemoteSigned;"
 powershell -Command "Get-ExecutionPolicy -List"
 powershell -ExecutionPolicy Bypass -Command "Set-Location -Path './deploy'; ./deploy.ps1 -Stages 1,2,3,4,5,6,7,21"
