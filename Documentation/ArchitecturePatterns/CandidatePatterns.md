@@ -49,11 +49,11 @@ Next validation: inspect integration points for dedicated mapping/isolation comp
 Status: Candidate
 Reason: Authentication is in place, but feature-level entitlement controls are not enforced consistently across shell routes, navigation, and backend operations.
 Next validation: confirm role-to-feature policy design and implement end-to-end authorization checks.
-Pattern standard: [FeatureRbacAndEntitlementRouting.md](FeatureRbacAndEntitlementRouting.md)
+Pattern standard: [composite-FeatureRbacAndEntitlementRouting.md](composite-FeatureRbacAndEntitlementRouting.md)
 
 ## Runtime Remote Frontend Modules
 
 Status: Candidate
 Reason: Frontend modules are currently composed at build-time, without runtime remote loading and independent release boundaries.
 Next validation: evaluate remote module loading strategy, compatibility policy, and rollout mechanics.
-Pattern standard: [RuntimeRemoteFrontendModules.md](RuntimeRemoteFrontendModules.md)
+Pattern standard: [composite-RuntimeRemoteFrontendModules.md](composite-RuntimeRemoteFrontendModules.md)

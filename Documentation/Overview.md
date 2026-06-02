@@ -33,13 +33,13 @@ Detailed pattern documentation has been moved to the ArchitecturePatterns folder
 ## Core Pattern Documents
 
 - Basic 3-tier structure: [ArchitecturePatterns/Basic3TierStructure.md](ArchitecturePatterns/Basic3TierStructure.md)
-- Partial 5-tier async: [ArchitecturePatterns/Partial5TierAsync.md](ArchitecturePatterns/Partial5TierAsync.md)
-- CQRS 5-tier with full event sourcing for commands: [ArchitecturePatterns/CQRS5TierEventSourcingCommands.md](ArchitecturePatterns/CQRS5TierEventSourcingCommands.md)
+- Partial 5-tier async: [ArchitecturePatterns/composite-Partial5TierAsync.md](ArchitecturePatterns/composite-Partial5TierAsync.md)
+- CQRS 5-tier with full event sourcing for commands: [ArchitecturePatterns/composite-CQRS5TierEventSourcingCommands.md](ArchitecturePatterns/composite-CQRS5TierEventSourcingCommands.md)
 - Event-driven architecture: [ArchitecturePatterns/EventDrivenArchitecture.md](ArchitecturePatterns/EventDrivenArchitecture.md)
 - CQRS: [ArchitecturePatterns/CQRS.md](ArchitecturePatterns/CQRS.md)
 - Event sourcing: [ArchitecturePatterns/EventSourcing.md](ArchitecturePatterns/EventSourcing.md)
-- Correlation IDs: [ArchitecturePatterns/ObservabilityAndCorrelation.md](ArchitecturePatterns/ObservabilityAndCorrelation.md)
-- Deployment automation: [ArchitecturePatterns/DeploymentAutomation.md](ArchitecturePatterns/DeploymentAutomation.md)
+- Correlation IDs: [ArchitecturePatterns/composite-ObservabilityAndCorrelation.md](ArchitecturePatterns/composite-ObservabilityAndCorrelation.md)
+- Deployment automation: [ArchitecturePatterns/composite-DeploymentAutomation.md](ArchitecturePatterns/composite-DeploymentAutomation.md)
 
 ## Full Pattern Index
 
