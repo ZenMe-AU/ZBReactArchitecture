@@ -26,3 +26,7 @@ Encapsulate persistence logic behind repository abstractions so business service
 - quest3Tier
 - quest5Tier
 - quest5TierEg
+
+## Wikipedia Reference
+
+- Repository pattern: https://en.wikipedia.org/wiki/Repository_pattern

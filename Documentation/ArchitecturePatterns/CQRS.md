@@ -54,3 +54,7 @@ flowchart LR
 ## Potential Change Notes
 
 - Potential module mapping mismatch: `quest5Tier` is described here as fully CQRS, while the module mapping in Overview associates the full CQRS + event sourcing pattern with `quest5TierEG`.
+
+## Wikipedia Reference
+
+- Command Query Responsibility Segregation: https://en.wikipedia.org/wiki/Command_Query_Responsibility_Segregation

@@ -78,3 +78,7 @@ end
 
 - Potential module mapping mismatch: this content names `quest5Tier` for event sourcing, while module mapping in Overview suggests the full CQRS + event sourcing variant under `quest5TierEG`.
 - Typo preserved from source diagram label: `Busines Logic` likely intended as `Business Logic`.
+
+## Wikipedia Reference
+
+- Event sourcing: https://en.wikipedia.org/wiki/Event_sourcing

@@ -26,3 +26,7 @@ Centralize API routing, policy enforcement, and observability controls at the ed
 
 - deploy
 - all API-facing modules
+
+## Wikipedia Reference
+
+- API gateway: https://en.wikipedia.org/wiki/API_gateway

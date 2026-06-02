@@ -34,3 +34,7 @@ flowchart LR
 ## Potential Change Notes
 
 - Potential module naming mismatch: `questionV2` may be stale compared with current repository module naming conventions.
+
+## Wikipedia Reference
+
+- Event-driven architecture: https://en.wikipedia.org/wiki/Event-driven_architecture

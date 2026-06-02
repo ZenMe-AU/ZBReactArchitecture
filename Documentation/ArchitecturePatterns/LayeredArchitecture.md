@@ -28,3 +28,7 @@ Separate responsibilities into clear layers to improve maintainability, testabil
 - quest3Tier
 - quest5Tier
 - quest5TierEg
+
+## Wikipedia Reference
+
+- Multitier architecture: https://en.wikipedia.org/wiki/Multitier_architecture

@@ -26,3 +26,7 @@ Reduce latency and downstream load by caching safe-to-reuse data at the appropri
 - ui
 - deploy
 - quest5Tier
+
+## Wikipedia Reference
+
+- Cache (computing): https://en.wikipedia.org/wiki/Cache_(computing)

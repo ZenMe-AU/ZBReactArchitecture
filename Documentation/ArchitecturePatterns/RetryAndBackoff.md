@@ -24,3 +24,7 @@ Handle transient failures with controlled retries and delay strategy to improve 
 
 - quest5Tier
 - quest5TierEg
+
+## Wikipedia Reference
+
+- Exponential backoff: https://en.wikipedia.org/wiki/Exponential_backoff
