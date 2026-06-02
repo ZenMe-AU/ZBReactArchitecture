@@ -33,6 +33,12 @@ Scope rules for this index:
 ## Candidate Patterns
 
 - Candidate patterns with limited or no implementation evidence are tracked in [CandidatePatterns.md](CandidatePatterns.md).
+- Wikipedia-filtered standalone gaps are tracked in [MissingPatternsPlan.md](MissingPatternsPlan.md) and should be treated as the actionable missing-pattern inventory for this pass.
+- Idempotent Command Processing (standalone): idempotent behavior expectations and repository evidence are documented in [idempotent-command-processing.md](idempotent-command-processing.md).
+- Circuit Breaker: resilience gap and implementation guidance are documented in [circuit-breaker.md](circuit-breaker.md).
+- Feature Flags: rollout-control gap and implementation guidance are documented in [feature-flags.md](feature-flags.md).
+- Saga Or Compensation: long-running transaction gap and implementation guidance are documented in [saga-or-compensation.md](saga-or-compensation.md).
+- Hexagonal Or Clean Architecture: boundary-oriented architecture gap and implementation guidance are documented in [hexagonal-or-clean-architecture.md](hexagonal-or-clean-architecture.md).
 - Feature RBAC and entitlement routing is documented as a required missing pattern in [composite-FeatureRbacAndEntitlementRouting.md](composite-FeatureRbacAndEntitlementRouting.md).
 - Runtime remote frontend modules are documented as a required missing pattern in [composite-RuntimeRemoteFrontendModules.md](composite-RuntimeRemoteFrontendModules.md).
 
