@@ -43,3 +43,17 @@ Next validation: inspect dependency direction and adapter contracts per module.
 Status: Candidate
 Reason: No explicit translation boundary between distinct domain models/systems has been identified.
 Next validation: inspect integration points for dedicated mapping/isolation components.
+
+## Feature RBAC And Entitlement Routing
+
+Status: Candidate
+Reason: Authentication is in place, but feature-level entitlement controls are not enforced consistently across shell routes, navigation, and backend operations.
+Next validation: confirm role-to-feature policy design and implement end-to-end authorization checks.
+Pattern standard: [FeatureRbacAndEntitlementRouting.md](FeatureRbacAndEntitlementRouting.md)
+
+## Runtime Remote Frontend Modules
+
+Status: Candidate
+Reason: Frontend modules are currently composed at build-time, without runtime remote loading and independent release boundaries.
+Next validation: evaluate remote module loading strategy, compatibility policy, and rollout mechanics.
+Pattern standard: [RuntimeRemoteFrontendModules.md](RuntimeRemoteFrontendModules.md)

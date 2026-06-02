@@ -10,6 +10,9 @@ Scope rules for this index:
 
 ## Implemented Patterns
 
+- Modular Frontend Composition: Shell-driven composition of feature frontends with modular route and API boundaries. See [ModularFrontendComposition.md](ModularFrontendComposition.md).
+- Backend Per Feature API Boundary: Feature frontends call dedicated backend domains and module-specific API surfaces. See [BackendPerFeatureApiBoundary.md](BackendPerFeatureApiBoundary.md).
+- Parallel Feature Implementations: quest3Tier, quest5Tier, and quest5TierEg provide concurrent implementations of the same business capability. See [ParallelFeatureImplementations.md](ParallelFeatureImplementations.md).
 - Basic 3-Tier Structure: Direct UI -> API -> DB flow for simple synchronous CRUD scenarios. See [Basic3TierStructure.md](Basic3TierStructure.md).
 - Partial 5-Tier Async: Mixes direct calls and queued asynchronous business processing. See [Partial5TierAsync.md](Partial5TierAsync.md).
 - CQRS 5-Tier With Full Event Sourcing For Commands: Splits command/query flows and applies event sourcing for command handling. See [CQRS5TierEventSourcingCommands.md](CQRS5TierEventSourcingCommands.md).
@@ -20,6 +23,7 @@ Scope rules for this index:
 - Event Sourcing: Domain changes are persisted as event records to support traceability and replay. See [EventSourcing.md](EventSourcing.md).
 - Idempotent Command Processing: Command retries and side effects are designed to avoid duplicate business outcomes. See [IdempotentCommandProcessing.md](IdempotentCommandProcessing.md).
 - Correlation IDs: Transaction-level identifiers provide end-to-end traceability across distributed components. See [ObservabilityAndCorrelation.md](ObservabilityAndCorrelation.md).
+- Deployment Automation: Scripted and IaC-driven deployment workflow supports consistent infrastructure and application rollout. See [DeploymentAutomation.md](DeploymentAutomation.md).
 - API Gateway: Edge routing and policy enforcement are centralized in API Management. See [ApiGateway.md](ApiGateway.md).
 - Retry And Backoff: Queue and messaging operations use retry logic to handle transient failures. See [RetryAndBackoff.md](RetryAndBackoff.md).
 - Caching Strategy: Caching is applied at edge, auth metadata, and client layers where appropriate. See [CachingStrategy.md](CachingStrategy.md).
@@ -29,6 +33,8 @@ Scope rules for this index:
 ## Candidate Patterns
 
 - Candidate patterns with limited or no implementation evidence are tracked in [CandidatePatterns.md](CandidatePatterns.md).
+- Feature RBAC and entitlement routing is documented as a required missing pattern in [FeatureRbacAndEntitlementRouting.md](FeatureRbacAndEntitlementRouting.md).
+- Runtime remote frontend modules are documented as a required missing pattern in [RuntimeRemoteFrontendModules.md](RuntimeRemoteFrontendModules.md).
 
 ## Maintenance Workflow
 
