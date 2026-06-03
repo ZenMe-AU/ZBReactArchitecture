@@ -33,8 +33,10 @@ Detailed pattern documentation has been moved to the ArchitecturePatterns folder
 ## Core Pattern Documents
 
 - Basic 3-tier structure: [ArchitecturePatterns/Basic3TierStructure.md](ArchitecturePatterns/Basic3TierStructure.md)
-- Partial 5-tier async: [ArchitecturePatterns/composite-Partial5TierAsync.md](ArchitecturePatterns/composite-Partial5TierAsync.md)
-- CQRS 5-tier with full event sourcing for commands: [ArchitecturePatterns/composite-CQRS5TierEventSourcingCommands.md](ArchitecturePatterns/composite-CQRS5TierEventSourcingCommands.md)
+- Partial 5-tier async: [module/quest5Tier](module/quest5Tier/README.md)
+
+- CQRS 5-tier with full event sourcing for commands: [module/quest5TierEg/README.md](module/quest5TierEg/README.md)
+
 - Event-driven architecture: [ArchitecturePatterns/EventDrivenArchitecture.md](ArchitecturePatterns/EventDrivenArchitecture.md)
 - CQRS: [ArchitecturePatterns/CQRS.md](ArchitecturePatterns/CQRS.md)
 - Event sourcing: [ArchitecturePatterns/EventSourcing.md](ArchitecturePatterns/EventSourcing.md)
