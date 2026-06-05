@@ -1,12 +1,12 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
-const { app } = require("@azure/functions");
-const swaggerUI = require("./swaggerUI.js");
-const swaggerJSON = require("./swaggerJSON.js");
-const swaggerPath = require("./swaggerPath.js");
+import { app } from "@azure/functions";
+import swaggerUI from "./swaggerUI.mjs";
+import swaggerJSON from "./swaggerJSON.mjs";
+import swaggerPath from "./swaggerPath.mjs";
 
 app.http("swagger", {
   route: "swagger",

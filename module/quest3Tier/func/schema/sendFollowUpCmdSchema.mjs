@@ -1,12 +1,12 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
-const Joi = require("joi");
-const { uuidSchema } = require("./commonSchema");
+import Joi from "joi";
+import { uuidSchema } from "./commonSchema.mjs";
 
-const sendFollowUpSchema = Joi.object({
+export const sendFollowUpCmdSchema = Joi.object({
   profileId: uuidSchema.required(),
   newQuestionId: uuidSchema.required(),
   question: Joi.array()
@@ -19,5 +19,3 @@ const sendFollowUpSchema = Joi.object({
     .required(),
   isSave: Joi.boolean().required(),
 });
-
-module.exports = sendFollowUpSchema;

@@ -1,9 +1,9 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
-const { Op, Sequelize } = require("sequelize");
+import { Op, Sequelize } from "sequelize";
 // const { Op } = require("../shared/db").sequelize;
 
 // const {
@@ -17,9 +17,9 @@ const { Op, Sequelize } = require("sequelize");
 //   FollowUpEvent,
 //   QuestionShareEvent,
 // } = require("../db/model");
-const Model = require("../repository/model/index.js");
-const { v4: uuidv4 } = require("uuid");
-const cmdName = require("../enum/cmdName.js");
+import Model from "../repository/model/index.mjs";
+import { v4 as uuidv4 } from "uuid";
+import cmdName from "../enum/cmdName.mjs";
 
 async function create(profileId, title = null, question = null, option = null) {
   try {
@@ -412,7 +412,7 @@ async function getEventByCorrelationId(name, correlationId) {
   }
 }
 
-module.exports = {
+export default {
   create,
   updateById,
   getById,

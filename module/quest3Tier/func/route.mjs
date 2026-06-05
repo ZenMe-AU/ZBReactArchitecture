@@ -1,13 +1,13 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
-const { app } = require("@azure/functions");
-const { requestHandler, serviceBusHandler } = require("./handler/handlerWrapper.js");
-const questionHandler = require("./handler/handler.js");
-const sendFollowUpCmdSchema = require("./schema/sendFollowUpCmdSchema");
-const shareQuestionCmdSchema = require("./schema/shareQuestionCmdSchema");
+import { app } from "@azure/functions";
+import { requestHandler } from "./handler/handlerWrapper.mjs";
+import questionHandler from "./handler/handler.mjs";
+import { sendFollowUpCmdSchema } from "./schema/sendFollowUpCmdSchema.mjs";
+import { shareQuestionCmdSchema } from "./schema/shareQuestionCmdSchema.mjs";
 // const { followUpCmdQueue, shareQuestionCmdQueue } = require("./service/serviceBus.js");
 
 app.http("CreateQuestion", {

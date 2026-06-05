@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "commonjs",
   "description": "",
-  "main": "index.js",
+  "main": "index.mjs",
   "scripts": {
     "setup:local": "node deploy/localDev/localSetting.js",
     "prestart": "pnpm run setup:local",

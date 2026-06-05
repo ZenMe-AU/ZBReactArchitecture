@@ -1,13 +1,13 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
-const { DataTypes } = require("sequelize");
+import { DataTypes } from "sequelize";
 // const { sequelize } = require("./db.js");
 // const { sequelize } = require("../");
-const { applyPatch } = require("fast-json-patch");
-const container = require("../../di/diContainer.mjs").default;
+import fastJsonPatch from "fast-json-patch";
+import container from "../../di/diContainer.mjs";
 
 let models = null;
 function initModels() {
@@ -425,7 +425,7 @@ function initModels() {
         return;
       }
       // Apply patches to the question
-      const updatedData = applyPatch(question.toJSON(), action).newDocument;
+      const updatedData = fastJsonPatch.applyPatch(question.toJSON(), action).newDocument;
       await question.update({
         title: updatedData.title ?? null,
         questionText: updatedData.questionText ?? null,
@@ -522,7 +522,7 @@ function initModels() {
   return models;
 }
 
-module.exports = new Proxy(
+export default new Proxy(
   {},
   {
     get(target, prop) {

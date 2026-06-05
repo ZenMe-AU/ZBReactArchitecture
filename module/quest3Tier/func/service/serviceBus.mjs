@@ -1,9 +1,9 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
-const { output } = require("@azure/functions");
+import { output } from "@azure/functions";
 
 const followUpCmdQueue = output.serviceBusQueue({
   queueName: "followupcmd",
@@ -15,7 +15,7 @@ const shareQuestionCmdQueue = output.serviceBusQueue({
   connection: "ServiceBusConnection",
 });
 
-module.exports = {
+export default {
   followUpCmdQueue,
   shareQuestionCmdQueue,
 };

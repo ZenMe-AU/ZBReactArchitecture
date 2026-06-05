@@ -1,17 +1,17 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
-const { AzureMonitorTraceExporter } = require("@azure/monitor-opentelemetry-exporter");
+import { AzureMonitorTraceExporter } from "@azure/monitor-opentelemetry-exporter";
 // const { OTLPTraceExporter } = require("@opentelemetry/exporter-trace-otlp-grpc");
-const { resourceFromAttributes } = require("@opentelemetry/resources");
-const { NodeSDK } = require("@opentelemetry/sdk-node");
-const { ATTR_SERVICE_NAME, SERVICE_INSTANCE_ID } = require("@opentelemetry/semantic-conventions");
+import { resourceFromAttributes } from "@opentelemetry/resources";
+import { NodeSDK } from "@opentelemetry/sdk-node";
+import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
 // const { SimpleSpanProcessor } = require("@opentelemetry/sdk-trace-node");
 // const { ErrorOrSampleProcessor } = require("./errorOrSampleProcessor");
-const { HttpInstrumentation } = require("@opentelemetry/instrumentation-http");
-const { PgInstrumentation } = require("@opentelemetry/instrumentation-pg");
+import { HttpInstrumentation } from "@opentelemetry/instrumentation-http";
+import { PgInstrumentation } from "@opentelemetry/instrumentation-pg";
 
 const exporter = new AzureMonitorTraceExporter({
   connectionString: process.env.APPLICATIONINSIGHTS_CONNECTION_STRING,

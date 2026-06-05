@@ -3,14 +3,18 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
-module.exports = async function (request, context) {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export default async function (request, context) {
   const filePath = path.join(__dirname, "../node_modules/swagger-ui-dist", request.params.path || "index.html");
   console.log(filePath);
   if (fs.existsSync(filePath)) {
-    var content = fs.readFileSync(filePath);
+    let content = fs.readFileSync(filePath);
     if (request.params.path === "swagger-initializer.js") {
       content = content.toString().replace("https://petstore.swagger.io/v2/swagger.json", "/swagger.json");
     }
@@ -30,7 +34,7 @@ module.exports = async function (request, context) {
 
   console.log(context.res);
   return context.res;
-};
+}
 
 function getMimeType(filePath) {
   const ext = path.extname(filePath);

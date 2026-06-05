@@ -3,9 +3,8 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const Question = require("../service/function.js");
-const { decode } = require("../service/authUtils.js");
-const { followUpCmdQueue, shareQuestionCmdQueue } = require("../service/serviceBus.js");
+import Question from "../service/function.mjs";
+import { decode } from "../service/authUtils.mjs";
 
 /**
  * @swagger
@@ -846,7 +845,7 @@ async function ShareQuestionCmd(request, context) {
   return { return: true };
 }
 
-module.exports = {
+export default {
   CreateQuestion,
   UpdateQuestionById,
   GetQuestionById,

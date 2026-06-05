@@ -4,10 +4,10 @@
  */
 
 // const appInsights = require("applicationinsights");
-const { trace, context: sContext, TraceFlags, SpanKind, SpanStatusCode } = require("@opentelemetry/api");
-const { randomBytes } = require("crypto");
+import { trace, context as sContext, TraceFlags, SpanKind, SpanStatusCode } from "@opentelemetry/api";
+import { randomBytes } from "crypto";
 // const { startup } = require("../di/diRegistry");
-const { decode } = require("../service/authUtils.js");
+import { decode } from "../service/authUtils.mjs";
 
 const requestHandler =
   (fn, { schemas = [], customParams = {}, requireAuth = true } = {}) =>
@@ -142,6 +142,4 @@ const buildSpanContext = (traceId) => {
   };
 };
 
-module.exports = {
-  requestHandler,
-};
+export { requestHandler };
