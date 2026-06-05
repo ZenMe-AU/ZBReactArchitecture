@@ -1,12 +1,17 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import { fileURLToPath } from "node:url";
+import { dirname } from "node:path";
+import path from "path";
 
-module.exports = async function (request, context) {
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+export async function swaggerPath(request, context) {
   const filePath = path.join(__dirname, "../node_modules/swagger-ui-dist", request.params.path || "index.html");
   console.log(filePath);
   if (fs.existsSync(filePath)) {
@@ -30,7 +35,7 @@ module.exports = async function (request, context) {
 
   console.log(context.res);
   return context.res;
-};
+}
 
 function getMimeType(filePath) {
   const ext = path.extname(filePath);

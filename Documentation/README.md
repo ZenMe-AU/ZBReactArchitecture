@@ -2,6 +2,12 @@
 
 This folder contains all system, module, and API documentation.
 
+# Architecture Guides
+
+- System overview: [Overview.md](Overview.md)
+- Architecture pattern index: [ArchitecturePatterns/README.md](ArchitecturePatterns/README.md)
+- Side effect and idempotency guidance: [SideEffectIdempotency.md](SideEffectIdempotency.md)
+
 # How to deploy ZBREACTARCHITECTURE
 
 How to deploy ZBREACTARCHITECTURE

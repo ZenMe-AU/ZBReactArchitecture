@@ -1,10 +1,10 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
-const Profile = require("../service/profileService");
-const { generateToken, decode } = require("../service/authUtils");
+import { getProfileById } from "../service/profileService.js";
+import { generateToken, decode } from "../service/authUtils.js";
 
 /**
  * @swagger
@@ -46,7 +46,7 @@ async function loginUser(request, context) {
     throw err;
   }
 
-  const profile = await Profile.getProfileById(userId);
+  const profile = await getProfileById(userId);
 
   if (!profile) {
     const err = new Error("User not found");
@@ -118,7 +118,7 @@ async function verify(request, context) {
       throw err;
     }
 
-    const profile = await Profile.getProfileById(decoded.profileId);
+    const profile = await getProfileById(decoded.profileId);
     if (!profile) {
       const err = new Error("User not found");
       err.statusCode = 404;
@@ -132,4 +132,4 @@ async function verify(request, context) {
   }
 }
 
-module.exports = { loginUser, verify };
+export { loginUser, verify };

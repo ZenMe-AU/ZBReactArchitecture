@@ -1,5 +1,5 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
@@ -112,10 +112,4 @@ async function grantRole(sequelize, roleName, memberName) {
   console.log(`Granted ${roleName} to ${memberName}`);
 }
 
-module.exports = {
-  createDbReadWriteRole,
-  createDbReadOnlyRole,
-  createDbSchemaAdminRole,
-  createAadLoginRole,
-  grantRole,
-};
+export { createDbReadWriteRole, createDbReadOnlyRole, createDbSchemaAdminRole, createAadLoginRole, grantRole };

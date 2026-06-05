@@ -1,9 +1,9 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
-require("dotenv").config(); // Load environment variables
+//import "dotenv/config"; // Load environment variables
 
 //npm run test:local testSearchProfileAttribute
 //npm run test:prod testSearchProfileAttribute

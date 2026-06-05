@@ -3,9 +3,15 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const { resolve } = require("path");
-const { getTargetEnv, getModuleName } = require("../../../../../deploy/util/envSetup.cjs");
-const classDeployEnvironment = require("./classDeployEnvironment.js");
+import { resolve } from "path";
+import { fileURLToPath } from "node:url";
+import { dirname } from "node:path";
+import __reqavitdg from "../../../../../deploy/util/envSetup.cjs";
+const { getTargetEnv, getModuleName } = __reqavitdg;
+import { classDeployEnvironment } from "./classDeployEnvironment.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
 

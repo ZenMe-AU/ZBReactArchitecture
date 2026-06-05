@@ -3,11 +3,19 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const { resolve } = require("path");
-const { getTargetEnv, getModuleName } = require("../../../../../deploy/util/envSetup.cjs");
-const { getDbAdminName, getPgHost, getServiceBusHost, getAppInsightsName, getResourceGroupName } = require("../../../../../deploy/util/namingConvention.cjs");
-const { getAppInsightsConnectionString } = require("../../../../../deploy/util/azureCli.cjs");
-const fs = require("fs");
+import { resolve } from "path";
+import { fileURLToPath } from "node:url";
+import { dirname } from "node:path";
+import __req0iycm5 from "../../../../../deploy/util/envSetup.cjs";
+const { getTargetEnv, getModuleName } = __req0iycm5;
+import __req3phqso from "../../../../../deploy/util/namingConvention.cjs";
+const { getDbAdminName, getPgHost, getServiceBusHost, getAppInsightsName, getResourceGroupName } = __req3phqso;
+import __req408mud from "../../../../../deploy/util/azureCli.cjs";
+const { getAppInsightsConnectionString } = __req408mud;
+import fs from "fs";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
 const localPort = 7072;

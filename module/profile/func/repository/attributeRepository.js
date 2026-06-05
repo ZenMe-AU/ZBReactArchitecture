@@ -1,9 +1,9 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
-const BaseRepository = require("./baseRepository");
+import { BaseRepository } from "./baseRepository.js";
 
 class AttributeRepo extends BaseRepository {
   constructor() {
@@ -66,4 +66,6 @@ class AttributeRepo extends BaseRepository {
   }
 }
 
-module.exports = new AttributeRepo();
+const attributeRepository = new AttributeRepo();
+
+export { attributeRepository };
