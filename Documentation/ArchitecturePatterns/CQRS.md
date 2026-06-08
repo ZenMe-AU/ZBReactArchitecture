@@ -16,6 +16,9 @@ CQRS is an architectural pattern that separates the handling of read (query) and
 
 ## Implementation in the System
 
+CQRS is implemented as follows:
+`quest3Tier` - 
+`quest5TierEG` - 
 In modules like `quest5Tier`, CQRS is fully implemented:
 
 - The UI sends commands and queries to separate endpoints.
