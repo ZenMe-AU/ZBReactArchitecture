@@ -272,6 +272,131 @@ function Install-AzureCli {
     }
 }
 
+# Ensures ripgrep (rg) is installed, and installs if missing (Windows: winget, Mac: brew)
+function Install-Ripgrep {
+    $rg = Get-Command rg -ErrorAction SilentlyContinue
+    if (-not $rg) {
+        if ($script:IsWindows) {
+            Write-Output "ripgrep (rg) not found. Installing ripgrep using winget..."
+            winget install BurntSushi.ripgrep -e --silent
+        } elseif ($script:IsMacOS) {
+            Write-Output "ripgrep (rg) not found. Installing ripgrep using Homebrew..."
+            brew install ripgrep
+        } else {
+            Write-Warning "Unsupported OS for automatic ripgrep installation. Please install ripgrep manually."
+            exit 1
+        }
+        # Re-check installation
+        $rg = Get-Command rg -ErrorAction SilentlyContinue
+        if (-not $rg) {
+            Write-Error "ripgrep installation failed. Please install it manually. Visit https://github.com/BurntSushi/ripgrep for instructions."
+            exit 1
+        }
+    } else {
+        Write-Output "ripgrep (rg) is already installed."
+    }
+}
+
+# Ensures fd is installed, and installs if missing (Windows: winget, Mac: brew)
+function Install-Fd {
+    $fd = Get-Command fd -ErrorAction SilentlyContinue
+    if (-not $fd) {
+        if ($script:IsWindows) {
+            Write-Output "fd not found. Installing fd using winget..."
+            winget install sharkdp.fd -e --silent
+        } elseif ($script:IsMacOS) {
+            Write-Output "fd not found. Installing fd using Homebrew..."
+            brew install fd
+        } else {
+            Write-Warning "Unsupported OS for automatic fd installation. Please install fd manually."
+            exit 1
+        }
+        # Re-check installation
+        $fd = Get-Command fd -ErrorAction SilentlyContinue
+        if (-not $fd) {
+            Write-Error "fd installation failed. Please install it manually. Visit https://github.com/sharkdp/fd for instructions."
+            exit 1
+        }
+    } else {
+        Write-Output "fd is already installed."
+    }
+}
+
+# Ensures jq is installed, and installs if missing (Windows: winget, Mac: brew)
+function Install-Jq {
+    $jq = Get-Command jq -ErrorAction SilentlyContinue
+    if (-not $jq) {
+        if ($script:IsWindows) {
+            Write-Output "jq not found. Installing jq using winget..."
+            winget install jqlang.jq -e --silent
+        } elseif ($script:IsMacOS) {
+            Write-Output "jq not found. Installing jq using Homebrew..."
+            brew install jq
+        } else {
+            Write-Warning "Unsupported OS for automatic jq installation. Please install jq manually."
+            exit 1
+        }
+        # Re-check installation
+        $jq = Get-Command jq -ErrorAction SilentlyContinue
+        if (-not $jq) {
+            Write-Error "jq installation failed. Please install it manually. Visit https://jqlang.org/ for instructions."
+            exit 1
+        }
+    } else {
+        Write-Output "jq is already installed."
+    }
+}
+
+# Ensures yq is installed, and installs if missing (Windows: winget, Mac: brew)
+function Install-Yq {
+    $yq = Get-Command yq -ErrorAction SilentlyContinue
+    if (-not $yq) {
+        if ($script:IsWindows) {
+            Write-Output "yq not found. Installing yq using winget..."
+            winget install MikeFarah.yq -e --silent
+        } elseif ($script:IsMacOS) {
+            Write-Output "yq not found. Installing yq using Homebrew..."
+            brew install yq
+        } else {
+            Write-Warning "Unsupported OS for automatic yq installation. Please install yq manually."
+            exit 1
+        }
+        # Re-check installation
+        $yq = Get-Command yq -ErrorAction SilentlyContinue
+        if (-not $yq) {
+            Write-Error "yq installation failed. Please install it manually. Visit https://github.com/mikefarah/yq for instructions."
+            exit 1
+        }
+    } else {
+        Write-Output "yq is already installed."
+    }
+}
+
+# Ensures GitHub CLI (gh) is installed, and installs if missing (Windows: winget, Mac: brew)
+function Install-GitHubCli {
+    $gh = Get-Command gh -ErrorAction SilentlyContinue
+    if (-not $gh) {
+        if ($script:IsWindows) {
+            Write-Output "GitHub CLI (gh) not found. Installing GitHub CLI using winget..."
+            winget install GitHub.cli -e --silent
+        } elseif ($script:IsMacOS) {
+            Write-Output "GitHub CLI (gh) not found. Installing GitHub CLI using Homebrew..."
+            brew install gh
+        } else {
+            Write-Warning "Unsupported OS for automatic GitHub CLI installation. Please install GitHub CLI manually."
+            exit 1
+        }
+        # Re-check installation
+        $gh = Get-Command gh -ErrorAction SilentlyContinue
+        if (-not $gh) {
+            Write-Error "GitHub CLI installation failed. Please install it manually. Visit https://cli.github.com/ for instructions."
+            exit 1
+        }
+    } else {
+        Write-Output "GitHub CLI (gh) is already installed."
+    }
+}
+
 function Set-TerraformEnvironmentType {
     param(
         [string]$type = "dev"
@@ -379,4 +504,4 @@ function Test-InitializationEnvironment {
     Write-Output ".env TARGET_ENV was set to $targetEnv"
 }
 
-Export-ModuleMember -Function Initialize-PlatformState,Install-Pnpm,Install-NodeJsAndNpm,Install-Terraform,Install-PostgreSql,Install-AwsCli,Install-AzureCli,Set-TerraformEnvironmentType,Set-ProjectRootFolder,Install-ProjectDependencies,Initialize-ResourceGroupBootstrap,Publish-MainEnvironment,Publish-ModuleDeployments,Publish-UserInterface,Test-InitializationEnvironment
+Export-ModuleMember -Function Initialize-PlatformState,Install-Pnpm,Install-NodeJsAndNpm,Install-Terraform,Install-PostgreSql,Install-AwsCli,Install-AzureCli,Install-Ripgrep,Install-Fd,Install-Jq,Install-Yq,Install-GitHubCli,Set-TerraformEnvironmentType,Set-ProjectRootFolder,Install-ProjectDependencies,Initialize-ResourceGroupBootstrap,Publish-MainEnvironment,Publish-ModuleDeployments,Publish-UserInterface,Test-InitializationEnvironment
