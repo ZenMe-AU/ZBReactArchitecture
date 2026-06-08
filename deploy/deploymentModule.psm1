@@ -39,6 +39,30 @@ function Initialize-PlatformState {
 # Determine the OS type and set variables in script scope
 Initialize-PlatformState
 
+function Install-DevTools {
+    Install-NodeJsAndNpm
+    Install-Pnpm
+    Install-Terraform
+    Install-PostgreSql
+    Install-AwsCli
+    Install-AzureCli
+    Install-GitHubCli
+}
+
+function Install-DevAiTools {
+    Install-NodeJsAndNpm
+    Install-Pnpm
+    Install-Terraform
+    Install-PostgreSql
+    Install-AwsCli
+    Install-AzureCli
+    Install-Ripgrep
+    Install-Fd
+    Install-Jq
+    Install-Yq
+    Install-GitHubCli
+}
+
 function Install-Pnpm {
     # Ensure pnpm is installed and setup
     if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
@@ -278,7 +302,8 @@ function Install-Ripgrep {
     if (-not $rg) {
         if ($script:IsWindows) {
             Write-Output "ripgrep (rg) not found. Installing ripgrep using winget..."
-            winget install -e --id BurntSushi.ripgrep.MSVC --silent
+            winget install -e --id BurntSushi.ripgrep.MSVC --verbose
+            if ($LASTEXITCODE -eq -1978335189) { $LASTEXITCODE = 0 } # Ignore "Package is already installed" error
         } elseif ($script:IsMacOS) {
             Write-Output "ripgrep (rg) not found. Installing ripgrep using Homebrew..."
             brew install ripgrep
@@ -304,6 +329,7 @@ function Install-Fd {
         if ($script:IsWindows) {
             Write-Output "fd not found. Installing fd using winget..."
             winget install sharkdp.fd -e --silent
+            if ($LASTEXITCODE -eq -1978335189) { $LASTEXITCODE = 0 } # Ignore "Package is already installed" error
         } elseif ($script:IsMacOS) {
             Write-Output "fd not found. Installing fd using Homebrew..."
             brew install fd
@@ -329,6 +355,7 @@ function Install-Jq {
         if ($script:IsWindows) {
             Write-Output "jq not found. Installing jq using winget..."
             winget install jqlang.jq -e --silent
+            if ($LASTEXITCODE -eq -1978335189) { $LASTEXITCODE = 0 } # Ignore "Package is already installed" error
         } elseif ($script:IsMacOS) {
             Write-Output "jq not found. Installing jq using Homebrew..."
             brew install jq
@@ -354,6 +381,7 @@ function Install-Yq {
         if ($script:IsWindows) {
             Write-Output "yq not found. Installing yq using winget..."
             winget install MikeFarah.yq -e --silent
+            if ($LASTEXITCODE -eq -1978335189) { $LASTEXITCODE = 0 } # Ignore "Package is already installed" error
         } elseif ($script:IsMacOS) {
             Write-Output "yq not found. Installing yq using Homebrew..."
             brew install yq
@@ -379,6 +407,7 @@ function Install-GitHubCli {
         if ($script:IsWindows) {
             Write-Output "GitHub CLI (gh) not found. Installing GitHub CLI using winget..."
             winget install GitHub.cli -e --silent
+            if ($LASTEXITCODE -eq -1978335189) { $LASTEXITCODE = 0 } # Ignore "Package is already installed" error
         } elseif ($script:IsMacOS) {
             Write-Output "GitHub CLI (gh) not found. Installing GitHub CLI using Homebrew..."
             brew install gh
@@ -504,4 +533,4 @@ function Test-InitializationEnvironment {
     Write-Output ".env TARGET_ENV was set to $targetEnv"
 }
 
-Export-ModuleMember -Function Initialize-PlatformState,Install-Pnpm,Install-NodeJsAndNpm,Install-Terraform,Install-PostgreSql,Install-AwsCli,Install-AzureCli,Install-Ripgrep,Install-Fd,Install-Jq,Install-Yq,Install-GitHubCli,Set-TerraformEnvironmentType,Set-ProjectRootFolder,Install-ProjectDependencies,Initialize-ResourceGroupBootstrap,Publish-MainEnvironment,Publish-ModuleDeployments,Publish-UserInterface,Test-InitializationEnvironment
+Export-ModuleMember -Function Initialize-PlatformState,Install-Pnpm,Install-NodeJsAndNpm,Install-Terraform,Install-PostgreSql,Install-AwsCli,Install-AzureCli,Install-Ripgrep,Install-Fd,Install-Jq,Install-Yq,Install-GitHubCli,Set-TerraformEnvironmentType,Set-ProjectRootFolder,Install-ProjectDependencies,Initialize-ResourceGroupBootstrap,Publish-MainEnvironment,Publish-ModuleDeployments,Publish-UserInterface,Test-InitializationEnvironment,Install-DevTools,Install-DevAiTools

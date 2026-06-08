@@ -24,7 +24,7 @@
 # - Stage0 (Set-TerraformEnvironmentType, Set-ProjectRootFolder) will always run.
 param(
     [string]$type = "dev",
-    [int[]]$Stages
+    [string[]]$Stages
 )
 Set-StrictMode -Version Latest
 
@@ -38,18 +38,20 @@ Set-ProjectRootFolder
 
 # If no stages specified, run all 1~10
 if (-not $Stages -or $Stages.Count -eq 0) {
-    $Stages = 1..10
+    $Stages = 1..10 | ForEach-Object { $_.ToString() }
 }
 
-if ($Stages -contains 1) { Install-NodeJsAndNpm }
-if ($Stages -contains 2) { Install-Pnpm }
-if ($Stages -contains 3) { Install-AzureCli }
-if ($Stages -contains 4) { Install-AwsCli }
-if ($Stages -contains 5) { Install-Terraform }
-if ($Stages -contains 6) { Test-InitializationEnvironment }
-if ($Stages -contains 7) { Install-ProjectDependencies } # If any of 7~9 is selected, run Install-ProjectDependencies
-if ($Stages -contains 8) { Publish-MainEnvironment }
-if ($Stages -contains 9) { Publish-ModuleDeployments }
-if ($Stages -contains 10) { Publish-UserInterface }
+if ($Stages -contains "1") { Install-NodeJsAndNpm }
+if ($Stages -contains "2") { Install-Pnpm }
+if ($Stages -contains "3") { Install-AzureCli }
+if ($Stages -contains "4") { Install-AwsCli }
+if ($Stages -contains "5") { Install-Terraform }
+if ($Stages -contains "6") { Test-InitializationEnvironment }
+if ($Stages -contains "7") { Install-ProjectDependencies } # If any of 7~9 is selected, run Install-ProjectDependencies
+if ($Stages -contains "8") { Publish-MainEnvironment }
+if ($Stages -contains "9") { Publish-ModuleDeployments }
+if ($Stages -contains "10") { Publish-UserInterface }
 
-if ($Stages -contains 21) { Install-PostgreSql }
+if ($Stages -contains "21") { Install-PostgreSql }
+
+if ($Stages -contains "Install-DevAiTools") { Install-DevAiTools }
