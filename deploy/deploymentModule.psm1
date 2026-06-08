@@ -278,7 +278,7 @@ function Install-Ripgrep {
     if (-not $rg) {
         if ($script:IsWindows) {
             Write-Output "ripgrep (rg) not found. Installing ripgrep using winget..."
-            winget install BurntSushi.ripgrep -e --silent
+            winget install -e --id BurntSushi.ripgrep.MSVC --silent
         } elseif ($script:IsMacOS) {
             Write-Output "ripgrep (rg) not found. Installing ripgrep using Homebrew..."
             brew install ripgrep
