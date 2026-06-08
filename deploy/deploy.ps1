@@ -54,4 +54,16 @@ if ($Stages -contains "10") { Publish-UserInterface }
 
 if ($Stages -contains "21") { Install-PostgreSql }
 
-if ($Stages -contains "Install-DevAiTools") { Install-DevAiTools }
+if ($Stages -contains "Install-AllDevAiTools") { 
+    Install-NodeJsAndNpm -ErrorAction SilentlyContinue
+    Install-Pnpm -ErrorAction SilentlyContinue
+    Install-Terraform -ErrorAction SilentlyContinue
+    Install-PostgreSql -ErrorAction SilentlyContinue
+    Install-AwsCli -ErrorAction SilentlyContinue
+    Install-AzureCli -ErrorAction SilentlyContinue
+    Install-Ripgrep -ErrorAction SilentlyContinue
+    Install-Fd -ErrorAction SilentlyContinue
+    Install-Jq -ErrorAction SilentlyContinue
+    Install-Yq -ErrorAction SilentlyContinue
+    Install-GitHubCli -ErrorAction SilentlyContinue
+}

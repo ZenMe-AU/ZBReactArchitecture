@@ -28,12 +28,12 @@ if %errorlevel%==0 (
 echo Failed to install PowerShell 7. Falling back to Windows PowerShell before v6.
 powershell -Command "Set-ExecutionPolicy -Scope CurrentUser RemoteSigned;"
 powershell -Command "Get-ExecutionPolicy -List"
-powershell -ExecutionPolicy Bypass -Command "Set-Location -Path './deploy'; ./deploy.ps1 -Stages Install-DevAiTools"
+powershell -ExecutionPolicy Bypass -Command "Set-Location -Path './deploy'; ./deploy.ps1 -Stages Install-AllDevAiTools"
 
 :continue
 echo Continuing with pwsh...
 pwsh -Command "Set-ExecutionPolicy -Scope CurrentUser RemoteSigned;"
 pwsh -Command "Get-ExecutionPolicy -List"
-pwsh -ExecutionPolicy Bypass -Command "Set-Location -Path './deploy'; ./deploy.ps1 -Stages Install-DevAiTools"
+pwsh -ExecutionPolicy Bypass -Command "Set-Location -Path './deploy'; ./deploy.ps1 -Stages Install-AllDevAiTools"
 
 pause

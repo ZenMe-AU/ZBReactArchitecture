@@ -76,7 +76,7 @@ function Install-Pnpm {
         }
         if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
             Write-Error "pnpm installation failed. Please install pnpm manually."
-            exit 1
+            return 1
         }
     }
     Write-Output "pnpm is installed."
@@ -88,7 +88,7 @@ function Install-Pnpm {
         pnpm setup
         if ($LASTEXITCODE -ne 0) {
             Write-Error "pnpm setup failed. Please run 'pnpm setup' manually."
-            exit 1
+            return 1
         }
     }
     Write-Output "Check pnpm version"
@@ -103,7 +103,7 @@ function Install-Pnpm {
             $pnpmVersion = [version]($pnpmVersionOutput.Trim())
             if ($pnpmVersion -lt $pnpmRequiredVersion) {
                 Write-Error "pnpm upgrade failed or version is still less than $pnpmRequiredVersion. Please upgrade pnpm manually."
-                exit 1
+                return 1
             }
         } else {
             Write-Output "pnpm is installed and version $pnpmVersion meets the minimum required version $pnpmRequiredVersion."
@@ -154,7 +154,7 @@ function Install-NodeJsAndNpm {
             brew link --overwrite --force node@22
         } else {
             Write-Warning "Unsupported OS for automatic Node.js installation. Please install Node.js version 22 manually."
-            exit 1
+            return 1
         }
         # Get the updated path from environment
         $Env:Path = [Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [Environment]::GetEnvironmentVariable("Path", "User")
@@ -163,7 +163,7 @@ function Install-NodeJsAndNpm {
         $npmInstalled = Get-Command npm -ErrorAction SilentlyContinue
         if (-not $nodeInstalled -or -not $npmInstalled) {
             Write-Error "Node.js or npm installation failed. Please install them manually. Visit https://nodejs.org/en/download/ for installation instructions."
-            exit 1
+            return 1
         }
         # Confirm version
         $nodeVersionOutput = node --version 2>$null
@@ -172,7 +172,7 @@ function Install-NodeJsAndNpm {
             $nodeVersion = [version]$nodeVersionString
             if ($nodeVersion -lt $requiredNodeVersion) {
                 Write-Error "Node.js upgrade failed or version is still less than $requiredNodeVersion. Please upgrade Node.js manually."
-                exit 1
+                return 1
             }
         }
     }
@@ -192,13 +192,13 @@ function Install-Terraform {
             brew install hashicorp/tap/terraform
         } else {
             Write-Warning "Unsupported OS for automatic Terraform installation. Please install Terraform manually."
-            exit 1
+            return 1
         }
         # Re-check installation
         $terraformInstalled = Get-Command terraform -ErrorAction SilentlyContinue
         if (-not $terraformInstalled) {
             Write-Error "Terraform installation failed. Please install it manually. Visit https://www.terraform.io/downloads.html for instructions."
-            exit 1
+            return 1
         }
     } else {
         Write-Output "Terraform is already installed."
@@ -216,13 +216,13 @@ function Install-PostgreSql {
             brew install postgresql
         } else {
             Write-Warning "Unsupported OS for automatic postgresql installation. Please install postgresql manually."
-            exit 1
+            return 1
         }
         # Re-check installation
         $postgresqlInstalled = Get-Command postgresql -ErrorAction SilentlyContinue
         if (-not $postgresqlInstalled) {
             Write-Error "postgresql installation failed. Please install it manually. Visit https://www.postgresql.org/download/ for instructions."
-            exit 1
+            return 1
         }
     } else {
         Write-Output "postgresql is already installed."
@@ -241,13 +241,13 @@ function Install-AwsCli {
             brew install awscli
         } else {
             Write-Warning "Unsupported OS for automatic AWS CLI installation. Please install AWS CLI manually."
-            exit 1
+            return 1
         }
         # Re-check installation
         $awsCli = Get-Command aws -ErrorAction SilentlyContinue
         if (-not $awsCli) {
             Write-Error "AWS CLI installation failed. Please install it manually. Visit https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html for instructions."
-            exit 1
+            return 1
         }
     } else {
         Write-Output "AWS CLI is already installed."
@@ -266,13 +266,13 @@ function Install-AzureCli {
             brew install azure-cli
         } else {
             Write-Warning "Unsupported OS for automatic Azure CLI installation. Please install Azure CLI manually."
-            exit 1
+            return 1
         }
         # Re-check installation
         $azCli = Get-Command az -ErrorAction SilentlyContinue
         if (-not $azCli) {
             Write-Error "Azure CLI installation failed. Please install it manually. Visit https://learn.microsoft.com/cli/azure/install-azure-cli for instructions."
-            exit 1
+            return 1
         }
     } else {
         Write-Output "Azure CLI is already installed."
@@ -289,7 +289,7 @@ function Install-AzureCli {
         az extension add --name account
         if ($LASTEXITCODE -ne 0) {
             Write-Error "Failed to install Azure CLI 'account' extension."
-            exit 1
+            return 1
         }
     } else {
         Write-Output "Azure CLI 'account' extension is already installed."
@@ -309,13 +309,14 @@ function Install-Ripgrep {
             brew install ripgrep
         } else {
             Write-Warning "Unsupported OS for automatic ripgrep installation. Please install ripgrep manually."
-            exit 1
+            return 1
         }
+        Update-ProcessPathFromEnvironment
         # Re-check installation
         $rg = Get-Command rg -ErrorAction SilentlyContinue
         if (-not $rg) {
             Write-Error "ripgrep installation failed. Please install it manually. Visit https://github.com/BurntSushi/ripgrep for instructions."
-            exit 1
+            return 1
         }
     } else {
         Write-Output "ripgrep (rg) is already installed."
@@ -335,13 +336,14 @@ function Install-Fd {
             brew install fd
         } else {
             Write-Warning "Unsupported OS for automatic fd installation. Please install fd manually."
-            exit 1
+            return 1
         }
+        Update-ProcessPathFromEnvironment
         # Re-check installation
         $fd = Get-Command fd -ErrorAction SilentlyContinue
         if (-not $fd) {
             Write-Error "fd installation failed. Please install it manually. Visit https://github.com/sharkdp/fd for instructions."
-            exit 1
+            return 1
         }
     } else {
         Write-Output "fd is already installed."
@@ -361,13 +363,14 @@ function Install-Jq {
             brew install jq
         } else {
             Write-Warning "Unsupported OS for automatic jq installation. Please install jq manually."
-            exit 1
+            return 1
         }
+        Update-ProcessPathFromEnvironment
         # Re-check installation
         $jq = Get-Command jq -ErrorAction SilentlyContinue
         if (-not $jq) {
             Write-Error "jq installation failed. Please install it manually. Visit https://jqlang.org/ for instructions."
-            exit 1
+            return 1
         }
     } else {
         Write-Output "jq is already installed."
@@ -387,13 +390,14 @@ function Install-Yq {
             brew install yq
         } else {
             Write-Warning "Unsupported OS for automatic yq installation. Please install yq manually."
-            exit 1
+            return 1
         }
+        Update-ProcessPathFromEnvironment
         # Re-check installation
         $yq = Get-Command yq -ErrorAction SilentlyContinue
         if (-not $yq) {
             Write-Error "yq installation failed. Please install it manually. Visit https://github.com/mikefarah/yq for instructions."
-            exit 1
+            return 1
         }
     } else {
         Write-Output "yq is already installed."
@@ -413,13 +417,14 @@ function Install-GitHubCli {
             brew install gh
         } else {
             Write-Warning "Unsupported OS for automatic GitHub CLI installation. Please install GitHub CLI manually."
-            exit 1
+            return 1
         }
+        Update-ProcessPathFromEnvironment
         # Re-check installation
         $gh = Get-Command gh -ErrorAction SilentlyContinue
         if (-not $gh) {
             Write-Error "GitHub CLI installation failed. Please install it manually. Visit https://cli.github.com/ for instructions."
-            exit 1
+            return 1
         }
     } else {
         Write-Output "GitHub CLI (gh) is already installed."
@@ -466,7 +471,7 @@ function Initialize-ResourceGroupBootstrap {
     Write-Output "Initialise the resource group that will contain all components and setup minimal components to support the Terraform backend."
     Set-Location $env:ROOT_FOLDER\deploy\initEnv
     node ./initEnvironment.cjs --envDir="$env:ROOT_FOLDER/deploy" --auto-approve
-    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    if ($LASTEXITCODE -ne 0) { return $LASTEXITCODE }
 }
 
 #Deploy the main environment, databases, securitye, etc.
@@ -474,7 +479,7 @@ function Publish-MainEnvironment {
     Write-Output "Deploy the main environment, databases, security, etc."
     Set-Location $env:ROOT_FOLDER\deploy\deployEnv
     node ./deployEnvironment.js --auto-approve
-    if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    if ($LASTEXITCODE -ne 0) { return $LASTEXITCODE }
 }
 
 # Deploy modules by looping through their paths
@@ -521,16 +526,32 @@ function Test-InitializationEnvironment {
     $envFile = Join-Path $env:ROOT_FOLDER "deploy\.env"
     if (-not (Test-Path $envFile)) {
         Write-Error ".env file not found. Please run initEnv manually."
-        exit 1
+        return 1
     }
     $content = Get-Content $envFile -Raw
     if ($content -notmatch "^TARGET_ENV\s*=\s*.+") {
         Write-Error "TARGET_ENV is missing or empty. Please run initEnv manually."
-        exit 1
+        return 1
     }
     $match = [regex]::Match($content, "^TARGET_ENV\s*=\s*(.+)", [System.Text.RegularExpressions.RegexOptions]::Multiline)
     $targetEnv = $match.Groups[1].Value.Trim()
     Write-Output ".env TARGET_ENV was set to $targetEnv"
+}
+
+function Update-ProcessPathFromEnvironment {
+    if ($script:IsWindows) {
+        $machinePath = [Environment]::GetEnvironmentVariable("Path", "Machine")
+        $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
+        $combinedPath = @($machinePath, $userPath) -join ";"
+        if ($combinedPath) {
+            $env:Path = $combinedPath
+        }
+        # Winget often shims executables in this folder for the current user.
+        $wingetLinksPath = Join-Path $env:LOCALAPPDATA "Microsoft\WinGet\Links"
+        if ((Test-Path $wingetLinksPath) -and ($env:Path -notlike "*$wingetLinksPath*")) {
+            $env:Path = "$env:Path;$wingetLinksPath"
+        }
+    }
 }
 
 Export-ModuleMember -Function Initialize-PlatformState,Install-Pnpm,Install-NodeJsAndNpm,Install-Terraform,Install-PostgreSql,Install-AwsCli,Install-AzureCli,Install-Ripgrep,Install-Fd,Install-Jq,Install-Yq,Install-GitHubCli,Set-TerraformEnvironmentType,Set-ProjectRootFolder,Install-ProjectDependencies,Initialize-ResourceGroupBootstrap,Publish-MainEnvironment,Publish-ModuleDeployments,Publish-UserInterface,Test-InitializationEnvironment,Install-DevTools,Install-DevAiTools
