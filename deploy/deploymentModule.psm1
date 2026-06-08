@@ -5,7 +5,7 @@
 # This module provide functions to set the desired state for local tools that allow the other scripts to function.
 #
 
-function Get-OsType {
+function Initialize-PlatformState {
     if ($PSVersionTable.PSVersion.Major -lt 6) {
         Write-Warning "You are using a Windows only version of powershell, upgrade to Powerhsell Core when possible"
         Set-Variable -Name IsWindows -Value ($env:OS -eq 'Windows_NT') -Scope Script
@@ -24,7 +24,7 @@ function Get-OsType {
         # Check for Ubuntu
         $isUbuntu = $false
         if (-not $isWin -and -not $isMac) {
-            if ((Get-Command lsb_release -ErrorAction SilentlyContinue) -and ((lsb_release -is 2>$null).Trim() -eq 'Ubuntu')) {
+            if ((Get-Command lsb_release -ErrorAction SilentlyContinue) -and ((& lsb_release '-is' 2>$null).Trim() -eq 'Ubuntu')) {
                 $isUbuntu = $true
             } elseif (Test-Path '/etc/os-release') {
                 $osRelease = Get-Content '/etc/os-release' -ErrorAction SilentlyContinue
@@ -37,9 +37,9 @@ function Get-OsType {
     }
 }
 # Determine the OS type and set variables in script scope
-Get-OsType
+Initialize-PlatformState
 
-function Ensure-Pnpm {
+function Install-Pnpm {
     # Ensure pnpm is installed and setup
     if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
         Write-Output "pnpm is not installed. Installing pnpm globally using npm..."
@@ -87,15 +87,9 @@ function Ensure-Pnpm {
     }
 }
 
-function Get-RootFolder {
-    $env:ROOT_FOLDER = Resolve-Path -Path ".."
-    Write-Output "Set ROOT_FOLDER to $env:ROOT_FOLDER"
-    Set-Location $env:ROOT_FOLDER
-}
-
 # Ensure Node.js and npm is installed on Win and MacOs. If not, install with winget or homebrew.
 # Check if Node.js and npm are installed
-function Ensure-NodeAndNpm {
+function Install-NodeJsAndNpm {
     $nodeInstalled = Get-Command node -ErrorAction SilentlyContinue
     $npmInstalled = Get-Command npm -ErrorAction SilentlyContinue
     $requiredNodeVersion = [version]"22.0.0"
@@ -162,7 +156,7 @@ function Ensure-NodeAndNpm {
 }
 
 # Ensure Terraform is installed
-function Ensure-Terraform {
+function Install-Terraform {
     $terraformInstalled = Get-Command terraform -ErrorAction SilentlyContinue
     if (-not $terraformInstalled) {
         if ($script:IsWindows) {
@@ -187,8 +181,8 @@ function Ensure-Terraform {
     }
 }
 
-function Ensure-Postgresql {
-    $postgresqlInstalled = $postgresqlInstalled = (Get-Service *postgres* -ErrorAction SilentlyContinue | Where-Object {$_.Status -eq 'Running'}).Count -gt 0
+function Install-PostgreSql {
+    $postgresqlInstalled = (Get-Service *postgres* -ErrorAction SilentlyContinue | Where-Object {$_.Status -eq 'Running'}).Count -gt 0
     if (-not $postgresqlInstalled) {
         if ($script:IsWindows) {
             Write-Output "postgresql not found. Installing postgresql using winget..."
@@ -212,7 +206,7 @@ function Ensure-Postgresql {
 }
 
 # Ensures AWS CLI is installed, and installs if missing (Windows: winget, Mac: brew)
-function Ensure-AwsCli {
+function Install-AwsCli {
     $awsCli = Get-Command aws -ErrorAction SilentlyContinue
     if (-not $awsCli) {
         if ($script:IsWindows) {
@@ -237,7 +231,7 @@ function Ensure-AwsCli {
 }
 
 # Ensures Azure CLI is installed, and installs if missing (Windows: winget, Mac: brew)
-function Ensure-AzCli {
+function Install-AzureCli {
     $azCli = Get-Command az -ErrorAction SilentlyContinue
     if (-not $azCli) {
         if ($script:IsWindows) {
@@ -278,7 +272,7 @@ function Ensure-AzCli {
     }
 }
 
-function Set-TFEnvType {
+function Set-TerraformEnvironmentType {
     param(
         [string]$type = "dev"
     )
@@ -301,20 +295,20 @@ function Set-TFEnvType {
 }
 
 # set a root folder environment variable to one folder above the current folder.
-function Set-RootFolder {
+function Set-ProjectRootFolder {
     $env:ROOT_FOLDER = Resolve-Path -Path ".."
     Write-Output "Set ROOT_FOLDER to $env:ROOT_FOLDER"
     Set-Location $env:ROOT_FOLDER
 }
 
 # Install dependencies
-function Install-Dependencies {
+function Install-ProjectDependencies {
     Write-Output "Install dependencies with pnpm install"
     pnpm install
 }
 
 #Initialise the resource group that will contain all components and setup minimal components to support the Terraform backend.
-function Init-ResourceGroup {
+function Initialize-ResourceGroupBootstrap {
     Write-Output "Initialise the resource group that will contain all components and setup minimal components to support the Terraform backend."
     Set-Location $env:ROOT_FOLDER\deploy\initEnv
     node ./initEnvironment.cjs --envDir="$env:ROOT_FOLDER/deploy" --auto-approve
@@ -322,7 +316,7 @@ function Init-ResourceGroup {
 }
 
 #Deploy the main environment, databases, securitye, etc.
-function Deploy-MainEnv {
+function Publish-MainEnvironment {
     Write-Output "Deploy the main environment, databases, security, etc."
     Set-Location $env:ROOT_FOLDER\deploy\deployEnv
     node ./deployEnvironment.js --auto-approve
@@ -330,7 +324,7 @@ function Deploy-MainEnv {
 }
 
 # Deploy modules by looping through their paths
-function Deploy-Modules {
+function Publish-ModuleDeployments {
     $moduleRoot = Join-Path $env:ROOT_FOLDER 'module'
     $moduleFolders = Get-ChildItem -Path $moduleRoot -Directory | ForEach-Object { $_.Name }
     foreach ($modulePath in $moduleFolders) {
@@ -351,7 +345,7 @@ function Deploy-Modules {
 }
 
 #Deploy the UI module
-function Deploy-Ui {
+function Publish-UserInterface {
     Write-Output "Deploy the UI module"
     $uiDeployFolder = Join-Path $env:ROOT_FOLDER 'ui/deploy'
     if (Test-Path $uiDeployFolder) {
@@ -368,7 +362,7 @@ function Deploy-Ui {
 }
 
 # Check if the .env file exists and contains the TARGET_ENV variable. If not, prompt the user to run initEnv.
-function Check-InitEnv {
+function Test-InitializationEnvironment {
     Write-Output "Checking .env file"
     $envFile = Join-Path $env:ROOT_FOLDER "deploy\.env"
     if (-not (Test-Path $envFile)) {
@@ -385,4 +379,4 @@ function Check-InitEnv {
     Write-Output ".env TARGET_ENV was set to $targetEnv"
 }
 
-Export-ModuleMember -Function Ensure-Pnpm,Get-RootFolder,Get-OsType,Ensure-NodeAndNpm,Ensure-Terraform,Ensure-AwsCli,Ensure-AzCli,Set-TFEnvType,Set-RootFolder,Init-ResourceGroup,Deploy-MainEnv,Install-Dependencies,Deploy-Modules,Deploy-Ui,Check-InitEnv,Ensure-Postgresql
+Export-ModuleMember -Function Initialize-PlatformState,Install-Pnpm,Install-NodeJsAndNpm,Install-Terraform,Install-PostgreSql,Install-AwsCli,Install-AzureCli,Set-TerraformEnvironmentType,Set-ProjectRootFolder,Install-ProjectDependencies,Initialize-ResourceGroupBootstrap,Publish-MainEnvironment,Publish-ModuleDeployments,Publish-UserInterface,Test-InitializationEnvironment
