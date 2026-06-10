@@ -34,10 +34,27 @@ function Initialize-PlatformState {
             }
         }
         Set-Variable -Name IsUbuntu -Value $isUbuntu -Scope Script
+        # Detect Apple Silicon (true even when running under Rosetta 2)
+        $isAppleSilicon = $false
+        if ($isMac) {
+            $armSupport = & sysctl -n hw.optional.arm64 2>$null
+            $isAppleSilicon = ($armSupport -eq "1")
+        }
+        Set-Variable -Name IsAppleSilicon -Value $isAppleSilicon -Scope Script
     }
 }
 # Determine the OS type and set variables in script scope
 Initialize-PlatformState
+
+# Wrapper for brew that forces ARM64 mode on Apple Silicon to avoid Rosetta 2 conflicts
+function Invoke-Brew {
+    param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Arguments)
+    if ($script:IsAppleSilicon) {
+        arch -arm64 /opt/homebrew/bin/brew @Arguments
+    } else {
+        /usr/local/bin/brew @Arguments
+    }
+}
 
 function Install-DevTools {
     Install-NodeJsAndNpm
@@ -150,8 +167,8 @@ function Install-NodeJsAndNpm {
             winget install OpenJS.NodeJS.22 -e --silent
         } elseif ($script:IsMacOS) {
             Write-Output "Installing or upgrading Node.js using Homebrew..."
-            brew install node@22
-            brew link --overwrite --force node@22
+            Invoke-Brew install node@22
+            Invoke-Brew link --overwrite --force node@22
         } else {
             Write-Warning "Unsupported OS for automatic Node.js installation. Please install Node.js version 22 manually."
             return 1
@@ -188,8 +205,8 @@ function Install-Terraform {
             winget install Hashicorp.Terraform -e --silent
         } elseif ($script:IsMacOS) {
             Write-Output "Terraform not found. Installing Terraform using Homebrew..."
-            brew tap hashicorp/tap
-            brew install hashicorp/tap/terraform
+            Invoke-Brew tap hashicorp/tap
+            Invoke-Brew install hashicorp/tap/terraform
         } else {
             Write-Warning "Unsupported OS for automatic Terraform installation. Please install Terraform manually."
             return 1
@@ -206,20 +223,24 @@ function Install-Terraform {
 }
 
 function Install-PostgreSql {
-    $postgresqlInstalled = (Get-Service *postgres* -ErrorAction SilentlyContinue | Where-Object {$_.Status -eq 'Running'}).Count -gt 0
+    if ($script:IsWindows) {
+        $postgresqlInstalled = (Get-Service *postgres* -ErrorAction SilentlyContinue).Count -gt 0
+    } else {
+        $postgresqlInstalled = Get-Command psql -ErrorAction SilentlyContinue
+    }
     if (-not $postgresqlInstalled) {
         if ($script:IsWindows) {
             Write-Output "postgresql not found. Installing postgresql using winget..."
             winget install PostgreSQL.PostgreSQL -e --silent
         } elseif ($script:IsMacOS) {
             Write-Output "postgresql not found. Installing postgresql using Homebrew..."
-            brew install postgresql
+            Invoke-Brew install postgresql
         } else {
             Write-Warning "Unsupported OS for automatic postgresql installation. Please install postgresql manually."
             return 1
         }
         # Re-check installation
-        $postgresqlInstalled = Get-Command postgresql -ErrorAction SilentlyContinue
+        $postgresqlInstalled = Get-Command psql -ErrorAction SilentlyContinue
         if (-not $postgresqlInstalled) {
             Write-Error "postgresql installation failed. Please install it manually. Visit https://www.postgresql.org/download/ for instructions."
             return 1
@@ -238,7 +259,7 @@ function Install-AwsCli {
             winget install Amazon.AWSCLI -e --silent
         } elseif ($script:IsMacOS) {
             Write-Output "AWS CLI not found. Installing AWS CLI using Homebrew..."
-            brew install awscli
+            Invoke-Brew install awscli
         } else {
             Write-Warning "Unsupported OS for automatic AWS CLI installation. Please install AWS CLI manually."
             return 1
@@ -263,7 +284,7 @@ function Install-AzureCli {
             winget install Microsoft.AzureCLI -e --silent
         } elseif ($script:IsMacOS) {
             Write-Output "Azure CLI not found. Installing Azure CLI using Homebrew..."
-            brew install azure-cli
+            Invoke-Brew install azure-cli
         } else {
             Write-Warning "Unsupported OS for automatic Azure CLI installation. Please install Azure CLI manually."
             return 1
@@ -306,7 +327,7 @@ function Install-Ripgrep {
             if ($LASTEXITCODE -eq -1978335189) { $LASTEXITCODE = 0 } # Ignore "Package is already installed" error
         } elseif ($script:IsMacOS) {
             Write-Output "ripgrep (rg) not found. Installing ripgrep using Homebrew..."
-            brew install ripgrep
+            Invoke-Brew install ripgrep
         } else {
             Write-Warning "Unsupported OS for automatic ripgrep installation. Please install ripgrep manually."
             return 1
@@ -333,7 +354,7 @@ function Install-Fd {
             if ($LASTEXITCODE -eq -1978335189) { $LASTEXITCODE = 0 } # Ignore "Package is already installed" error
         } elseif ($script:IsMacOS) {
             Write-Output "fd not found. Installing fd using Homebrew..."
-            brew install fd
+            Invoke-Brew install fd
         } else {
             Write-Warning "Unsupported OS for automatic fd installation. Please install fd manually."
             return 1
@@ -360,7 +381,7 @@ function Install-Jq {
             if ($LASTEXITCODE -eq -1978335189) { $LASTEXITCODE = 0 } # Ignore "Package is already installed" error
         } elseif ($script:IsMacOS) {
             Write-Output "jq not found. Installing jq using Homebrew..."
-            brew install jq
+            Invoke-Brew install jq
         } else {
             Write-Warning "Unsupported OS for automatic jq installation. Please install jq manually."
             return 1
@@ -387,7 +408,7 @@ function Install-Yq {
             if ($LASTEXITCODE -eq -1978335189) { $LASTEXITCODE = 0 } # Ignore "Package is already installed" error
         } elseif ($script:IsMacOS) {
             Write-Output "yq not found. Installing yq using Homebrew..."
-            brew install yq
+            Invoke-Brew install yq
         } else {
             Write-Warning "Unsupported OS for automatic yq installation. Please install yq manually."
             return 1
@@ -414,7 +435,7 @@ function Install-GitHubCli {
             if ($LASTEXITCODE -eq -1978335189) { $LASTEXITCODE = 0 } # Ignore "Package is already installed" error
         } elseif ($script:IsMacOS) {
             Write-Output "GitHub CLI (gh) not found. Installing GitHub CLI using Homebrew..."
-            brew install gh
+            Invoke-Brew install gh
         } else {
             Write-Warning "Unsupported OS for automatic GitHub CLI installation. Please install GitHub CLI manually."
             return 1
