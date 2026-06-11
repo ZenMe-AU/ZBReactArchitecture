@@ -18,6 +18,7 @@ function Initialize-PlatformState {
         # Check for Windows        
         $isWin = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows)
         Set-Variable -Name IsWindows -Value $isWin -Scope Script
+
         # Check for MacOS
         $isMac = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::OSX)
         Set-Variable -Name IsMacOS -Value $isMac -Scope Script
@@ -41,6 +42,22 @@ function Initialize-PlatformState {
             $isAppleSilicon = ($armSupport -eq "1")
         }
         Set-Variable -Name IsAppleSilicon -Value $isAppleSilicon -Scope Script
+
+
+        $isLinux = [System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Linux)
+        Set-Variable -Name IsLinux -Value $isLinux -Scope Script
+
+        # Ubuntu detection by reading /etc/os-release
+        $isUbuntu = $false
+        if ($isLinux) {
+            try {
+                $osRelease = Get-Content -Path /etc/os-release -ErrorAction SilentlyContinue -Raw
+                if ($osRelease -and ($osRelease -match '(^|\n)ID=\"?ubuntu\"?(\n|$)' -or $osRelease -match 'Ubuntu')) {
+                    $isUbuntu = $true
+                }
+            } catch { }
+        }
+        Set-Variable -Name IsUbuntu -Value $isUbuntu -Scope Script
     }
 }
 # Determine the OS type and set variables in script scope
@@ -88,6 +105,9 @@ function Install-Pnpm {
             Write-Output "MacOS requires sudo to globally install: npm install -g pnpm"
             Write-Output "Please enter your password."
             sudo npm install -g pnpm
+        } elseif ($script:IsUbuntu) {
+            Write-Output "Ubuntu requires sudo to globally install pnpm: npm install -g pnpm"
+            sudo npm install -g pnpm
         } else {
             npm install -g pnpm
         }
@@ -128,6 +148,20 @@ function Install-Pnpm {
     }
 }
 
+
+function Get-RootFolder {
+    $env:ROOT_FOLDER = Resolve-Path -Path ".."
+    Write-Output "Set ROOT_FOLDER to $env:ROOT_FOLDER"
+    Set-Location $env:ROOT_FOLDER
+}
+
+function Get-SudoPrefix {
+    if ($env:USER -eq 'root') {
+        return ''
+    }
+    return 'sudo '
+}
+
 # Ensure Node.js and npm is installed on Win and MacOs. If not, install with winget or homebrew.
 # Check if Node.js and npm are installed
 function Install-NodeJsAndNpm {
@@ -143,6 +177,7 @@ function Install-NodeJsAndNpm {
         try {
             $nodeVersionOutput = node --version 2>$null
             if ($nodeVersionOutput) {
+                Write-Output "Node.js version output: $nodeVersionOutput"
                 $nodeVersionString = $nodeVersionOutput.TrimStart("vV").Trim()
                 $nodeVersion = [version]$nodeVersionString
                 if ($nodeVersion -lt $requiredNodeVersion) {
@@ -169,6 +204,17 @@ function Install-NodeJsAndNpm {
             Write-Output "Installing or upgrading Node.js using Homebrew..."
             Invoke-Brew install node@22
             Invoke-Brew link --overwrite --force node@22
+        } elseif ($script:IsUbuntu) {
+            Write-Output "Installing or upgrading Node.js using NodeSource on Ubuntu..."
+            $sudo = Get-SudoPrefix
+            bash -lc @"
+            sudo apt-get purge nodejs -y
+            sudo apt-get autoremove -y
+            $sudo apt-get update -y && $sudo apt-get install -y curl ca-certificates gnupg
+            curl -fsSL https://deb.nodesource.com/setup_22.x | $sudo -E bash -
+            $sudo apt-get install -y nodejs
+            which node && node --version
+"@
         } else {
             Write-Warning "Unsupported OS for automatic Node.js installation. Please install Node.js version 22 manually."
             return 1
@@ -184,12 +230,30 @@ function Install-NodeJsAndNpm {
         }
         # Confirm version
         $nodeVersionOutput = node --version 2>$null
+        if ($nodeVersionOutput) {        # Get the updated path from environment
+        $Env:Path = [Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [Environment]::GetEnvironmentVariable("Path", "User")
+        # Re-check installation
+        $nodeInstalled = Get-Command node -ErrorAction SilentlyContinue
+        $npmInstalled = Get-Command npm -ErrorAction SilentlyContinue
+        if (-not $nodeInstalled -or -not $npmInstalled) {
+            Write-Error "Node.js or npm installation failed. Please install them manually. Visit https://nodejs.org/en/download/ for installation instructions."
+            exit 1
+        }
+        # Confirm version
+        $nodeVersionOutput = node --version 2>$null
         if ($nodeVersionOutput) {
             $nodeVersionString = $nodeVersionOutput.TrimStart("vV").Trim()
             $nodeVersion = [version]$nodeVersionString
             if ($nodeVersion -lt $requiredNodeVersion) {
                 Write-Error "Node.js upgrade failed or version is still less than $requiredNodeVersion. Please upgrade Node.js manually."
                 return 1
+            }
+        }
+            $nodeVersionString = $nodeVersionOutput.TrimStart("vV").Trim()
+            $nodeVersion = [version]$nodeVersionString
+            if ($nodeVersion -lt $requiredNodeVersion) {
+                Write-Error "Node.js upgrade failed or version is still less than $requiredNodeVersion. Please upgrade Node.js manually."
+                exit 1
             }
         }
     }
@@ -207,6 +271,13 @@ function Install-Terraform {
             Write-Output "Terraform not found. Installing Terraform using Homebrew..."
             Invoke-Brew tap hashicorp/tap
             Invoke-Brew install hashicorp/tap/terraform
+        } elseif ($script:IsUbuntu) {
+            Write-Output "Terraform not found. Installing Terraform using apt on Ubuntu..."
+            $sudo = Get-SudoPrefix
+            bash -lc "$sudo apt-get update -y && $sudo apt-get install -y gnupg software-properties-common curl"
+            bash -lc "curl -fsSL https://apt.releases.hashicorp.com/gpg | $sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg"
+            bash -lc "echo 'deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main' | $sudo tee /etc/apt/sources.list.d/hashicorp.list"
+            bash -lc "$sudo apt-get update -y && $sudo apt-get install -y terraform"
         } else {
             Write-Warning "Unsupported OS for automatic Terraform installation. Please install Terraform manually."
             return 1
@@ -235,6 +306,10 @@ function Install-PostgreSql {
         } elseif ($script:IsMacOS) {
             Write-Output "postgresql not found. Installing postgresql using Homebrew..."
             Invoke-Brew install postgresql
+        } elseif ($script:IsUbuntu) {
+            Write-Output "postgresql not found. Installing postgresql using apt on Ubuntu..."
+            $sudo = Get-SudoPrefix
+            bash -lc "$sudo apt-get update -y && $sudo apt-get install -y postgresql"
         } else {
             Write-Warning "Unsupported OS for automatic postgresql installation. Please install postgresql manually."
             return 1
@@ -260,6 +335,10 @@ function Install-AwsCli {
         } elseif ($script:IsMacOS) {
             Write-Output "AWS CLI not found. Installing AWS CLI using Homebrew..."
             Invoke-Brew install awscli
+        } elseif ($script:IsUbuntu) {
+            Write-Output "AWS CLI not found. Installing AWS CLI using apt on Ubuntu..."
+            $sudo = Get-SudoPrefix
+            bash -lc "$sudo apt-get update -y && $sudo apt-get install -y awscli"
         } else {
             Write-Warning "Unsupported OS for automatic AWS CLI installation. Please install AWS CLI manually."
             return 1
@@ -285,6 +364,10 @@ function Install-AzureCli {
         } elseif ($script:IsMacOS) {
             Write-Output "Azure CLI not found. Installing Azure CLI using Homebrew..."
             Invoke-Brew install azure-cli
+        } elseif ($script:IsUbuntu) {
+            Write-Output "Azure CLI not found. Installing Azure CLI using apt on Ubuntu..."
+            $sudo = Get-SudoPrefix
+            bash -lc "curl -sL https://aka.ms/InstallAzureCLIDeb | $sudo bash"
         } else {
             Write-Warning "Unsupported OS for automatic Azure CLI installation. Please install Azure CLI manually."
             return 1
@@ -476,7 +559,9 @@ function Set-TerraformEnvironmentType {
 
 # set a root folder environment variable to one folder above the current folder.
 function Set-ProjectRootFolder {
-    $env:ROOT_FOLDER = Resolve-Path -Path ".."
+    $moduleFolder = if ($PSScriptRoot) { $PSScriptRoot } else { Split-Path -Path $MyInvocation.MyCommand.Path -Parent }
+    $rootPath = Resolve-Path -Path (Join-Path $moduleFolder '..')
+    $env:ROOT_FOLDER = $rootPath.Path
     Write-Output "Set ROOT_FOLDER to $env:ROOT_FOLDER"
     Set-Location $env:ROOT_FOLDER
 }

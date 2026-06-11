@@ -28,7 +28,8 @@ param(
 )
 Set-StrictMode -Version Latest
 
-Import-Module ./deploymentModule.psm1
+# Import the deployment module from the script directory so relative calls work
+Import-Module (Join-Path $PSScriptRoot 'deploymentModule.psm1') -Force
 
 # Stage0: Always run
 # Set TF_VAR_env_type using modular function
