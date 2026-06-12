@@ -230,30 +230,12 @@ function Install-NodeJsAndNpm {
         }
         # Confirm version
         $nodeVersionOutput = node --version 2>$null
-        if ($nodeVersionOutput) {        # Get the updated path from environment
-        $Env:Path = [Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [Environment]::GetEnvironmentVariable("Path", "User")
-        # Re-check installation
-        $nodeInstalled = Get-Command node -ErrorAction SilentlyContinue
-        $npmInstalled = Get-Command npm -ErrorAction SilentlyContinue
-        if (-not $nodeInstalled -or -not $npmInstalled) {
-            Write-Error "Node.js or npm installation failed. Please install them manually. Visit https://nodejs.org/en/download/ for installation instructions."
-            exit 1
-        }
-        # Confirm version
-        $nodeVersionOutput = node --version 2>$null
         if ($nodeVersionOutput) {
             $nodeVersionString = $nodeVersionOutput.TrimStart("vV").Trim()
             $nodeVersion = [version]$nodeVersionString
             if ($nodeVersion -lt $requiredNodeVersion) {
                 Write-Error "Node.js upgrade failed or version is still less than $requiredNodeVersion. Please upgrade Node.js manually."
                 return 1
-            }
-        }
-            $nodeVersionString = $nodeVersionOutput.TrimStart("vV").Trim()
-            $nodeVersion = [version]$nodeVersionString
-            if ($nodeVersion -lt $requiredNodeVersion) {
-                Write-Error "Node.js upgrade failed or version is still less than $requiredNodeVersion. Please upgrade Node.js manually."
-                exit 1
             }
         }
     }
