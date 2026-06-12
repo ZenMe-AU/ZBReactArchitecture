@@ -35,7 +35,8 @@ Each pattern file should include sections in this order:
 
 - Title
 - Overview
-  Describe under subheadings the Intent, Problem, Trade-Offs (if any).
+  Describe the architecture pattern in context of the solution, the problem the pattern solves, and any clear trade-offs related to this pattern. If trade-offs for the pattern are not well defined, then do not mention them.
+  Do not list problems with how the pattern was implemented, that goes into the implementation or future enhancements sections below.
   If a "pattern" end the section with a Wikipedia Reference.
 - Implementation
   Describe how the pattern is currently implemented.
@@ -46,6 +47,7 @@ Each pattern file should include sections in this order:
 - Related Decisions and Patterns
   List decisions that are directly related to this pattern and provide a relative link to each decision file.
   List patterns that are related to this pattern and provide a relative link to each pattern file.
+  Always reference this agents.md file location as a reference.
 
 # Writing Style
 
