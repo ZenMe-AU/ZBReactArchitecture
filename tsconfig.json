@@ -11,5 +11,5 @@
     "skipLibCheck": true
   },
   "include": ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts", "**/*.d.ts", "**/*.js", "**/*.mjs", "**/*.cjs"],
-  "exclude": ["node_modules", "**/node_modules", "**/_archive", "dist", "build", ".azure", "coverage"]
+  "exclude": ["**/ui", "node_modules", "**/node_modules", "**/_archive", "dist", "build", ".azure", "coverage"]
 }
