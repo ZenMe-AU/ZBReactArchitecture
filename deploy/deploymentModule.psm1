@@ -93,7 +93,7 @@ function Install-DevAiTools {
     Install-Ripgrep
     Install-Fd
     Install-Jq
-    Install-Yq
+    Install-Yqi
     Install-GitHubCli
 }
 
@@ -393,6 +393,9 @@ function Install-Ripgrep {
         } elseif ($script:IsMacOS) {
             Write-Output "ripgrep (rg) not found. Installing ripgrep using Homebrew..."
             Invoke-Brew install ripgrep
+        } elseif ($script:IsUbuntu) {
+            Write-Output "ripgrep (rg) not found. Installing ripgrep using apt on Ubuntu..."
+            bash -lc "$sudo apt-get update -y && $sudo apt-get install -y ripgrep"
         } else {
             Write-Warning "Unsupported OS for automatic ripgrep installation. Please install ripgrep manually."
             return 1
@@ -420,6 +423,9 @@ function Install-Fd {
         } elseif ($script:IsMacOS) {
             Write-Output "fd not found. Installing fd using Homebrew..."
             Invoke-Brew install fd
+        } elseif ($script:IsUbuntu) {
+            Write-Output "fd not found. Installing fd using apt on Ubuntu..."
+            bash -lc "$sudo apt-get update -y && $sudo apt-get install -y fd"
         } else {
             Write-Warning "Unsupported OS for automatic fd installation. Please install fd manually."
             return 1
@@ -447,6 +453,9 @@ function Install-Jq {
         } elseif ($script:IsMacOS) {
             Write-Output "jq not found. Installing jq using Homebrew..."
             Invoke-Brew install jq
+        } elseif ($script:IsUbuntu) {
+            Write-Output "jq not found. Installing jq using apt on Ubuntu..."
+            bash -lc "$sudo apt-get update -y && $sudo apt-get install -y jq"
         } else {
             Write-Warning "Unsupported OS for automatic jq installation. Please install jq manually."
             return 1
@@ -474,6 +483,9 @@ function Install-Yq {
         } elseif ($script:IsMacOS) {
             Write-Output "yq not found. Installing yq using Homebrew..."
             Invoke-Brew install yq
+        } elseif ($script:IsUbuntu) {
+            Write-Output "yq not found. Installing yq using snap on Ubuntu..."
+            bash -lc "$sudo snap install yq"
         } else {
             Write-Warning "Unsupported OS for automatic yq installation. Please install yq manually."
             return 1
@@ -501,6 +513,9 @@ function Install-GitHubCli {
         } elseif ($script:IsMacOS) {
             Write-Output "GitHub CLI (gh) not found. Installing GitHub CLI using Homebrew..."
             Invoke-Brew install gh
+        } elseif ($script:IsUbuntu) {
+            Write-Output "GitHub CLI (gh) not found. Installing GitHub CLI using apt on Ubuntu..."
+            bash -lc "$sudo apt update && $sudo apt install gh"
         } else {
             Write-Warning "Unsupported OS for automatic GitHub CLI installation. Please install GitHub CLI manually."
             return 1
