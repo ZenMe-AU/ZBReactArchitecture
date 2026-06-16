@@ -93,7 +93,7 @@ function Install-DevAiTools {
     Install-Ripgrep
     Install-Fd
     Install-Jq
-    Install-Yqi
+    Install-Yq
     Install-GitHubCli
 }
 
@@ -395,6 +395,7 @@ function Install-Ripgrep {
             Invoke-Brew install ripgrep
         } elseif ($script:IsUbuntu) {
             Write-Output "ripgrep (rg) not found. Installing ripgrep using apt on Ubuntu..."
+            $sudo = Get-SudoPrefix
             bash -lc "$sudo apt-get update -y && $sudo apt-get install -y ripgrep"
         } else {
             Write-Warning "Unsupported OS for automatic ripgrep installation. Please install ripgrep manually."
@@ -423,9 +424,10 @@ function Install-Fd {
         } elseif ($script:IsMacOS) {
             Write-Output "fd not found. Installing fd using Homebrew..."
             Invoke-Brew install fd
-        } elseif ($script:IsUbuntu) {
-            Write-Output "fd not found. Installing fd using apt on Ubuntu..."
-            bash -lc "$sudo apt-get update -y && $sudo apt-get install -y fd"
+        } elseif ($script:IsUbuntu) { # Note: fd is called fd-find in Debian and Ubuntu. Uncomment lines below if we want fd/fd-find to be necessary on Ubuntu
+            # Write-Output "fd not found. Installing fd using apt on Ubuntu..."
+            # $sudo = Get-SudoPrefix
+            # bash -lc "$sudo apt-get update -y && $sudo apt-get install -y fd-find"
         } else {
             Write-Warning "Unsupported OS for automatic fd installation. Please install fd manually."
             return 1
@@ -455,6 +457,7 @@ function Install-Jq {
             Invoke-Brew install jq
         } elseif ($script:IsUbuntu) {
             Write-Output "jq not found. Installing jq using apt on Ubuntu..."
+            $sudo = Get-SudoPrefix
             bash -lc "$sudo apt-get update -y && $sudo apt-get install -y jq"
         } else {
             Write-Warning "Unsupported OS for automatic jq installation. Please install jq manually."
@@ -485,6 +488,7 @@ function Install-Yq {
             Invoke-Brew install yq
         } elseif ($script:IsUbuntu) {
             Write-Output "yq not found. Installing yq using snap on Ubuntu..."
+            $sudo = Get-SudoPrefix
             bash -lc "$sudo snap install yq"
         } else {
             Write-Warning "Unsupported OS for automatic yq installation. Please install yq manually."
@@ -515,6 +519,7 @@ function Install-GitHubCli {
             Invoke-Brew install gh
         } elseif ($script:IsUbuntu) {
             Write-Output "GitHub CLI (gh) not found. Installing GitHub CLI using apt on Ubuntu..."
+            $sudo = Get-SudoPrefix
             bash -lc "$sudo apt update && $sudo apt install gh"
         } else {
             Write-Warning "Unsupported OS for automatic GitHub CLI installation. Please install GitHub CLI manually."
