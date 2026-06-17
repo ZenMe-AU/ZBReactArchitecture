@@ -230,30 +230,12 @@ function Install-NodeJsAndNpm {
         }
         # Confirm version
         $nodeVersionOutput = node --version 2>$null
-        if ($nodeVersionOutput) {        # Get the updated path from environment
-        $Env:Path = [Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [Environment]::GetEnvironmentVariable("Path", "User")
-        # Re-check installation
-        $nodeInstalled = Get-Command node -ErrorAction SilentlyContinue
-        $npmInstalled = Get-Command npm -ErrorAction SilentlyContinue
-        if (-not $nodeInstalled -or -not $npmInstalled) {
-            Write-Error "Node.js or npm installation failed. Please install them manually. Visit https://nodejs.org/en/download/ for installation instructions."
-            exit 1
-        }
-        # Confirm version
-        $nodeVersionOutput = node --version 2>$null
         if ($nodeVersionOutput) {
             $nodeVersionString = $nodeVersionOutput.TrimStart("vV").Trim()
             $nodeVersion = [version]$nodeVersionString
             if ($nodeVersion -lt $requiredNodeVersion) {
                 Write-Error "Node.js upgrade failed or version is still less than $requiredNodeVersion. Please upgrade Node.js manually."
                 return 1
-            }
-        }
-            $nodeVersionString = $nodeVersionOutput.TrimStart("vV").Trim()
-            $nodeVersion = [version]$nodeVersionString
-            if ($nodeVersion -lt $requiredNodeVersion) {
-                Write-Error "Node.js upgrade failed or version is still less than $requiredNodeVersion. Please upgrade Node.js manually."
-                exit 1
             }
         }
     }
@@ -411,6 +393,10 @@ function Install-Ripgrep {
         } elseif ($script:IsMacOS) {
             Write-Output "ripgrep (rg) not found. Installing ripgrep using Homebrew..."
             Invoke-Brew install ripgrep
+        } elseif ($script:IsUbuntu) {
+            Write-Output "ripgrep (rg) not found. Installing ripgrep using apt on Ubuntu..."
+            $sudo = Get-SudoPrefix
+            bash -lc "$sudo apt-get update -y && $sudo apt-get install -y ripgrep"
         } else {
             Write-Warning "Unsupported OS for automatic ripgrep installation. Please install ripgrep manually."
             return 1
@@ -438,6 +424,10 @@ function Install-Fd {
         } elseif ($script:IsMacOS) {
             Write-Output "fd not found. Installing fd using Homebrew..."
             Invoke-Brew install fd
+        } elseif ($script:IsUbuntu) { # Note: fd is called fd-find in Debian and Ubuntu. Uncomment lines below if we want fd/fd-find to be necessary on Ubuntu
+            # Write-Output "fd not found. Installing fd using apt on Ubuntu..."
+            # $sudo = Get-SudoPrefix
+            # bash -lc "$sudo apt-get update -y && $sudo apt-get install -y fd-find"
         } else {
             Write-Warning "Unsupported OS for automatic fd installation. Please install fd manually."
             return 1
@@ -465,6 +455,10 @@ function Install-Jq {
         } elseif ($script:IsMacOS) {
             Write-Output "jq not found. Installing jq using Homebrew..."
             Invoke-Brew install jq
+        } elseif ($script:IsUbuntu) {
+            Write-Output "jq not found. Installing jq using apt on Ubuntu..."
+            $sudo = Get-SudoPrefix
+            bash -lc "$sudo apt-get update -y && $sudo apt-get install -y jq"
         } else {
             Write-Warning "Unsupported OS for automatic jq installation. Please install jq manually."
             return 1
@@ -492,6 +486,10 @@ function Install-Yq {
         } elseif ($script:IsMacOS) {
             Write-Output "yq not found. Installing yq using Homebrew..."
             Invoke-Brew install yq
+        } elseif ($script:IsUbuntu) {
+            Write-Output "yq not found. Installing yq using snap on Ubuntu..."
+            $sudo = Get-SudoPrefix
+            bash -lc "$sudo snap install yq"
         } else {
             Write-Warning "Unsupported OS for automatic yq installation. Please install yq manually."
             return 1
@@ -519,6 +517,10 @@ function Install-GitHubCli {
         } elseif ($script:IsMacOS) {
             Write-Output "GitHub CLI (gh) not found. Installing GitHub CLI using Homebrew..."
             Invoke-Brew install gh
+        } elseif ($script:IsUbuntu) {
+            Write-Output "GitHub CLI (gh) not found. Installing GitHub CLI using apt on Ubuntu..."
+            $sudo = Get-SudoPrefix
+            bash -lc "$sudo apt update && $sudo apt install gh"
         } else {
             Write-Warning "Unsupported OS for automatic GitHub CLI installation. Please install GitHub CLI manually."
             return 1

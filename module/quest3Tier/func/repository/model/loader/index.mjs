@@ -1,10 +1,10 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
 import DB_TYPE from "../../../enum/dbType.mjs";
-import { loadModels } from "./sequelize.js";
+import { loadModels } from "./sequelize.cjs";
 
 function createModelsLoader(type, db, modelsDir) {
   switch (type) {
