@@ -5,6 +5,9 @@
 
 import { existsSync, readFileSync } from "fs";
 import { join } from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = fileURLToPath(new URL(".", import.meta.url));
 
 function loadLocalSettings() {
   const filePath = join(__dirname, "..", "local.settings.json");

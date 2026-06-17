@@ -1,26 +1,12 @@
-# CQRS
+# CQRS (Command Query Responsibility Segregation)
 
 ## Overview
 
-### Intent
+quest3Tier applies CQRS as a lightweight logical separation between write operations (commands) and read operations (queries) across its API routes, handlers, and service functions. This keeps the module aligned to CQRS intent without requiring a separate read/write data store topology.
 
-Define CQRS in quest3Tier as a minimal, practical separation between write operations and read operations:
+The pattern addresses a concrete module risk: quest3Tier mixes CRUD-style endpoints with explicit command endpoints, so read/write concerns can drift without explicit boundaries. CQRS in this module is implemented as contract-level separation, where query paths are read-only and command paths own state transitions.
 
-- Commands represent intent to change state.
-- Queries retrieve state and do not perform business state changes.
-- The separation is logical at API, handler, and service levels; separate databases are optional.
-
-This keeps quest3Tier simple while still aligning with the CQRS definition.
-
-### Problem
-
-quest3Tier combines classic CRUD-style endpoints with explicit command endpoints. Without a clear boundary, write paths can leak query concerns, query paths can gain hidden state changes, and the module becomes harder to test and evolve.
-
-### Trade-Offs
-
-- A lightweight CQRS split improves clarity and testability without introducing unnecessary infrastructure.
-- Because read and write paths still share persistence models in this module, strict separation relies on handler and service contracts.
-- Full event sourcing is not required for this module, but command/event tracking can still be used where useful.
+The main trade-off is operational simplicity versus strict physical separation. quest3Tier keeps one persistence model, so correctness depends on handler and service contracts rather than independent read/write infrastructure. Full event sourcing is therefore optional here, while command and event tracking can still be applied where it adds value.
 
 Wikipedia Reference:
 
@@ -134,6 +120,11 @@ Related patterns:
 - [Composite: Idempotent Command Processing](../../Documentation/ArchitecturePatterns/composite-IdempotentCommandProcessing.md)
 - [Composite: Observability and Correlation](../../Documentation/ArchitecturePatterns/composite-ObservabilityAndCorrelation.md)
 
+Related guidance:
+
+- [Architecture pattern documentation rules](../../Documentation/ArchitecturePatterns/AGENTS.md)
+
 Related decisions:
 
+- No quest3Tier-specific CQRS decision record is currently documented.
 - [Decisions index](../../Documentation/Decisions/README.md)

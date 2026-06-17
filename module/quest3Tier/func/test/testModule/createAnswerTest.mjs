@@ -1038,7 +1038,7 @@ function answerData() {
   ];
 }
 
-module.exports = { createAnswer };
+export { createAnswer };
 
 // Question 7: What is your favorite actor?
 
