@@ -3,8 +3,9 @@
  * @license SPDX-License-Identifier: MIT
  */
 
+import mod from "./swagger.cjs";
+
 export default async function swaggerJSON(context, req) {
-  const mod = await import("./swagger.js");
   const swaggerDocs = mod?.default ?? mod;
   return { jsonBody: swaggerDocs };
 }
