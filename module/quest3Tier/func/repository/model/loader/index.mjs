@@ -4,7 +4,7 @@
  */
 
 import DB_TYPE from "../../../enum/dbType.mjs";
-import { loadModels } from "./sequelize.js";
+import { loadModels } from "./sequelize.cjs";
 
 function createModelsLoader(type, db, modelsDir) {
   switch (type) {
