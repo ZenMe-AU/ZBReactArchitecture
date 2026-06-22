@@ -1,7 +1,7 @@
 const path = require("path");
 
 module.exports = {
-  config: path.resolve("./deploy/db", "config.json"),
+  config: path.resolve("./deploy/db", "config.cjs"),
   "models-path": path.resolve("./deploy/db", "models"),
   "seeders-path": path.resolve("./deploy/db", "seeders"),
   "migrations-path": path.resolve("./deploy/db", "migration"),
