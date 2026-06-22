@@ -1,15 +1,16 @@
 {
   "name": "quest3Tier",
   "version": "1.0.0",
-  "type": "module",
+  "type": "commonjs",
   "description": "",
-  "main": "index.mjs",
+  "main": "index.cjs",
   "scripts": {
     "setup:local": "node deploy/localDev/localSetting.js",
     "prestart": "pnpm run setup:local",
     "start": "func start",
     "deploy": "pnpm deploy --filter quest3Tier --prod out",
-    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
+    "test": "jest",
+    "test_module": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
     "test:list": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --listTests"
   },
   "dependencies": {
@@ -53,7 +54,7 @@
   },
   "jest": {
     "setupFiles": [
-      "<rootDir>/test/jest.loadLocalSettings.mjs"
+      "<rootDir>/test/jest.loadLocalSettings.cjs"
     ],
     "testMatch": [
       "**/__tests__/**/*.[jt]s?(x)",

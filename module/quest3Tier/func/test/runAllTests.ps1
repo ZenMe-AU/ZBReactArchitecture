@@ -37,5 +37,5 @@ function checkDependencies() {
 }
 
 checkDependencies
-npm run test testQuestion.test.mjs
+npm run test testQuestion.test.js
 Write-Host "All tests completed."
