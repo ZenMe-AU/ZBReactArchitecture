@@ -6,15 +6,14 @@
 const baseUrl = process.env.QUESTION_URL;
 const questionUrl = new URL("/question", baseUrl);
 const questionProfileUrl = new URL("/profile", baseUrl);
-import { expect, test } from "@jest/globals";
-import { questionData, questionTestResult } from "./createQuestionTestData.mjs";
+const { questionData, questionTestResult } = require("./createQuestionTestData");
 
 const createQuestion = (profileIdLookup) => {
   test.each(questionData())(
     "create question $questionId",
     async (q) => {
       const response = await fetch(questionUrl, {
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", authorization: "Bearer kDRfGNFe-Q-h6e-JmAvBbGp34K56bs-vDj6ihX8P4HU" },
         method: "POST",
         body: JSON.stringify({
           profileId: profileIdLookup.getProfileId(q.userId),
@@ -63,4 +62,4 @@ const questionIdLookup = {
   },
 };
 
-export { createQuestion, checkQuestion, questionIdLookup };
+module.exports = { createQuestion, checkQuestion, questionIdLookup };

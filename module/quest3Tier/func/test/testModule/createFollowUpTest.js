@@ -1,11 +1,10 @@
 /**
- * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
 const baseUrl = process.env.QUESTION_URL;
 const sendFollowUpCmdUrl = new URL("/sendFollowUpCmd", baseUrl);
-import { expect, test } from "@jest/globals";
 
 const createFollowUp = (profileIdLookup, questionIdLookup, testCorrelationId) => {
   test.each(followUpData())("send follow-up question by user $userId", async (followUp) => {
@@ -77,4 +76,4 @@ function followUpData() {
   ];
 }
 
-export { createFollowUp };
+module.exports = { createFollowUp };

@@ -1,5 +1,5 @@
 /**
- * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
@@ -8,7 +8,6 @@ const baseUrl = process.env.QUESTION_URL;
 // const profileUrl = new URL("/profile", profileBaseUrl);
 const eventUrl = new URL("/getEventByCorrelationId", baseUrl);
 const followUpQuestionQty = 5;
-import { expect, test } from "@jest/globals";
 
 const checkShareQuestion = (profileIdLookup, testCorrelationId) => {
   //   test.each(shareQuestionData())("check shared question by user $userId", async (shared) => {
@@ -78,4 +77,4 @@ function shareQuestionData() {
   ];
 }
 
-export { checkShareQuestion, checkFollowUpQty };
+module.exports = { checkShareQuestion, checkFollowUpQty };

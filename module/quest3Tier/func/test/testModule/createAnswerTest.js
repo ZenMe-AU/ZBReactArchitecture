@@ -1,11 +1,10 @@
 /**
- * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
 const baseUrl = process.env.QUESTION_URL;
 const questionUrl = new URL("/question", baseUrl);
-import { expect, test } from "@jest/globals";
 
 const createAnswer = (profileIdLookup, questionIdLookup) => {
   test.each(answerData())("answer question $questionId by user $userId", async (a) => {
@@ -1038,7 +1037,7 @@ function answerData() {
   ];
 }
 
-export { createAnswer };
+module.exports = { createAnswer };
 
 // Question 7: What is your favorite actor?
 

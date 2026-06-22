@@ -1,9 +1,9 @@
 /**
- * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
-import { v4 as uuidv4 } from "uuid";
+const { v4: uuidv4 } = require("uuid");
 
 const createUser = () => {
   createUserData().forEach((u) => {
@@ -131,4 +131,4 @@ function createUserData() {
   ];
 }
 
-export { createUser, profileIdLookup };
+module.exports = { createUser, profileIdLookup };

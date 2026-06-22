@@ -9,9 +9,9 @@
     "prestart": "pnpm run setup:local",
     "start": "func start",
     "deploy": "pnpm deploy --filter quest3Tier --prod out",
-    "test": "jest",
+    "test": "cross-env jest",
     "test_module": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
-    "test:list": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --listTests"
+    "test:list": "cross-env jest --listTests"
   },
   "dependencies": {
     "@azure/functions": "^4.0.0",
@@ -54,7 +54,7 @@
   },
   "jest": {
     "setupFiles": [
-      "<rootDir>/test/jest.loadLocalSettings.cjs"
+      "<rootDir>/test/jest.loadLocalSettings.js"
     ],
     "testMatch": [
       "**/__tests__/**/*.[jt]s?(x)",
