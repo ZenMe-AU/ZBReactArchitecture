@@ -17,5 +17,6 @@
     "*.csv": "duckdb.dataFileViewer",
     "*.tsv": "duckdb.dataFileViewer",
     "*.xlsx": "duckdb.dataFileViewer"
-  }
+  },
+  "azureFunctions.projectSubpath": "module\\quest3Tier\\func"
 }
