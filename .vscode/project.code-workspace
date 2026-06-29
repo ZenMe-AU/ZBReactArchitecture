@@ -80,6 +80,17 @@
       "../module/profile/func",
       "../module/coordinate/func",
     ],
+
+    // Loads sets the NVM_DIR in VsCode variable to same NVM install dir as user shell
+
+    "terminal.integrated.automationProfile.linux": {
+      "path": "/bin/bash",
+      "args": ["-ic"],
+    },
+    "terminal.integrated.env.linux": {
+      "NVM_DIR": "${env:HOME}/.nvm",
+    },
+
     // Snyk settings
     "snyk.scanningMode": "manual",
     "snyk.trustedFolders": ["../", "../ui", "../module/quest5Tier/func", "../module/quest3Tier/func", "../module/profile/func", "../module/coordinate/func"],
