@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "@azure/identity": "^4.11.1",
-    "@eslint/js": "^9.38.0",
+    "@eslint/js": "^9.39.4",
     "@microsoft/eslint-formatter-sarif": "^3.1.0",
     "@microsoft/microsoft-graph-client": "^3.0.7",
     "archiver": "^7.0.1",
