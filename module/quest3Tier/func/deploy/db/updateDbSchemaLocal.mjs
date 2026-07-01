@@ -3,6 +3,9 @@
  * @license SPDX-License-Identifier: MIT
  */
 
+// Upgrade DB to the latest: node updateDbSchemaLocal.mjs
+// Downgrade DB by one step: node updateDbSchemaLocal.mjs down
+
 import { fileURLToPath } from "url";
 import { resolve, dirname } from "path";
 import { classRunMigration } from "./classRunMigrationLocal.mjs";
