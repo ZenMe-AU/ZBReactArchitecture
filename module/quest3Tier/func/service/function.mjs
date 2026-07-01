@@ -21,6 +21,14 @@ import Model from "../repository/model/index.mjs";
 import { v4 as uuidv4 } from "uuid";
 import cmdName from "../enum/cmdName.mjs";
 
+/**
+ * Create a new question record.
+ * @param {string} profileId - Owner profile identifier.
+ * @param {string|null} [title=null] - Question title.
+ * @param {string|null} [question=null] - Question body text.
+ * @param {string|null} [option=null] - Question option metadata.
+ * @returns {Promise<any>} Created question model instance.
+ */
 async function create(profileId, title = null, question = null, option = null) {
   try {
     return await Model.Question.create({
@@ -31,10 +39,18 @@ async function create(profileId, title = null, question = null, option = null) {
     });
   } catch (err) {
     console.log(err);
-    throw new Error(`Function failed: ${err.message}`, { cause: err });
+    throw new Error(`Failed to create question for profileId: ${profileId}; ${err.message}`, { cause: err });
   }
 }
 
+/**
+ * Update a question by its id.
+ * @param {string} questionId - Identifier of the question to update.
+ * @param {string|null} [title=null] - New question title.
+ * @param {string|null} [questionText=null] - New question text.
+ * @param {string|null} [option=null] - Updated option metadata.
+ * @returns {Promise<any>} Result of the update operation.
+ */
 async function updateById(questionId, title = null, questionText = null, option = null) {
   try {
     return await Model.Question.update(
@@ -52,29 +68,44 @@ async function updateById(questionId, title = null, questionText = null, option 
     );
   } catch (err) {
     console.log(err);
-    throw new Error(`Function failed: ${err.message}`, { cause: err });
+    throw new Error(`Failed to update question for questionId: ${questionId}; ${err.message}`, { cause: err });
   }
 }
 
+/**
+ * Retrieve a question by its primary key.
+ * @param {string} questionId - Question identifier.
+ * @returns {Promise<any|null>} The found question or null when not found.
+ */
 async function getById(questionId) {
   try {
     // return await Questionnaires.findOne({ where: { id: questionId } });
     return await Model.Question.findByPk(questionId);
   } catch (err) {
     console.log(err);
-    throw new Error(`Function failed: ${err.message}`, { cause: err });
+    throw new Error(`Failed to retrieve question for questionId: ${questionId}; ${err.message}`, { cause: err });
   }
 }
 
+/**
+ * Retrieve all questions created by a user.
+ * @param {string} profileId - Profile identifier.
+ * @returns {Promise<Array<any>>} List of questions for the profile.
+ */
 async function getListByUser(profileId) {
   try {
     return await Model.Question.findAll({ where: { profileId: profileId } });
   } catch (err) {
     console.log(err);
-    throw new Error(`Function failed: ${err.message}`, { cause: err });
+    throw new Error(`Failed to retrieve questions for profileId: ${profileId}; ${err.message}`, { cause: err });
   }
 }
 
+/**
+ * Retrieve questions belonging to a user or shared with a user.
+ * @param {string} profileId - Profile identifier.
+ * @returns {Promise<Array<any>>} Combined list of owned or shared questions.
+ */
 async function getCombinationListByUser(profileId) {
   try {
     return await Model.Question.findAll({
@@ -96,10 +127,19 @@ async function getCombinationListByUser(profileId) {
     });
   } catch (err) {
     console.log(err);
-    throw new Error(`Function failed: ${err.message}`, { cause: err });
+    throw new Error(`Failed to retrieve questions for profileId: ${profileId}; ${err.message}`, { cause: err });
   }
 }
 
+/**
+ * Add an answer entry for a question.
+ * @param {string} questionId - Identifier of the question.
+ * @param {string} profileId - Profile that answered the question.
+ * @param {number} duration - Time spent answering.
+ * @param {string|null} [answer=null] - Answer text.
+ * @param {string|null} [option=null] - Selected option identifier.
+ * @returns {Promise<any>} Created answer model instance.
+ */
 async function addAnswerByQuestionId(questionId, profileId, duration, answer = null, option = null) {
   try {
     return await Model.QuestionAnswer.create({
@@ -111,19 +151,30 @@ async function addAnswerByQuestionId(questionId, profileId, duration, answer = n
     });
   } catch (err) {
     console.log(err);
-    throw new Error(`Function failed: ${err.message}`, { cause: err });
+    throw new Error(`Failed to add answer for questionId: ${questionId}; ${err.message}`, { cause: err });
   }
 }
 
+/**
+ * Retrieve a specific answer by question and answer ids.
+ * @param {string} questionId - Identifier of the question.
+ * @param {string} answerId - Identifier of the answer.
+ * @returns {Promise<any|null>} The matching answer or null when not found.
+ */
 async function getAnswerById(questionId, answerId) {
   try {
     return await Model.QuestionAnswer.findOne({ where: { id: answerId, questionId: questionId } });
   } catch (err) {
     console.log(err);
-    throw new Error(`Function failed: ${err.message}`, { cause: err });
+    throw new Error(`Failed to retrieve answer for questionId ${questionId} and answerId ${answerId}: ${err.message}`, { cause: err });
   }
 }
 
+/**
+ * Retrieve a list of answers for a specific question.
+ * @param {string} questionId - Identifier of the question.
+ * @returns {Promise<any[]>} List of matching answers.
+ */
 async function getAnswerListByQuestionId(questionId) {
   try {
     // return await QuestionAnswer.findAll({ where: { questionId: questionId }, order: [["createdAt", "DESC"]] });
@@ -162,10 +213,17 @@ async function getAnswerListByQuestionId(questionId) {
     );
   } catch (err) {
     console.log(err);
-    throw new Error(`Function failed: ${err.message}`, { cause: err });
+    throw new Error(`Failed to retrieve answers for questionId: ${questionId}; ${err.message}`, { cause: err });
   }
 }
 
+/**
+ * Share a question with multiple receivers.
+ * @param {string} newQuestionId - Identifier of the new question.
+ * @param {string} senderId - Identifier of the sender.
+ * @param {string[]} receiverIds - List of receiver identifiers.
+ * @returns {Promise<any[]>} List of created sharing records.
+ */
 async function shareQuestion(newQuestionId, senderId, receiverIds) {
   try {
     console.log("shareQuestion data:", newQuestionId, senderId, receiverIds);
@@ -179,10 +237,18 @@ async function shareQuestion(newQuestionId, senderId, receiverIds) {
     return await Model.QuestionShare.bulkCreate(addData);
   } catch (err) {
     console.log(err);
-    throw new Error(`Function failed: ${err.message}`, { cause: err });
+    throw new Error(`Failed to share question from senderId ${senderId} to receiversIds ${receiverIds.join(", ")}; ${err.message}`, { cause: err });
   }
 }
 
+/**
+ * Add follow-up questions based on a specific question ID.
+ * @param {string} newQuestionId - Identifier of the new question.
+ * @param {string} senderId - Identifier of the sender.
+ * @param {any[]} questionList - List of questions to follow up on.
+ * @param {boolean} isSave - Flag indicating whether to save the follow-up.
+ * @returns {Promise<any[]>} List of created follow-up records.
+ */
 async function addFollowUpByQuestionId(newQuestionId, senderId, questionList, isSave) {
   try {
     const addData = questionList.map(function (question) {
@@ -201,10 +267,17 @@ async function addFollowUpByQuestionId(newQuestionId, senderId, questionList, is
     return list;
   } catch (err) {
     console.log(err);
-    throw new Error(`Function failed: ${err.message}`, { cause: err });
+    throw new Error(`Failed to add follow-up question; ${err.message}`, { cause: err });
   }
 }
 
+/**
+ * Insert a new follow-up command.
+ * @param {string} senderId - Identifier of the sender.
+ * @param {any} cmdData - Data for the follow-up command.
+ * @param {string} correlationId - Identifier for correlating the command.
+ * @returns {Promise<any>} The created follow-up command.
+ */
 async function insertFollowUpCmd(senderId, cmdData, correlationId) {
   try {
     return await Model.FollowUpCmd.create({
@@ -215,10 +288,15 @@ async function insertFollowUpCmd(senderId, cmdData, correlationId) {
     });
   } catch (err) {
     console.log(err);
-    throw new Error(`Function failed: ${err.message}`, { cause: err });
+    throw new Error(`Failed to insert follow-up command; ${err.message}`, { cause: err });
   }
 }
 
+/**
+ * Insert a new follow-up filter.
+ * @param {any} cmdData - Data for the follow-up filter.
+ * @returns {Promise<any[]>} List of created follow-up filters.
+ */
 async function insertFollowUpFilter(cmdData) {
   try {
     if (cmdData.save) {
@@ -241,6 +319,11 @@ async function insertFollowUpFilter(cmdData) {
   return;
 }
 
+/**
+ * Retrieve the list of receivers for a follow-up command.
+ * @param {any} cmdData - Data for the follow-up command.
+ * @returns {Promise<string[]>} List of receiver identifiers.
+ */
 async function getFollowUpReceiver(cmdData) {
   try {
     const filterReceiverIdAry = await Promise.all(
@@ -261,16 +344,21 @@ async function getFollowUpReceiver(cmdData) {
     });
   } catch (err) {
     console.log(err);
-    throw new Error(`Function failed: ${err.message}`, { cause: err });
+    throw new Error(`Failed to retrieve follow-up receivers; ${err.message}`, { cause: err });
   }
 }
 
+/**
+ * Update the status of a follow-up command.
+ * @param {string} id - Identifier of the follow-up command.
+ * @returns {Promise<any>} The updated follow-up command.
+ */
 async function updateFollowUpCmdStatus(id) {
   try {
     return await Model.FollowUpCmd.update({ status: 1 }, { where: { id: id }, individualHooks: true });
   } catch (err) {
     console.log(err);
-    throw new Error(`Function failed: ${err.message}`, { cause: err });
+    throw new Error(`Failed to update follow-up command status; ${err.message}`, { cause: err });
   }
 }
 
@@ -284,16 +372,21 @@ async function insertQuestionShareCmd(senderId, cmdData, correlationId) {
     });
   } catch (err) {
     console.log(err);
-    throw new Error(`Function failed: ${err.message}`, { cause: err });
+    throw new Error(`Failed to insert question share command; ${err.message}`, { cause: err });
   }
 }
 
+/**
+ * Update the status of a question share command.
+ * @param {string} id - Identifier of the question share command.
+ * @returns {Promise<any>} The updated question share command.
+ */
 async function updateQuestionShareCmdStatus(id) {
   try {
     return await Model.QuestionShareCmd.update({ status: 1 }, { where: { id: id }, individualHooks: true });
   } catch (err) {
     console.log(err);
-    throw new Error(`Function failed: ${err.message}`, { cause: err });
+    throw new Error(`Failed to update question share command status; ${err.message}`, { cause: err });
   }
 }
 
@@ -362,6 +455,11 @@ async function updateQuestionShareCmdStatus(id) {
 //   }
 // }
 
+/**
+ * Retrieve a list of shared questions for a specific user.
+ * @param {string} profileId - Identifier of the user.
+ * @returns {Promise<any[]>} List of shared questions.
+ */
 async function getSharedQuestionListByUser(profileId) {
   try {
     return await Model.QuestionShare.findAll({
@@ -375,19 +473,32 @@ async function getSharedQuestionListByUser(profileId) {
     });
   } catch (err) {
     console.log(err);
-    throw new Error(`Function failed: ${err.message}`, { cause: err });
+    throw new Error(`Failed to retrieve shared questions for profile: ${profileId}; ${err.message}`, { cause: err });
   }
 }
 
+/**
+ * Patch a question action by its ID.
+ * @param {string} profileId - Identifier of the user.
+ * @param {string} action - Action type to filter the questions.
+ * @param {string} questionId - Identifier of the question to filter.
+ * @returns {Promise<any[]>} List of shared questions.
+ */
 async function patchById(questionId, action, profileId) {
   try {
     return await Model.QuestionAction.create({ questionId, profileId, action });
   } catch (err) {
     console.log(err);
-    throw new Error(`Function failed: ${err.message}`, { cause: err });
+    throw new Error(`Failed to patch question by ID: ${questionId}; ${err.message}`, { cause: err });
   }
 }
 
+/**
+ * Retrieve events by their correlation ID.
+ * @param {string} name - Name of the event.
+ * @param {string} correlationId - Correlation ID for the events.
+ * @returns {Promise<any[]>} List of matching events.
+ */
 async function getEventByCorrelationId(name, correlationId) {
   let model;
   switch (name) {
@@ -398,7 +509,7 @@ async function getEventByCorrelationId(name, correlationId) {
       model = Model.QuestionShareEvent;
       break;
     default:
-      throw new Error("unknown eventName");
+      throw new Error(`Unknown eventName: ${name}`);
   }
   try {
     return await model.findAll({
@@ -408,7 +519,7 @@ async function getEventByCorrelationId(name, correlationId) {
     });
   } catch (err) {
     console.log(err);
-    throw new Error("can't get event by correlationId");
+    throw new Error(`Failed to get event by correlationId: ${correlationId}; ${err.message}`, { cause: err });
   }
 }
 
