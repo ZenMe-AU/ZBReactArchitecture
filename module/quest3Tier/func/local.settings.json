@@ -8,8 +8,8 @@
     "DB_USERNAME": "vscode",
     "DB_DATABASE": "quest3Tier",
     "DB_HOST": "127.0.0.1",
-    "CLIENT_ID": "",
-    "TENANT_ID": "",
+    "CLIENT_ID": "87aa3687-66a4-4fab-bf59-70de6bf768fa",
+    "TENANT_ID": "15fb0613-7977-4551-801b-6aadac824241",
     "DB_PASSWORD": "vscode",
     "QUESTION_URL": "http://localhost:7074"
   },
