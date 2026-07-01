@@ -43,7 +43,8 @@
     "snyk": "^1.1300.2",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.2",
-    "unique-names-generator": "^4.7.1"
+    "unique-names-generator": "^4.7.1",
+    "vitest": "^4.1.9"
   },
   "pnpm": {
     "overrides": {
