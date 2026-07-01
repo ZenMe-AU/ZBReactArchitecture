@@ -21,4 +21,5 @@ In the terminal:
 > Note: May need to run `pnpm i` first if the following commands do not execute successfully.
 
 1. `npx sequelize-cli db:migrate --env local`
-2. `npx sequelize-cli db:seed:all --env local`
+2. `npx sequelize-cli db:seed:all --env local`   
+3. 
