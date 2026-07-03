@@ -1,9 +1,9 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
-const AttributeRepo = require("../repository/attributeRepository");
+import { attributeRepository } from "../repository/attributeRepository.js";
 
 /**
  * get user's attributes
@@ -13,7 +13,7 @@ const AttributeRepo = require("../repository/attributeRepository");
  */
 async function getUserAttributeList(profileId) {
   try {
-    return AttributeRepo.getByProfileId(profileId);
+    return attributeRepository.getByProfileId(profileId);
   } catch (err) {
     console.log(err);
     throw new Error(`Function failed: ${err.message}`, { cause: err });
@@ -29,14 +29,11 @@ async function getUserAttributeList(profileId) {
  */
 async function updateAttribute(profileId, tags) {
   try {
-    return AttributeRepo.updateAttribute(profileId, tags);
+    return attributeRepository.updateAttribute(profileId, tags);
   } catch (err) {
     console.log(err);
     throw new Error(`Function failed: ${err.message}`, { cause: err });
   }
 }
 
-module.exports = {
-  getUserAttributeList,
-  updateAttribute,
-};
+export { getUserAttributeList, updateAttribute };

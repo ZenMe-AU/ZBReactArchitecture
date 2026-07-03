@@ -20,6 +20,7 @@ import {
   getAppInsightsName,
   getApimName,
 } from "../util/namingConvention.cjs";
+import { getApimBackendList } from "../util/azureCli.cjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -150,7 +151,8 @@ function initEnvironment() {
   const targetEnv = getTargetEnvName();
   process.env.TF_VAR_target_env = targetEnv;
   console.log(`Setting TARGET_ENV to: ${process.env.TF_VAR_target_env}`);
-  process.env.TF_VAR_subscription_id = getAzureSubscriptionId();
+  const subscriptionId = getAzureSubscriptionId();
+  process.env.TF_VAR_subscription_id = subscriptionId;
   console.log(`Setting subscription_id to: ${process.env.TF_VAR_subscription_id}`);
   const resourceGroupName = getResourceGroupName(envType, targetEnv);
   process.env.TF_VAR_resource_group_name = resourceGroupName;
@@ -161,37 +163,6 @@ function initEnvironment() {
   const appConfigName = getAppConfigName(targetEnv);
   process.env.TF_VAR_appconfig_name = appConfigName;
   console.log(`Setting appconfig_name to: ${process.env.TF_VAR_appconfig_name}`);
-
-  // DNS variables (parameterized to avoid hardcoded values in Terraform)
-  process.env.TF_VAR_parent_domain_name = process.env.TF_VAR_parent_domain_name || "zenblox.com.au";
-  console.log(`Setting parent_domain_name to: ${process.env.TF_VAR_parent_domain_name}`);
-  // Determine DNS resource group: prefer explicit env var; otherwise auto-detect by zone name; fallback to sensible default
-  try {
-    if (!process.env.TF_VAR_dns_resource_group_name) {
-      const zone = process.env.TF_VAR_parent_domain_name;
-      // Query all DNS zones and find the RG for the specified zone name
-      const rg = execSync(`az network dns zone list --query "[?name=='${zone}'].resourceGroup | [0]" -o tsv`, {
-        encoding: "utf8",
-        stdio: ["ignore", "pipe", "ignore"],
-        shell: true,
-      })
-        .toString()
-        .trim();
-      if (rg) {
-        process.env.TF_VAR_dns_resource_group_name = rg;
-        console.log(`Auto-detected dns_resource_group_name: ${rg}`);
-      } else {
-        // Fallback: commonly used RG for shared DNS zones
-        process.env.TF_VAR_dns_resource_group_name = "root-zenblox";
-        console.warn(`Could not auto-detect DNS RG for zone '${zone}'. Defaulting to: ${process.env.TF_VAR_dns_resource_group_name}`);
-      }
-    }
-  } catch (e) {
-    process.env.TF_VAR_dns_resource_group_name = process.env.TF_VAR_dns_resource_group_name || "root-zenblox";
-    console.warn(`Warning: DNS RG auto-detect failed. Using dns_resource_group_name=${process.env.TF_VAR_dns_resource_group_name}`);
-  }
-  console.log(`Setting dns_resource_group_name to: ${process.env.TF_VAR_dns_resource_group_name}`);
-
   // Auto-detect existing DNS records and avoid managing them if already present
   try {
     const dnsRg = process.env.TF_VAR_dns_resource_group_name;
@@ -255,8 +226,12 @@ function initEnvironment() {
   process.env.TF_VAR_app_insights_name = getAppInsightsName(targetEnv);
   console.log(`Setting app_insights_name to: ${process.env.TF_VAR_app_insights_name}`);
   // set the apim name
-  process.env.TF_VAR_apim_name = getApimName(targetEnv);
+  const apimName = getApimName(targetEnv);
+  process.env.TF_VAR_apim_name = apimName;
   console.log(`Setting apim_name to: ${process.env.TF_VAR_apim_name}`);
+  const apimBackendList = getApimBackendList(subscriptionId, resourceGroupName, apimName);
+  process.env.TF_VAR_apim_backend_list = `[${apimBackendList.map((b) => `"${b}"`).join(",")}]`;
+  console.log(`Setting apim_backend_list to: ${process.env.TF_VAR_apim_backend_list}`);
   //  process.env.TF_LOG = "DEBUG";
   //  console.log(`Setting TF_LOG to: ${process.env.TF_LOG}`);
   activatePimPermissions(resourceGroupName);

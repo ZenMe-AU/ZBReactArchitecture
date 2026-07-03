@@ -1,16 +1,17 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
 const baseUrl = process.env.QUESTION_URL;
 const questionUrl = new URL("/question", baseUrl);
-const { generateToken } = require("../../service/authUtils");
+//const { generateToken } = require("../../service/authUtils");
 
 const checkAnswer = (profileIdLookup, questionIdLookup) => {
   test.each(getAnswerTestResult())("There should be $count answers for question $questionId.", async (r) => {
     if (!tokenLookup.data) {
-      const token = generateToken({ profileId: profileIdLookup.data[0].profileId });
+      //const token = generateToken({ profileId: profileIdLookup.data[0].profileId });
+      const token = "mocked_token_for_testing_purposes_only";
       console.log("Profile ID: ", profileIdLookup.data[0].profileId);
       console.log("Generated Token: ", token);
       tokenLookup.add(token);

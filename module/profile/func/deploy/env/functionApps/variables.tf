@@ -65,3 +65,19 @@ variable "db_host" {
 variable "log_analytics_workspace_id" {
   type = string
 }
+
+variable "api_management_name" {
+  type = string
+}
+
+variable "apim_backend_name" {
+  type = string
+}
+
+variable "tenant_id" {
+  type = string
+}
+
+variable "app_client_id" {
+  type = string
+}

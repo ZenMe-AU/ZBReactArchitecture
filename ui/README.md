@@ -22,12 +22,12 @@ pnpm run dev:federation
 
 Starts the full micro-frontend stack in one command. It runs three processes via `concurrently`:
 
-| Script | Purpose | Port(s) |
-|--------|---------|---------|
-| `dev:federation` | Runs all federation processes together | — |
-| `mf:providers:watch` | Rebuilds remote modules on file changes | — |
-| `mf:providers:preview` | Serves built remotes | 5174, 5175, 5176 |
-| `mf:host:dev` | Runs the host shell | 5173 |
+| Script                 | Purpose                                 | Port(s)          |
+| ---------------------- | --------------------------------------- | ---------------- |
+| `dev:federation`       | Runs all federation processes together  | —                |
+| `mf:providers:watch`   | Rebuilds remote modules on file changes | —                |
+| `mf:providers:preview` | Serves built remotes                    | 5174, 5175, 5176 |
+| `mf:host:dev`          | Runs the host shell                     | 5173             |
 
 Remotes:
 
@@ -42,6 +42,13 @@ To run pieces individually (e.g. when remotes are already running elsewhere):
 ```sh
 pnpm run mf:host:dev
 ```
+
+1. Run pnpm i
+1. Copy env.json.example and rename to `env.json`
+1. Open MS Entra ID and create a new app registration called 'Localhost Dev App on Port 5173'
+1. Copy the Application (client) ID and Directory (tenant) ID
+1. Edit ui\auth\msalInstance.ts and insert the above Client ID and Tenant ID.
+1. Run `pnpm run dev`
 
 ## Deployment
 
@@ -58,7 +65,6 @@ pnpm start
 ```
 
 Now you'll need to pick a host to deploy it to.
-
 
 # ui
 

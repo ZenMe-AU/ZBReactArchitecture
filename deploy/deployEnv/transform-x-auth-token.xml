@@ -1,0 +1,9 @@
+<fragment>
+	<choose>
+		<when condition="@(!string.IsNullOrEmpty(context.Request.Headers.GetValueOrDefault("X-Auth-Token","")))">
+			<set-header name="Authorization" exists-action="override">
+				<value>@(context.Request.Headers.GetValueOrDefault("X-Auth-Token",""))</value>
+			</set-header>
+		</when>
+	</choose>
+</fragment>

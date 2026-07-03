@@ -1,5 +1,5 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
@@ -21,7 +21,7 @@ const moduleDir = resolve(__dirname, "..", "..", "..");
     process.exit(1);
   }
   const autoApprove = process.argv.includes("--auto-approve");
-  new classDeployEnvironment({
+  await new classDeployEnvironment({
     envType,
     targetEnv,
     moduleName,

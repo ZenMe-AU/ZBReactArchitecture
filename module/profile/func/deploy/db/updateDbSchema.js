@@ -1,14 +1,21 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
-const { resolve } = require("path");
-const classRunMigration = require("./classRunMigration.js");
-const { getTargetEnv, getModuleName } = require("../../../../../deploy/util/envSetup.cjs");
-const { createDatabaseInstance } = require("../../repository/model/connection/index.js");
-const DB_TYPE = require("../../enum/dbType.js");
-const { getDbAdminName, getPgHost } = require("../../../../../deploy/util/namingConvention.cjs");
+import { resolve } from "path";
+import { fileURLToPath } from "node:url";
+import { dirname } from "node:path";
+import { classRunMigration } from "./classRunMigration.js";
+import __envSetup from "../../../../../deploy/util/envSetup.cjs";
+const { getTargetEnv, getModuleName } = __envSetup;
+import { createDatabaseInstance } from "../../repository/model/connection/index.js";
+import { DB_TYPE } from "../../enum/dbType.js";
+import __namingConvention from "../../../../../deploy/util/namingConvention.cjs";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const { getDbAdminName, getPgHost } = __namingConvention;
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
 const migrationDir = resolve(__dirname, "migration");

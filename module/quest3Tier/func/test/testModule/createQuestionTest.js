@@ -1,5 +1,5 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
@@ -13,7 +13,7 @@ const createQuestion = (profileIdLookup) => {
     "create question $questionId",
     async (q) => {
       const response = await fetch(questionUrl, {
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", authorization: "Bearer kDRfGNFe-Q-h6e-JmAvBbGp34K56bs-vDj6ihX8P4HU" },
         method: "POST",
         body: JSON.stringify({
           profileId: profileIdLookup.getProfileId(q.userId),

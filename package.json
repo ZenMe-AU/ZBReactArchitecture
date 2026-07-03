@@ -25,6 +25,7 @@
     "@microsoft/eslint-formatter-sarif": "^3.1.0",
     "@microsoft/microsoft-graph-client": "^3.0.7",
     "archiver": "^7.0.1",
+    "azurite": "^3.35.0",
     "dotenv": "^16.6.1",
     "esbuild": "^0.27.0",
     "eslint": "^9.38.0",
@@ -46,17 +47,23 @@
   },
   "pnpm": {
     "overrides": {
-      "ui>react": "18.x.x",
-      "ui>react-router": "^7.x.x"
+      "react": "18.x.x",
+      "react-router": "^7.x.x"
     },
     "onlyBuiltDependencies": [
+      "@scarf/scarf",
+      "azure-functions-core-tools",
+      "esbuild",
+      "protobufjs",
+      "scarf",
       "snyk",
-      "snyk@1.1300.2",
       "snyk25h",
-      "snyk25h6"
+      "snyk25h6",
+      "snyk@1.1300.2"
     ]
   },
   "engines": {
     "node": ">=20.0.0"
-  }
+  },
+  "packageManager": "pnpm@10.28.2+sha512.41872f037ad22f7348e3b1debbaf7e867cfd448f2726d9cf74c08f19507c31d2c8e7a11525b983febc2df640b5438dee6023ebb1f84ed43cc2d654d2bc326264"
 }

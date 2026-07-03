@@ -2,8 +2,18 @@
 provider "azurerm" {
   alias           = "z3nm3"
   features {}
-  # subscription_id = var.subscription_id_root
-  subscription_id = "2514b48a-ec41-410f-8a1c-ab9c0b2119be"
+  subscription_id = var.subscription_id
+}
+
+variable "provider_region" {
+  description = "AWS region for the provider"
+  type        = string
+  default     = "us-east-1" # remove default to make it required
+}
+
+provider "aws" {
+  region = var.provider_region
+  profile = "default"
 }
 
 variable "corp_resource_group_name" {
@@ -89,6 +99,12 @@ resource "azuread_application" "rg" {
       type = "Scope"
     }
   }
+}
+
+resource "azurerm_app_configuration_key" "app_client_id" {
+  configuration_store_id = azurerm_app_configuration.appconfig.id
+  key                    = "AppClientId"
+  value                  = azuread_application.rg.client_id
 }
 
 #==========================================================

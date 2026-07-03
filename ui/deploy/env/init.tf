@@ -76,6 +76,16 @@ locals {
   has_deployer = var.deployer_sp_object_id != null && var.deployer_sp_name != null
 }
 
+variable "api_management_name" {
+  description = "API Management name"
+  type        = string
+}
+
+variable "apim_backend_name" {
+  description = "API Management backend name"
+  type        = string
+}
+
 # variable "parent_domain_name" {
 #   description = "Parent domain name for the custom domain"
 #   type        = string

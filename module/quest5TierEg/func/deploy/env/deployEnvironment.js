@@ -28,5 +28,5 @@ const moduleDir = resolve(__dirname, "..", "..", "..");
     logLevel,
     autoApprove,
   });
-  envDeployer.run();
+  await envDeployer.run();
 })();

@@ -7,8 +7,8 @@
   "scripts": {
     "setup:local": "node deploy/localDev/localSetting.js",
     "prestart": "pnpm run setup:local",
-    "start": "npx func start",
-    "deploy":"pnpm deploy --filter quest5TierEg --prod out",
+    "start": "func start",
+    "deploy": "pnpm deploy --filter quest5TierEg --prod out",
     "test": "jest"
   },
   "dependencies": {
@@ -31,6 +31,7 @@
     "fast-json-patch": "^3.1.1",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
+    "jwks-rsa": "^3.2.2",
     "pg": "^8.12.0",
     "pg-hstore": "^2.3.4",
     "postgrejs": "^2.15.4",

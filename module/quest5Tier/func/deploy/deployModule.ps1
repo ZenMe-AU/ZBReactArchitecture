@@ -30,7 +30,7 @@ Write-Output "TF_VAR_env_type was set to $env:TF_VAR_env_type"
 $env:MODULE_FOLDER = Resolve-Path -Path ".."
 Write-Output "Set MODULE_FOLDER to $env:MODULE_FOLDER"
 Set-Location $env:MODULE_FOLDER
-npm install
+pnpm install
 if ($LASTEXITCODE -ne 0) { Write-Warning "Dependency installation failed" }
 
 # Deploy the environment (infrastructure for Function App)

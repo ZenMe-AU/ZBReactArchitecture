@@ -39,10 +39,17 @@ export default [
           " */",
         ],
       ],
+      "linebreak-style": "off", // Do not check line endings
     },
     linterOptions: {
       reportUnusedDisableDirectives: true,
     },
     settings: {},
+  },
+  {
+    files: ["**/*.cjs", "**/*.cts"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+    },
   },
 ];

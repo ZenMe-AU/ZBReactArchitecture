@@ -1,13 +1,22 @@
 {
   //This file is used to store local workspace settings.
   // Azure Functions settings are duplicated for each workspace that uses azure functions.
-  "azureFunctions.deploySubpath": "api",
-  "azureFunctions.postDeployTask": "npm install (functions)",
-  "azureFunctions.projectLanguage": "JavaScript",
-  "azureFunctions.projectRuntime": "~4",
-  "azureFunctions.projectLanguageModel": 4,
-  "azureFunctions.preDeployTask": "npm prune (functions)",
+  // "azureFunctions.deploySubpath": "api",
+  // "azureFunctions.postDeployTask": "Install Dependencies",
+  // "azureFunctions.projectLanguage": "JavaScript",
+  // "azureFunctions.projectRuntime": "~4",
+  // "azureFunctions.projectLanguageModel": 4,
+  // "azureFunctions.preDeployTask": "npm prune (functions)",
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "prettier.configPath": ".prettierrc"
+  "prettier.configPath": ".prettierrc",
+  "endOfLine": "auto",
+  "workbench.editorAssociations": {
+    "*.copilotmd": "vscode.markdown.preview.editor",
+    "*.parquet": "duckdb.dataFileViewer",
+    "*.csv": "duckdb.dataFileViewer",
+    "*.tsv": "duckdb.dataFileViewer",
+    "*.xlsx": "duckdb.dataFileViewer"
+  },
+  "azureFunctions.projectSubpath": "module\\quest3Tier\\func"
 }

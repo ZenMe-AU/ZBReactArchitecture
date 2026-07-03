@@ -8,7 +8,7 @@ import { AuthExpiredError } from "../error/authExpired";
 import { useErrorHandler } from "../app/hooks/useErrorHandler";
 
 export const jwtFetch = async (url: string, options: RequestInit = {}) => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("appToken");
   const correlationId = getOperationId();
   console.log("Correlation ID:", correlationId);
   const headers = new Headers({

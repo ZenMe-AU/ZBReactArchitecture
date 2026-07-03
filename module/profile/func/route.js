@@ -1,51 +1,51 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
-const { app } = require("@azure/functions");
-const { requestHandler } = require("./handler/handlerWrapper.js");
-const authHandler = require("./handler/authHandler.js");
-const profileHandler = require("./handler/handler.js");
+import { app } from "@azure/functions";
+import { requestHandler } from "./handler/handlerWrapper.js";
+import { loginUser, verify } from "./handler/authHandler.js";
+import { GetAttributes, PutAttributes, CreateProfile, SearchProfile } from "./handler/handler.js";
 
 app.http("Login", {
   route: "auth/login",
   methods: ["POST"],
   authLevel: "anonymous",
-  handler: requestHandler(authHandler.loginUser),
+  handler: requestHandler(loginUser),
 });
 
 app.http("Verify", {
   route: "auth/verify",
   methods: ["GET"],
   authLevel: "anonymous",
-  handler: requestHandler(authHandler.verify),
+  handler: requestHandler(verify),
 });
 
 app.http("GetAttributes", {
   route: "attributes/{userId}",
   methods: ["GET"],
   authLevel: "anonymous",
-  handler: requestHandler(profileHandler.GetAttributes),
+  handler: requestHandler(GetAttributes),
 });
 
 app.http("PutAttributes", {
   route: "attributes/{userId}",
   methods: ["PUT"],
   authLevel: "anonymous",
-  handler: requestHandler(profileHandler.PutAttributes),
+  handler: requestHandler(PutAttributes),
 });
 
 app.http("CreateProfile", {
   route: "profile",
   methods: ["POST"],
   authLevel: "anonymous",
-  handler: requestHandler(profileHandler.CreateProfile),
+  handler: requestHandler(CreateProfile),
 });
 
 app.http("SearchProfile", {
   route: "profile",
   methods: ["GET"],
   authLevel: "anonymous",
-  handler: requestHandler(profileHandler.SearchProfile),
+  handler: requestHandler(SearchProfile),
 });

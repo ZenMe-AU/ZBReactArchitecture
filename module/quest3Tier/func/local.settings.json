@@ -1,0 +1,21 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "FUNCTIONS_EXTENSION_VERSION": "~4",
+    "APPLICATIONINSIGHTS_CONNECTION_STRING": "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/",
+    "DB_USERNAME": "vscode",
+    "DB_DATABASE": "quest3Tier",
+    "DB_HOST": "127.0.0.1",
+    "CLIENT_ID": "87aa3687-66a4-4fab-bf59-70de6bf768fa",
+    "TENANT_ID": "15fb0613-7977-4551-801b-6aadac824241",
+    "DB_PASSWORD": "vscode",
+    "QUESTION_URL": "http://localhost:7074"
+  },
+  "Host": {
+    "LocalHttpPort": 7074,
+    "CORS": "http://localhost:5173",
+    "CORSCredentials": true
+  }
+}

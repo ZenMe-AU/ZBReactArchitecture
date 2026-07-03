@@ -1,5 +1,5 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
@@ -10,7 +10,7 @@ const { Sequelize } = require("sequelize");
 function createUmzugInstance(sequelize, migrationDir) {
   return new Umzug({
     migrations: {
-      glob: path.join(migrationDir, "*.js"),
+      glob: path.join(migrationDir, "*.js").replace(/\\/g, "/"),
       resolve: ({ name, path, context }) => {
         const migration = require(path);
         return {

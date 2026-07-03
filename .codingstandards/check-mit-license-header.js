@@ -2,7 +2,7 @@
  * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
-
+//
 // check-mit-license-header.js test2
 const fs = require("fs");
 const { execSync } = require("child_process");
@@ -10,10 +10,7 @@ const path = require("path");
 
 // Read LICENSE file
 const licensePath = path.resolve(__dirname, "LICENSE");
-const licenseText = fs
-  .readFileSync(licensePath, "utf8")
-  .replace(/\r?\n/g, "\n")
-  .trim();
+const licenseText = fs.readFileSync(licensePath, "utf8").replace(/\r?\n/g, "\n").trim();
 
 // Get staged files
 const stagedFiles = execSync("git diff --cached --name-only", {

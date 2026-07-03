@@ -1,22 +1,28 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
-const path = require("path");
-const { Umzug, SequelizeStorage } = require("umzug");
-const { Sequelize } = require("sequelize");
+import path from "path";
+import { pathToFileURL } from "node:url";
+import { Umzug, SequelizeStorage } from "umzug";
+import { Sequelize } from "sequelize";
 
 function createUmzugInstance(sequelize, migrationDir) {
   return new Umzug({
     migrations: {
-      glob: path.join(migrationDir, "*.js"),
-      resolve: ({ name, path, context }) => {
-        const migration = require(path);
+      glob: path.join(migrationDir, "*.js").replace(/\\/g, "/"),
+      resolve: ({ name, path: migrationPath, context }) => {
         return {
           name,
-          up: async () => migration.up(context.queryInterface, Sequelize),
-          down: async () => migration.down(context.queryInterface, Sequelize),
+          up: async () => {
+            const migration = await import(pathToFileURL(migrationPath).href);
+            return migration.default.up(context.queryInterface, Sequelize);
+          },
+          down: async () => {
+            const migration = await import(pathToFileURL(migrationPath).href);
+            return migration.default.down(context.queryInterface, Sequelize);
+          },
         };
       },
     },
@@ -26,4 +32,4 @@ function createUmzugInstance(sequelize, migrationDir) {
   });
 }
 
-module.exports = { createUmzugInstance };
+export { createUmzugInstance };

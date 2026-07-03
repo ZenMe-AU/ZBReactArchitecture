@@ -13,7 +13,7 @@
       "name": "Dependencies quest5Tier",
       "type": "node",
       "request": "launch",
-      "preLaunchTask": "npm install (functions)"
+      "preLaunchTask": "Install Dependencies"
     }
   ]
 }

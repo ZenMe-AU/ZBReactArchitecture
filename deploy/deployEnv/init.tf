@@ -9,7 +9,7 @@ terraform {
       version = "~> 2.0"
     }
   }
-  required_version = ">= 1.1.0"
+  required_version = ">= 1.4.0"
 }
 provider "azurerm" {
   features {}
@@ -196,7 +196,15 @@ output "app_insights_name" {
   value       = var.app_insights_name
   description = "value of app insights name"
 }
-
+variable "apim_backend_list" {
+  description = "List of API Management backend names"
+  type        = list(string)
+  default     = []
+}
+output "apim_backend_list" {
+  value       = var.apim_backend_list
+  description = "value of API Management backend list"
+}
 variable "deployer_sp_object_id" {
   type        = string
   description = "Object ID of the Service Principal to assign as AD Admin"

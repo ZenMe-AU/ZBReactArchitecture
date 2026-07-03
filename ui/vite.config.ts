@@ -1,11 +1,12 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
+import federation from "@originjs/vite-plugin-federation";
 import { reactRouter } from "@react-router/dev/vite";
 import { defineConfig } from "vite";
-import federation from "@originjs/vite-plugin-federation";
+import devToolsJson from "vite-plugin-devtools-json";
 
 export default defineConfig(() => {
   const mfPlugin = federation({
@@ -19,7 +20,7 @@ export default defineConfig(() => {
   });
 
   return {
-    plugins: [mfPlugin, reactRouter()],
+    plugins: [mfPlugin, reactRouter(), devToolsJson()],
     build: {
       target: "esnext",
     },

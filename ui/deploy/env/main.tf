@@ -60,3 +60,13 @@ resource "azurerm_monitor_diagnostic_setting" "storage_account_diagnostics" {
     category = "StorageDelete"
   }
 }
+
+resource "azurerm_api_management_backend" "apim_backend" {
+  name                = var.apim_backend_name
+  resource_group_name = data.azurerm_resource_group.main_resource.name
+  api_management_name = var.api_management_name
+
+  # App Service default domain
+  url      = azurerm_storage_account.website.primary_web_endpoint
+  protocol = "http"
+}

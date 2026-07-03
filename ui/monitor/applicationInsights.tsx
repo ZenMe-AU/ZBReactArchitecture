@@ -20,8 +20,7 @@ const clickPluginConfig = {
 };
 const appInsights = new ApplicationInsights({
   config: {
-    connectionString:
-      "InstrumentationKey=b0137ac1-5ec5-4607-a52d-da5c5b3eb072;IngestionEndpoint=https://australiaeast-1.in.applicationinsights.azure.com/;LiveEndpoint=https://australiaeast.livediagnostics.monitor.azure.com/;ApplicationId=4d2a0c4f-051a-4856-9268-fbff85a2c895",
+    connectionString: "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/",
     // enableAutoRouteTracking: true,
     // disableFetchTracking: false,
     // enableRequestHeaderTracking: true,

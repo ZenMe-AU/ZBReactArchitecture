@@ -1,5 +1,5 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
@@ -17,7 +17,8 @@ const {
   getModuleStorageAccountContainerName,
   getPgServerName,
   getStorageAccountWebName,
-  getEventGridName,
+  getLogAnalyticsWorkspaceName,
+  getApimName,
 } = require("../../../../../deploy/util/namingConvention.cjs");
 const { getSubscriptionId, getEventGridDomainId } = require("../../../../../deploy/util/azureCli.cjs");
 
@@ -42,8 +43,9 @@ class classDeployEnvironment {
     this.pgServerName = getPgServerName(this.targetEnv);
     this.storageAccountWebName = getStorageAccountWebName(this.targetEnv);
     this.appConfigName = getAppConfigName(this.targetEnv);
-    this.eventGridName = getEventGridName(this.targetEnv);
-    this.eventGridTopicNameList = [];
+    this.logAnalyticsWorkspaceName = getLogAnalyticsWorkspaceName(this.targetEnv);
+    this.apiManagementName = getApimName(this.targetEnv);
+    this.apimBackendName = moduleName.toLowerCase();
 
     this.backendConfig = backendConfig || {
       resource_group_name: this.resourceGroupName,
@@ -53,7 +55,7 @@ class classDeployEnvironment {
     };
   }
 
-  run() {
+  async run() {
     process.env.TF_VAR_env_type = this.envType;
     process.env.TF_VAR_target_env = this.targetEnv;
     process.env.TF_VAR_module_name = this.moduleName;
@@ -72,8 +74,8 @@ class classDeployEnvironment {
     process.env.TF_VAR_pg_server_name = this.pgServerName;
     process.env.TF_VAR_storage_account_web_name = this.storageAccountWebName;
     process.env.TF_VAR_appconfig_name = this.appConfigName;
-    process.env.TF_VAR_event_grid_name = this.eventGridName;
-    process.env.TF_VAR_event_grid_topic_list = JSON.stringify(this.eventGridTopicNameList);
+    process.env.TF_VAR_api_management_name = this.apiManagementName;
+    process.env.TF_VAR_apim_backend_name = this.apimBackendName;
     terraformInit({ backendConfig: this.backendConfig });
     if (this.#hasEventGridModule()) {
       try {
@@ -111,6 +113,8 @@ class classDeployEnvironment {
     //     }
     //   });
     // }
+    const updateApimPolicyModule = await import("../../../../../deploy/deployEnv/updateApimRoutingPolicy.js");
+    await updateApimPolicyModule.main();
   }
 
   // private method

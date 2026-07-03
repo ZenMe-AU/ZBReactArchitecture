@@ -1,10 +1,11 @@
 const path = require("path");
 
 module.exports = {
-  config: path.resolve("db", "config.json"),
-  //   "models-path": path.resolve("db", "models"),
-  "seeders-path": path.resolve("db", "seeder"),
-  "migrations-path": path.resolve("db", "migration"),
+  config: path.resolve("./deploy/db", "config.cjs"),
+  "models-path": path.resolve("./repository", "model"),
+  "seeders-path": path.resolve("./deploy/db", "seeder"),
+  "migrations-path": path.resolve("./deploy/db", "migration"),
 };
 
-//TODO: Add config.json to environment variables
+// npx sequelize-cli db:migrate --env local
+// npx sequelize-cli db:seed:all --env local

@@ -4,6 +4,10 @@ packages:
   - module/*/func
   - deploy/corpSetup/c11cloudfront/source/authGuardLambdaEdge
   - deploy/corpSetup/c11cloudfront/source/msalSpa
+allowBuilds:
+  azure-functions-core-tools: true
+  esbuild: true
+  protobufjs: true
 onlyBuiltDependencies:
   - snyk25h
   - snyk25h6

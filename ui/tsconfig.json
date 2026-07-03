@@ -1,5 +1,6 @@
 {
-  "include": ["**/*", "**/.server/**/*", "**/.client/**/*", ".react-router/types/**/*"],
+  "include": ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts", "**/*.d.ts"],
+  "exclude": ["node_modules", "**/node_modules", "**/_archive", "dist", "build", ".azure", "coverage"],
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "types": ["node", "vite/client"],
@@ -8,9 +9,8 @@
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
     "rootDirs": [".", "./.react-router/types"],
-    "baseUrl": ".",
     "paths": {
-      "+types/*": ["app/+types/*", "pages/+types/*", "components/+types/*"]
+      "+types/*": ["./app/+types/*", "./app/routes/+types/*", "./app/components/+types/*"]
     },
     "esModuleInterop": true,
     "verbatimModuleSyntax": true,

@@ -10,7 +10,8 @@ import type { Profile } from "types/interfaces";
 import { useRefreshDomainCookie } from "../hooks/useRefreshDomainCookie";
 import { getInitials } from "../utils/getInitials";
 
-const scopes = ["openid", "profile", "email", "User.Read"];
+const graphScopes = ["openid", "profile"];
+const appScopes = ["api://87aa3687-66a4-4fab-bf59-70de6bf768fa/access_as_user"];
 /**
  * --DEPRECATED--
  * Represents which login method was used.
@@ -58,8 +59,12 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
   const { instance, accounts, inProgress } = useMsal();
   const [account, setAccount] = useState<AccountInfo | null>(null);
   const [photos, setPhotos] = useState<Record<string, string>>({});
-  // Ensure the domain cookie is fresh on app load
-  useRefreshDomainCookie();
+
+  console.log(process.env.NODE_ENV);
+  if (process.env.NODE_ENV !== "development") {
+    // Ensure the domain cookie is fresh on app load
+    useRefreshDomainCookie();
+  }
 
   const profile: Profile = {
     preferredUserName: account?.idTokenClaims?.preferred_username ?? "",
@@ -74,35 +79,28 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
 
   const initAuth = useCallback(async () => {
     if (inProgress !== "none") return;
+
+    // Try to get active account from MSAL cache
     const active = instance.getActiveAccount();
-    // automatically set active account if only one is present
-    // if (!active && accounts.length === 1) {
-    //   active = accounts[0];
-    //   instance.setActiveAccount(active);
-    // }
     if (active) {
-      const tokenRes = await instance.acquireTokenSilent({
-        scopes: ["User.Read"],
-        account: active,
-      });
       setAccount(active);
-      syncTokenToLocalStorage(tokenRes);
+      setTokenToLocalStorage(active);
       return;
     }
 
-    // fallback: ssoSilent if we have a previous login hint (homeAccountId) stored in localStorage
+    // Fallback Try ssoSilent if we have a previous login hint (homeAccountId) stored in localStorage
     const homeAccId = localStorage.getItem("account_id");
     if (homeAccId) {
       loginWithSSO(localStorage.getItem("preferred_username") ?? undefined);
       return;
     }
 
-    // fallback: handle redirect promise
+    // Fallback Try to handle redirect promise
     const res = await instance.handleRedirectPromise();
     if (res?.account) {
       instance.setActiveAccount(res.account);
       setAccount(res.account);
-      syncTokenToLocalStorage(res);
+      setTokenToLocalStorage(res.account);
     }
   }, [inProgress, accounts, instance]);
 
@@ -120,24 +118,50 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
   }, [initAuth]);
 
   /**
-   * Helper to sync token and profile info to localStorage for API calls.
-   * Clears localStorage on logout.
+   * Helper to set token and profile info to localStorage for API calls.
    */
-  const syncTokenToLocalStorage = async (res?: AuthenticationResult) => {
-    console.log("syncTokenToLocalStorage called with res:", res);
-    if (res) {
-      const claims = res.idTokenClaims as IdTokenClaims | undefined;
-      localStorage.setItem("token", res.accessToken || "");
-      localStorage.setItem("profileId", claims?.oid || "");
-      localStorage.setItem("preferred_username", claims?.preferred_username || "");
-      localStorage.setItem("account_id", res.account?.homeAccountId ?? "");
-      fetchPhotoForAccount(res);
-    } else {
-      localStorage.removeItem("token");
-      localStorage.removeItem("profileId");
-      localStorage.removeItem("preferred_username");
-      localStorage.removeItem("account_id");
+  const setTokenToLocalStorage = async (currentAccount: AccountInfo) => {
+    console.log("setTokenToLocalStorage called");
+
+    const claims = currentAccount.idTokenClaims as IdTokenClaims | undefined;
+    localStorage.setItem("profileId", claims?.oid || "");
+    localStorage.setItem("preferred_username", claims?.preferred_username || "");
+    localStorage.setItem("account_id", currentAccount.homeAccountId ?? "");
+
+    // Fetch App Token
+    let appToken = null;
+    try {
+      appToken = await instance.acquireTokenSilent({
+        account: currentAccount,
+        scopes: appScopes,
+      });
+      localStorage.setItem("appToken", appToken.accessToken);
+    } catch (err) {
+      console.warn("Failed to fetch app token", err);
+      localStorage.removeItem("appToken");
     }
+    // Fetch Graph Token
+    let graphToken = null;
+    try {
+      graphToken = await instance.acquireTokenSilent({
+        account: currentAccount,
+        scopes: graphScopes,
+      });
+      localStorage.setItem("graphToken", graphToken.accessToken);
+      fetchPhotoForAccount(graphToken); // Fetch user photo after getting token
+    } catch (err) {
+      console.warn("Failed to fetch graph token", err);
+      localStorage.removeItem("graphToken");
+    }
+  };
+
+  const clearTokenLocalStorage = async () => {
+    console.log("clearTokenLocalStorage called");
+    localStorage.removeItem("graphToken");
+    localStorage.removeItem("appToken");
+    localStorage.removeItem("profileId");
+    localStorage.removeItem("preferred_username");
+    localStorage.removeItem("account_id");
   };
 
   /**
@@ -145,20 +169,13 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
    * Uses the access token from authentication result for authorization.
    * Caches photos by account ID to avoid redundant fetches.
    */
-  const fetchPhotoForAccount = async (res?: AuthenticationResult) => {
-    if (!res) return;
-    const id = res.account.homeAccountId;
+  const fetchPhotoForAccount = async (token: AuthenticationResult) => {
+    const id = token.account.homeAccountId;
     if (!id || photos[id]) return; // if no account ID or photo already set, skip fetch
     try {
-      const tokenRes = res.accessToken
-        ? res
-        : await instance.acquireTokenSilent({
-            account: res.account,
-            scopes: ["User.Read"],
-          });
       // Use Microsoft Graph API to fetch user photo, 48x48 size for avatar
       const r = await fetch("https://graph.microsoft.com/v1.0/me/photos/48x48/$value", {
-        headers: { Authorization: `Bearer ${tokenRes.accessToken}` },
+        headers: { Authorization: `Bearer ${token.accessToken}` },
       });
       let url = null;
       if (r.ok) {
@@ -180,17 +197,17 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
   const loginWithSSO = async (loginHint?: string) => {
     try {
       const res = await instance.ssoSilent({
-        scopes,
+        scopes: graphScopes,
         loginHint,
       });
       console.log("Silent SSO login successful:", res);
       instance.setActiveAccount(res.account);
-      syncTokenToLocalStorage(res);
-    } catch {
-      // Silent login failed -> fallback to interactive login
-      syncTokenToLocalStorage(); // clear localStorage
+      setTokenToLocalStorage(res.account);
+    } catch (err) {
+      console.warn("Silent SSO login failed, fallback to interactive login:", err);
+      clearTokenLocalStorage(); // clear localStorage
       await instance.loginRedirect({
-        scopes,
+        scopes: graphScopes,
         loginHint,
       });
     }
@@ -202,10 +219,10 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
    * Forces account selection UI.
    */
   const loginWithOther = async () => {
-    syncTokenToLocalStorage(); // clear localStorage
+    clearTokenLocalStorage(); // clear localStorage
     instance.setActiveAccount(null);
     await instance.loginRedirect({
-      scopes,
+      scopes: graphScopes,
       prompt: "select_account",
     });
   };
@@ -220,7 +237,7 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
     // });
     instance.setActiveAccount(null);
     setAccount(null);
-    syncTokenToLocalStorage();
+    clearTokenLocalStorage();
   };
 
   /**
@@ -229,11 +246,11 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
   const switchAccount = async (acc: AccountInfo) => {
     instance.setActiveAccount(acc);
     const tokenRes = await instance.acquireTokenSilent({
-      scopes: ["User.Read"],
+      scopes: graphScopes,
       account: acc,
     });
     setAccount(tokenRes.account);
-    syncTokenToLocalStorage(tokenRes);
+    setTokenToLocalStorage(tokenRes.account);
   };
 
   /**
