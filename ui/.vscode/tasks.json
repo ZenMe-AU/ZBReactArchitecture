@@ -4,7 +4,7 @@
     {
       "label": "frontend: start-dev-server",
       "type": "shell",
-      "command": "pnpm run dev",
+      "command": "pnpm run dev:federation",
       "isBackground": true,
       "options": {
         "cwd": "${workspaceFolder}"

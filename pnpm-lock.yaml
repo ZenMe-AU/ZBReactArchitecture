@@ -181,10 +181,10 @@ importers:
         version: 10.1.0
       jest:
         specifier: ^29.7.0
-        version: 29.7.0(@types/node@20.19.23)(babel-plugin-macros@3.1.0)
+        version: 29.7.0(@types/node@24.10.9)(babel-plugin-macros@3.1.0)
       umzug:
         specifier: ^3.8.2
-        version: 3.8.2(@types/node@20.19.23)
+        version: 3.8.2(@types/node@24.10.9)
 
   module/profile/func:
     dependencies:
@@ -738,10 +738,10 @@ importers:
         version: 4.4.0
       jest:
         specifier: ^29.7.0
-        version: 29.7.0(@types/node@24.10.9)(babel-plugin-macros@3.1.0)
+        version: 29.7.0(@types/node@20.19.23)(babel-plugin-macros@3.1.0)
       umzug:
         specifier: ^3.8.2
-        version: 3.8.2(@types/node@24.10.9)
+        version: 3.8.2(@types/node@20.19.23)
 
   module/quest5Tier/ui:
     dependencies:
