@@ -11,6 +11,13 @@ import container from "./diContainer.mjs";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+register("authProvider", async () => {
+  const authProviderName = process.env.AUTH_PROVIDER || "authEntraID.mjs";
+  const authProviderModule = await import(`../service/${authProviderName}`);
+  container.register("authProvider", authProviderModule);
+  console.log("🥳Auth provider initialized");
+});
+
 // register db
 register("db", async () => {
   const { createDatabaseInstance } = await import("../repository/model/connection/index.mjs");

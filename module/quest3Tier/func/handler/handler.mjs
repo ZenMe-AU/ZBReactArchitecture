@@ -4,7 +4,7 @@
  */
 
 import Question from "../service/function.mjs";
-import { decode } from "../service/authUtils.mjs";
+import { decode } from "../service/authEntraID.mjs";
 
 /**
  * @swagger

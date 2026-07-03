@@ -7,7 +7,7 @@
 import { trace, context as sContext, TraceFlags, SpanKind, SpanStatusCode } from "@opentelemetry/api";
 import { randomBytes } from "crypto";
 // const { startup } = require("../di/diRegistry");
-import { decode } from "../service/authUtils.mjs";
+import container from "../di/diContainer.mjs";
 
 const requestHandler =
   (fn, { schemas = [], customParams = {}, requireAuth = true } = {}) =>
@@ -40,6 +40,7 @@ const requestHandler =
     try {
       let user = null;
       if (requireAuth) {
+        const provider = container.get("authProvider");
         const authorization = request.headers.get("authorization");
         if (!authorization) {
           const err = new Error("Authorization header is missing");
@@ -47,7 +48,7 @@ const requestHandler =
           throw err;
         }
         const token = authorization.replace("Bearer ", "");
-        const decoded = await decode(token);
+        const decoded = await provider.decode(token);
         const profileId = decoded.oid;
         user = { profileId };
         tracerSpan.setAttribute("app.profile_id", profileId);

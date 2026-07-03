@@ -7,13 +7,14 @@ const baseUrl = process.env.QUESTION_URL;
 const questionUrl = new URL("/question", baseUrl);
 const questionProfileUrl = new URL("/profile", baseUrl);
 import { questionData, questionTestResult } from "./createQuestionTestData.mjs";
+import { test, expect } from "vitest";
 
 const createQuestion = (profileIdLookup) => {
   test.each(questionData())(
     "create question $questionId",
     async (q) => {
       const response = await fetch(questionUrl, {
-        headers: { "Content-Type": "application/json", authorization: "Bearer kDRfGNFe-Q-h6e-JmAvBbGp34K56bs-vDj6ihX8P4HU" },
+        headers: { "Content-Type": "application/json", authorization: `Bearer ${profileIdLookup.getAuthToken(q.userId)}` },
         method: "POST",
         body: JSON.stringify({
           profileId: profileIdLookup.getProfileId(q.userId),

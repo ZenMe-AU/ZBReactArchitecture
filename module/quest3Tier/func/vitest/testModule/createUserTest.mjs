@@ -5,6 +5,18 @@
 
 import { v4 as uuidv4 } from "uuid";
 
+import * as authEntraID from "../../service/authEntraID.mjs";
+import * as authLocal from "../../service/authLocal.mjs";
+
+const authProviders = {
+  authEntraID,
+  authLocal,
+};
+
+const loadAuthProvider = authProviders[process.env.AUTHPROVIDER ?? "authEntraID"];
+
+const authProviderModule = loadAuthProvider;
+
 const createUser = () => {
   createUserData().forEach((u) => {
     let profileId = uuidv4();
@@ -23,6 +35,12 @@ const profileIdLookup = {
   getProfileId: function (id) {
     let obj = this.data.filter(({ testId }) => testId == id).pop();
     return obj ? obj.profileId : null;
+  },
+  getAuthToken: function (id) {
+    const token = authProviderModule.generateToken({
+      oid: this.getProfileId(id),
+    });
+    return token;
   },
 };
 

@@ -6,16 +6,9 @@
 import jwt from "jsonwebtoken";
 import jwksClient from "jwks-rsa";
 
-/* deprecated */
-const jwtSecret = process.env.JWT_SECRET;
-const jwtSignOptions = {
-  algorithm: "HS256",
-  expiresIn: "10h",
-};
 const generateToken = (payload) => {
-  return jwt.sign(payload, jwtSecret, jwtSignOptions);
+  return "";
 };
-/* --------- */
 
 const CLIENT_ID = process.env.CLIENT_ID;
 const TENANT_ID = process.env.TENANT_ID;
