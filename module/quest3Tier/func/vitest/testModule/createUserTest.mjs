@@ -13,7 +13,7 @@ const authProviders = {
   authLocal,
 };
 
-const loadAuthProvider = authProviders[process.env.AUTHPROVIDER ?? "authEntraID"];
+const loadAuthProvider = authProviders[process.env.AUTH_PROVIDER ?? "authEntraID"];
 
 const authProviderModule = loadAuthProvider;
 
