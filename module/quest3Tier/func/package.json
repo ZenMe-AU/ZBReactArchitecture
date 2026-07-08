@@ -9,10 +9,8 @@
     "prestart": "pnpm run setup:local",
     "start": "func start",
     "deploy": "pnpm deploy --filter quest3Tier --prod out",
-    "test": "cross-env jest",
     "test:vitest": "cross-env vitest run vitest/testQuestion.test.mjs",
-    "test_module": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
-    "test:list": "cross-env jest --listTests"
+    "test:vitest:debug": "cross-env NODE_OPTIONS=--inspect-brk=9230 vitest run vitest/testQuestion.test.mjs --pool=forks --no-file-parallelism"
   },
   "dependencies": {
     "@azure/functions": "^4.0.0",

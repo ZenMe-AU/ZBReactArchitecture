@@ -54,10 +54,6 @@
     "files.exclude": {
       "node_modules/": false,
     },
-    //Jest configuration
-    "jest.runMode": { "type": "on-demand", "deferred": true },
-    "jest.disabledWorkspaceFolders": ["ROOT"],
-    "jest.runAllTestsOnStartup": false,
     // Powershell settings
     "powershell.cwd": "ROOT",
     "powershell.scriptAnalysis.settingsPath": "PSScriptAnalyzerSettings.psd1",
