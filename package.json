@@ -43,7 +43,8 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.2",
     "unique-names-generator": "^4.7.1",
-    "vitest": "^4.1.9"
+    "vitest": "^4.1.9",
+    "@vitest/coverage-v8": "^4.1.10"
   },
   "pnpm": {
     "overrides": {
