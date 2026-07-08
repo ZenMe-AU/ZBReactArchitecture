@@ -16,10 +16,16 @@ In the terminal:
 2. Run `cp .env.example .env` (this should work in Linux, Mac, and Powershell on Windows)
 3. In the newly created `.env` file, use the credentials for the "vscode" postgres user to fill in the `DB_USER` and `DB_PASSWORD` variables.
 
-## Running sequelize
+## Deploy the Database
 
-> Note: May need to run `pnpm i` first if the following commands do not execute successfully.
+1. Note: May need to run `pnpm i` first if the following commands do not execute successfully.
+2. `node .\deploy\db\updateDbSchemaLocal.mjs`
+
+## Seqelize-clie not compatible
+
+Sequelize-cli do not currently support .mjs files
+https://github.com/sequelize/cli/issues/990
 
 1. `npx sequelize-cli db:migrate --env local`
-2. `npx sequelize-cli db:seed:all --env local`   
-3. 
+2. `npx sequelize-cli db:seed:all --env local`
+3.

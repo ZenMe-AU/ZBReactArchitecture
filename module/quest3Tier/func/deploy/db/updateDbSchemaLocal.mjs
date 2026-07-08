@@ -3,21 +3,24 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import { resolve } from "path";
-import classRunMigration from "./classRunMigrationLocal.js";
-import { getTargetEnv, getModuleName } from "../../../../../deploy/util/envSetup.cjs";
+// Upgrade DB to the latest: node updateDbSchemaLocal.mjs
+// Downgrade DB by one step: node updateDbSchemaLocal.mjs down
+
+import { fileURLToPath } from "url";
+import { resolve, dirname } from "path";
+import { classRunMigration } from "./classRunMigrationLocal.mjs";
 import { createDatabaseInstance } from "../../repository/model/connection/index.mjs";
-import { POSTGRES } from "../../enum/dbType.js";
-import { getDbAdminName, getPgHost } from "../../../../../deploy/util/namingConvention.cjs";
+import dbType from "../../enum/dbType.mjs";
 import { existsSync, readFileSync } from "fs";
 import { resolve as _resolve } from "path";
 
-const moduleDir = resolve(__dirname, "..", "..", "..");
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 const migrationDir = resolve(__dirname, "migration");
 
 (async () => {
   const settingsPath = _resolve(__dirname, "../../local.settings.json");
-  if (require.main === module && existsSync(settingsPath)) {
+  if (existsSync(settingsPath)) {
     const raw = readFileSync(settingsPath, "utf8");
     const json = JSON.parse(raw);
     Object.assign(process.env, json.Values);
@@ -37,7 +40,7 @@ const migrationDir = resolve(__dirname, "migration");
     config.authMode = "password";
     config.password = process.env.DB_PASSWORD;
   }
-  const db = await createDatabaseInstance(POSTGRES, config);
+  const db = await createDatabaseInstance(dbType.POSTGRES, config);
   const direction = process.argv[2] || "up";
   await new classRunMigration({ db, migrationDir, envType }).run(direction);
 })();

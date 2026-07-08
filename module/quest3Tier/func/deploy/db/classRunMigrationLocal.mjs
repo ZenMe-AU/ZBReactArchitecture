@@ -3,11 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import path from "path";
-import { createMigrationInstance } from "./migration/tool/index.js";
-import { getCurrentPublicIP, getTargetEnv } from "../../../../../deploy/util/envSetup.cjs";
-import { getResourceGroupName, getPgServerName } from "../../../../../deploy/util/namingConvention.cjs";
-import { addTemporaryFirewallRule, removeTemporaryFirewallRule } from "../../../../../deploy/util/azureCli.cjs";
+import { createMigrationInstance } from "./migration/tool/index.mjs";
 
 class classRunMigration {
   constructor({ db, migrationDir, envType, targetEnv }) {

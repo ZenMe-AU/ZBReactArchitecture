@@ -3,11 +3,13 @@
  * @license SPDX-License-Identifier: MIT
  */
 
+import { createUmzugInstance } from "./umzug.mjs";
+
 function createMigrationInstance({ type = "default", db, migrationDir }) {
   switch (type) {
     default:
-      return require("./umzug.mjs").default.createUmzugInstance(db, migrationDir);
+      return createUmzugInstance(db, migrationDir);
   }
 }
 
-module.exports = { createMigrationInstance };
+export { createMigrationInstance };

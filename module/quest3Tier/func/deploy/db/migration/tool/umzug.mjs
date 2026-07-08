@@ -3,20 +3,28 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import { join } from "path";
+import { basename, join } from "path";
+import { pathToFileURL } from "url";
 import { Umzug, SequelizeStorage } from "umzug";
 import { Sequelize } from "sequelize";
 
-async function createUmzugInstance(sequelize, migrationDir) {
+function createUmzugInstance(sequelize, migrationDir) {
   return new Umzug({
     migrations: {
-      glob: join(migrationDir, "*.js").replace(/\\/g, "/"),
-      resolve: async ({ name, path, context }) => {
-        const migration = await import(path);
+      glob: join(migrationDir, "*.{mjs,cjs,js}").replace(/\\/g, "/"),
+      resolve: ({ name, path, context }) => {
+        const migrationName = name ?? basename(path);
+        const migrationModule = import(pathToFileURL(path).href);
         return {
-          name,
-          up: async () => migration.up(context.queryInterface, Sequelize),
-          down: async () => migration.down(context.queryInterface, Sequelize),
+          name: migrationName,
+          up: async () => {
+            const migration = await migrationModule;
+            return migration.up(context.queryInterface, Sequelize);
+          },
+          down: async () => {
+            const migration = await migrationModule;
+            return migration.down(context.queryInterface, Sequelize);
+          },
         };
       },
     },
