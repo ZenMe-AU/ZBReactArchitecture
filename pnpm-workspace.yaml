@@ -5,6 +5,7 @@ packages:
   - deploy/corpSetup/c11cloudfront/source/authGuardLambdaEdge
   - deploy/corpSetup/c11cloudfront/source/msalSpa
 allowBuilds:
+  '@scarf/scarf': true
   azure-functions-core-tools: true
   esbuild: true
   protobufjs: true
