@@ -7,15 +7,22 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { register, startup } from "./diRegistry.mjs";
 import container from "./diContainer.mjs";
+import * as authEntraID from "../service/authEntraID.mjs";
+import * as authLocal from "../service/authLocal.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 register("authProvider", async () => {
-  const authProviderName = process.env.AUTH_PROVIDER || "authEntraID.mjs";
-  const authProviderModule = await import(`../service/${authProviderName}`);
+  const authProviders = {
+    authEntraID,
+    authLocal,
+  };
+
+  const authProviderName = process.env.AUTH_PROVIDER ?? "authEntraID";
+  const authProviderModule = authProviders[authProviderName];
   container.register("authProvider", authProviderModule);
-  console.log("🥳Auth provider initialized");
+  console.log("🔐Auth provider initialized :", authProviders);
 });
 
 // register db
