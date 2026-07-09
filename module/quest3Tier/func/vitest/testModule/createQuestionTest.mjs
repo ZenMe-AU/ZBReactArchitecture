@@ -25,6 +25,7 @@ const createQuestion = (profileIdLookup) => {
       });
 
       let question = await response.json();
+      console.log("create question response", question);
       let questionId = question.return.id;
       questionIdLookup.add(q.questionId, questionId);
 
