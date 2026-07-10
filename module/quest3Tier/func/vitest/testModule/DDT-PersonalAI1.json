@@ -212,7 +212,7 @@
                 {
                     "userId": 2,
                     "questionId": 2,
-                    "question": "What spending style best matches my travel budget preferences?",
+                    "question": "Which spending style best fits my travel budget preferences?",
                     "answer": null,
                     "duration": 859,
                     "selectedOption": "Mid-range with occasional splurges"
@@ -220,87 +220,87 @@
                 {
                     "userId": 3,
                     "questionId": 2,
-                    "question": "What spending style best matches my travel budget preferences?",
+                    "question": "What budget style do I usually prefer when traveling?",
                     "answer": null,
                     "duration": 1538,
-                    "selectedOption": "Budget-focused and value-first"
+                    "selectedOption": "Budget-focused and value-driven"
                 },
                 {
                     "userId": 4,
                     "questionId": 2,
-                    "question": "What spending style best matches my travel budget preferences?",
+                    "question": "Which travel spending approach aligns best with my budget?",
                     "answer": null,
                     "duration": 1157,
-                    "selectedOption": "Budget-focused and value-first"
+                    "selectedOption": "Value-first, budget-conscious"
                 },
                 {
                     "userId": 5,
                     "questionId": 2,
-                    "question": "What spending style best matches my travel budget preferences?",
+                    "question": "What kind of travel budget style suits me most?",
                     "answer": null,
                     "duration": 1322,
-                    "selectedOption": "Mid-range with occasional splurges"
+                    "selectedOption": "Mostly mid-range with a few splurges"
                 },
                 {
                     "userId": 6,
                     "questionId": 2,
-                    "question": "What spending style best matches my travel budget preferences?",
+                    "question": "What spending pattern do I prefer for trips?",
                     "answer": null,
                     "duration": 1590,
-                    "selectedOption": "Comfort-first with premium choices"
+                    "selectedOption": "Prioritize comfort with some premium picks"
                 },
                 {
                     "userId": 7,
                     "questionId": 2,
-                    "question": "What spending style best matches my travel budget preferences?",
+                    "question": "Which budget level best reflects my travel preferences?",
                     "answer": null,
                     "duration": 1130,
-                    "selectedOption": "Budget-focused and value-first"
+                    "selectedOption": "Budget-minded with strong value focus"
                 },
                 {
                     "userId": 8,
                     "questionId": 2,
-                    "question": "What spending style best matches my travel budget preferences?",
+                    "question": "What trip spending style is typically right for me?",
                     "answer": null,
                     "duration": 1399,
-                    "selectedOption": "Mid-range with occasional splurges"
+                    "selectedOption": "Balanced mid-budget with occasional treat spends"
                 },
                 {
                     "userId": 9,
                     "questionId": 2,
-                    "question": "What spending style best matches my travel budget preferences?",
+                    "question": "Which budget approach do I most often choose for travel?",
                     "answer": null,
                     "duration": 716,
-                    "selectedOption": "Comfort-first with premium choices"
+                    "selectedOption": "Comfort-led with selective premium options"
                 },
                 {
                     "userId": 10,
                     "questionId": 2,
-                    "question": "What spending style best matches my travel budget preferences?",
+                    "question": "What spending comfort level fits my trips best?",
                     "answer": null,
                     "duration": 1191,
-                    "selectedOption": "Budget-focused and value-first"
+                    "selectedOption": "Cost-aware and value-first"
                 },
                 {
                     "userId": 11,
                     "questionId": 2,
-                    "question": "What spending style best matches my travel budget preferences?",
+                    "question": "How would I describe my usual travel spending style?",
                     "answer": null,
                     "duration": 673,
-                    "selectedOption": "Comfort-first with premium choices"
+                    "selectedOption": "Comfort-oriented with upgraded choices"
                 },
                 {
                     "userId": 12,
                     "questionId": 2,
-                    "question": "What spending style best matches my travel budget preferences?",
+                    "question": "Which budget preference best matches how I travel?",
                     "answer": null,
                     "duration": 1180,
-                    "selectedOption": "Budget-focused and value-first"
+                    "selectedOption": "Budget-focused and value-driven"
                 },
                 {
                     "userId": 13,
                     "questionId": 2,
-                    "question": "What spending style best matches my travel budget preferences?",
+                    "question": "What travel spending level do I generally prefer?",
                     "answer": null,
                     "duration": 1655,
                     "selectedOption": "Luxury experiences when worthwhile"
@@ -308,15 +308,15 @@
                 {
                     "userId": 14,
                     "questionId": 2,
-                    "question": "What spending style best matches my travel budget preferences?",
+                    "question": "What budget-minded style do I follow on trips?",
                     "answer": null,
                     "duration": 751,
-                    "selectedOption": "Mid-range with occasional splurges"
+                    "selectedOption": "Mid-tier travel with periodic splurge moments"
                 },
                 {
                     "userId": 15,
                     "questionId": 2,
-                    "question": "What spending style best matches my travel budget preferences?",
+                    "question": "Which spending range is most natural for my travels?",
                     "answer": null,
                     "duration": 751,
                     "selectedOption": "Comfort-first with premium choices"
@@ -324,23 +324,23 @@
                 {
                     "userId": 16,
                     "questionId": 2,
-                    "question": "What spending style best matches my travel budget preferences?",
+                    "question": "What budget profile best captures my travel habits?",
                     "answer": null,
                     "duration": 1591,
-                    "selectedOption": "Luxury experiences when worthwhile"
+                    "selectedOption": "Choose luxury when it adds clear value"
                 },
                 {
                     "userId": 17,
                     "questionId": 2,
-                    "question": "What spending style best matches my travel budget preferences?",
+                    "question": "How do I usually prefer to spend on travel?",
                     "answer": null,
                     "duration": 1234,
-                    "selectedOption": "Luxury experiences when worthwhile"
+                    "selectedOption": "Luxury-forward for high-impact experiences"
                 },
                 {
                     "userId": 18,
                     "questionId": 2,
-                    "question": "What spending style best matches my travel budget preferences?",
+                    "question": "Which spending style do I lean toward when traveling?",
                     "answer": null,
                     "duration": 556,
                     "selectedOption": "Mid-range with occasional splurges"
@@ -348,18 +348,18 @@
                 {
                     "userId": 19,
                     "questionId": 2,
-                    "question": "What spending style best matches my travel budget preferences?",
+                    "question": "What trip budget style do I most consistently prefer?",
                     "answer": null,
                     "duration": 808,
-                    "selectedOption": "Luxury experiences when worthwhile"
+                    "selectedOption": "Premium-luxury when it is worth it"
                 },
                 {
                     "userId": 20,
                     "questionId": 2,
-                    "question": "What spending style best matches my travel budget preferences?",
+                    "question": "Which travel budget approach works best for me?",
                     "answer": null,
                     "duration": 1404,
-                    "selectedOption": "Mid-range with occasional splurges"
+                    "selectedOption": "Mostly mid-range with a few splurges"
                 }
             ]
         },
@@ -390,20 +390,20 @@
                     "question": "Which type of accommodation do I usually prefer for trips?",
                     "answer": null,
                     "duration": 489,
-                    "selectedOption": "Hostels or budget guesthouses"
+                    "selectedOption": "Hostels or budget-friendly guesthouses"
                 },
                 {
                     "userId": 2,
                     "questionId": 3,
-                    "question": "Which type of accommodation do I usually prefer for trips?",
+                    "question": "What kind of accommodation do I typically choose when traveling?",
                     "answer": null,
                     "duration": 1598,
-                    "selectedOption": "Hostels or budget guesthouses"
+                    "selectedOption": "Hostels and low-cost guesthouses"
                 },
                 {
                     "userId": 3,
                     "questionId": 3,
-                    "question": "Which type of accommodation do I usually prefer for trips?",
+                    "question": "Which lodging style do I generally prefer on trips?",
                     "answer": null,
                     "duration": 1362,
                     "selectedOption": "Resorts or high-end hotels"
@@ -411,31 +411,31 @@
                 {
                     "userId": 4,
                     "questionId": 3,
-                    "question": "Which type of accommodation do I usually prefer for trips?",
+                    "question": "What accommodation type best matches my travel preference?",
                     "answer": null,
                     "duration": 1021,
-                    "selectedOption": "Hostels or budget guesthouses"
+                    "selectedOption": "Budget hostels or guesthouses"
                 },
                 {
                     "userId": 5,
                     "questionId": 3,
-                    "question": "Which type of accommodation do I usually prefer for trips?",
+                    "question": "Which place to stay do I most often prefer while traveling?",
                     "answer": null,
                     "duration": 1286,
-                    "selectedOption": "Resorts or high-end hotels"
+                    "selectedOption": "Resort stays or upscale hotels"
                 },
                 {
                     "userId": 6,
                     "questionId": 3,
-                    "question": "Which type of accommodation do I usually prefer for trips?",
+                    "question": "What style of lodging do I usually go for?",
                     "answer": null,
                     "duration": 1277,
-                    "selectedOption": "Hostels or budget guesthouses"
+                    "selectedOption": "Affordable hostels and guesthouses"
                 },
                 {
                     "userId": 7,
                     "questionId": 3,
-                    "question": "Which type of accommodation do I usually prefer for trips?",
+                    "question": "Which accommodation option do I tend to pick on trips?",
                     "answer": null,
                     "duration": 803,
                     "selectedOption": "Standard hotels or serviced apartments"
@@ -443,31 +443,31 @@
                 {
                     "userId": 8,
                     "questionId": 3,
-                    "question": "Which type of accommodation do I usually prefer for trips?",
+                    "question": "What type of stay feels most suitable for my trips?",
                     "answer": null,
                     "duration": 523,
-                    "selectedOption": "Standard hotels or serviced apartments"
+                    "selectedOption": "Regular hotels or serviced apartments"
                 },
                 {
                     "userId": 9,
                     "questionId": 3,
-                    "question": "Which type of accommodation do I usually prefer for trips?",
+                    "question": "Which lodging category do I usually lean toward?",
                     "answer": null,
                     "duration": 1244,
-                    "selectedOption": "Resorts or high-end hotels"
+                    "selectedOption": "Luxury resorts or premium hotels"
                 },
                 {
                     "userId": 10,
                     "questionId": 3,
-                    "question": "Which type of accommodation do I usually prefer for trips?",
+                    "question": "What accommodation setup do I generally favor?",
                     "answer": null,
                     "duration": 1304,
-                    "selectedOption": "Hostels or budget guesthouses"
+                    "selectedOption": "Hostels or budget-friendly guesthouses"
                 },
                 {
                     "userId": 11,
                     "questionId": 3,
-                    "question": "Which type of accommodation do I usually prefer for trips?",
+                    "question": "Which type of stay do I most consistently prefer?",
                     "answer": null,
                     "duration": 1352,
                     "selectedOption": "Boutique stays with local character"
@@ -475,31 +475,31 @@
                 {
                     "userId": 12,
                     "questionId": 3,
-                    "question": "Which type of accommodation do I usually prefer for trips?",
+                    "question": "What lodging preference best reflects my travel habits?",
                     "answer": null,
                     "duration": 1654,
-                    "selectedOption": "Resorts or high-end hotels"
+                    "selectedOption": "High-end hotel or resort accommodation"
                 },
                 {
                     "userId": 13,
                     "questionId": 3,
-                    "question": "Which type of accommodation do I usually prefer for trips?",
+                    "question": "Which accommodation style is usually my first choice?",
                     "answer": null,
                     "duration": 923,
-                    "selectedOption": "Hostels or budget guesthouses"
+                    "selectedOption": "Hostels and low-cost guesthouses"
                 },
                 {
                     "userId": 14,
                     "questionId": 3,
-                    "question": "Which type of accommodation do I usually prefer for trips?",
+                    "question": "What kind of place do I like staying in on trips?",
                     "answer": null,
                     "duration": 910,
-                    "selectedOption": "Boutique stays with local character"
+                    "selectedOption": "Boutique accommodation with local charm"
                 },
                 {
                     "userId": 15,
                     "questionId": 3,
-                    "question": "Which type of accommodation do I usually prefer for trips?",
+                    "question": "Which trip accommodation type fits me best?",
                     "answer": null,
                     "duration": 1372,
                     "selectedOption": "Resorts or high-end hotels"
@@ -507,42 +507,42 @@
                 {
                     "userId": 16,
                     "questionId": 3,
-                    "question": "Which type of accommodation do I usually prefer for trips?",
+                    "question": "What lodging preference do I normally follow while traveling?",
                     "answer": null,
                     "duration": 1528,
-                    "selectedOption": "Boutique stays with local character"
+                    "selectedOption": "Character-rich boutique stays"
                 },
                 {
                     "userId": 17,
                     "questionId": 3,
-                    "question": "Which type of accommodation do I usually prefer for trips?",
+                    "question": "Which accommodation style do I gravitate toward most?",
                     "answer": null,
                     "duration": 947,
-                    "selectedOption": "Hostels or budget guesthouses"
+                    "selectedOption": "Budget hostels or guesthouses"
                 },
                 {
                     "userId": 18,
                     "questionId": 3,
-                    "question": "Which type of accommodation do I usually prefer for trips?",
+                    "question": "What kind of stay do I usually find most comfortable?",
                     "answer": null,
                     "duration": 960,
-                    "selectedOption": "Boutique stays with local character"
+                    "selectedOption": "Boutique lodging with neighborhood personality"
                 },
                 {
                     "userId": 19,
                     "questionId": 3,
-                    "question": "Which type of accommodation do I usually prefer for trips?",
+                    "question": "Which travel lodging option aligns best with my preferences?",
                     "answer": null,
                     "duration": 1046,
-                    "selectedOption": "Standard hotels or serviced apartments"
+                    "selectedOption": "Conventional hotels with serviced apartment options"
                 },
                 {
                     "userId": 20,
                     "questionId": 3,
-                    "question": "Which type of accommodation do I usually prefer for trips?",
+                    "question": "What accommodation type do I most often choose?",
                     "answer": null,
                     "duration": 829,
-                    "selectedOption": "Hostels or budget guesthouses"
+                    "selectedOption": "Affordable hostels and guesthouses"
                 }
             ]
         },
