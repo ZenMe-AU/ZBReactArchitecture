@@ -9,7 +9,7 @@ const questionProfileUrl = new URL("/profile", baseUrl);
 import { questionData, questionTestResult } from "./createQuestionTestData.mjs";
 import { test, expect } from "vitest";
 
-const createQuestion = (profileIdLookup) => {
+export function createQuestion(profileIdLookup) {
   test.each(questionData())(
     "create question $questionId",
     async (q) => {
@@ -33,7 +33,7 @@ const createQuestion = (profileIdLookup) => {
     },
     10000
   );
-};
+}
 
 const checkQuestion = (profileIdLookup) => {
   test.each(questionTestResult())("There should be $count questions by user $userId.", async (r) => {
@@ -64,4 +64,4 @@ const questionIdLookup = {
   },
 };
 
-export { createQuestion, checkQuestion, questionIdLookup };
+export { checkQuestion, questionIdLookup };

@@ -1,10 +1,4 @@
-/**
- * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
- * @license SPDX-License-Identifier: MIT
- */
-
-function questionData() {
-  return [
+  [
     {
       userId: 1,
       questionId: 1,
@@ -75,16 +69,4 @@ function questionData() {
       question: "What is the official language of Taiwan?",
       option: null,
     },
-  ];
-}
-
-function questionTestResult() {
-  return [
-    {
-      userId: 1,
-      count: 6,
-    },
-  ];
-}
-
-export { questionData, questionTestResult };
+  ]
