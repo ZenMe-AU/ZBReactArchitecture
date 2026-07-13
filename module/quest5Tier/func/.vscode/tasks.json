@@ -2,9 +2,9 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "type": "func",
+      "type": "shell",
       "label": "func: host start",
-      "command": "host start",
+      "command": "pnpm exec func host start",
       "problemMatcher": "$func-node-watch",
       "isBackground": true,
       "dependsOn": "Install Dependencies"
