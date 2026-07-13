@@ -18,6 +18,8 @@ const fs = require("fs");
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
 const localPort = 7076;
+const localDbPort = "55432";
+const defaultDbPort = "5432";
 const localSettingTemplate = {
   _comment:
     "The local.settings.json file is loaded by Azure Functions Core Tools when you run your Azure Functions project locally (for example, using func start or the Functions Host task in VS Code). The settings under the Values section are set as environment variables for your local function app. This file is only used for local development and is not uploaded or used when you deploy your function app to Azure—you must configure equivalent settings in the Azure portal or your deployment pipeline.",
@@ -107,6 +109,7 @@ const customSettings = {
       DB_USERNAME: getDbAdminName(envType),
       DB_DATABASE: moduleName,
       DB_HOST: getPgHost(targetEnv),
+      DB_PORT: targetEnv === "localDev" ? localDbPort : defaultDbPort,
       ...customSettings,
     };
 
@@ -118,6 +121,7 @@ const customSettings = {
       json.Values.EventGridConnection__topicEndpointUri = "http://localhost:" + localPort;
       json.Values.DB_USERNAME = "root";
       json.Values.DB_HOST = "localhost";
+      json.Values.DB_PORT = localDbPort;
       json.Values.DB_PASSWORD = "DatabasePassword123!";
     }
 

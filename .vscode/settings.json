@@ -18,5 +18,9 @@
     "*.tsv": "duckdb.dataFileViewer",
     "*.xlsx": "duckdb.dataFileViewer"
   },
-  "azureFunctions.projectSubpath": "module\\quest3Tier\\func"
+  "azureFunctions.projectSubpath": "module\\quest3Tier\\func",
+  "azureFunctions.deploySubpath": "module\\quest3Tier\\func",
+  "azureFunctions.projectLanguage": "JavaScript",
+  "azureFunctions.projectRuntime": "~4",
+  "debug.internalConsoleOptions": "neverOpen"
 }

@@ -7,7 +7,8 @@ import { Sequelize } from "sequelize";
 import { DefaultAzureCredential } from "@azure/identity";
 
 async function createPostgresInstance(config) {
-  if (!config.port) config.port = 5432;
+  const defaultDbPort = Number.parseInt(process.env.DB_PORT || "5432", 10);
+  if (!config.port) config.port = Number.isNaN(defaultDbPort) ? 5432 : defaultDbPort;
   if (!config.dialect) config.dialect = "postgres";
   if (!config.dialectOptions) config.dialectOptions = {};
   if (!config.pool)

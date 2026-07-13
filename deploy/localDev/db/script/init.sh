@@ -9,7 +9,7 @@ if [ ! -f "$ENV_FILE" ]; then
 POSTGRES_DB=postgres
 POSTGRES_USER=root
 POSTGRES_PASSWORD=DatabasePassword123!
-POSTGRES_PORT=5432
+POSTGRES_PORT=55432
 
 # pgAdmin
 PGADMIN_DEFAULT_EMAIL=admin@localhost.com

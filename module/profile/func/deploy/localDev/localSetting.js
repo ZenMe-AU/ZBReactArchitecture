@@ -19,6 +19,8 @@ const __dirname = dirname(__filename);
 
 const moduleDir = resolve(__dirname, "..", "..", "..");
 const localPort = 7072;
+const localDbPort = "55432";
+const defaultDbPort = "5432";
 const localSettingTemplate = {
   IsEncrypted: false,
   Values: {
@@ -90,12 +92,14 @@ const customSettings = {
       DB_USERNAME: getDbAdminName(envType),
       DB_DATABASE: moduleName,
       DB_HOST: getPgHost(targetEnv),
+      DB_PORT: targetEnv === "localDev" ? localDbPort : defaultDbPort,
       ...customSettings,
     };
 
     if (!isEnvSetUp) {
       json.Values.DB_USERNAME = "root";
       json.Values.DB_HOST = "localhost";
+      json.Values.DB_PORT = localDbPort;
       json.Values.DB_PASSWORD = "DatabasePassword123!";
     }
 

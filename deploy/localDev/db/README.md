@@ -12,7 +12,7 @@ This folder provides a ready-to-use PostgreSQL environment for local development
 
 ## 📦 Features
 
-- PostgreSQL 16 (configurable)
+- PostgreSQL 16 with PostGIS support
 - pgAdmin 4 web GUI (auto-connected)
 - Configurable via `.env`
 - Docker Compose based
@@ -29,7 +29,7 @@ If you’re using Windows without make, you can manually operate by either using
 ### 1. Get into folder
 
 ```bash
-cd dbDev
+cd deploy/localDev/db
 ```
 
 ### 2. Initialize config (first time only)
@@ -52,7 +52,7 @@ make start
 
 ### 4. Access the services
 
-- PostgreSQL: localhost:5432
+- PostgreSQL: localhost:55432
 - pgAdmin: http://localhost:5050
 - pgAdmin Servers Login: POSTGRES_ADMIN_USER / POSTGRES_ADMIN_PASSWORD
 

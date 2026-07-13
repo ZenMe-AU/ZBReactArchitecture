@@ -4,13 +4,19 @@
  */
 
 import { resolve } from "path";
+import { fileURLToPath } from "node:url";
+import { dirname } from "node:path";
 import { getTargetEnv, getModuleName } from "../../../../../deploy/util/envSetup.cjs";
 import { getDbAdminName, getPgHost, getServiceBusHost, getAppInsightsName, getResourceGroupName } from "../../../../../deploy/util/namingConvention.cjs";
 import { getAppInsightsConnectionString } from "../../../../../deploy/util/azureCli.cjs";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 const moduleDir = resolve(__dirname, "..", "..", "..");
 const localPort = 7074;
+const localDbPort = "55432";
+const defaultDbPort = "5432";
 const frontendUrl = "http://localhost:5173";
 const localSettingTemplate = {
   IsEncrypted: false,
@@ -77,12 +83,14 @@ const customSettings = {
       DB_USERNAME: getDbAdminName(envType),
       DB_DATABASE: moduleName,
       DB_HOST: getPgHost(targetEnv),
+      DB_PORT: targetEnv === "localDev" ? localDbPort : defaultDbPort,
       ...customSettings,
     };
 
     if (!isEnvSetUp) {
       json.Values.DB_USERNAME = "root";
       json.Values.DB_HOST = "localhost";
+      json.Values.DB_PORT = localDbPort;
       json.Values.DB_PASSWORD = "DatabasePassword123!";
     }
 
