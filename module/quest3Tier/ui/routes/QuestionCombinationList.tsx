@@ -6,7 +6,7 @@
 import { Helmet } from "react-helmet";
 import { Link } from "react-router";
 import { getQuestionsByUser } from "../api/question";
-import { Container, Typography, List, ListItem, ListItemButton, ListItemText, Button, Box, Divider } from "@mui/material";
+import { Alert, Container, Typography, List, ListItem, ListItemButton, ListItemText, Button, Box, Divider } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import ShareIcon from "@mui/icons-material/Share";
 import type { Question } from "../types/interfaces";
@@ -60,7 +60,14 @@ export default function QuestionCombinationList({ loaderData }: { loaderData: an
         Question List
       </Typography>
       <Suspense fallback={<QuestionListSkeleton />}>
-        <Await resolve={questions}>
+        <Await
+          resolve={questions}
+          errorElement={
+            <Alert severity="error" sx={{ mt: 2 }}>
+              Quest 3 data could not be loaded. Please sign in again and make sure the local Quest 3 API is running.
+            </Alert>
+          }
+        >
           {(resolvedQuestions: Question[]) => (
             <>
               <List>
