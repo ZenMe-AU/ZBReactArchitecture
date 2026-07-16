@@ -2,7 +2,8 @@
     "$schema": "./DDT-schema.json",
     "dataDrivenTest": {
         "name": "Personalised AI Profiling",
-        "description": "This test uses travel related personalised AI profiling questions to simulate users answering questions for training a personal travel recommendations AI model . It includes multiple-choice questions, user responses, and follow-up questions."
+        "description": "This test uses travel related personalised AI profiling questions to simulate users answering questions for training a personal travel recommendations AI model . It includes multiple-choice questions, user responses, and follow-up questions.",
+        "comment": "This can be viewed in tools like https://jsongrid.com/json-grid"
     },
     "questions": [
         {
