@@ -24,12 +24,17 @@ describe("test question data", () => {
 
   describe("create questions", () => {
     createQuestion(profileIdLookup);
-    //checkQuestion(profileIdLookup);
+    checkQuestion(profileIdLookup);
   });
 
-  // createAnswer(profileIdLookup);
-  // checkAnswer(profileIdLookup, questionIdLookup);
+  describe("create answers", () => {
+    createAnswer(profileIdLookup, questionIdLookup);
+    checkAnswer(profileIdLookup, questionIdLookup);
+  });
+
+  // describe("create follow-ups", () => {
   // createFollowUp(profileIdLookup, questionIdLookup, testCorrelationId);
   // checkShareQuestion(profileIdLookup, testCorrelationId);
   // checkFollowUpQty(testCorrelationId);
+  // });
 });

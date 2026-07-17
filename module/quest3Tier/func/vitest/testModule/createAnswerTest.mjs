@@ -1,16 +1,17 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
 const baseUrl = process.env.QUESTION_URL;
 const questionUrl = new URL("/question", baseUrl);
+import { test, expect } from "vitest";
 
 const createAnswer = (profileIdLookup, questionIdLookup) => {
   test.each(answerData())("answer question $questionId by user $userId", async (a) => {
     const response = await fetch(questionUrl + "/" + questionIdLookup.getQuestionId(a.questionId) + "/answer", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", authorization: `Bearer ${profileIdLookup.getAuthToken(a.userId)}` },
       body: JSON.stringify({
         profileId: profileIdLookup.getProfileId(a.userId),
         question: a.question,

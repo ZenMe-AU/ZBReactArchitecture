@@ -41,6 +41,7 @@ const checkQuestion = (profileIdLookup) => {
       method: "GET",
       headers: {
         Accept: "application/json",
+        authorization: `Bearer ${profileIdLookup.getAuthToken(r.userId)}`,
         "Access-Control-Allow-Origin": "*",
       },
     });
