@@ -1,5 +1,5 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
@@ -8,6 +8,7 @@ const baseUrl = process.env.QUESTION_URL;
 // const profileUrl = new URL("/profile", profileBaseUrl);
 const eventUrl = new URL("/getEventByCorrelationId", baseUrl);
 const followUpQuestionQty = 5;
+import { test, expect } from "vitest";
 
 const checkShareQuestion = (profileIdLookup, testCorrelationId) => {
   //   test.each(shareQuestionData())("check shared question by user $userId", async (shared) => {
@@ -25,13 +26,20 @@ const checkShareQuestion = (profileIdLookup, testCorrelationId) => {
   //   });
 };
 
-const checkFollowUpQty = (testCorrelationId) => {
+const checkFollowUpQty = (testCorrelationId, profileIdLookup) => {
   test(
     "check follow up question by Correlation Id:" + testCorrelationId,
     async () => {
       let qty = 0;
       for (let i = 0; i < 5; i++) {
-        const response = await fetch(eventUrl + "/FollowUpCmd/" + testCorrelationId, { method: "GET" });
+        const response = await fetch(eventUrl + "/FollowUpCmd/" + testCorrelationId, {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+            authorization: `Bearer ${profileIdLookup.getAuthToken(1)}`,
+            "Access-Control-Allow-Origin": "*",
+          },
+        });
         if (!response.ok) {
           console.error(`Error: ${response.status} - ${response.statusText}`);
           break;

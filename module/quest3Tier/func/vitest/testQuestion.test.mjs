@@ -32,9 +32,9 @@ describe("test question data", () => {
     checkAnswer(profileIdLookup, questionIdLookup);
   });
 
-  // describe("create follow-ups", () => {
-  // createFollowUp(profileIdLookup, questionIdLookup, testCorrelationId);
-  // checkShareQuestion(profileIdLookup, testCorrelationId);
-  // checkFollowUpQty(testCorrelationId);
-  // });
+  describe("create follow-ups", () => {
+    createFollowUp(profileIdLookup, questionIdLookup, testCorrelationId);
+    checkShareQuestion(profileIdLookup, testCorrelationId);
+    checkFollowUpQty(testCorrelationId, profileIdLookup);
+  });
 });

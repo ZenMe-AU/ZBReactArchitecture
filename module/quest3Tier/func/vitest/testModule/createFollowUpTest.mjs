@@ -1,16 +1,18 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
 const baseUrl = process.env.QUESTION_URL;
 const sendFollowUpCmdUrl = new URL("/sendFollowUpCmd", baseUrl);
+import { test, expect } from "vitest";
 
 const createFollowUp = (profileIdLookup, questionIdLookup, testCorrelationId) => {
   test.each(followUpData())("send follow-up question by user $userId", async (followUp) => {
     const response = await fetch(sendFollowUpCmdUrl, {
       headers: {
         "Content-Type": "application/json",
+        authorization: `Bearer ${profileIdLookup.getAuthToken(followUp.userId)}`,
         "x-correlation-id": testCorrelationId,
       },
       method: "POST",
