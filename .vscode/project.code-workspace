@@ -17,6 +17,10 @@
       "path": "../module/quest5Tier/func",
     },
     {
+      "name": "quest3TierCqrs/func",
+      "path": "../module/quest3TierCqrs/func",
+    },
+    {
       "name": "quest3Tier/func",
       "path": "../module/quest3Tier/func",
     },
