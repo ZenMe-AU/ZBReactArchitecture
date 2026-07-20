@@ -4,7 +4,7 @@
  */
 
 import { jwtFetch } from "@zenmechat/shared-ui/api/jwtFetch";
-import { getConfig, loadConfig } from "@zenmechat/shared-ui/config/loadConfig";
+import { getConfig, loadConfig } from "@zenmechat/shared-ui/config/loadConfig"; //Config file: /ui/env.json
 // const apiDomain = getConfig("QUEST3TIER_DOMAIN");
 // Fetch list of questions for a specific user
 export const getQuestionsByUser = async () => {

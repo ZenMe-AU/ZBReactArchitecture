@@ -7,7 +7,7 @@
     "build:federation": "vite build",
     "dev": "react-router dev",
     "dev:federation": "vite",
-    "preview:federation": "vite preview --port 5176 --strictPort",
+    "preview:federation": "vite preview --port 5177 --strictPort",
     "start": "cross-env NODE_ENV=production react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc"
   },
