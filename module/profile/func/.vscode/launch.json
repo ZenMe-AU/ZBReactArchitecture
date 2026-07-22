@@ -8,12 +8,6 @@
       "restart": true,
       "port": 9229,
       "preLaunchTask": "func: host start"
-    },
-    {
-      "name": "Dependencies profile",
-      "type": "node",
-      "request": "launch",
-      "preLaunchTask": "Install Dependencies"
     }
   ]
 }
