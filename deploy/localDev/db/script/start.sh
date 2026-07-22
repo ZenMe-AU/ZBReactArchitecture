@@ -33,6 +33,23 @@ fi
 sleep 3
 
 bash "$SCRIPT_DIR/createDb.sh"
+
+# Create the Quest 3 application user and make it the database owner.
+if ! docker exec dev-postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tAc \
+     "SELECT 1 FROM pg_roles WHERE rolname='$QUEST3TIER_USER'" | grep -q 1; then
+  docker exec dev-postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c \
+    "CREATE ROLE $QUEST3TIER_USER WITH LOGIN PASSWORD '$QUEST3TIER_PASSWORD';"
+  echo "Role '$QUEST3TIER_USER' created."
+else
+  docker exec dev-postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c \
+    "ALTER ROLE $QUEST3TIER_USER WITH LOGIN PASSWORD '$QUEST3TIER_PASSWORD';" > /dev/null
+  echo "Role '$QUEST3TIER_USER' already exists."
+fi
+
+docker exec dev-postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c \
+  "ALTER DATABASE \"$QUEST3TIER_DB\" OWNER TO $QUEST3TIER_USER;" > /dev/null
+echo "Database '$QUEST3TIER_DB' owner set to '$QUEST3TIER_USER'."
+
 # bash "$SCRIPT_DIR/generateServer.sh"
 
 # echo "Restarting pgAdmin to reload servers..."

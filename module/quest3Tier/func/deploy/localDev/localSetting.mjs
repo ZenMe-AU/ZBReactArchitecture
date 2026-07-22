@@ -88,10 +88,10 @@ const customSettings = {
     };
 
     if (!isEnvSetUp) {
-      json.Values.DB_USERNAME = "root";
+      json.Values.DB_USERNAME = "vscode";
       json.Values.DB_HOST = "localhost";
       json.Values.DB_PORT = localDbPort;
-      json.Values.DB_PASSWORD = "DatabasePassword123!";
+      json.Values.DB_PASSWORD = "vscode";
     }
 
     writeFileSync(path, JSON.stringify(json, null, 2));

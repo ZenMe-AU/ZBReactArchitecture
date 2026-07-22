@@ -1,12 +1,12 @@
 {
   "Servers": {
     "1": {
-      "Name": "Local",
+      "Name": "Quest 3 Local",
       "Group": "Servers",
       "Host": "postgres",
       "Port": 5432,
-      "MaintenanceDB": "postgres",
-      "Username": "admin",
+      "MaintenanceDB": "quest3Tier",
+      "Username": "vscode",
       "UseSSHTunnel": 0,
       "TunnelPort": "22",
       "TunnelAuthentication": 0,

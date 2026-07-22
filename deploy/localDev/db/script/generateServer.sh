@@ -20,12 +20,12 @@ cat > "$OUTPUT" <<EOF
 {
   "Servers": {
     "1": {
-      "Name": "Local",
+      "Name": "Quest 3 Local",
       "Group": "Servers",
       "Host": "postgres",
-      "Port": $POSTGRES_PORT,
-      "MaintenanceDB": "$POSTGRES_DB",
-      "Username": "$POSTGRES_ADMIN_USER",
+      "Port": 5432,
+      "MaintenanceDB": "$QUEST3TIER_DB",
+      "Username": "$QUEST3TIER_USER",
       "UseSSHTunnel": 0,
       "TunnelPort": "22",
       "TunnelAuthentication": 0,
