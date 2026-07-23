@@ -1,0 +1,19 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Start quest3Tier Cqrs",
+      "type": "node",
+      "request": "attach",
+      "restart": true,
+      "port": 9229,
+      "preLaunchTask": "func: host start"
+    },
+    {
+      "name": "Dependencies quest3Tier Cqrs",
+      "type": "node",
+      "request": "launch",
+      "preLaunchTask": "Install Dependencies"
+    }
+  ]
+}

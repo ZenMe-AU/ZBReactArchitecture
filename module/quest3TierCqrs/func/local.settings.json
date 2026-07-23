@@ -1,0 +1,24 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AUTH_PROVIDER": "authLocal",
+    "AUTH_PROVIDER_2": "authEntraID.mjs",
+    "AUTH_LOCAL_SECRET": "bb64c67554381aff324d26669540f591e02e3e993ce85c2d1ed2962e22411634",
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "FUNCTIONS_EXTENSION_VERSION": "~4",
+    "APPLICATIONINSIGHTS_CONNECTION_STRING": "InstrumentationKey=42e2815d-f1e9-4805-ac5a-332472e5c83f;IngestionEndpoint=https://australiaeast-1.in.applicationinsights.azure.com/;LiveEndpoint=https://australiaeast.livediagnostics.monitor.azure.com/;ApplicationId=64e04c6e-9645-41f2-87ae-eb7e28105f76",
+    "DB_USERNAME": "vscode",
+    "DB_DATABASE": "quest3TierCqrs",
+    "DB_HOST": "127.0.0.1",
+    "CLIENT_ID": "87aa3687-66a4-4fab-bf59-70de6bf768fa",
+    "TENANT_ID": "15fb0613-7977-4551-801b-6aadac824241",
+    "DB_PASSWORD": "vscode",
+    "QUESTION_URL": "http://localhost:7074"
+  },
+  "Host": {
+    "LocalHttpPort": 7074,
+    "CORS": "http://localhost:5173",
+    "CORSCredentials": true
+  }
+}

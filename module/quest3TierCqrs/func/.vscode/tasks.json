@@ -1,0 +1,24 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "func",
+      "label": "func: host start",
+      "command": "host start",
+      "problemMatcher": "$func-node-watch",
+      "isBackground": true,
+      "dependsOn": "Install Dependencies"
+    },
+    {
+      "type": "shell",
+      "label": "Install Dependencies",
+      "command": "pnpm install --filter=quest3TierCqrs"
+    },
+    {
+      "type": "shell",
+      "label": "npm prune (functions)",
+      "command": "pnpm prune --production",
+      "problemMatcher": []
+    }
+  ]
+}
