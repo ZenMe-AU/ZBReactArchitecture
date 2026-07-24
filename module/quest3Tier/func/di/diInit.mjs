@@ -37,9 +37,12 @@ register("db", async () => {
     host: process.env.DB_HOST,
   };
 
+  // If a password is provided, use it even if using Azure Postgres, if azure postgres and no password then use azure-ad auth mode
+  config.authMode = "password";
   if (process.env.DB_PASSWORD) {
-    config.authMode = "password";
     config.password = process.env.DB_PASSWORD;
+  } else if (process.env.DB_HOST && process.env.DB_HOST.includes("postgres.database.azure.com")) {
+    config.authMode = "azure-ad";
   }
 
   const sequelize = await createDatabaseInstance(DB_TYPE.POSTGRES, config);

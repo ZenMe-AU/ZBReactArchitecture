@@ -18,7 +18,11 @@ describe("test question data", () => {
   beforeAll(() => {
     // Runs exactly once before any test in this file begins
     console.log("Pre-test global state configured.");
+
+    //TODO: add step to start the local Azure Functions host for testing, if needed. This may involve spawning a child process to run 'func start' and ensuring it is ready before tests proceed.
+
     // TODO: Add AssertDependencies test to confirm the environment is ready for the test to run.Add
+
     createUser();
   });
 

@@ -22,7 +22,7 @@
       "console": "integratedTerminal"
     },
     {
-      "name": "Dependencies root",
+      "name": "Install Root Dependencies",
       "type": "node",
       "request": "launch",
       "preLaunchTask": "Install Dependencies"

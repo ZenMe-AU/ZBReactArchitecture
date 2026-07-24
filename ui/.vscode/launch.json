@@ -8,12 +8,6 @@
       "url": "http://localhost:5173",
       "webRoot": "${workspaceFolder}",
       "preLaunchTask": "frontend: start-dev-server"
-    },
-    {
-      "name": "Dependencies ui",
-      "type": "node",
-      "request": "launch",
-      "preLaunchTask": "Install Dependencies"
     }
   ]
 }
