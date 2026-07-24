@@ -51,15 +51,5 @@
     "minimist": "^1.2.8",
     "umzug": "^3.8.2",
     "vitest": "^4.1.9"
-  },
-  "jest": {
-    "setupFiles": [
-      "<rootDir>/test/jest.loadLocalSettings.js"
-    ],
-    "testMatch": [
-      "**/__tests__/**/*.[jt]s?(x)",
-      "**/?(*.)+(spec|test).[tj]s?(x)",
-      "**/?(*.)+(spec|test).mjs"
-    ]
   }
 }
