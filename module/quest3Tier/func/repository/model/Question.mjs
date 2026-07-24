@@ -43,5 +43,33 @@ export default (sequelize, DataTypes) => {
     Question.hasMany(models.QuestionAnswer, { as: "QuestionAnswer", foreignKey: "questionId", sourceKey: "id" });
     Question.hasMany(models.QuestionShare, { as: "QuestionShare", foreignKey: "newQuestionId", sourceKey: "id" });
   };
+
+  Question.addHook("afterSave", async (instance, options) => {
+    if (!instance.changed("eventId")) {
+      const { QuestionLog } = instance.sequelize.models;
+      if (!QuestionLog) {
+        console.error("QuestionLog model not found.");
+        return;
+      }
+
+      const isCreate = instance._options.isNewRecord;
+      const log = await QuestionLog.create(
+        {
+          questionId: instance.id,
+          profileId: instance.profileId,
+          actionData: instance.dataValues,
+          action: isCreate ? "create" : "update",
+          originalData: isCreate ? null : instance._previousDataValues,
+          lastEventId: isCreate ? null : instance._previousDataValues.eventId,
+        },
+        {
+          transaction: options.transaction,
+        }
+      );
+
+      await instance.update({ eventId: log.id });
+    }
+  });
+
   return Question;
 };

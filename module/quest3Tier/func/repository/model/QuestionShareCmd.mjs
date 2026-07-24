@@ -40,5 +40,34 @@ export default (sequelize, DataTypes) => {
       timestamps: true,
     }
   );
+
+  QuestionShareCmd.addHook("afterUpdate", async (instance, options) => {
+    try {
+      if (instance.previousStatus !== 1 && instance.status === 1) {
+        const { QuestionShareEvent } = instance.sequelize.models;
+        if (!QuestionShareEvent) {
+          console.error("QuestionShareEvent model not found.");
+          return;
+        }
+
+        await QuestionShareEvent.create(
+          {
+            questionShareId: instance.id,
+            correlationId: instance.correlationId,
+            action: "create",
+            senderProfileId: instance.senderProfileId,
+            actionData: instance.dataValues,
+            originalData: null,
+          },
+          {
+            transaction: options.transaction,
+          }
+        );
+      }
+    } catch (error) {
+      console.error("Error processing afterUpdate hook:", error);
+    }
+  });
+
   return QuestionShareCmd;
 };

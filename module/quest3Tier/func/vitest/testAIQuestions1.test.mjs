@@ -22,9 +22,9 @@ describe("test question data", () => {
     createUser();
   });
 
-  //TODO: Load test data.
+  //TODO: Load test data from vitest\testModule\DDT-PersonalAI1.json
 
-  //TODO: define what data to use for test, and calculate expected results.
+  //TODO: define which subset of data to use for test, and calculate expected results.
 
   //TODO: use the defined data to call the test modules.
   describe("create questions", () => {

@@ -1,8 +1,9 @@
 {
   "IsEncrypted": false,
   "Values": {
-    "AUTH_PROVIDER": "authLocal",
-    "AUTH_PROVIDER_2": "authEntraID.mjs",
+    "AUTH_PROVIDER": "authEntraID",
+    "AUTH_PROVIDER_LOCAL": "authLocal",
+    "AUTH_PROVIDER_ENTRA": "authEntraID",
     "AUTH_LOCAL_SECRET": "bb64c67554381aff324d26669540f591e02e3e993ce85c2d1ed2962e22411634",
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_WORKER_RUNTIME": "node",
