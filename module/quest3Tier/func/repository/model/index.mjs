@@ -4,9 +4,6 @@
  */
 
 import { DataTypes } from "sequelize";
-// const { sequelize } = require("./db.js");
-// const { sequelize } = require("../");
-import fastJsonPatch from "fast-json-patch";
 import container from "../../di/diContainer.mjs";
 import questionModel from "./Question.mjs";
 import questionAnswerModel from "./QuestionAnswer.mjs";
@@ -39,120 +36,6 @@ function initModels() {
   Question.hasMany(QuestionShare, { foreignKey: "newQuestionId", sourceKey: "id" });
   QuestionAnswer.belongsTo(Question, { targetKey: "id", foreignKey: "questionId" });
   QuestionShare.belongsTo(Question, { targetKey: "id", foreignKey: "newQuestionId" });
-
-  // hook
-  Question.addHook("afterSave", async (instance, options) => {
-    if (!instance.changed("eventId")) {
-      const isCreate = instance._options.isNewRecord;
-      const log = await QuestionLog.create(
-        {
-          questionId: instance.id,
-          profileId: instance.profileId,
-          actionData: instance.dataValues,
-          action: isCreate ? "create" : "update",
-          originalData: isCreate ? null : instance._previousDataValues,
-          lastEventId: isCreate ? null : instance._previousDataValues.eventId,
-        },
-        {
-          transaction: options.transaction,
-        }
-      );
-      // instance.eventId = log.id;
-      // await instance.save();
-      await instance.update({ eventId: log.id });
-      // } else {
-      //   console.log(instance);
-    }
-  });
-
-  QuestionAction.addHook("afterSave", async (instance, options) => {
-    try {
-      const { questionId, action } = instance;
-      const question = await Question.findByPk(questionId);
-      if (!question) {
-        console.error(`Question with ID ${questionId} not found.`);
-        return;
-      }
-      // Apply patches to the question
-      const updatedData = fastJsonPatch.applyPatch(question.toJSON(), action).newDocument;
-      await question.update({
-        title: updatedData.title ?? null,
-        questionText: updatedData.questionText ?? null,
-        option: updatedData.option ?? null,
-      });
-      console.log(`Question with ID ${questionId} updated successfully.`);
-    } catch (error) {
-      console.error("Error processing afterSave hook:", error);
-    }
-  });
-
-  // QuestionShare.addHook("afterBulkCreate", async (instances, options) => {
-  //   try {
-  //     instances.map(async (instance) => {
-  //       await QuestionShareEvent.create(
-  //         {
-  //           questionShareId: instance.id,
-  //           // correlationId: instance.correlationId,
-  //           action: "create",
-  //           // todo: fix
-  //           // senderProfileId: instance.senderProfileId,
-  //           senderProfileId: instance.senderId,
-  //           actionData: instance.dataValues,
-  //           originalData: null,
-  //         },
-  //         {
-  //           transaction: options.transaction,
-  //         }
-  //       );
-  //     });
-  //   } catch (error) {
-  //     console.error("Error processing afterBulkCreate hook:", error);
-  //   }
-  // });
-
-  QuestionShareCmd.addHook("afterUpdate", async (instance, options) => {
-    try {
-      if (instance.previousStatus !== 1 && instance.status === 1) {
-        await QuestionShareEvent.create(
-          {
-            questionShareId: instance.id,
-            correlationId: instance.correlationId,
-            action: "create",
-            senderProfileId: instance.senderProfileId,
-            actionData: instance.dataValues,
-            originalData: null,
-          },
-          {
-            transaction: options.transaction,
-          }
-        );
-      }
-    } catch (error) {
-      console.error("Error processing afterUpdate hook:", error);
-    }
-  });
-
-  FollowUpCmd.addHook("afterUpdate", async (instance, options) => {
-    try {
-      if (instance.previousStatus !== 1 && instance.status === 1) {
-        await FollowUpEvent.create(
-          {
-            followUpId: instance.id,
-            correlationId: instance.correlationId,
-            action: "create",
-            senderProfileId: instance.senderProfileId,
-            actionData: instance.dataValues,
-            originalData: null,
-          },
-          {
-            transaction: options.transaction,
-          }
-        );
-      }
-    } catch (error) {
-      console.error("Error processing afterUpdate hook:", error);
-    }
-  });
 
   models = {
     Question,

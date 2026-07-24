@@ -517,16 +517,16 @@ importers:
         version: 10.1.0
       jest:
         specifier: ^29.7.0
-        version: 29.7.0(@types/node@24.10.9)(babel-plugin-macros@3.1.0)
+        version: 29.7.0(@types/node@20.19.23)(babel-plugin-macros@3.1.0)
       minimist:
         specifier: ^1.2.8
         version: 1.2.8
       umzug:
         specifier: ^3.8.2
-        version: 3.8.2(@types/node@24.10.9)
+        version: 3.8.2(@types/node@20.19.23)
       vitest:
         specifier: ^4.1.9
-        version: 4.1.9(@opentelemetry/api@1.9.0)(@types/node@24.10.9)(@vitest/coverage-v8@4.1.10(vitest@4.1.9))(vite@7.3.6(@types/node@24.10.9)(jiti@2.6.1)(yaml@2.8.1))
+        version: 4.1.9(@opentelemetry/api@1.9.0)(@types/node@20.19.23)(@vitest/coverage-v8@4.1.10)(vite@7.3.6(@types/node@20.19.23)(jiti@2.6.1)(yaml@2.8.1))
 
   module/quest3Tier/ui:
     dependencies:
@@ -756,16 +756,16 @@ importers:
         version: 10.1.0
       jest:
         specifier: ^29.7.0
-        version: 29.7.0(@types/node@20.19.23)(babel-plugin-macros@3.1.0)
+        version: 29.7.0(@types/node@24.10.9)(babel-plugin-macros@3.1.0)
       minimist:
         specifier: ^1.2.8
         version: 1.2.8
       umzug:
         specifier: ^3.8.2
-        version: 3.8.2(@types/node@20.19.23)
+        version: 3.8.2(@types/node@24.10.9)
       vitest:
         specifier: ^4.1.9
-        version: 4.1.9(@opentelemetry/api@1.9.0)(@types/node@20.19.23)(@vitest/coverage-v8@4.1.10)(vite@7.3.6(@types/node@20.19.23)(jiti@2.6.1)(yaml@2.8.1))
+        version: 4.1.9(@opentelemetry/api@1.9.0)(@types/node@24.10.9)(@vitest/coverage-v8@4.1.10(vitest@4.1.9))(vite@7.3.6(@types/node@24.10.9)(jiti@2.6.1)(yaml@2.8.1))
 
   module/quest3TierCqrs/ui:
     dependencies:
