@@ -113,7 +113,7 @@ async function getCombinationListByUser(profileId) {
         [Op.or]: [
           { profileId: profileId },
           {
-            "$questionShares.receiverProfileId$": profileId,
+            "$QuestionShares.receiverProfileId$": profileId,
           },
         ],
       },
