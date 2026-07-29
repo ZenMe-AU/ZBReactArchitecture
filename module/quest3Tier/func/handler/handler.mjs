@@ -4,7 +4,19 @@
  */
 
 import Question from "../service/function.mjs";
-import { decode } from "../service/authEntraID.mjs";
+
+async function EnsureProfile(request) {
+  const { profile, profileCreated: created } = request.userData;
+
+  return {
+    status: created ? 201 : 200,
+    return: {
+      internalId: profile.internal_id,
+      externalId: profile.external_id,
+      created,
+    },
+  };
+}
 
 /**
  * @swagger
@@ -56,7 +68,8 @@ import { decode } from "../service/authEntraID.mjs";
  *                       example: 123
  */
 async function CreateQuestion(request, context) {
-  const { profileId, title = null, option = null, questionText } = request.clientParams;
+  const profileId = request.userData.profileId;
+  const { title = null, option = null, questionText } = request.clientParams;
   const questionnaire = await Question.create(profileId, title, questionText, option);
   return { return: { id: questionnaire.id } };
 }
@@ -211,7 +224,8 @@ async function GetQuestionById(request, context) {
  */
 async function AddAnswer(request, context) {
   const { id: questionId } = request.params;
-  const { profileId, answer = null, option = null, duration } = request.clientParams;
+  const profileId = request.userData.profileId;
+  const { answer = null, option = null, duration } = request.clientParams;
   const questionnaire = await Question.addAnswerByQuestionId(questionId, profileId, duration, answer, option);
   return { return: { id: questionnaire.id } };
 }
@@ -459,7 +473,8 @@ async function GetAnswerListByQuestionId(request, context) {
  */
 async function ShareQuestionById(request, context) {
   const { id: questionId } = request.params;
-  const { profileId: senderId = null, receiverIds = [] } = request.clientParams;
+  const senderId = request.userData.profileId;
+  const { receiverIds = [] } = request.clientParams;
   const share = await Question.shareQuestion(questionId, senderId, receiverIds);
   return { return: { detail: share } };
 }
@@ -594,7 +609,7 @@ async function GetSharedQuestionListByUser(request, context) {
  */
 async function PatchQuestionById(request, context) {
   const { id: questionId } = request.params;
-  const profileId = request.headers.get("x-profile-id");
+  const profileId = request.userData.profileId;
   const questionAction = await Question.patchById(questionId, request.clientParams, profileId);
   return { return: { id: questionAction.id } };
 }
@@ -819,11 +834,13 @@ async function GetEventByCorrelationId(request, context) {
 }
 
 async function SendFollowUpCmd(request, context) {
-  const { correlationId, clientParams: body } = request;
-  const cmd = await Question.insertFollowUpCmd(body["profileId"], body, correlationId);
+  const { correlationId } = request;
+  const profileId = request.userData.profileId;
+  const body = { ...request.clientParams, profileId };
+  const cmd = await Question.insertFollowUpCmd(profileId, body, correlationId);
   const filters = Question.insertFollowUpFilter(body);
   const receiverIds = Question.getFollowUpReceiver(body);
-  const sharedQuestions = Question.shareQuestion(body["newQuestionId"], body["profileId"], await receiverIds);
+  const sharedQuestions = Question.shareQuestion(body["newQuestionId"], profileId, await receiverIds);
 
   const settled = await Promise.allSettled([filters, sharedQuestions]);
   const errors = settled.filter((result) => result.status === "rejected").map((result) => result.reason);
@@ -837,15 +854,18 @@ async function SendFollowUpCmd(request, context) {
 }
 
 async function ShareQuestionCmd(request, context) {
-  const { correlationId, clientParams: body } = request;
-  const cmd = await Question.insertQuestionShareCmd(body["profileId"], body, correlationId);
-  const sharedQuestions = await Question.shareQuestion(body["newQuestionId"], body["profileId"], body["receiverIds"]);
+  const { correlationId } = request;
+  const profileId = request.userData.profileId;
+  const body = { ...request.clientParams, profileId };
+  const cmd = await Question.insertQuestionShareCmd(profileId, body, correlationId);
+  const sharedQuestions = await Question.shareQuestion(body["newQuestionId"], profileId, body["receiverIds"]);
 
   await Question.updateQuestionShareCmdStatus(cmd["id"]);
   return { return: true };
 }
 
 export default {
+  EnsureProfile,
   CreateQuestion,
   UpdateQuestionById,
   GetQuestionById,

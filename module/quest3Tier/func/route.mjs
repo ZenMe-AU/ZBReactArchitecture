@@ -10,6 +10,13 @@ import { sendFollowUpCmdSchema } from "./schema/sendFollowUpCmdSchema.mjs";
 import { shareQuestionCmdSchema } from "./schema/shareQuestionCmdSchema.mjs";
 // const { followUpCmdQueue, shareQuestionCmdQueue } = require("./service/serviceBus.js");
 
+app.http("EnsureProfile", {
+  route: "profile",
+  methods: ["POST"],
+  authLevel: "anonymous",
+  handler: requestHandler(questionHandler.EnsureProfile),
+});
+
 app.http("CreateQuestion", {
   route: "question",
   methods: ["POST"],

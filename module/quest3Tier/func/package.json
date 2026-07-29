@@ -10,7 +10,9 @@
     "start": "func start",
     "deploy": "pnpm deploy --filter quest3Tier --prod out",
     "test:vitest": "cross-env vitest run vitest/testQuestion.test.mjs",
-    "test:vitest:debug": "cross-env NODE_OPTIONS=--inspect-brk=9230 vitest run vitest/testQuestion.test.mjs --pool=forks --no-file-parallelism"
+    "test:vitest:debug": "cross-env NODE_OPTIONS=--inspect-brk=9230 vitest run vitest/testQuestion.test.mjs --pool=forks --no-file-parallelism",
+    "test:profile": "vitest --root ../../.. run module/quest3Tier/func/vitest/profile.test.mjs --pool=forks --no-file-parallelism",
+    "test:profile-db": "vitest --root ../../.. run module/quest3Tier/func/vitest/profile.test.mjs module/quest3Tier/func/vitest/dbTest.test.mjs --pool=forks --no-file-parallelism"
   },
   "dependencies": {
     "@azure/functions": "^4.0.0",

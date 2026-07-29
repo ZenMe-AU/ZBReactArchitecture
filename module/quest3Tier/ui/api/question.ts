@@ -6,6 +6,22 @@
 import { jwtFetch } from "@zenmechat/shared-ui/api/jwtFetch";
 import { getConfig, loadConfig } from "@zenmechat/shared-ui/config/loadConfig"; //Config file: /ui/env.json
 // const apiDomain = getConfig("QUEST3TIER_DOMAIN");
+
+export const ensureCurrentProfile = async () => {
+  await loadConfig();
+  const apiDomain = getConfig("QUEST3TIER_DOMAIN");
+  const response = await jwtFetch(`${apiDomain}/profile`, {
+    method: "POST",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to initialise the current Q3 profile");
+  }
+
+  const data = await response.json();
+  return data.return;
+};
+
 // Fetch list of questions for a specific user
 export const getQuestionsByUser = async () => {
   const profileId = localStorage.getItem("profileId");
@@ -32,14 +48,12 @@ export const getQuestionsByUser = async () => {
 
 // Create a new questionnaire
 export const createQuestion = async (title: string, questionText: string, option: string[] | null) => {
-  const profileId = localStorage.getItem("profileId");
   try {
     await loadConfig();
     const apiDomain = getConfig("QUEST3TIER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/question`, {
       method: "POST",
       body: JSON.stringify({
-        profileId: profileId,
         title: title,
         questionText: questionText,
         option: option,
@@ -106,7 +120,7 @@ export const updateQuestion = async (id: string, data: { title: string; question
 };
 
 // Share a question
-export const shareQuestion = async (id: string, profileId: string, receiverIds: string[]) => {
+export const shareQuestion = async (id: string, receiverIds: string[]) => {
   try {
     // const response = await jwtFetch(`${apiDomain}/question/${id}/share`, {
     //   method: "POST",
@@ -121,7 +135,6 @@ export const shareQuestion = async (id: string, profileId: string, receiverIds: 
       method: "POST",
       body: JSON.stringify({
         newQuestionId: id,
-        profileId: profileId,
         receiverIds: receiverIds,
       }),
     });
@@ -144,14 +157,12 @@ export const submitAnswer = async (
   answerPayload: { option: string | null; answerText: string | null; answerDuration: number },
   questionText: string | null
 ) => {
-  const profileId = localStorage.getItem("profileId");
   try {
     await loadConfig();
     const apiDomain = getConfig("QUEST3TIER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/question/${id}/answer`, {
       method: "POST",
       body: JSON.stringify({
-        profileId: profileId,
         questionText: questionText,
         option: answerPayload.option,
         answer: answerPayload.answerText,
@@ -257,14 +268,12 @@ export const sendFollowUpQuestion = async (
   followUpQuestionId: string,
   saveFilter: boolean
 ) => {
-  const profileId = localStorage.getItem("profileId");
   try {
     await loadConfig();
     const apiDomain = getConfig("QUEST3TIER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/sendFollowUpCmd`, {
       method: "POST",
       body: JSON.stringify({
-        profileId: profileId,
         newQuestionId: followUpQuestionId,
         question: questionFilter,
         isSave: saveFilter,

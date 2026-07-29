@@ -8,6 +8,6 @@ import { uuidSchema } from "./commonSchema.mjs";
 
 export const shareQuestionCmdSchema = Joi.object({
   newQuestionId: uuidSchema.required(),
-  profileId: uuidSchema.required(),
+  profileId: uuidSchema.optional(),
   receiverIds: Joi.array().items(uuidSchema.required()).min(1).required(),
 });

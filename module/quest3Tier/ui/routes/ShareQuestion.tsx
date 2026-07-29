@@ -6,7 +6,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { Helmet } from "react-helmet";
-import { getQuestionById, shareQuestion } from "../api/question";
+import { shareQuestion } from "../api/question";
 import { getProfileList } from "@zenmechat/shared-ui/api/profile";
 import type { Profile } from "../types/interfaces";
 import { Container, Typography, Box, Button, IconButton, Alert, TextField } from "@mui/material";
@@ -17,7 +17,6 @@ import { logEvent, setOperationId } from "@zenmechat/shared-ui/monitor/telemetry
 function ShareQuestion() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [profileId, setProfileId] = useState<string | null>(null);
   const [friends, setFriends] = useState<Profile[]>([]);
   const [selectedReceivers, setSelectedReceivers] = useState<Profile[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -29,8 +28,6 @@ function ShareQuestion() {
         const profiles = await getProfileList(); // Fetch profiles using API
         setFriends(profiles);
         if (!id) throw new Error("Question ID is undefined");
-        const question = await getQuestionById(id);
-        setProfileId(question.profileId);
       } catch (err) {
         console.error("Error fetching profile list:", err);
         setError("Failed to fetch friends list.");
@@ -54,7 +51,7 @@ function ShareQuestion() {
 
   const handleShare = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!id || !profileId || selectedReceivers.length === 0) {
+    if (!id || selectedReceivers.length === 0) {
       setError("Please fill in all fields.");
       return;
     }
@@ -68,7 +65,6 @@ function ShareQuestion() {
       // Call the shareQuestion API
       await shareQuestion(
         id,
-        profileId,
         selectedReceivers.map(({ id }) => id)
       );
       alert("Question shared successfully!");
