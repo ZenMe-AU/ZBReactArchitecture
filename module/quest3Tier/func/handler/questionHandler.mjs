@@ -3,8 +3,8 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import Question from "../service/function.mjs";
 import Model from "../repository/model/index.mjs";
+import { Op, Sequelize } from "sequelize";
 
 /**
  * @swagger
@@ -57,19 +57,30 @@ import Model from "../repository/model/index.mjs";
  */
 async function CreateQuestion(request, context) {
   const { profileId, title = null, option = null, questionText } = request.clientParams;
-  let questionnaire;
+  const questionnaire = await create(profileId, title, questionText, option);
+  return { return: { id: questionnaire.id } };
+}
+
+/**
+ * Create a new question record.
+ * @param {string} profileId - Owner profile identifier.
+ * @param {string|null} [title=null] - Question title.
+ * @param {string|null} [question=null] - Question body text.
+ * @param {string|null} [option=null] - Question option metadata.
+ * @returns {Promise<any>} Created question model instance.
+ */
+async function create(profileId, title = null, question = null, option = null) {
   try {
-    questionnaire = await Model.Question.create({
+    return await Model.Question.create({
       profileId: profileId,
       title: title,
-      questionText: questionText,
+      questionText: question,
       option: option,
     });
   } catch (err) {
     console.log(err);
     throw new Error(`Failed to create question for profileId: ${profileId}; ${err.message}`, { cause: err });
   }
-  return { return: { id: questionnaire.id } };
 }
 
 /**
@@ -130,9 +141,21 @@ async function CreateQuestion(request, context) {
 async function UpdateQuestionById(request, context) {
   const { id: questionId } = request.params;
   const { title = null, option = null, questionText } = request.clientParams;
-  let question;
+  const question = await updateById(questionId, title, questionText, option);
+  return { return: { id: question.id } };
+}
+
+/**
+ * Update a question by its id.
+ * @param {string} questionId - Identifier of the question to update.
+ * @param {string|null} [title=null] - New question title.
+ * @param {string|null} [questionText=null] - New question text.
+ * @param {string|null} [option=null] - Updated option metadata.
+ * @returns {Promise<any>} Result of the update operation.
+ */
+async function updateById(questionId, title = null, questionText = null, option = null) {
   try {
-    question = await Model.Question.update(
+    return await Model.Question.update(
       {
         title: title,
         questionText: questionText,
@@ -149,7 +172,6 @@ async function UpdateQuestionById(request, context) {
     console.log(err);
     throw new Error(`Failed to update question for questionId: ${questionId}; ${err.message}`, { cause: err });
   }
-  return { return: { id: question.id } };
 }
 
 /**
@@ -184,15 +206,23 @@ async function UpdateQuestionById(request, context) {
  */
 async function GetQuestionById(request, context) {
   const { id: questionId } = request.params;
-  let questionnaire;
+  const questionnaire = await getById(questionId);
+  return { return: { detail: questionnaire } };
+}
+
+/**
+ * Retrieve a question by its primary key.
+ * @param {string} questionId - Question identifier.
+ * @returns {Promise<any|null>} The found question or null when not found.
+ */
+async function getById(questionId) {
   try {
     // return await Questionnaires.findOne({ where: { id: questionId } });
-    questionnaire = await Model.Question.findByPk(questionId);
+    return await Model.Question.findByPk(questionId);
   } catch (err) {
     console.log(err);
     throw new Error(`Failed to retrieve question for questionId: ${questionId}; ${err.message}`, { cause: err });
   }
-  return { return: { detail: questionnaire } };
 }
 
 /**
@@ -254,14 +284,38 @@ async function GetQuestionById(request, context) {
  */
 async function GetQuestionListByUser(request, context) {
   const { profileId } = request.params;
-  let question;
+  const question = await getCombinationListByUser(profileId);
+  return { return: { list: question } };
+}
+
+/**
+ * Retrieve questions belonging to a user or shared with a user.
+ * @param {string} profileId - Profile identifier.
+ * @returns {Promise<Array<any>>} Combined list of owned or shared questions.
+ */
+async function getCombinationListByUser(profileId) {
   try {
-    question = await Model.Question.findAll({ where: { profileId: profileId } });
+    return await Model.Question.findAll({
+      where: {
+        [Op.or]: [
+          { profileId: profileId },
+          {
+            "$QuestionShares.receiverProfileId$": profileId,
+          },
+        ],
+      },
+      include: [
+        {
+          model: Model.QuestionShare,
+          attributes: [],
+          group: ["newQuestionId"],
+        },
+      ],
+    });
   } catch (err) {
     console.log(err);
     throw new Error(`Failed to retrieve questions for profileId: ${profileId}; ${err.message}`, { cause: err });
   }
-  return { return: { list: question } };
 }
 
 /**
@@ -329,14 +383,24 @@ async function GetQuestionListByUser(request, context) {
 async function PatchQuestionById(request, context) {
   const { id: questionId } = request.params;
   const profileId = request.headers.get("x-profile-id");
-  let questionAction;
+  const questionAction = await patchById(questionId, request.clientParams, profileId);
+  return { return: { id: questionAction.id } };
+}
+
+/**
+ * Patch a question action by its ID.
+ * @param {string} profileId - Identifier of the user.
+ * @param {string} action - Action type to filter the questions.
+ * @param {string} questionId - Identifier of the question to filter.
+ * @returns {Promise<any[]>} List of shared questions.
+ */
+async function patchById(questionId, action, profileId) {
   try {
-    questionAction = await Model.QuestionAction.create({ questionId, profileId, action: request.clientParams });
+    return await Model.QuestionAction.create({ questionId, profileId, action });
   } catch (err) {
     console.log(err);
     throw new Error(`Failed to patch question by ID: ${questionId}; ${err.message}`, { cause: err });
   }
-  return { return: { id: questionAction.id } };
 }
 
 export default {
@@ -344,5 +408,6 @@ export default {
   UpdateQuestionById,
   GetQuestionById,
   GetQuestionListByUser,
+  getCombinationListByUser,
   PatchQuestionById,
 };
