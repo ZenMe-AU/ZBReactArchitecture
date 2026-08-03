@@ -5,6 +5,10 @@
 
 import Question from "../service/function.mjs";
 import { decode } from "../service/authEntraID.mjs";
+import { Op, Sequelize } from "sequelize";
+import Model from "../repository/model/index.mjs";
+import { v4 as uuidv4 } from "uuid";
+import cmdName from "../enum/cmdName.mjs";
 
 /**
  * @swagger
@@ -59,6 +63,28 @@ async function CreateQuestion(request, context) {
   const { profileId, title = null, option = null, questionText } = request.clientParams;
   const questionnaire = await Question.create(profileId, title, questionText, option);
   return { return: { id: questionnaire.id } };
+}
+
+/**
+ * Create a new question record.
+ * @param {string} profileId - Owner profile identifier.
+ * @param {string|null} [title=null] - Question title.
+ * @param {string|null} [question=null] - Question body text.
+ * @param {string|null} [option=null] - Question option metadata.
+ * @returns {Promise<any>} Created question model instance.
+ */
+async function Question_create(profileId, title = null, question = null, option = null) {
+  try {
+    return await Model.Question.create({
+      profileId: profileId,
+      title: title,
+      questionText: question,
+      option: option,
+    });
+  } catch (err) {
+    console.log(err);
+    throw new Error(`Failed to create question for profileId: ${profileId}; ${err.message}`, { cause: err });
+  }
 }
 
 /**
