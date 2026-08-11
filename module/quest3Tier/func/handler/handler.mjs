@@ -4,6 +4,9 @@
  */
 
 import Question from "../service/function.mjs";
+
+//TODO: Update swagger properties based on changed clientParams and userData.profileId for each function.
+
 import { decode } from "../service/authEntraID.mjs";
 import { Op, Sequelize } from "sequelize";
 import Model from "../repository/model/index.mjs";
@@ -60,7 +63,8 @@ import cmdName from "../enum/cmdName.mjs";
  *                       example: 123
  */
 async function CreateQuestion(request, context) {
-  const { profileId, title = null, option = null, questionText } = request.clientParams;
+  const profileId = request.userData.profileId;
+  const { title = null, option = null, questionText } = request.clientParams;
   const questionnaire = await Question.create(profileId, title, questionText, option);
   return { return: { id: questionnaire.id } };
 }
@@ -237,7 +241,8 @@ async function GetQuestionById(request, context) {
  */
 async function AddAnswer(request, context) {
   const { id: questionId } = request.params;
-  const { profileId, answer = null, option = null, duration } = request.clientParams;
+  const profileId = request.userData.profileId;
+  const { answer = null, option = null, duration } = request.clientParams;
   const questionnaire = await Question.addAnswerByQuestionId(questionId, profileId, duration, answer, option);
   return { return: { id: questionnaire.id } };
 }
@@ -344,7 +349,7 @@ async function GetAnswerById(request, context) {
  *                             example: "2024-12-18T13:05:14.411Z"
  */
 async function GetQuestionListByUser(request, context) {
-  const { profileId } = request.params;
+  const profileId = request.userData.profileId;
   const question = await Question.getCombinationListByUser(profileId);
   return { return: { list: question } };
 }
@@ -485,7 +490,8 @@ async function GetAnswerListByQuestionId(request, context) {
  */
 async function ShareQuestionById(request, context) {
   const { id: questionId } = request.params;
-  const { profileId: senderId = null, receiverIds = [] } = request.clientParams;
+  const senderId = request.userData.profileId;
+  const { receiverIds = [] } = request.clientParams;
   const share = await Question.shareQuestion(questionId, senderId, receiverIds);
   return { return: { detail: share } };
 }
@@ -551,7 +557,7 @@ async function ShareQuestionById(request, context) {
  *                             example: "2025-01-03T09:46:18.739Z"
  */
 async function GetSharedQuestionListByUser(request, context) {
-  const { profileId } = request.params;
+  const profileId = request.userData.profileId;
   const sharedQuestion = await Question.getSharedQuestionListByUser(profileId);
   return { return: { list: sharedQuestion } };
 }
@@ -620,7 +626,7 @@ async function GetSharedQuestionListByUser(request, context) {
  */
 async function PatchQuestionById(request, context) {
   const { id: questionId } = request.params;
-  const profileId = request.headers.get("x-profile-id");
+  const profileId = request.userData.profileId;
   const questionAction = await Question.patchById(questionId, request.clientParams, profileId);
   return { return: { id: questionAction.id } };
 }
@@ -845,11 +851,13 @@ async function GetEventByCorrelationId(request, context) {
 }
 
 async function SendFollowUpCmd(request, context) {
-  const { correlationId, clientParams: body } = request;
-  const cmd = await Question.insertFollowUpCmd(body["profileId"], body, correlationId);
+  const { correlationId } = request;
+  const profileId = request.userData.profileId;
+  const body = { ...request.clientParams, profileId };
+  const cmd = await Question.insertFollowUpCmd(profileId, body, correlationId);
   const filters = Question.insertFollowUpFilter(body);
   const receiverIds = Question.getFollowUpReceiver(body);
-  const sharedQuestions = Question.shareQuestion(body["newQuestionId"], body["profileId"], await receiverIds);
+  const sharedQuestions = Question.shareQuestion(body["newQuestionId"], profileId, await receiverIds);
 
   const settled = await Promise.allSettled([filters, sharedQuestions]);
   const errors = settled.filter((result) => result.status === "rejected").map((result) => result.reason);
@@ -863,9 +871,11 @@ async function SendFollowUpCmd(request, context) {
 }
 
 async function ShareQuestionCmd(request, context) {
-  const { correlationId, clientParams: body } = request;
-  const cmd = await Question.insertQuestionShareCmd(body["profileId"], body, correlationId);
-  const sharedQuestions = await Question.shareQuestion(body["newQuestionId"], body["profileId"], body["receiverIds"]);
+  const { correlationId } = request;
+  const profileId = request.userData.profileId;
+  const body = { ...request.clientParams, profileId };
+  const cmd = await Question.insertQuestionShareCmd(profileId, body, correlationId);
+  const sharedQuestions = await Question.shareQuestion(body["newQuestionId"], profileId, body["receiverIds"]);
 
   await Question.updateQuestionShareCmdStatus(cmd["id"]);
   return { return: true };

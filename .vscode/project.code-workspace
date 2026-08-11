@@ -78,6 +78,5 @@
     "terminal.integrated.env.linux": {
       "NVM_DIR": "${env:HOME}/.nvm",
     },
-    "sarif-viewer.connectToGithubCodeScanning": "on",
   },
 }

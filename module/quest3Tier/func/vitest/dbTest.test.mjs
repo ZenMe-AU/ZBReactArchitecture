@@ -14,6 +14,7 @@ import container from "../di/diContainer.mjs";
 import models from "../repository/model/index.mjs";
 import { BaseRepository } from "../repository/baseRepository.mjs";
 import { createDatabaseInstance } from "../repository/model/connection/index.mjs";
+import { createModelsLoader } from "../repository/model/loader/index.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -47,6 +48,17 @@ describe("db repository CRUD", () => {
   const questionIdsToCleanup = new Set();
   const followUpCmdIdsToCleanup = new Set();
   const questionShareCmdIdsToCleanup = new Set();
+  const profileIdsToCleanup = new Set();
+
+  async function createTestProfile() {
+    const profileId = uuidv4();
+    await models.Profile.create({
+      internal_id: profileId,
+      external_id: profileId,
+    });
+    profileIdsToCleanup.add(profileId);
+    return profileId;
+  }
 
   async function deleteQuestionAndLogs(questionId) {
     if (!questionId) return 0;
@@ -76,7 +88,8 @@ describe("db repository CRUD", () => {
     await sequelize.authenticate();
 
     container.register("db", sequelize);
-    container.register("models", models);
+    const modelsDir = path.join(__dirname, "..", "repository", "model");
+    container.register("models", createModelsLoader(DB_TYPE.POSTGRES, sequelize, modelsDir));
 
     repository = new DbTestRepository();
   });
@@ -104,14 +117,19 @@ describe("db repository CRUD", () => {
       }
     }
 
+    if (profileIdsToCleanup.size > 0) {
+      await models.Profile.destroy({ where: { internal_id: [...profileIdsToCleanup] } });
+    }
+
     if (sequelize) {
       await sequelize.close();
     }
   });
 
   it("creates a question", async () => {
+    const profileId = await createTestProfile();
     const created = await repository.Question.create({
-      profileId: uuidv4(),
+      profileId,
       title: "vitest-db-create",
       questionText: "CRUD create from vitest",
       option: [{ id: "A", text: "one" }],
@@ -146,7 +164,7 @@ describe("db repository CRUD", () => {
   });
 
   it("triggers QuestionAction afterSave hook", async () => {
-    const profileId = uuidv4();
+    const profileId = await createTestProfile();
     const question = await repository.Question.create({
       profileId,
       title: "qa-hook-before",
@@ -174,9 +192,10 @@ describe("db repository CRUD", () => {
   });
 
   it("triggers FollowUpCmd afterUpdate hook", async () => {
+    const senderProfileId = await createTestProfile();
     const cmd = await models.FollowUpCmd.create({
       correlationId: uuidv4(),
-      senderProfileId: uuidv4(),
+      senderProfileId,
       action: "create",
       data: { source: "vitest" },
       status: 0,
@@ -197,9 +216,10 @@ describe("db repository CRUD", () => {
   });
 
   it("triggers QuestionShareCmd afterUpdate hook", async () => {
+    const senderProfileId = await createTestProfile();
     const cmd = await models.QuestionShareCmd.create({
       correlationId: uuidv4(),
-      senderProfileId: uuidv4(),
+      senderProfileId,
       action: "create",
       data: { source: "vitest" },
       status: 0,

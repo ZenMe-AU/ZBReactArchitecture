@@ -8,6 +8,7 @@ import { trace, context as sContext, TraceFlags, SpanKind, SpanStatusCode } from
 import { randomBytes } from "crypto";
 // const { startup } = require("../di/diRegistry");
 import container from "../di/diContainer.mjs";
+import { ensureProfile } from "../service/profile.mjs";
 
 const requestHandler =
   (fn, { schemas = [], customParams = {}, requireAuth = true } = {}) =>
@@ -49,8 +50,10 @@ const requestHandler =
         }
         const token = authorization.replace("Bearer ", "");
         const decoded = await provider.decode(token);
-        const profileId = decoded.oid;
-        user = { profileId };
+        const externalId = decoded.oid;
+        const { profile, created: profileCreated } = await ensureProfile(externalId);
+        const profileId = profile.internal_id;
+        user = { profileId, externalId, profile, profileCreated };
         tracerSpan.setAttribute("app.profile_id", profileId);
       }
       request.userData = user;
