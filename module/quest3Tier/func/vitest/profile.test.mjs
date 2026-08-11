@@ -9,65 +9,70 @@ import { requestHandler } from "../handler/handlerWrapper.mjs";
 import { ensureProfile } from "../service/profile.mjs";
 
 describe("ensureProfile", () => {
-  const findOrCreate = vi.fn();
+  const findOne = vi.fn();
+  const create = vi.fn();
 
   beforeEach(() => {
-    findOrCreate.mockReset();
+    findOne.mockReset();
+    create.mockReset();
     container.singletons.set("models", {
-      Profile: { findOrCreate },
+      Profile: { findOne, create },
     });
   });
 
-  it("creates a profile with matching internal and external IDs", async () => {
-    const id = "8bc796d2-4731-4d0b-8299-1d1a067c4be7";
-    findOrCreate.mockResolvedValue([{ internal_id: id, external_id: id }, true]);
+  it("creates a profile with a generated internal ID when none exists", async () => {
+    const externalId = "8bc796d2-4731-4d0b-8299-1d1a067c4be7";
+    const internalId = "63fddfe4-b1c2-4314-a65c-f4f3fba185b6";
+    findOne.mockResolvedValue(null);
+    create.mockResolvedValue({ internal_id: internalId, external_id: externalId });
 
-    const result = await ensureProfile(id);
+    const result = await ensureProfile(externalId);
 
-    expect(findOrCreate).toHaveBeenCalledWith({
-      where: { internal_id: id },
-      defaults: { internal_id: id, external_id: id },
+    expect(findOne).toHaveBeenCalledWith({
+      where: { external_id: externalId },
+      order: [
+        ["createdAt", "ASC"],
+        ["internal_id", "ASC"],
+      ],
     });
+    expect(create).toHaveBeenCalledWith({ external_id: externalId });
+    expect(result.profile.internal_id).toBe(internalId);
     expect(result.created).toBe(true);
   });
 
-  it("reuses an existing profile", async () => {
-    const id = "8bc796d2-4731-4d0b-8299-1d1a067c4be7";
-    findOrCreate.mockResolvedValue([{ internal_id: id, external_id: id }, false]);
+  it("reuses the first existing profile for the external ID", async () => {
+    const externalId = "8bc796d2-4731-4d0b-8299-1d1a067c4be7";
+    const firstProfile = {
+      internal_id: "63fddfe4-b1c2-4314-a65c-f4f3fba185b6",
+      external_id: externalId,
+    };
+    findOne.mockResolvedValue(firstProfile);
 
-    const result = await ensureProfile(id);
+    const result = await ensureProfile(externalId);
 
+    expect(result.profile).toBe(firstProfile);
     expect(result.created).toBe(false);
+    expect(create).not.toHaveBeenCalled();
   });
 
   it("rejects a missing authenticated profile ID", async () => {
     await expect(ensureProfile()).rejects.toMatchObject({ status: 401 });
-    expect(findOrCreate).not.toHaveBeenCalled();
+    expect(findOne).not.toHaveBeenCalled();
+    expect(create).not.toHaveBeenCalled();
   });
 
   it("rejects a malformed authenticated profile ID", async () => {
     await expect(ensureProfile("not-a-uuid")).rejects.toMatchObject({ status: 401 });
-    expect(findOrCreate).not.toHaveBeenCalled();
+    expect(findOne).not.toHaveBeenCalled();
+    expect(create).not.toHaveBeenCalled();
   });
 
-  it("rejects a conflicting external ID", async () => {
-    const id = "8bc796d2-4731-4d0b-8299-1d1a067c4be7";
-    findOrCreate.mockResolvedValue([
-      {
-        internal_id: id,
-        external_id: "63fddfe4-b1c2-4314-a65c-f4f3fba185b6",
-      },
-      false,
-    ]);
-
-    await expect(ensureProfile(id)).rejects.toMatchObject({ status: 409 });
-  });
-
-  it("ensures the JWT profile before an authenticated Q3 handler runs", async () => {
-    const id = "8bc796d2-4731-4d0b-8299-1d1a067c4be7";
-    findOrCreate.mockResolvedValue([{ internal_id: id, external_id: id }, true]);
+  it("passes the Quest3 internal profile ID to an authenticated handler", async () => {
+    const externalId = "8bc796d2-4731-4d0b-8299-1d1a067c4be7";
+    const internalId = "63fddfe4-b1c2-4314-a65c-f4f3fba185b6";
+    findOne.mockResolvedValue({ internal_id: internalId, external_id: externalId });
     container.singletons.set("authProvider", {
-      decode: vi.fn().mockResolvedValue({ oid: id }),
+      decode: vi.fn().mockResolvedValue({ oid: externalId }),
     });
 
     const handler = requestHandler(async (request) => ({
@@ -93,7 +98,7 @@ describe("ensureProfile", () => {
     expect(response.status).toBe(200);
     expect(response.jsonBody).toEqual({
       success: true,
-      return: { profileId: id, profileCreated: true },
+      return: { profileId: internalId, profileCreated: false },
     });
   });
 });

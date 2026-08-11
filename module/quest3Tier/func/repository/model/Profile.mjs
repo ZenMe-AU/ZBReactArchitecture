@@ -16,7 +16,6 @@ export default (sequelize, DataTypes) => {
       external_id: {
         type: DataTypes.UUID,
         allowNull: false,
-        unique: true,
       },
     },
     {

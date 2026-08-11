@@ -36,13 +36,6 @@ export async function up(queryInterface) {
       { transaction }
     );
 
-    await queryInterface.addConstraint("profile", {
-      fields: ["external_id"],
-      type: "unique",
-      name: "profile_external_id_unique",
-      transaction,
-    });
-
     for (const [table, field, name] of profileReferences) {
       await queryInterface.addConstraint(table, {
         fields: [field],
@@ -65,7 +58,5 @@ export async function down(queryInterface) {
     for (const [table, , name] of [...profileReferences].reverse()) {
       await queryInterface.removeConstraint(table, name, { transaction });
     }
-
-    await queryInterface.removeConstraint("profile", "profile_external_id_unique", { transaction });
   });
 }

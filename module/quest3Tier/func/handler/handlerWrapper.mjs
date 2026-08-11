@@ -50,9 +50,10 @@ const requestHandler =
         }
         const token = authorization.replace("Bearer ", "");
         const decoded = await provider.decode(token);
-        const profileId = decoded.oid;
-        const { profile, created: profileCreated } = await ensureProfile(profileId);
-        user = { profileId, profile, profileCreated };
+        const externalId = decoded.oid;
+        const { profile, created: profileCreated } = await ensureProfile(externalId);
+        const profileId = profile.internal_id;
+        user = { profileId, externalId, profile, profileCreated };
         tracerSpan.setAttribute("app.profile_id", profileId);
       }
       request.userData = user;

@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import Model from "../repository/model/index.mjs";
+import container from "../di/diContainer.mjs";
 import { validate as isUuid } from "uuid";
 
 async function ensureProfile(externalId) {
@@ -13,21 +13,21 @@ async function ensureProfile(externalId) {
     throw error;
   }
 
-  const [profile, created] = await Model.Profile.findOrCreate({
-    where: { internal_id: externalId },
-    defaults: {
-      internal_id: externalId,
-      external_id: externalId,
-    },
+  const { Profile } = container.get("models");
+  const existingProfile = await Profile.findOne({
+    where: { external_id: externalId },
+    order: [
+      ["createdAt", "ASC"],
+      ["internal_id", "ASC"],
+    ],
   });
 
-  if (profile.external_id !== externalId) {
-    const error = new Error("The authenticated profile ID conflicts with the existing profile");
-    error.status = 409;
-    throw error;
+  if (existingProfile) {
+    return { profile: existingProfile, created: false };
   }
 
-  return { profile, created };
+  const profile = await Profile.create({ external_id: externalId });
+  return { profile, created: true };
 }
 
 export { ensureProfile };

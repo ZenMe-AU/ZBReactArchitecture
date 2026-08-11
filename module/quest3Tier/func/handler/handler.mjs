@@ -5,19 +5,6 @@
 
 import Question from "../service/function.mjs";
 
-async function EnsureProfile(request) {
-  const { profile, profileCreated: created } = request.userData;
-
-  return {
-    status: created ? 201 : 200,
-    return: {
-      internalId: profile.internal_id,
-      externalId: profile.external_id,
-      created,
-    },
-  };
-}
-
 /**
  * @swagger
  * /question:
@@ -332,7 +319,7 @@ async function GetAnswerById(request, context) {
  *                             example: "2024-12-18T13:05:14.411Z"
  */
 async function GetQuestionListByUser(request, context) {
-  const { profileId } = request.params;
+  const profileId = request.userData.profileId;
   const question = await Question.getCombinationListByUser(profileId);
   return { return: { list: question } };
 }
@@ -540,7 +527,7 @@ async function ShareQuestionById(request, context) {
  *                             example: "2025-01-03T09:46:18.739Z"
  */
 async function GetSharedQuestionListByUser(request, context) {
-  const { profileId } = request.params;
+  const profileId = request.userData.profileId;
   const sharedQuestion = await Question.getSharedQuestionListByUser(profileId);
   return { return: { list: sharedQuestion } };
 }
@@ -865,7 +852,6 @@ async function ShareQuestionCmd(request, context) {
 }
 
 export default {
-  EnsureProfile,
   CreateQuestion,
   UpdateQuestionById,
   GetQuestionById,

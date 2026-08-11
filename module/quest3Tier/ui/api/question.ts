@@ -7,21 +7,6 @@ import { jwtFetch } from "@zenmechat/shared-ui/api/jwtFetch";
 import { getConfig, loadConfig } from "@zenmechat/shared-ui/config/loadConfig"; //Config file: /ui/env.json
 // const apiDomain = getConfig("QUEST3TIER_DOMAIN");
 
-export const ensureCurrentProfile = async () => {
-  await loadConfig();
-  const apiDomain = getConfig("QUEST3TIER_DOMAIN");
-  const response = await jwtFetch(`${apiDomain}/profile`, {
-    method: "POST",
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to initialise the current Q3 profile");
-  }
-
-  const data = await response.json();
-  return data.return;
-};
-
 // Fetch list of questions for a specific user
 export const getQuestionsByUser = async () => {
   const profileId = localStorage.getItem("profileId");

@@ -15,7 +15,6 @@ import * as QuestionCombinationListModule from "./routes/QuestionCombinationList
 import * as QuestionDetailModule from "./routes/QuestionDetail";
 import * as QuestionDetailAddModule from "./routes/QuestionDetailAdd";
 import * as ShareQuestionModule from "./routes/ShareQuestion";
-import { ensureCurrentProfile } from "./api/question";
 
 type FrameworkRouteModule = {
   default: (props: { loaderData?: unknown }) => JSX.Element;
@@ -61,8 +60,6 @@ function RouteModuleElement({ routeModule }: { routeModule: FrameworkRouteModule
 }
 
 export default function Quest3TierAppRoutes() {
-  const [profileReady, setProfileReady] = useState(false);
-  const [profileError, setProfileError] = useState<Error | null>(null);
   const routes = useRoutes([
     { index: true, element: <RouteModuleElement routeModule={QuestionCombinationListModule} /> },
     { path: "add", element: <RouteModuleElement routeModule={AddQuestionModule} /> },
@@ -74,26 +71,5 @@ export default function Quest3TierAppRoutes() {
     { path: ":id/share", element: <RouteModuleElement routeModule={ShareQuestionModule} /> },
   ]);
 
-  useEffect(() => {
-    let isMounted = true;
-
-    ensureCurrentProfile()
-      .then(() => {
-        if (isMounted) setProfileReady(true);
-      })
-      .catch((error: unknown) => {
-        if (!isMounted) return;
-        setProfileError(error instanceof Error ? error : new Error("Failed to initialise the current Q3 profile"));
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  if (profileError) {
-    throw profileError;
-  }
-
-  return profileReady ? routes : null;
+  return routes;
 }
