@@ -6,6 +6,7 @@
 import { app } from "@azure/functions";
 import { requestHandler } from "./handler/handlerWrapper.mjs";
 import questionHandler from "./handler/handler.mjs";
+import testQuestionHandler from "./handler/questionHandler.mjs";
 import { sendFollowUpCmdSchema } from "./schema/sendFollowUpCmdSchema.mjs";
 import { shareQuestionCmdSchema } from "./schema/shareQuestionCmdSchema.mjs";
 // const { followUpCmdQueue, shareQuestionCmdQueue } = require("./service/serviceBus.js");
@@ -16,21 +17,21 @@ app.http("CreateQuestion", {
   route: "question",
   methods: ["POST"],
   authLevel: "anonymous",
-  handler: requestHandler(questionHandler.CreateQuestion),
+  handler: requestHandler(testQuestionHandler.CreateQuestion),
 });
 
 app.http("GetQuestionById", {
   route: "question/{id}",
   methods: ["GET"],
   authLevel: "anonymous",
-  handler: requestHandler(questionHandler.GetQuestionById),
+  handler: requestHandler(testQuestionHandler.GetQuestionById),
 });
 
 app.http("UpdateQuestionById", {
   route: "question/{id}",
   methods: ["PUT"],
   authLevel: "anonymous",
-  handler: requestHandler(questionHandler.UpdateQuestionById),
+  handler: requestHandler(testQuestionHandler.UpdateQuestionById),
 });
 
 app.http("PatchQuestionById", {
@@ -58,7 +59,7 @@ app.http("GetQuestionListByUser", {
   route: "profile/{profileId}/question",
   methods: ["GET"],
   authLevel: "anonymous",
-  handler: requestHandler(questionHandler.GetQuestionListByUser),
+  handler: requestHandler(testQuestionHandler.GetQuestionListByUser),
 });
 
 app.http("GetAnswerListByQuestionId", {
