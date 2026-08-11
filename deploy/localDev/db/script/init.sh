@@ -9,7 +9,7 @@ if [ ! -f "$ENV_FILE" ]; then
 POSTGRES_DB=postgres
 POSTGRES_USER=root
 POSTGRES_PASSWORD=DatabasePassword123!
-POSTGRES_PORT=55432
+POSTGRES_PORT=5432
 
 # pgAdmin
 PGADMIN_DEFAULT_EMAIL=admin@localhost.com
@@ -17,11 +17,6 @@ PGADMIN_DEFAULT_PASSWORD=DefaultPassword123!
 PGADMIN_PORT=5050
 POSTGRES_ADMIN_USER=admin
 POSTGRES_ADMIN_PASSWORD=AdminPassword123!
-
-# Quest 3 local application user
-QUEST3TIER_DB=quest3Tier
-QUEST3TIER_USER=vscode
-QUEST3TIER_PASSWORD=vscode
 EOF
   echo "config.env created with default values."
   echo "Please update the config.env file with your specific settings."
