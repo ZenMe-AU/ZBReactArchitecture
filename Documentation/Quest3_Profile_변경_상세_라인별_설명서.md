@@ -98,31 +98,19 @@ internal_id: {
 
 파일: `module/quest3Tier/func/service/profile.mjs`
 
-현재 구현 전체 위치: 6~33행
+현재 구현 전체 위치: 6~32행
 
 ### 4.1 모델 접근 방식
 
-변경 전 6행:
+현재 6행:
 
 ```js
 import Model from "../repository/model/index.mjs";
 ```
 
-변경 후 현재 6행:
-
-```js
-import container from "../di/diContainer.mjs";
-```
-
-현재 16행:
-
-```js
-const { Profile } = container.get("models");
-```
-
 ### 이유
 
-애플리케이션이 DI container에 등록한 Profile 모델을 사용한다. 테스트에서는 같은 container에 mock `findOne`과 `create`를 넣을 수 있다. 서비스가 DB 연결을 직접 생성하지 않는다.
+production에서 실제 `.mjs` 모델들을 초기화하는 repository model index를 사용한다. DI container의 별도 models loader는 현재 `.js` 파일만 검색하기 때문에 `Profile.mjs`를 제공하지 못한다. 테스트에서는 `vi.mock()`으로 repository model index 자체를 교체한다.
 
 ### 4.2 입력 검증: 현재 9~14행
 
@@ -137,7 +125,7 @@ async function ensureProfile(externalId) {
 
 이 부분은 외부 ID가 없거나 UUID가 아니면 DB 접근 전에 401 오류를 던진다.
 
-### 4.3 조회 기준 변경
+### 4.3 조회 기준 변경: 현재 16~22행
 
 변경 전:
 
@@ -566,7 +554,7 @@ return routes;
 
 현재 테스트 위치: 11~104행
 
-### 12.1 Mock 변경: 현재 12~20행
+### 12.1 Mock 변경: 현재 11~20행
 
 변경 전에는 `findOrCreate` 하나만 mock했다.
 
@@ -577,7 +565,7 @@ const findOne = vi.fn();
 const create = vi.fn();
 ```
 
-Profile 서비스가 조회 후 필요할 때 생성하므로 두 함수를 각각 검증한다.
+실제 테스트에서는 `vi.hoisted()`로 두 mock을 만든 뒤 현재 16~20행의 `vi.mock()`으로 `repository/model/index.mjs`의 `Profile`을 교체한다. Profile 서비스가 조회 후 필요할 때 생성하므로 두 함수를 각각 검증한다. 이 방식은 production과 같은 import 경로를 유지하면서 DB 호출만 mock한다.
 
 ### 12.2 신규 Profile 생성 테스트: 현재 23~41행
 

@@ -84,15 +84,14 @@ service 및 database
 
 파일: `module/quest3Tier/func/service/profile.mjs`
 
-- 6행: DI container에서 등록된 모델을 사용한다.
+- 6행: production에서 실제로 초기화되는 repository model index를 사용한다.
 - 9행: `ensureProfile(externalId)`가 wrapper에서 호출되는 진입점이다.
 - 10~14행: ID가 없거나 UUID가 아니면 status 401인 오류를 던진다.
-- 16행: DI container에서 `Profile` Sequelize 모델을 얻는다.
-- 17~23행: `external_id`로 기존 Profile 하나를 조회한다.
-- 19~22행: `createdAt ASC`, 그 다음 `internal_id ASC`로 정렬한다. “첫 번째”가 요청마다 달라지지 않도록 결정적인 순서를 정의한 것이다.
-- 25~27행: 기존 Profile이 있으면 재사용하고 `created: false`를 반환한다.
-- 29행: 기존 Profile이 없으면 `external_id`만 제공해 생성한다. `internal_id`는 모델의 UUIDV4 기본값이 만든다.
-- 30행: 생성된 Profile과 `created: true`를 반환한다.
+- 16~22행: `Model.Profile`에서 `external_id`로 기존 Profile 하나를 조회한다.
+- 18~21행: `createdAt ASC`, 그 다음 `internal_id ASC`로 정렬한다. “첫 번째”가 요청마다 달라지지 않도록 결정적인 순서를 정의한 것이다.
+- 24~26행: 기존 Profile이 있으면 재사용하고 `created: false`를 반환한다.
+- 28행: 기존 Profile이 없으면 `external_id`만 제공해 생성한다. `internal_id`는 모델의 UUIDV4 기본값이 만든다.
+- 29행: 생성된 Profile과 `created: true`를 반환한다.
 
 왜 `internal_id`로 조회하지 않는가? wrapper가 가진 값은 Microsoft `oid`, 즉 외부 ID이기 때문이다.
 

@@ -8,16 +8,21 @@ import container from "../di/diContainer.mjs";
 import { requestHandler } from "../handler/handlerWrapper.mjs";
 import { ensureProfile } from "../service/profile.mjs";
 
-describe("ensureProfile", () => {
-  const findOne = vi.fn();
-  const create = vi.fn();
+const { findOne, create } = vi.hoisted(() => ({
+  findOne: vi.fn(),
+  create: vi.fn(),
+}));
 
+vi.mock("../repository/model/index.mjs", () => ({
+  default: {
+    Profile: { findOne, create },
+  },
+}));
+
+describe("ensureProfile", () => {
   beforeEach(() => {
     findOne.mockReset();
     create.mockReset();
-    container.singletons.set("models", {
-      Profile: { findOne, create },
-    });
   });
 
   it("creates a profile with a generated internal ID when none exists", async () => {
