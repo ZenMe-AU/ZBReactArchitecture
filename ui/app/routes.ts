@@ -26,7 +26,9 @@ export default [
     route("logout", "./routes/Logout2.tsx"),
     ...profileProtectedRoutes,
     route("quest3Tier/*", "./routes/remotes/Quest3TierRemote.tsx"),
+    route("quest3TierCqrs/*", "./routes/remotes/Quest3TierCqrsRemote.tsx"),
     route("quest5Tier/*", "./routes/remotes/Quest5TierRemote.tsx"),
     route("quest5TierEg/*", "./routes/remotes/Quest5TierEgRemote.tsx"),
+    route("accessManager/*", "./routes/remotes/AccessManagerRemote.tsx"),
   ]),
 ] satisfies RouteConfig;
