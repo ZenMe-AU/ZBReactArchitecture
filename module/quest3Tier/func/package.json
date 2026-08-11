@@ -5,7 +5,7 @@
   "description": "",
   "main": "index.cjs",
   "scripts": {
-    "setup:local": "node deploy/localDev/localSetting.mjs",
+    "setup:local": "node deploy/localDev/localSetting.js",
     "prestart": "pnpm run setup:local",
     "start": "func start",
     "deploy": "pnpm deploy --filter quest3Tier --prod out",
