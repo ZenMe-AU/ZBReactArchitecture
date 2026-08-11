@@ -1,0 +1,203 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "DDT-schema.json",
+  "title": "Data Driven Testing Schema for Question Answer tests",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "dataDrivenTest",
+    "questions",
+    "users"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "dataDrivenTest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "description"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "questions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/question"
+      }
+    },
+    "users": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/user"
+      }
+    }
+  },
+  "$defs": {
+    "question": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "userId",
+        "questionId",
+        "title",
+        "question",
+        "answers",
+        "options"
+      ],
+      "properties": {
+        "userId": {
+          "type": "integer"
+        },
+        "questionId": {
+          "type": "integer"
+        },
+        "title": {
+          "type": "string"
+        },
+        "question": {
+          "type": "string"
+        },
+        "answers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/answer"
+          }
+        },
+        "followUpQuestions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/followUpQuestion"
+          }
+        },
+        "options": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "answer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "userId",
+        "questionId",
+        "question",
+        "answer",
+        "duration",
+        "selectedOption"
+      ],
+      "properties": {
+        "userId": {
+          "type": "integer"
+        },
+        "questionId": {
+          "type": "integer"
+        },
+        "question": {
+          "type": "string"
+        },
+        "answer": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "duration": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "selectedOption": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    "followUpQuestion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "userId",
+        "newQuestionId",
+        "questionId",
+        "isSave",
+        "selectedOption"
+      ],
+      "properties": {
+        "userId": {
+          "type": "integer"
+        },
+        "newQuestionId": {
+          "type": "integer"
+        },
+        "questionId": {
+          "type": "integer"
+        },
+        "isSave": {
+          "type": "boolean"
+        },
+        "selectedOption": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    "user": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "userId",
+        "avatar",
+        "attributes"
+      ],
+      "properties": {
+        "userId": {
+          "type": "integer"
+        },
+        "avatar": {
+          "type": "string"
+        },
+        "attributes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

@@ -16,7 +16,7 @@
     "AZURE_STORAGE_CONTAINER_NAME":"images"
   },
   "Host": {
-    "LocalHttpPort": 7073,
+    "LocalHttpPort": 7071,
     "CORS": "*"
   }
 }

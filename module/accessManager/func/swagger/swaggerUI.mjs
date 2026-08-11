@@ -1,0 +1,33 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import swaggerUi from "swagger-ui-dist";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export default async function swaggerUI(context, req) {
+  const swaggerFilePath = path.join(swaggerUi.getAbsoluteFSPath(), "index.html");
+
+  let swaggerHtml = fs.readFileSync(swaggerFilePath, "utf-8");
+
+  swaggerHtml = swaggerHtml.replace("https://petstore.swagger.io/v2/swagger.json", "/swagger.json");
+  swaggerHtml = swaggerHtml.replace('href="./swagger-ui.css"', 'href="/swagger/swagger-ui.css"');
+  swaggerHtml = swaggerHtml.replace('href="index.css"', 'href="/swagger/index.css"');
+  swaggerHtml = swaggerHtml.replace('href="./favicon-32x32.png"', 'href="/swagger/favicon-32x32.png"');
+  swaggerHtml = swaggerHtml.replace('href="./favicon-16x16.png"', 'href="/swagger/favicon-16x16.png"');
+  swaggerHtml = swaggerHtml.replace('src="./swagger-ui-bundle.js"', 'src="/swagger/swagger-ui-bundle.js"');
+  swaggerHtml = swaggerHtml.replace('src="./swagger-ui-standalone-preset.js"', 'src="/swagger/swagger-ui-standalone-preset.js"');
+  swaggerHtml = swaggerHtml.replace('src="./swagger-initializer.js"', 'src="/swagger/swagger-initializer.js"');
+
+  return {
+    status: 200,
+    headers: { "Content-Type": "text/html" },
+    body: swaggerHtml,
+  };
+}
