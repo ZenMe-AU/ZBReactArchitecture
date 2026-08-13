@@ -21,4 +21,3 @@ How to deploy ZBREACTARCHITECTURE
 1. then run deploy.ps1 located in the deploy folder
    1. to run deploy.ps1 open a console inside the deploy folder directory and run deploy.ps1 (Warning this will take a while to finish, roughly an hour)
 
-# this is WIP will refine
