@@ -26,7 +26,6 @@ async function createPostgresInstance(config) {
       break;
     default:
     case "azure-ad":
-      // password = await getAzureAccessToken();
       config.dialectOptions.ssl = {
         require: true,
         rejectUnauthorized: false, // suggested: in production, set to true
