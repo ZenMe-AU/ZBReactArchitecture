@@ -18,5 +18,6 @@
     "*.tsv": "duckdb.dataFileViewer",
     "*.xlsx": "duckdb.dataFileViewer"
   },
-  "azureFunctions.projectSubpath": "module\\quest3Tier\\func"
+  "azureFunctions.projectSubpath": "module\\quest3Tier\\func",
+  "eslint.workingDirectories": [{ "mode": "auto" }]
 }
