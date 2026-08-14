@@ -358,9 +358,7 @@ function FollowUpQuestion() {
                   {(questionList.find((q) => q.id === selectedQuestions[cardId])?.option || []).map((option, index) => (
                     <FormControlLabel
                       key={index}
-                      control={
-                        <Checkbox checked={selectedOptions[cardId]?.includes(option) || false} onChange={() => handleOptionChange(cardId, option)} />
-                      }
+                      control={<Checkbox checked={selectedOptions[cardId]?.includes(option) || false} onChange={() => handleOptionChange(cardId, option)} />}
                       label={
                         <Box display="flex" alignItems="center">
                           <Typography variant="body1" sx={{ mr: 1 }}>
@@ -427,11 +425,7 @@ function FollowUpQuestion() {
           <Button variant="contained" onClick={handleFollowUp} sx={{ mx: 1 }} disabled={submitting}>
             send
           </Button>
-          <FormControlLabel
-            sx={{ mx: 1 }}
-            control={<Checkbox checked={saveFilter} onChange={(e) => setSaveFilter(e.target.checked)} />}
-            label="Save Filter"
-          />
+          <FormControlLabel sx={{ mx: 1 }} control={<Checkbox checked={saveFilter} onChange={(e) => setSaveFilter(e.target.checked)} />} label="Save Filter" />
         </Box>
       </Container>
     </Container>
