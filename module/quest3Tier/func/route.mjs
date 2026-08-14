@@ -11,6 +11,8 @@ import followupHandler from "./handler/followupHandler.mjs";
 import { sendFollowUpCmdSchema } from "./schema/sendFollowUpCmdSchema.mjs";
 import { shareQuestionCmdSchema } from "./schema/shareQuestionCmdSchema.mjs";
 
+//TODO: Review schema usage and ensure all endpoints have a correct schema assigned which is also in sync with the relevant function and relevant swagger doc.
+
 app.http("CreateQuestion", {
   route: "question",
   methods: ["POST"],

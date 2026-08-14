@@ -60,7 +60,7 @@ function RouteModuleElement({ routeModule }: { routeModule: FrameworkRouteModule
 }
 
 export default function Quest3TierAppRoutes() {
-  return useRoutes([
+  const routes = useRoutes([
     { index: true, element: <RouteModuleElement routeModule={QuestionCombinationListModule} /> },
     { path: "add", element: <RouteModuleElement routeModule={AddQuestionModule} /> },
     { path: ":id", element: <RouteModuleElement routeModule={QuestionDetailModule} /> },
@@ -70,4 +70,6 @@ export default function Quest3TierAppRoutes() {
     { path: ":id/edit", element: <RouteModuleElement routeModule={EditQuestionModule} /> },
     { path: ":id/share", element: <RouteModuleElement routeModule={ShareQuestionModule} /> },
   ]);
+
+  return routes;
 }

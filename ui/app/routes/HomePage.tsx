@@ -36,6 +36,15 @@ const questTiers = [
     updatedAgo: "Updated 1d ago",
     href: "/quest5TierEg",
   },
+  {
+    title: "Access Manager",
+    description: "Manage access control and permissions for your applications.",
+    tierLabel: "Access Manager",
+    tierColor: "#ff9800",
+    icon: <ShieldIcon />,
+    updatedAgo: "Updated 1d ago",
+    href: "/accessManager",
+  },
 ];
 
 // export async function clientLoader() {

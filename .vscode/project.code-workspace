@@ -25,6 +25,10 @@
       "path": "../module/quest3Tier/func",
     },
     {
+      "name": "accessManager/func",
+      "path": "../module/accessManager/func",
+    },
+    {
       "name": "profile/func",
       "path": "../module/profile/func",
     },
@@ -38,7 +42,7 @@
     "compounds": [
       {
         "name": "Start Full Stack App",
-        "configurations": ["Start ui", "Start quest5TierEg", "Start quest5Tier", "Start quest3Tier", "Start profile", "Start coordinate"],
+        "configurations": ["Start ui", "Start quest5TierEg", "Start quest5Tier", "Start quest3TierCqrs", "Start quest3Tier",, "Start accessManager" "Start profile", "Start coordinate"],
       },
     ],
   },
@@ -64,8 +68,11 @@
     "eslint.workingDirectories": [
       "../",
       "../ui",
-      "../module/quest5Tier/func",
+      "../module/accessManager/func",
       "../module/quest3Tier/func",
+      "../module/quest3TierCqrs/func",
+      "../module/quest5Tier/func",
+      "../module/quest5TierEg/func",
       "../module/profile/func",
       "../module/coordinate/func",
     ],
