@@ -28,26 +28,32 @@ const checkAnswer = (profileIdLookup, questionIdLookup) => {
 function getAnswerTestResult() {
   return [
     {
+      userId: 1,
       questionId: 1,
       count: 20,
     },
     {
+      userId: 1,
       questionId: 2,
       count: 20,
     },
     {
+      userId: 1,
       questionId: 3,
       count: 20,
     },
     {
+      userId: 1,
       questionId: 4,
       count: 20,
     },
     {
+      userId: 1,
       questionId: 5,
       count: 20,
     },
     {
+      userId: 1,
       questionId: 6,
       count: 20,
     },
