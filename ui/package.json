@@ -14,7 +14,7 @@
     "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
-    "@azure/msal-browser": "^4.28.1",
+    "@azure/msal-browser": "^5.18.0",
     "@azure/msal-react": "^3.0.25",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
