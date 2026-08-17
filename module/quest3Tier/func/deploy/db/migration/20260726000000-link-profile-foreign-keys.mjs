@@ -19,6 +19,7 @@ const profileReferences = [
   ["questionShareEvent", "senderProfileId", "questionShareEvent_senderProfileId_fkey"],
 ];
 
+// TODO: This doesn't seem to be secure parameter handling, investigate how to secure it.
 const existingProfileIdsSql = profileReferences
   .map(([table, field]) => `SELECT "${field}" AS id FROM "${table}" WHERE "${field}" IS NOT NULL`)
   .join("\nUNION\n");
@@ -26,6 +27,7 @@ const existingProfileIdsSql = profileReferences
 /** @type {import('sequelize-cli').Migration} */
 export async function up(queryInterface) {
   await queryInterface.sequelize.transaction(async (transaction) => {
+    //TODO: This doesn't seem to be secure parameter handling, investigate how to secure it.
     await queryInterface.sequelize.query(
       `
         INSERT INTO "profile" ("internal_id", "external_id", "createdAt")

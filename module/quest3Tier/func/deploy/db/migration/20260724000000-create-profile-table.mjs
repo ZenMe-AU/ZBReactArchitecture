@@ -16,7 +16,7 @@ export async function up(queryInterface, Sequelize) {
     },
     external_id: {
       allowNull: false,
-      type: Sequelize.UUID,
+      type: Sequelize.STRING,
     },
     createdAt: {
       allowNull: false,
