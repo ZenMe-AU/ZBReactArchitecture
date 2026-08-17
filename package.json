@@ -24,6 +24,9 @@
     "@eslint/js": "^9.38.0",
     "@microsoft/eslint-formatter-sarif": "^3.1.0",
     "@microsoft/microsoft-graph-client": "^3.0.7",
+    "@playwright/test": "^1.62.1",
+    "@types/node": "^20.19.23",
+    "@vitest/coverage-v8": "^4.1.10",
     "archiver": "^7.0.1",
     "azurite": "^3.35.0",
     "dotenv": "^16.6.1",
@@ -43,8 +46,7 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.2",
     "unique-names-generator": "^4.7.1",
-    "vitest": "^4.1.9",
-    "@vitest/coverage-v8": "^4.1.10"
+    "vitest": "^4.1.9"
   },
   "pnpm": {
     "overrides": {
