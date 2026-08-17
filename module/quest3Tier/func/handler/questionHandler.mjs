@@ -56,7 +56,8 @@ import { Op, Sequelize } from "sequelize";
  *                       example: 123
  */
 async function CreateQuestion(request, context) {
-  const { profileId, title = null, option = null, questionText } = request.clientParams;
+  const profileId = request.userData.profileId;
+  const { title = null, option = null, questionText } = request.clientParams;
   const questionnaire = await create(profileId, title, questionText, option);
   return { return: { id: questionnaire.id } };
 }
@@ -283,7 +284,7 @@ async function getById(questionId) {
  *                             example: "2024-12-18T13:05:14.411Z"
  */
 async function GetQuestionListByUser(request, context) {
-  const { profileId } = request.params;
+  const profileId = request.userData.profileId;
   const question = await getCombinationListByUser(profileId);
   return { return: { list: question } };
 }
@@ -381,8 +382,8 @@ async function getCombinationListByUser(profileId) {
  *                       example: "b08992c2-7c89-43a6-a152-9d24a74349a7"
  */
 async function PatchQuestionById(request, context) {
+  const profileId = request.userData.profileId;
   const { id: questionId } = request.params;
-  const profileId = request.headers.get("x-profile-id");
   const questionAction = await patchById(questionId, request.clientParams, profileId);
   return { return: { id: questionAction.id } };
 }
