@@ -57,7 +57,8 @@ import Model from "../repository/model/index.mjs";
  */
 async function AddAnswer(request, context) {
   const { id: questionId } = request.params;
-  const { profileId, answer = null, option = null, duration } = request.clientParams;
+  const { answer = null, option = null, duration } = request.clientParams;
+  const profileId = request.userData?.profileId;
   const questionnaire = await addAnswerByQuestionId(questionId, profileId, duration, answer, option);
   return { return: { id: questionnaire.id } };
 }
@@ -75,7 +76,7 @@ async function addAnswerByQuestionId(questionId, profileId, duration, answer = n
   try {
     return await Model.QuestionAnswer.create({
       questionId: questionId,
-      profileId: profileId,
+      profileId: profileId, // Use the actual profileId when available
       answerText: answer,
       optionId: option,
       duration: duration,

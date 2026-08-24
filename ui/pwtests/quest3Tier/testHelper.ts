@@ -495,3 +495,34 @@ export async function expectConfiguredTenantOutcome(page: Page, user: AccessPass
     }
   }
 }
+
+export async function expectVisibleWithin(locator: Locator, label: string, timeoutMs = 500) {
+  const start = performance.now();
+  try {
+    await expect(locator).toBeVisible({ timeout: timeoutMs });
+  } finally {
+    const elapsedMs = performance.now() - start;
+    console.log(`${label} visible in ${elapsedMs.toFixed(1)}ms (timeout ${timeoutMs}ms)`);
+  }
+}
+
+export async function waitForLocatorContentLoaded(locator: Locator, emptyPlaceholder = "No options", label: string, timeoutMs = 500) {
+  await expect
+    .poll(
+      async () => {
+        const texts = (await locator.allTextContents()).map((value) => value.trim()).filter(Boolean);
+        if (!texts.length) {
+          return false;
+        }
+        if (texts.length === 1 && texts[0] === emptyPlaceholder) {
+          return false;
+        }
+        return true;
+      },
+      {
+        timeout: timeoutMs,
+        message: `${label} content did not load`,
+      }
+    )
+    .toBeTruthy();
+}
