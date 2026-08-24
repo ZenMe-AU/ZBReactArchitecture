@@ -13,7 +13,7 @@ import { Op, Sequelize } from "sequelize";
  *     tags:
  *       - Question
  *     summary: Create a new questionnaire
- *     description: Creates a new questionnaire with specified questions, options, and profile ID.
+ *     description: Creates a new questionnaire for the authenticated profile.
  *     requestBody:
  *       required: true
  *       content:
@@ -21,10 +21,6 @@ import { Op, Sequelize } from "sequelize";
  *           schema:
  *             type: object
  *             properties:
- *               profileId:
- *                 type: integer
- *                 description: ID of the profile creating the questionnaire.
- *                 example: 1
  *               title:
  *                 type: string
  *                 description: Title of the questionnaire.
@@ -56,7 +52,8 @@ import { Op, Sequelize } from "sequelize";
  *                       example: 123
  */
 async function CreateQuestion(request, context) {
-  const { profileId, title = null, option = null, questionText } = request.clientParams;
+  const profileId = request.userData.profileId;
+  const { title = null, option = null, questionText } = request.clientParams;
   const questionnaire = await create(profileId, title, questionText, option);
   return { return: { id: questionnaire.id } };
 }
@@ -227,20 +224,12 @@ async function getById(questionId) {
 
 /**
  * @swagger
- * /profile/{profileId}/question:
+ * /profile/question:
  *   get:
  *     tags:
  *       - Question
  *     summary: Get list of questions by user
- *     description: Retrieve all questions created by a specific user.
- *     parameters:
- *       - name: profileId
- *         in: path
- *         required: true
- *         schema:
- *           type: string
- *           format: uuid
- *           example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+ *     description: Retrieve all questions created by or shared with the authenticated user.
  *     responses:
  *       200:
  *         description: Successfully retrieved list of questions.
@@ -283,7 +272,7 @@ async function getById(questionId) {
  *                             example: "2024-12-18T13:05:14.411Z"
  */
 async function GetQuestionListByUser(request, context) {
-  const { profileId } = request.params;
+  const profileId = request.userData.profileId;
   const question = await getCombinationListByUser(profileId);
   return { return: { list: question } };
 }
@@ -335,13 +324,6 @@ async function getCombinationListByUser(profileId) {
  *           format: uuid
  *           example: "123e4567-e89b-12d3-a456-426614174000"
  *         description: The UUID of the question to update.
- *       - name: x-profile-id
- *         in: header
- *         required: true
- *         schema:
- *           type: string
- *           example: "45678"
- *         description: The ID of the profile making the request.
  *     requestBody:
  *       required: true
  *       content:
@@ -381,8 +363,8 @@ async function getCombinationListByUser(profileId) {
  *                       example: "b08992c2-7c89-43a6-a152-9d24a74349a7"
  */
 async function PatchQuestionById(request, context) {
+  const profileId = request.userData.profileId;
   const { id: questionId } = request.params;
-  const profileId = request.headers.get("x-profile-id");
   const questionAction = await patchById(questionId, request.clientParams, profileId);
   return { return: { id: questionAction.id } };
 }

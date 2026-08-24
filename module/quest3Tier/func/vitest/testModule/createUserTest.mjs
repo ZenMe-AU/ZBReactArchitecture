@@ -3,8 +3,6 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import { v4 as uuidv4 } from "uuid";
-
 import * as authEntraID from "../../service/authEntraID.mjs";
 import * as authLocal from "../../service/authLocal.mjs";
 
@@ -19,22 +17,16 @@ const authProviderModule = loadAuthProvider;
 
 const createUser = () => {
   createUserData().forEach((u) => {
-    let internalId = uuidv4();
-    profileIdLookup.add(u.userId, internalId);
+    profileIdLookup.add(u.userId);
   });
 };
 
 const profileIdLookup = {
   data: [],
-  add: function (externalId, internalId) {
+  add: function (externalId) {
     this.data.push({
       externalId: externalId,
-      internalId: internalId,
     });
-  },
-  getProfileId: function (id) {
-    let obj = this.data.filter(({ externalId }) => externalId == id).pop();
-    return obj ? obj.internalId : null;
   },
   getAuthToken: function (id) {
     const token = authProviderModule.generateToken({

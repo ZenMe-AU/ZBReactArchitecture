@@ -13,7 +13,6 @@ const createAnswer = (profileIdLookup, questionIdLookup) => {
       method: "POST",
       headers: { "Content-Type": "application/json", authorization: `Bearer ${profileIdLookup.getAuthToken(a.userId)}` },
       body: JSON.stringify({
-        profileId: profileIdLookup.getProfileId(a.userId),
         question: a.question,
         option: a.option,
         answer: a.answer,
