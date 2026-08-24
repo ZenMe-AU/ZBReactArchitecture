@@ -7,6 +7,7 @@ import Joi from "joi";
 import { uuidSchema } from "./commonSchema.mjs";
 
 export const sendFollowUpCmdSchema = Joi.object({
+  profileId: uuidSchema.optional(),
   newQuestionId: uuidSchema.required(),
   question: Joi.array()
     .items(
