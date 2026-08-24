@@ -9,9 +9,39 @@ import { register, startup } from "./diRegistry.mjs";
 import container from "./diContainer.mjs";
 import * as authEntraID from "../service/authEntraID.mjs";
 import * as authLocal from "../service/authLocal.mjs";
+import { createMigrationInstance } from "../deploy/db/migration/tool/index.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+async function assertNoPendingDbMigrations(sequelize) {
+  const ignoreMigrationState = (process.env.DB_IGNORE_MIGRATION_STATE ?? "false").toLowerCase() === "true";
+  if (ignoreMigrationState) {
+    console.warn("DB migration-state check bypassed (DB_IGNORE_MIGRATION_STATE=true)");
+    return;
+  }
+
+  const migrationDir = path.join(__dirname, "..", "deploy", "db", "migration");
+  const migration = createMigrationInstance({ db: sequelize, migrationDir });
+  const pendingMigrations = await migration.pending();
+  if (pendingMigrations.length === 0) {
+    console.log("DB schema is up to date");
+    return;
+  }
+
+  const isAzurePostgres = Boolean(process.env.DB_HOST && process.env.DB_HOST.includes("postgres.database.azure.com"));
+  const upgradeCommand = isAzurePostgres ? "node ./deploy/db/updateDbSchema.mjs" : "node ./deploy/db/updateDbSchemaLocal.mjs";
+  const pendingMigrationNames = pendingMigrations.map((migrationItem) => migrationItem.name).join(", ");
+
+  throw new Error(
+    [
+      "Database schema is outdated. Startup is blocked until the DB is upgraded.",
+      `Pending migrations: ${pendingMigrationNames}`,
+      `Run this command with a schema-admin account: ${upgradeCommand}`,
+      "Then restart the Function App.",
+    ].join("\n")
+  );
+}
 
 register("authProvider", async () => {
   const authProviders = {
@@ -46,6 +76,7 @@ register("db", async () => {
   }
 
   const sequelize = await createDatabaseInstance(DB_TYPE.POSTGRES, config);
+  await assertNoPendingDbMigrations(sequelize);
   const models = createModelsLoader(DB_TYPE.POSTGRES, sequelize, modelDir);
 
   container.register("db", sequelize);

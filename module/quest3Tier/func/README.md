@@ -19,7 +19,7 @@ In the terminal:
 ## Deploy the Database
 
 1. Note: May need to run `pnpm i` first if the following commands do not execute successfully.
-2. `node .\deploy\db\updateDbSchemaLocal.mjs`
+2. `node ./deploy/db/updateDbSchemaLocal.mjs`
 
 ## Seqelize-clie not compatible
 
