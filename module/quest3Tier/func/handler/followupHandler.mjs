@@ -91,10 +91,11 @@ async function getEventByCorrelationId(name, correlationId) {
 // TODO: Add swagger definition
 async function SendFollowUpCmd(request, context) {
   const { correlationId, clientParams: body } = request;
-  const cmd = await insertFollowUpCmd(body["profileId"], body, correlationId);
-  const filters = insertFollowUpFilter(body);
-  const receiverIds = getFollowUpReceiver(body);
-  const sharedQuestions = shareQuestion(body["newQuestionId"], body["profileId"], await receiverIds);
+  const profileId = request.userData.profileId;
+  const cmd = await insertFollowUpCmd(profileId, body, correlationId);
+  const filters = insertFollowUpFilter(profileId, body);
+  const receiverIds = getFollowUpReceiver(profileId, body);
+  const sharedQuestions = shareQuestion(body["newQuestionId"], profileId, await receiverIds);
 
   const settled = await Promise.allSettled([filters, sharedQuestions]);
   const errors = settled.filter((result) => result.status === "rejected").map((result) => result.reason);
@@ -130,10 +131,11 @@ async function insertFollowUpCmd(senderId, cmdData, correlationId) {
 
 /**
  * Insert a new follow-up filter.
+ * @param {string} senderId - Identifier of the authenticated sender.
  * @param {any} cmdData - Data for the follow-up filter.
  * @returns {Promise<any[]>} List of created follow-up filters.
  */
-async function insertFollowUpFilter(cmdData) {
+async function insertFollowUpFilter(senderId, cmdData) {
   try {
     if (cmdData.save) {
       const filterId = uuidv4();
@@ -141,7 +143,7 @@ async function insertFollowUpFilter(cmdData) {
         return {
           id: filterId,
           order: i + 1,
-          senderProfileId: cmdData["profileId"],
+          senderProfileId: senderId,
           refQuestionId: filter.questionId,
           refOption: filter.option,
           newQuestionId: cmdData.newQuestionId,
@@ -157,16 +159,17 @@ async function insertFollowUpFilter(cmdData) {
 
 /**
  * Retrieve the list of receivers for a follow-up command.
+ * @param {string} senderId - Identifier of the authenticated sender.
  * @param {any} cmdData - Data for the follow-up command.
  * @returns {Promise<string[]>} List of receiver identifiers.
  */
-async function getFollowUpReceiver(cmdData) {
+async function getFollowUpReceiver(senderId, cmdData) {
   try {
     const filterReceiverIdAry = await Promise.all(
       cmdData.question.map(async function (filter) {
         const ansList = await getAnswerListByQuestionId(filter.questionId);
         return ansList.reduce((acc, ans) => {
-          if (ans.profileId !== cmdData["profileId"] && filter.option.includes(ans.optionId)) {
+          if (ans.profileId !== senderId && filter.option.includes(ans.optionId)) {
             acc.push(ans.profileId);
           }
           return acc;
@@ -201,8 +204,9 @@ async function updateFollowUpCmdStatus(id) {
 // TODO: Add swagger definition
 async function ShareQuestionCmd(request, context) {
   const { correlationId, clientParams: body } = request;
-  const cmd = await insertQuestionShareCmd(body["profileId"], body, correlationId);
-  const sharedQuestions = await shareQuestion(body["newQuestionId"], body["profileId"], body["receiverIds"]);
+  const profileId = request.userData.profileId;
+  const cmd = await insertQuestionShareCmd(profileId, body, correlationId);
+  const sharedQuestions = await shareQuestion(body["newQuestionId"], profileId, body["receiverIds"]);
 
   await updateQuestionShareCmdStatus(cmd["id"]);
   return { return: true };

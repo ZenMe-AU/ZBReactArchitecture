@@ -5,7 +5,7 @@
 
 const baseUrl = process.env.QUESTION_URL;
 const questionUrl = new URL("/question", baseUrl);
-const questionProfileUrl = new URL("/profile", baseUrl);
+const questionProfileUrl = new URL("/profile/question", baseUrl);
 import { questionData, questionTestResult } from "./createQuestionTestData.mjs";
 import { test, expect } from "vitest";
 
@@ -17,7 +17,6 @@ export function createQuestion(profileIdLookup) {
         headers: { "Content-Type": "application/json", authorization: `Bearer ${profileIdLookup.getAuthToken(q.userId)}` },
         method: "POST",
         body: JSON.stringify({
-          profileId: profileIdLookup.getProfileId(q.userId),
           title: q.title,
           questionText: q.question,
           option: q.option,
@@ -37,7 +36,7 @@ export function createQuestion(profileIdLookup) {
 
 const checkQuestion = (profileIdLookup) => {
   test.each(questionTestResult())("There should be $count questions by user $userId.", async (r) => {
-    const response = await fetch(questionProfileUrl + "/" + profileIdLookup.getProfileId(r.userId) + "/question", {
+    const response = await fetch(questionProfileUrl, {
       method: "GET",
       headers: {
         Accept: "application/json",

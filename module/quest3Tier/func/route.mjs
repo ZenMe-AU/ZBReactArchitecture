@@ -56,14 +56,14 @@ app.http("GetAnswerById", {
 });
 
 app.http("GetQuestionListByUser", {
-  route: "profile/{profileId}/question",
+  route: "questions",
   methods: ["GET"],
   authLevel: "anonymous",
   handler: requestHandler(questionHandler.GetQuestionListByUser),
 });
 
 app.http("GetAnswerListByQuestionId", {
-  route: "question/{id}/answer",
+  route: "question/{id}/answers",
   methods: ["GET"],
   authLevel: "anonymous",
   handler: requestHandler(answerHandler.GetAnswerListByQuestionId),
@@ -76,8 +76,8 @@ app.http("ShareQuestion", {
   handler: requestHandler(followupHandler.ShareQuestionById),
 });
 
-app.http("GetSharedQuestionListByUser", {
-  route: "profile/{profileId}/sharedQuestion",
+app.http("GetSharedQuestionList", {
+  route: "sharedQuestions",
   methods: ["GET"],
   authLevel: "anonymous",
   handler: requestHandler(followupHandler.GetSharedQuestionListByUser),
