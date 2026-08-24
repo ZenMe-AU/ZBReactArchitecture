@@ -20,4 +20,8 @@
   },
   "azureFunctions.projectSubpath": "module\\quest3Tier\\func",
   "eslint.workingDirectories": [{ "mode": "auto" }]
+   "sarif-viewer.connectToGithubCodeScanning": "off",
+    "cSpell.language": "en-AU",
+    "cSpell.dictionaries": ["en-au"],
+    "cSpell.enabledLanguageIds": ["markdown", "plaintext", "javascript", "typescript", "typescriptreact"]
 }

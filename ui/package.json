@@ -4,7 +4,6 @@
   "type": "module",
   "scripts": {
     "build": "cross-env NODE_ENV=production react-router build",
-    "dev": "react-router dev",
     "mf:providers:build": "pnpm -C .. --parallel --stream --no-bail --filter question-ui --filter accessManager-ui --filter quest5Tier-ui --filter quest5TierEg-ui run build:federation",
     "mf:providers:watch": "pnpm -C .. --parallel --stream --no-bail --filter question-ui --filter accessManager-ui --filter quest5Tier-ui --filter quest5TierEg-ui run build:federation --watch",
     "mf:providers:preview": "pnpm -C .. --parallel --stream --no-bail --filter question-ui --filter accessManager-ui --filter quest5Tier-ui --filter quest5TierEg-ui run preview:federation",
