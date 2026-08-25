@@ -164,10 +164,11 @@ function Get-SudoPrefix {
 
 # Ensure Node.js and npm is installed on Win and MacOs. If not, install with winget or homebrew.
 # Check if Node.js and npm are installed
+# TODO: Add nvm install first, then node, then npm, then pnpm.
 function Install-NodeJsAndNpm {
     $nodeInstalled = Get-Command node -ErrorAction SilentlyContinue
     $npmInstalled = Get-Command npm -ErrorAction SilentlyContinue
-    $requiredNodeVersion = [version]"22.0.0"
+    $requiredNodeVersion = [version]"24.19.0"
     $nodeNeedsInstallOrUpgrade = $false
     if (-not $nodeInstalled -or -not $npmInstalled) {
         $nodeNeedsInstallOrUpgrade = $true
@@ -199,11 +200,11 @@ function Install-NodeJsAndNpm {
     if ($nodeNeedsInstallOrUpgrade) {
         if ($script:IsWindows) {
             Write-Output "Installing or upgrading Node.js using winget..."
-            winget install OpenJS.NodeJS.22 -e --silent
+            winget install OpenJS.NodeJS.LTS --version 24.19.0 -e --silent
         } elseif ($script:IsMacOS) {
             Write-Output "Installing or upgrading Node.js using Homebrew..."
-            Invoke-Brew install node@22
-            Invoke-Brew link --overwrite --force node@22
+            Invoke-Brew install node@24
+            Invoke-Brew link --overwrite --force node@24
         } elseif ($script:IsUbuntu) {
             Write-Output "Installing or upgrading Node.js using NodeSource on Ubuntu..."
             $sudo = Get-SudoPrefix
@@ -211,12 +212,12 @@ function Install-NodeJsAndNpm {
             sudo apt-get purge nodejs -y
             sudo apt-get autoremove -y
             $sudo apt-get update -y && $sudo apt-get install -y curl ca-certificates gnupg
-            curl -fsSL https://deb.nodesource.com/setup_22.x | $sudo -E bash -
+            curl -fsSL https://deb.nodesource.com/setup_24.x | $sudo -E bash -
             $sudo apt-get install -y nodejs
             which node && node --version
 "@
         } else {
-            Write-Warning "Unsupported OS for automatic Node.js installation. Please install Node.js version 22 manually."
+            Write-Warning "Unsupported OS for automatic Node.js installation. Please install Node.js version 24 manually."
             return 1
         }
         # Get the updated path from environment
