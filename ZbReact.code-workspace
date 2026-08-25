@@ -42,7 +42,16 @@
     "compounds": [
       {
         "name": "Start Full Stack App",
-        "configurations": ["Start ui", "Start quest5TierEg", "Start quest5Tier", "Start quest3TierCqrs", "Start quest3Tier",, "Start accessManager" "Start profile", "Start coordinate"],
+        "configurations": [
+          "Start ui",
+          "Start quest5TierEg",
+          "Start quest5Tier",
+          "Start quest3TierCqrs",
+          "Start quest3Tier",
+          "Start accessManager",
+          "Start profile",
+          "Start coordinate"
+        ],
       },
     ],
   },
@@ -58,6 +67,19 @@
 
     "debug.internalConsoleOptions": "neverOpen",
     "editor.formatOnSave": true,
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "[javascript]": {
+      "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    },
+    "[javascriptreact]": {
+      "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    },
+    "[typescript]": {
+      "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    },
+    "[typescriptreact]": {
+      "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    },
     "editor.codeActionsOnSave": {
       "source.fixAll.eslint": "explicit",
     },
