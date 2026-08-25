@@ -3,21 +3,18 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import { TableClient } from "@azure/data-tables";
 import { v4 as uuidv4 } from "uuid"; //Replaces use of DataTypes.UUIDV4 to auto-generate id in original sequelise
 
 export default (tableClient) => {
-  const tableName = "FollowUpCmd";
-
   const FollowUpCmd = {
     /**
      * Create a new record
-     * @param {Object} data - Record data
-     * @param {string} data.senderProfileId - Profile ID used as Partition key
-     * @param {string} data.id - Row key with a default value auto-generated with uuidv4
-     * @param {string} [data.correlationId] - Correlation ID
-     * @param {string} data.action - Action
-     * @param {Object|string} data.data - Stringified JSON data
+     * @param {Object} data Record data
+     * @param {string} data.senderProfileId Profile ID used as Partition key
+     * @param {string} data.id Row key with a default value auto-generated with uuidv4
+     * @param {string} [data.correlationId] Correlation ID
+     * @param {string} data.action Action
+     * @param {Object|string} data.data Stringified JSON data
      * @returns {Promise<Object>} Created entity
      */
     async create(data) {
@@ -31,14 +28,14 @@ export default (tableClient) => {
         timestamp: new Date(),
       };
 
-      await tableClient.createEntity(entity, { insertIfNotExists: true });
+      await tableClient.createEntity(entity);
       return entity;
     },
 
     /**
      * Read record by composite key
-     * @param {string} id - Row key
-     * @param {string} senderProfileId - Partition key
+     * @param {string} id Row key
+     * @param {string} senderProfileId Partition key
      * @returns {Promise<Object|null>} Entity or null
      */
     async findByCompositeKey(id, senderProfileId) {
@@ -77,15 +74,19 @@ export default (tableClient) => {
 
     /**
      * Deletes a record using composite key (row key + partition key)
-     * @param {*} id - Row Key
-     * @param {*} senderProfileId - Partition key
+     * @param {*} id Row Key
+     * @param {*} senderProfileId Partition key
      */
     async delete(id, senderProfileId) {
       await tableClient.deleteEntity(senderProfileId, id);
     },
 
-    // Query records
-    async findAll(filter = "") {
+    /**
+     * Find All FollowUpCmd entities that match a filter
+     * @param {*} filter
+     * @returns
+     */
+    async findAll(filter) {
       const entities = [];
       for await (const entity of tableClient.listEntities({ filter })) {
         entities.push(entity);
@@ -93,7 +94,12 @@ export default (tableClient) => {
       return entities;
     },
 
-    // Hook equivalent for afterUpdate
+    /**
+     * Hook equivalent for afterUpdate
+     * @param {*} instance
+     * @param {*} options
+     * @returns
+     */
     async _afterUpdateHook(instance, options) {
       try {
         // Create corresponding FollowUpEvent record
