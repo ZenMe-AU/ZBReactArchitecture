@@ -8,8 +8,7 @@
   // "azureFunctions.projectLanguageModel": 4,
   // "azureFunctions.preDeployTask": "npm prune (functions)",
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "prettier.configPath": ".prettierrc",
+  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
   "endOfLine": "auto",
   "workbench.editorAssociations": {
     "*.copilotmd": "vscode.markdown.preview.editor",
@@ -19,9 +18,9 @@
     "*.xlsx": "duckdb.dataFileViewer"
   },
   "azureFunctions.projectSubpath": "module\\quest3Tier\\func",
-  "eslint.workingDirectories": [{ "mode": "auto" }]
-   "sarif-viewer.connectToGithubCodeScanning": "off",
-    "cSpell.language": "en-AU",
-    "cSpell.dictionaries": ["en-au"],
-    "cSpell.enabledLanguageIds": ["markdown", "plaintext", "javascript", "typescript", "typescriptreact"]
+  "eslint.workingDirectories": [{ "mode": "auto" }],
+  "sarif-viewer.connectToGithubCodeScanning": "off",
+  "cSpell.language": "en-AU",
+  "cSpell.dictionaries": ["en-au"],
+  "cSpell.enabledLanguageIds": ["markdown", "plaintext", "javascript", "typescript", "typescriptreact"]
 }

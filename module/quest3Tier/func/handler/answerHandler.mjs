@@ -27,10 +27,6 @@ import Model from "../repository/model/index.mjs";
  *           schema:
  *             type: object
  *             properties:
- *               profileId:
- *                 type: integer
- *                 description: ID of the profile submitting the answer.
- *                 example: 1
  *               answer:
  *                 type: string
  *                 description: The answer text (optional).
@@ -57,8 +53,8 @@ import Model from "../repository/model/index.mjs";
  */
 async function AddAnswer(request, context) {
   const { id: questionId } = request.params;
+  const profileId = request.userData.profileId;
   const { answer = null, option = null, duration } = request.clientParams;
-  const profileId = request.userData?.profileId;
   const questionnaire = await addAnswerByQuestionId(questionId, profileId, duration, answer, option);
   return { return: { id: questionnaire.id } };
 }
