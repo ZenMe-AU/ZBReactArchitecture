@@ -6,7 +6,7 @@
 // Provides shared Playwright helpers for auth bootstrap, tenant flows, and snapshot assertions.
 
 import { expect, test, type Browser, type Locator, type Page, type TestInfo } from "@playwright/test";
-import { getUserAuthFiles, restoreSessionStorage, userAuthFilesExist } from "./authState";
+import { getUserAuthFiles, restoreSessionStorage, userAuthFilesExist } from "./setupHelper";
 import { ACCESS_PASS_URL, type ViewportSize } from "../testInit";
 import fs from "fs";
 import path from "path";
