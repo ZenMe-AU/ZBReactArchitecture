@@ -3,6 +3,7 @@
     "id": "Asad Gemicioglu",
     "email": "AsadGemicioglu@zenme.com.au",
     "expectedPostLoginText": "Azure Access Pass",
-    "tenantId": "15fb0613-7977-4551-801b-6aadac824241" 
+    "tenantId": "15fb0613-7977-4551-801b-6aadac824241",
+    "expectedEntraResult": "users"
   }
 ]

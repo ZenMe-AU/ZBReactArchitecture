@@ -61,15 +61,20 @@ function validateAccessPassUsers(users: AccessPassUser[], filePath: string) {
       throw new Error(`Access Pass user "${user.id}" must have an email.`);
     }
 
-    if (!["users", "empty", "forbidden"].includes(user.expectedEntraResult ?? "")) {
-      throw new Error(`Invalid expectedEntraResult for "${user.id}".`);
-    }
-
     // Normalize targetEntraUsers: treat null/undefined as empty array; reject other non-array values
     if (user.targetEntraUsers == null) {
       user.targetEntraUsers = [];
     } else if (!Array.isArray(user.targetEntraUsers)) {
       throw new Error(`targetEntraUsers must be an array for "${user.id}" in ${filePath}`);
+    }
+
+    // Normalize expectedEntraResult when omitted.
+    if (!user.expectedEntraResult) {
+      user.expectedEntraResult = user.targetEntraUsers.length > 0 ? "users" : "empty";
+    }
+
+    if (!["users", "empty", "forbidden"].includes(user.expectedEntraResult)) {
+      throw new Error(`Invalid expectedEntraResult for "${user.id}".`);
     }
 
     if (user.expectedEntraResult !== "users" && !user.expectedEntraMessage?.trim()) {

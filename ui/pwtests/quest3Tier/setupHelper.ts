@@ -6,7 +6,7 @@ import fs from "fs";
 import path from "path";
 import type { Page } from "@playwright/test";
 
-export const authDir = path.join(process.cwd(), "web/pwtests/access-pass-src/auth/.auth");
+export const authDir = path.join(process.cwd(), "pwtests/quest3Tier/auth/.auth");
 export const storageStateFile = path.join(authDir,"azure-access-pass-user.json",);
 export const sessionStorageFile = path.join(authDir,"azure-session-storage.json",);
 
