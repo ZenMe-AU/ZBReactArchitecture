@@ -11,7 +11,7 @@ import { test, expect } from "vitest";
 const checkAnswer = (profileIdLookup, questionIdLookup) => {
   test.each(getAnswerTestResult())("There should be $count answers for question $questionId.", async (r) => {
     // console.log(tokenLookup.data);
-    const response = await fetch(questionUrl + "/" + questionIdLookup.getQuestionId(r.questionId) + "/answer", {
+    const response = await fetch(questionUrl + "/" + questionIdLookup.getQuestionId(r.questionId) + "/answers", {
       method: "GET",
       headers: {
         Accept: "application/json",

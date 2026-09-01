@@ -5,7 +5,7 @@
 
 const baseUrl = process.env.QUESTION_URL;
 const questionUrl = new URL("/question", baseUrl);
-const questionProfileUrl = new URL("/profile/question", baseUrl);
+const questionProfileUrl = new URL("/questions", baseUrl);
 import { questionData, questionTestResult } from "./createQuestionTestData.mjs";
 import { test, expect } from "vitest";
 
