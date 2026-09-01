@@ -40,6 +40,14 @@ export default [
         ],
       ],
       "linebreak-style": "off", // Do not check line endings
+      "prettier/prettier": [
+        "warn",
+        {
+          printWidth: 160,
+          trailingComma: "es5",
+          endOfLine: "auto",
+        },
+      ],
     },
     linterOptions: {
       reportUnusedDisableDirectives: true,
