@@ -1,6 +1,15 @@
 {
   "version": "2.0.0",
   "tasks": [
+     {
+      "label": "RunChain",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Q3Tier Func: Start",
+        "Q3Tier UI: Start",
+        "Portal UI: Start"
+      ]
+    },
     {
       "type": "shell",
       "label": "Install Dependencies",

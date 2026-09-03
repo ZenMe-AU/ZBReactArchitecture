@@ -63,14 +63,18 @@
       {
         "name": "Start Full Stack App",
         "configurations": [
-          "Start ui",
-          "Start quest5TierEg",
-          "Start quest5Tier",
-          "Start quest3TierCqrs",
-          "Start quest3Tier",
-          "Start accessManager",
-          "Start profile",
-          "Start coordinate"
+          {
+            "name": "Start",
+            "folder": "Q3Tier Func",
+          },
+          {
+            "name": "Start",
+            "folder": "Q3Tier UI",
+          },
+          {
+            "name": "Start",
+            "folder": "Portal UI",
+          },
         ],
       },
     ],

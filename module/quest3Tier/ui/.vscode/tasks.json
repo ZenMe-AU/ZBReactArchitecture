@@ -4,15 +4,23 @@
     {
       "label": "Start",
       "type": "shell",
-      "command": "pnpm run dev",
+      "command": "pnpm run build && pnpm run preview",
       "isBackground": true,
       "options": {"cwd": "${workspaceFolder}"},
-      "dependsOn": "Install Dependencies"
+       "problemMatcher": {
+        "owner": "vite",
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^\\s*.*(vite|VITE).*",
+          "endsPattern": "localhost:|➜|ready in"
+        },
+        "pattern": {"regexp": "^$"}
+      },
     },
     {
       "label": "Install Dependencies",
       "type": "shell",
-      "command": "pnpm install"
+      "command": "pnpm install --frozen-lockfile"
     }
   ]
 }

@@ -22,10 +22,16 @@
       "console": "integratedTerminal"
     },
     {
-      "name": "Install Root Dependencies",
+      "name": "Install All Dependencies",
       "type": "node",
       "request": "launch",
       "preLaunchTask": "Install Dependencies"
+    },
+    {
+      "name": "RunChain",
+      "type": "node",
+      "request": "launch",
+      "preLaunchTask": "RunChain"
     }
   ]
 }

@@ -7,12 +7,11 @@
       "command": "host start",
       "isBackground": true,
       "problemMatcher": "$func-node-watch",
-      "dependsOn": "Install Dependencies"
     },
     {
       "label": "Install Dependencies",
       "type": "shell",
-      "command": "pnpm install"
+      "command": "pnpm install --frozen-lockfile"
     }
   ]
 }
