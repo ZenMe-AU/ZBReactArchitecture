@@ -5,10 +5,18 @@
     "esbenp.prettier-vscode",
     "ms-vscode.vscode-typescript-tslint-plugin",
     "ms-vscode.vscode-typescript-next",
+    "azurite.azurite",
+    "ms-ossdata.vscode-pgsql",
+    "ms-playwright.playwright",
+
+       
+    "4ops.terraform",
     "mhutchie.git-graph",
     "ms-vscode.powershell",
     "redhat.vscode-yaml",
     "hcommand.run-runner",
-    "bierner.markdown-mermaid"
+    "bierner.markdown-mermaid",
+    "gruntfuggly.todo-tree"
+
   ]
 }
