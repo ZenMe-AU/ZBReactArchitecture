@@ -2,23 +2,17 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "Start",
       "type": "func",
-      "label": "func: host start",
       "command": "host start",
-      "problemMatcher": "$func-node-watch",
       "isBackground": true,
+      "problemMatcher": "$func-node-watch",
       "dependsOn": "Install Dependencies"
     },
     {
-      "type": "shell",
       "label": "Install Dependencies",
-      "command": "pnpm install --filter=quest3Tier"
-    },
-    {
       "type": "shell",
-      "label": "npm prune (functions)",
-      "command": "pnpm prune --production",
-      "problemMatcher": []
+      "command": "pnpm install"
     }
   ]
 }

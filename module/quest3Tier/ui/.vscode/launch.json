@@ -3,10 +3,8 @@
   "configurations": [
     {
       "name": "Start",
-      "type": "chrome",
+      "type": "node",
       "request": "launch",
-      "url": "http://localhost:5173",
-      "webRoot": "${workspaceFolder}",
       "preLaunchTask": "Start"
     }
   ]

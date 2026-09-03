@@ -27,10 +27,6 @@ package-lock.json
 api/src/module/shared/db/migration
 ui/.react-router
 
-#Build files
-
-
-
 # Terraform files
 *.tfstate
 terraform.tfstate.backup
@@ -39,13 +35,6 @@ terraform.tfstate.backup
 .env
 planfile
 
-# Snyk Security Extension - AI Rules (auto-generated)
-.github/instructions/snyk_rules.instructions.md
-**/.github/instructions/snyk_rules.instructions.md
-
-# Snyk Security Extension - AI Rules (auto-generated)
-.github\instructions\snyk_rules.instructions.md
-**/.github\instructions\snyk_rules.instructions.md
 __azurite_db_blob__.json
 __azurite_db_blob_extent__.json
 __azurite_db_queue__.json
@@ -53,7 +42,7 @@ __azurite_db_queue_extent__.json
 __azurite_db_table__.json
 __blobstorage__/
 coverage/
-module/quest3Tier/func/local.settings.json
+local.settings.json
 
 # Playwright
 /test-results/
