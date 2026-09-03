@@ -9,35 +9,35 @@
       "path": "./ui",
     },
     {
-      "name": "Q5TierEg UI",
+      "name": "Q5Eg UI",
       "path": "./module/quest5TierEg/ui",
     },
     {
-      "name": "Q5TierEg Func",
+      "name": "Q5Eg Func",
       "path": "./module/quest5TierEg/func",
     },
     {
-      "name": "Q5Tier UI",
+      "name": "Q5 UI",
       "path": "./module/quest5Tier/ui",
     },
     {
-      "name": "Q5Tier Func",
+      "name": "Q5 Func",
       "path": "./module/quest5Tier/func",
     },
     {
-      "name": "Q3TierCqrs UI",
+      "name": "Q3Cqrs UI",
       "path": "./module/quest3TierCqrs/ui",
     },
     {
-      "name": "Q3TierCqrs Func",
+      "name": "Q3Cqrs Func",
       "path": "./module/quest3TierCqrs/func",
     },
     {
-      "name": "Q3Tier UI",
+      "name": "Q3 UI",
       "path": "./module/quest3Tier/ui",
     },
     {
-      "name": "Q3Tier Func",
+      "name": "Q3 Func",
       "path": "./module/quest3Tier/func",
     },
     {
@@ -65,16 +65,19 @@
         "configurations": [
           {
             "name": "Start",
-            "folder": "Q3Tier Func",
-          },
-          {
-            "name": "Start",
-            "folder": "Q3Tier UI",
-          },
-          {
-            "name": "Start",
             "folder": "Portal UI",
           },
+          {
+            "name": "Start",
+            "folder": "Q3 UI",
+          },
+          {
+            "name": "Start",
+            "folder": "Q3 Func",
+          },          {
+            "name": "Start",
+            "folder": "Profile Func"
+          }
         ],
       },
     ],
