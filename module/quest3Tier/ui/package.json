@@ -3,13 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "cross-env NODE_ENV=production react-router build",
-    "build:federation": "vite build",
-    "dev": "react-router dev",
-    "dev:federation": "vite",
-    "preview:federation": "vite preview --port 5183 --strictPort",
-    "start": "cross-env NODE_ENV=production react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc"
+    "dev": "vite --port 5183 --strictPort",
+    "build": "vite build",
+    "preview": "vite preview --port 5183 --strictPort"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

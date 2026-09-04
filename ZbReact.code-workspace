@@ -5,35 +5,55 @@
       "path": "./",
     },
     {
-      "name": "ui",
+      "name": "Portal UI",
       "path": "./ui",
     },
     {
-      "name": "quest5TierEg/func",
+      "name": "Q5TierEg UI",
+      "path": "./module/quest5TierEg/ui",
+    },
+    {
+      "name": "Q5TierEg Func",
       "path": "./module/quest5TierEg/func",
     },
     {
-      "name": "quest5Tier/func",
+      "name": "Q5Tier UI",
+      "path": "./module/quest5Tier/ui",
+    },
+    {
+      "name": "Q5Tier Func",
       "path": "./module/quest5Tier/func",
     },
     {
-      "name": "quest3TierCqrs/func",
+      "name": "Q3TierCqrs UI",
+      "path": "./module/quest3TierCqrs/ui",
+    },
+    {
+      "name": "Q3TierCqrs Func",
       "path": "./module/quest3TierCqrs/func",
     },
     {
-      "name": "quest3Tier/func",
+      "name": "Q3Tier UI",
+      "path": "./module/quest3Tier/ui",
+    },
+    {
+      "name": "Q3Tier Func",
       "path": "./module/quest3Tier/func",
     },
     {
-      "name": "accessManager/func",
+      "name": "AccessManager UI",
+      "path": "./module/accessManager/ui",
+    },
+    {
+      "name": "AccessManager Func",
       "path": "./module/accessManager/func",
     },
     {
-      "name": "profile/func",
+      "name": "Profile Func",
       "path": "./module/profile/func",
     },
     {
-      "name": "coordinate/func",
+      "name": "Coordinate Func",
       "path": "./module/coordinate/func",
     },
   ],
@@ -43,14 +63,18 @@
       {
         "name": "Start Full Stack App",
         "configurations": [
-          "Start ui",
-          "Start quest5TierEg",
-          "Start quest5Tier",
-          "Start quest3TierCqrs",
-          "Start quest3Tier",
-          "Start accessManager",
-          "Start profile",
-          "Start coordinate"
+          {
+            "name": "Start",
+            "folder": "Q3Tier Func",
+          },
+          {
+            "name": "Start",
+            "folder": "Q3Tier UI",
+          },
+          {
+            "name": "Start",
+            "folder": "Portal UI",
+          },
         ],
       },
     ],
@@ -90,13 +114,8 @@
     "eslint.workingDirectories": [
       "./",
       "./ui",
-      "./module/accessManager/func",
-      "./module/quest3Tier/func",
-      "./module/quest3TierCqrs/func",
-      "./module/quest5Tier/func",
-      "./module/quest5TierEg/func",
-      "./module/profile/func",
-      "./module/coordinate/func",
+      "./module/*/ui",
+      "./module/*/func"
     ],
 
     // For Linux, set the NVM_DIR in VsCode to same NVM install dir as user shell
