@@ -55,6 +55,6 @@
     "minimist": "^1.2.8",
     "typescript": "^7.0.2",
     "umzug": "^3.8.2",
-    "vitest": "^4.1.9"
+    "vitest": "^4.1.11"
   }
 }
