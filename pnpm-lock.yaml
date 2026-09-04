@@ -231,16 +231,16 @@ importers:
         version: 3.3.10(tslib@2.8.1)
       '@mui/icons-material':
         specifier: ^7.1.1
-        version: 7.3.4(@mui/material@7.3.4(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@19.2.9)(react@18.3.1)
+        version: 7.3.4(@mui/material@7.3.4(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(@types/react@19.2.9)(react@18.3.1)
       '@mui/material':
         specifier: ^7.1.1
-        version: 7.3.4(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 7.3.4(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       '@react-router/node':
         specifier: ^7.6.2
-        version: 7.18.0(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
+        version: 7.18.0(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
       '@react-router/serve':
         specifier: ^7.6.2
-        version: 7.18.0(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)
+        version: 7.18.0(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)
       '@zenmechat/shared-ui':
         specifier: file:../../../ui
         version: ui@file:ui(@popperjs/core@2.11.8)(@types/react@19.2.9)(history@5.3.0)(supports-color@8.1.1)(tslib@2.8.1)(typescript@5.9.3)
@@ -264,22 +264,22 @@ importers:
         version: 18.3.1
       react-d3-cloud:
         specifier: ^1.0.6
-        version: 1.0.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 1.0.6(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       react-dom:
-        specifier: ^18.2.0
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.2.8
+        version: 19.2.8(react@18.3.1)
       react-helmet:
         specifier: ^6.1.0
         version: 6.1.0(react@18.3.1)
       react-router:
         specifier: ^7.x.x
-        version: 7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       react-router-dom:
         specifier: ^7.6.2
-        version: 7.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 7.12.0(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       recharts:
         specifier: ^2.15.3
-        version: 2.15.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 2.15.4(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       sort-by:
         specifier: ^1.2.0
         version: 1.2.0
@@ -295,7 +295,7 @@ importers:
         version: 1.4.1
       '@react-router/dev':
         specifier: ^7.6.2
-        version: 7.15.1(@react-router/serve@7.18.0(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3))(@types/node@20.19.23)(babel-plugin-macros@3.1.0)(jiti@2.6.1)(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)(vite@7.3.6(@types/node@20.19.23)(jiti@2.6.1)(yaml@2.8.1))(yaml@2.8.1)
+        version: 7.15.1(@react-router/serve@7.18.0(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3))(@types/node@20.19.23)(babel-plugin-macros@3.1.0)(jiti@2.6.1)(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)(vite@7.3.6(@types/node@20.19.23)(jiti@2.6.1)(yaml@2.8.1))(yaml@2.8.1)
       '@types/lodash':
         specifier: ^4.17.17
         version: 4.17.20
@@ -306,14 +306,14 @@ importers:
         specifier: ^19.0.1
         version: 19.2.9
       '@types/react-dom':
-        specifier: ^19.0.1
-        version: 19.2.2(@types/react@19.2.9)
+        specifier: ^19.2.4
+        version: 19.2.4(@types/react@19.2.9)
       '@types/react-helmet':
         specifier: ^6.1.11
         version: 6.1.11
       '@types/recharts':
         specifier: ^2.0.1
-        version: 2.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 2.0.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
@@ -561,16 +561,16 @@ importers:
         version: 3.3.10(tslib@2.8.1)
       '@mui/icons-material':
         specifier: ^7.1.1
-        version: 7.3.4(@mui/material@7.3.4(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@19.2.2)(react@18.3.1)
+        version: 7.3.4(@mui/material@7.3.4(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(@types/react@19.2.2)(react@18.3.1)
       '@mui/material':
         specifier: ^7.1.1
-        version: 7.3.4(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 7.3.4(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       '@react-router/node':
         specifier: ^7.6.2
-        version: 7.9.4(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
+        version: 7.9.4(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
       '@react-router/serve':
         specifier: ^7.6.2
-        version: 7.9.4(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)
+        version: 7.9.4(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)
       '@zenmechat/shared-ui':
         specifier: file:../../../ui
         version: ui@file:ui(@popperjs/core@2.11.8)(@types/react@19.2.2)(history@5.3.0)(supports-color@8.1.1)(tslib@2.8.1)(typescript@5.9.3)
@@ -594,22 +594,22 @@ importers:
         version: 18.3.1
       react-d3-cloud:
         specifier: ^1.0.6
-        version: 1.0.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 1.0.6(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       react-dom:
-        specifier: ^18.2.0
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.2.8
+        version: 19.2.8(react@18.3.1)
       react-helmet:
         specifier: ^6.1.0
         version: 6.1.0(react@18.3.1)
       react-router:
         specifier: ^7.x.x
-        version: 7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       react-router-dom:
         specifier: ^7.6.2
-        version: 7.9.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 7.9.4(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       recharts:
         specifier: ^2.15.3
-        version: 2.15.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 2.15.4(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       sort-by:
         specifier: ^1.2.0
         version: 1.2.0
@@ -622,7 +622,7 @@ importers:
         version: 9.38.0
       '@react-router/dev':
         specifier: ^7.6.2
-        version: 7.9.4(@react-router/serve@7.9.4(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3))(@types/node@20.19.23)(babel-plugin-macros@3.1.0)(bluebird@3.7.2)(jiti@2.6.1)(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)(vite@7.3.6(@types/node@20.19.23)(jiti@2.6.1)(yaml@2.8.1))(yaml@2.8.1)
+        version: 7.9.4(@react-router/serve@7.9.4(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3))(@types/node@20.19.23)(babel-plugin-macros@3.1.0)(bluebird@3.7.2)(jiti@2.6.1)(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)(vite@7.3.6(@types/node@20.19.23)(jiti@2.6.1)(yaml@2.8.1))(yaml@2.8.1)
       '@types/lodash':
         specifier: ^4.17.17
         version: 4.17.20
@@ -633,14 +633,14 @@ importers:
         specifier: ^19.0.1
         version: 19.2.2
       '@types/react-dom':
-        specifier: ^19.0.1
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.4
+        version: 19.2.4(@types/react@19.2.2)
       '@types/react-helmet':
         specifier: ^6.1.11
         version: 6.1.11
       '@types/recharts':
         specifier: ^2.0.1
-        version: 2.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 2.0.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
@@ -797,16 +797,16 @@ importers:
         version: 3.3.10(tslib@2.8.1)
       '@mui/icons-material':
         specifier: ^7.1.1
-        version: 7.3.4(@mui/material@7.3.4(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@19.2.2)(react@18.3.1)
+        version: 7.3.4(@mui/material@7.3.4(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(@types/react@19.2.2)(react@18.3.1)
       '@mui/material':
         specifier: ^7.1.1
-        version: 7.3.4(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 7.3.4(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       '@react-router/node':
         specifier: ^7.6.2
-        version: 7.9.4(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
+        version: 7.9.4(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
       '@react-router/serve':
         specifier: ^7.6.2
-        version: 7.9.4(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)
+        version: 7.9.4(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)
       '@zenmechat/shared-ui':
         specifier: file:../../../ui
         version: ui@file:ui(@popperjs/core@2.11.8)(@types/react@19.2.2)(history@5.3.0)(supports-color@8.1.1)(tslib@2.8.1)(typescript@5.9.3)
@@ -830,22 +830,22 @@ importers:
         version: 18.3.1
       react-d3-cloud:
         specifier: ^1.0.6
-        version: 1.0.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 1.0.6(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       react-dom:
-        specifier: ^18.2.0
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.2.8
+        version: 19.2.8(react@18.3.1)
       react-helmet:
         specifier: ^6.1.0
         version: 6.1.0(react@18.3.1)
       react-router:
         specifier: ^7.x.x
-        version: 7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       react-router-dom:
         specifier: ^7.6.2
-        version: 7.9.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 7.9.4(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       recharts:
         specifier: ^2.15.3
-        version: 2.15.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 2.15.4(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       sort-by:
         specifier: ^1.2.0
         version: 1.2.0
@@ -861,7 +861,7 @@ importers:
         version: 1.4.1
       '@react-router/dev':
         specifier: ^7.6.2
-        version: 7.9.4(@react-router/serve@7.9.4(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3))(@types/node@20.19.23)(babel-plugin-macros@3.1.0)(bluebird@3.7.2)(jiti@2.6.1)(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)(vite@7.3.6(@types/node@20.19.23)(jiti@2.6.1)(yaml@2.8.1))(yaml@2.8.1)
+        version: 7.9.4(@react-router/serve@7.9.4(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3))(@types/node@20.19.23)(babel-plugin-macros@3.1.0)(bluebird@3.7.2)(jiti@2.6.1)(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)(vite@7.3.6(@types/node@20.19.23)(jiti@2.6.1)(yaml@2.8.1))(yaml@2.8.1)
       '@types/lodash':
         specifier: ^4.17.17
         version: 4.17.20
@@ -872,14 +872,14 @@ importers:
         specifier: ^19.0.1
         version: 19.2.2
       '@types/react-dom':
-        specifier: ^19.0.1
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.4
+        version: 19.2.4(@types/react@19.2.2)
       '@types/react-helmet':
         specifier: ^6.1.11
         version: 6.1.11
       '@types/recharts':
         specifier: ^2.0.1
-        version: 2.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 2.0.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
@@ -1036,16 +1036,16 @@ importers:
         version: 3.3.10(tslib@2.8.1)
       '@mui/icons-material':
         specifier: ^7.1.1
-        version: 7.3.4(@mui/material@7.3.4(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@19.2.9)(react@18.3.1)
+        version: 7.3.4(@mui/material@7.3.4(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(@types/react@19.2.9)(react@18.3.1)
       '@mui/material':
         specifier: ^7.1.1
-        version: 7.3.4(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 7.3.4(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       '@react-router/node':
         specifier: ^7.6.2
-        version: 7.18.0(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
+        version: 7.18.0(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
       '@react-router/serve':
         specifier: ^7.6.2
-        version: 7.18.0(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)
+        version: 7.18.0(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)
       '@zenmechat/shared-ui':
         specifier: file:../../../ui
         version: ui@file:ui(@popperjs/core@2.11.8)(@types/react@19.2.9)(history@5.3.0)(supports-color@8.1.1)(tslib@2.8.1)(typescript@5.9.3)
@@ -1069,22 +1069,22 @@ importers:
         version: 18.3.1
       react-d3-cloud:
         specifier: ^1.0.6
-        version: 1.0.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 1.0.6(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       react-dom:
-        specifier: ^18.2.0
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.2.8
+        version: 19.2.8(react@18.3.1)
       react-helmet:
         specifier: ^6.1.0
         version: 6.1.0(react@18.3.1)
       react-router:
         specifier: ^7.x.x
-        version: 7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       react-router-dom:
         specifier: ^7.6.2
-        version: 7.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 7.12.0(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       recharts:
         specifier: ^2.15.3
-        version: 2.15.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 2.15.4(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       sort-by:
         specifier: ^1.2.0
         version: 1.2.0
@@ -1100,7 +1100,7 @@ importers:
         version: 1.4.1
       '@react-router/dev':
         specifier: ^7.6.2
-        version: 7.15.1(@react-router/serve@7.18.0(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3))(@types/node@20.19.23)(babel-plugin-macros@3.1.0)(jiti@2.6.1)(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)(vite@7.3.6(@types/node@20.19.23)(jiti@2.6.1)(yaml@2.8.1))(yaml@2.8.1)
+        version: 7.15.1(@react-router/serve@7.18.0(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3))(@types/node@20.19.23)(babel-plugin-macros@3.1.0)(jiti@2.6.1)(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)(vite@7.3.6(@types/node@20.19.23)(jiti@2.6.1)(yaml@2.8.1))(yaml@2.8.1)
       '@types/lodash':
         specifier: ^4.17.17
         version: 4.17.20
@@ -1111,14 +1111,14 @@ importers:
         specifier: ^19.0.1
         version: 19.2.9
       '@types/react-dom':
-        specifier: ^19.0.1
-        version: 19.2.2(@types/react@19.2.9)
+        specifier: ^19.2.4
+        version: 19.2.4(@types/react@19.2.9)
       '@types/react-helmet':
         specifier: ^6.1.11
         version: 6.1.11
       '@types/recharts':
         specifier: ^2.0.1
-        version: 2.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 2.0.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
@@ -1257,16 +1257,16 @@ importers:
         version: 3.3.10(tslib@2.8.1)
       '@mui/icons-material':
         specifier: ^7.1.1
-        version: 7.3.4(@mui/material@7.3.4(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@19.2.2)(react@18.3.1)
+        version: 7.3.4(@mui/material@7.3.4(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(@types/react@19.2.2)(react@18.3.1)
       '@mui/material':
         specifier: ^7.1.1
-        version: 7.3.4(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 7.3.4(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       '@react-router/node':
         specifier: ^7.6.2
-        version: 7.9.4(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
+        version: 7.9.4(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
       '@react-router/serve':
         specifier: ^7.6.2
-        version: 7.9.4(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)
+        version: 7.9.4(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)
       '@zenmechat/shared-ui':
         specifier: file:../../../ui
         version: ui@file:ui(@popperjs/core@2.11.8)(@types/react@19.2.2)(history@5.3.0)(supports-color@8.1.1)(tslib@2.8.1)(typescript@5.9.3)
@@ -1290,22 +1290,22 @@ importers:
         version: 18.3.1
       react-d3-cloud:
         specifier: ^1.0.6
-        version: 1.0.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 1.0.6(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       react-dom:
-        specifier: ^18.2.0
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.2.8
+        version: 19.2.8(react@18.3.1)
       react-helmet:
         specifier: ^6.1.0
         version: 6.1.0(react@18.3.1)
       react-router:
         specifier: ^7.x.x
-        version: 7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       react-router-dom:
         specifier: ^7.6.2
-        version: 7.9.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 7.9.4(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       recharts:
         specifier: ^2.15.3
-        version: 2.15.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 2.15.4(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       sort-by:
         specifier: ^1.2.0
         version: 1.2.0
@@ -1321,7 +1321,7 @@ importers:
         version: 1.4.1
       '@react-router/dev':
         specifier: ^7.6.2
-        version: 7.9.4(@react-router/serve@7.9.4(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3))(@types/node@20.19.23)(babel-plugin-macros@3.1.0)(bluebird@3.7.2)(jiti@2.6.1)(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)(vite@7.3.6(@types/node@20.19.23)(jiti@2.6.1)(yaml@2.8.1))(yaml@2.8.1)
+        version: 7.9.4(@react-router/serve@7.9.4(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3))(@types/node@20.19.23)(babel-plugin-macros@3.1.0)(bluebird@3.7.2)(jiti@2.6.1)(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)(vite@7.3.6(@types/node@20.19.23)(jiti@2.6.1)(yaml@2.8.1))(yaml@2.8.1)
       '@types/lodash':
         specifier: ^4.17.17
         version: 4.17.20
@@ -1332,14 +1332,14 @@ importers:
         specifier: ^19.0.1
         version: 19.2.2
       '@types/react-dom':
-        specifier: ^19.0.1
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.4
+        version: 19.2.4(@types/react@19.2.2)
       '@types/react-helmet':
         specifier: ^6.1.11
         version: 6.1.11
       '@types/recharts':
         specifier: ^2.0.1
-        version: 2.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 2.0.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
@@ -1484,16 +1484,16 @@ importers:
         version: 3.3.10(tslib@2.8.1)
       '@mui/icons-material':
         specifier: ^7.1.1
-        version: 7.3.4(@mui/material@7.3.4(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@19.2.2)(react@18.3.1)
+        version: 7.3.4(@mui/material@7.3.4(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(@types/react@19.2.2)(react@18.3.1)
       '@mui/material':
         specifier: ^7.1.1
-        version: 7.3.4(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 7.3.4(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       '@react-router/node':
         specifier: ^7.6.2
-        version: 7.9.4(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
+        version: 7.9.4(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
       '@react-router/serve':
         specifier: ^7.6.2
-        version: 7.9.4(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)
+        version: 7.9.4(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)
       '@zenmechat/shared-ui':
         specifier: file:../../../ui
         version: ui@file:ui(@popperjs/core@2.11.8)(@types/react@19.2.2)(history@5.3.0)(supports-color@8.1.1)(tslib@2.8.1)(typescript@5.9.3)
@@ -1517,22 +1517,22 @@ importers:
         version: 18.3.1
       react-d3-cloud:
         specifier: ^1.0.6
-        version: 1.0.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 1.0.6(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       react-dom:
-        specifier: ^18.2.0
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.2.8
+        version: 19.2.8(react@18.3.1)
       react-helmet:
         specifier: ^6.1.0
         version: 6.1.0(react@18.3.1)
       react-router:
         specifier: ^7.x.x
-        version: 7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       react-router-dom:
         specifier: ^7.6.2
-        version: 7.9.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 7.9.4(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       recharts:
         specifier: ^2.15.3
-        version: 2.15.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 2.15.4(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       sort-by:
         specifier: ^1.2.0
         version: 1.2.0
@@ -1545,7 +1545,7 @@ importers:
         version: 1.4.1
       '@react-router/dev':
         specifier: ^7.6.2
-        version: 7.9.4(@react-router/serve@7.9.4(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3))(@types/node@20.19.23)(babel-plugin-macros@3.1.0)(bluebird@3.7.2)(jiti@2.6.1)(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)(vite@7.3.6(@types/node@20.19.23)(jiti@2.6.1)(yaml@2.8.1))(yaml@2.8.1)
+        version: 7.9.4(@react-router/serve@7.9.4(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3))(@types/node@20.19.23)(babel-plugin-macros@3.1.0)(bluebird@3.7.2)(jiti@2.6.1)(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)(vite@7.3.6(@types/node@20.19.23)(jiti@2.6.1)(yaml@2.8.1))(yaml@2.8.1)
       '@types/lodash':
         specifier: ^4.17.17
         version: 4.17.20
@@ -1556,14 +1556,14 @@ importers:
         specifier: ^19.0.1
         version: 19.2.2
       '@types/react-dom':
-        specifier: ^19.0.1
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.4
+        version: 19.2.4(@types/react@19.2.2)
       '@types/react-helmet':
         specifier: ^6.1.11
         version: 6.1.11
       '@types/recharts':
         specifier: ^2.0.1
-        version: 2.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 2.0.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
@@ -1599,16 +1599,16 @@ importers:
         version: 3.3.10(tslib@2.8.1)
       '@mui/icons-material':
         specifier: ^7.1.1
-        version: 7.3.4(@mui/material@7.3.4(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@19.2.2)(react@18.3.1)
+        version: 7.3.4(@mui/material@7.3.4(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(@types/react@19.2.2)(react@18.3.1)
       '@mui/material':
         specifier: ^7.1.1
-        version: 7.3.4(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 7.3.4(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       '@react-router/node':
         specifier: ^7.15.1
-        version: 7.15.1(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
+        version: 7.15.1(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
       '@react-router/serve':
         specifier: ^7.15.1
-        version: 7.15.1(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)
+        version: 7.15.1(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)
       bootstrap:
         specifier: ^5.3.6
         version: 5.3.8(@popperjs/core@2.11.8)
@@ -1629,22 +1629,22 @@ importers:
         version: 18.3.1
       react-d3-cloud:
         specifier: ^1.0.6
-        version: 1.0.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 1.0.6(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       react-dom:
-        specifier: ^18.2.0
-        version: 18.3.1(react@18.3.1)
+        specifier: ^19.2.8
+        version: 19.2.8(react@18.3.1)
       react-helmet:
         specifier: ^6.1.0
         version: 6.1.0(react@18.3.1)
       react-router:
         specifier: ^7.x.x
-        version: 7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       react-router-dom:
         specifier: ^7.x.x
-        version: 7.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 7.12.0(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       recharts:
         specifier: ^2.15.3
-        version: 2.15.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 2.15.4(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       sort-by:
         specifier: ^1.2.0
         version: 1.2.0
@@ -1660,7 +1660,7 @@ importers:
         version: 1.4.1
       '@react-router/dev':
         specifier: ^7.6.2
-        version: 7.15.1(@react-router/serve@7.15.1(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3))(@types/node@20.19.23)(babel-plugin-macros@3.1.0)(jiti@2.6.1)(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)(vite@7.3.6(@types/node@20.19.23)(jiti@2.6.1)(yaml@2.8.1))(yaml@2.8.1)
+        version: 7.15.1(@react-router/serve@7.15.1(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3))(@types/node@20.19.23)(babel-plugin-macros@3.1.0)(jiti@2.6.1)(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)(vite@7.3.6(@types/node@20.19.23)(jiti@2.6.1)(yaml@2.8.1))(yaml@2.8.1)
       '@types/lodash':
         specifier: ^4.17.17
         version: 4.17.20
@@ -1671,14 +1671,14 @@ importers:
         specifier: ^19.0.1
         version: 19.2.2
       '@types/react-dom':
-        specifier: ^19.0.1
-        version: 19.2.2(@types/react@19.2.2)
+        specifier: ^19.2.4
+        version: 19.2.4(@types/react@19.2.2)
       '@types/react-helmet':
         specifier: ^6.1.11
         version: 6.1.11
       '@types/recharts':
         specifier: ^2.0.1
-        version: 2.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 2.0.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       cross-env:
         specifier: ^7.0.3
         version: 7.0.3
@@ -3811,8 +3811,8 @@ packages:
   '@types/prop-types@15.7.15':
     resolution: {integrity: sha512-F6bEyamV9jKGAFBEmlQnesRPGOQqS2+Uwi0Em15xenOxHaf2hv6L8YCVn3rPdPJOiJfPiCnLIRyvwVaqMY3MIw==}
 
-  '@types/react-dom@19.2.2':
-    resolution: {integrity: sha512-9KQPoO6mZCi7jcIStSnlOWn2nEF3mNmyr3rIAsGnAbQKYbRLyqmeSc39EVgtxXVia+LMT8j3knZLAZAh+xLmrw==}
+  '@types/react-dom@19.2.4':
+    resolution: {integrity: sha512-Bsc+QHgp+P/F02XDzNCY9jnZNCUuLki36KT7VKrTXXLdHf+vHMNZnW1rVu5DNW/rCK+fya3DATySbLM4yhtKUw==}
     peerDependencies:
       '@types/react': ^19.2.0
 
@@ -6820,8 +6820,8 @@ packages:
       react: 18.x.x
       react-dom: ^16.8.0 || ^17.0.0-0 || ^18.0.0-0
 
-  react-dom@18.3.1:
-    resolution: {integrity: sha512-5m4nQKp+rZRb09LNH59GM4BxTh9251/ylbKIbpe7TpGxfJ+9kv6BLkLBXIjjspbgbnIBNqlI23tRnTWT0snUIw==}
+  react-dom@19.2.8:
+    resolution: {integrity: sha512-rVprimfGBG3DR+Tq0IQG2DT5PxKth1WIGDmj5yPmlzr4YBe7uyE+Du4oVqTDXZSHGGGXRtTJEGSSePyQCMBglQ==}
     peerDependencies:
       react: 18.x.x
 
@@ -7054,8 +7054,8 @@ packages:
   sax@1.4.3:
     resolution: {integrity: sha512-yqYn1JhPczigF94DMS+shiDMjDowYO6y9+wB/4WgO0Y19jWYk0lQ4tuG5KI7kj4FTp1wxPj5IFfcrz/s1c3jjQ==}
 
-  scheduler@0.23.2:
-    resolution: {integrity: sha512-UOShsPwz7NrMUqhR6t0hWjFduvOzbtv7toDH1/hIrfRNIDBnnBWd0CwJTGvTpngVlmwGCdP9/Zl/tVrDqcuYzQ==}
+  scheduler@0.27.0:
+    resolution: {integrity: sha512-eNv+WrVbKu1f3vbYJT/xtiF5syA5HPIMtf9IgY/nKg0sWqzAUEvqY/xm7OcZc/qafLx/iO9FgOmeSAp4v5ti/Q==}
 
   semver@5.7.2:
     resolution: {integrity: sha512-cBznnQ9KjJqU67B52RMC65CMarK2600WFnbkcaiwWq3xy/5haFJlshgnpjovMVJ+Hff49d8GEn0b87C5pDQ10g==}
@@ -9334,23 +9334,23 @@ snapshots:
 
   '@mui/core-downloads-tracker@7.3.4': {}
 
-  '@mui/icons-material@7.3.4(@mui/material@7.3.4(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@19.2.2)(react@18.3.1)':
+  '@mui/icons-material@7.3.4(@mui/material@7.3.4(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(@types/react@19.2.2)(react@18.3.1)':
     dependencies:
       '@babel/runtime': 7.28.4
-      '@mui/material': 7.3.4(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mui/material': 7.3.4(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       react: 18.3.1
     optionalDependencies:
       '@types/react': 19.2.2
 
-  '@mui/icons-material@7.3.4(@mui/material@7.3.4(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@19.2.9)(react@18.3.1)':
+  '@mui/icons-material@7.3.4(@mui/material@7.3.4(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(@types/react@19.2.9)(react@18.3.1)':
     dependencies:
       '@babel/runtime': 7.28.4
-      '@mui/material': 7.3.4(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@mui/material': 7.3.4(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       react: 18.3.1
     optionalDependencies:
       '@types/react': 19.2.9
 
-  '@mui/material@7.3.4(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@mui/material@7.3.4(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react-dom@19.2.8(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@babel/runtime': 7.28.4
       '@mui/core-downloads-tracker': 7.3.4
@@ -9363,15 +9363,15 @@ snapshots:
       csstype: 3.1.3
       prop-types: 15.8.1
       react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react-dom: 19.2.8(react@18.3.1)
       react-is: 19.2.0
-      react-transition-group: 4.4.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-transition-group: 4.4.5(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
     optionalDependencies:
       '@emotion/react': 11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1)
       '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1)
       '@types/react': 19.2.2
 
-  '@mui/material@7.3.4(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@mui/material@7.3.4(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react-dom@19.2.8(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@babel/runtime': 7.28.4
       '@mui/core-downloads-tracker': 7.3.4
@@ -9384,9 +9384,9 @@ snapshots:
       csstype: 3.1.3
       prop-types: 15.8.1
       react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react-dom: 19.2.8(react@18.3.1)
       react-is: 19.2.0
-      react-transition-group: 4.4.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-transition-group: 4.4.5(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
     optionalDependencies:
       '@emotion/react': 11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1)
       '@emotion/styled': 11.14.1(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1)
@@ -10288,7 +10288,7 @@ snapshots:
 
   '@protobufjs/utf8@1.1.0': {}
 
-  '@react-router/dev@7.15.1(@react-router/serve@7.15.1(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3))(@types/node@20.19.23)(babel-plugin-macros@3.1.0)(jiti@2.6.1)(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)(vite@7.3.6(@types/node@20.19.23)(jiti@2.6.1)(yaml@2.8.1))(yaml@2.8.1)':
+  '@react-router/dev@7.15.1(@react-router/serve@7.15.1(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3))(@types/node@20.19.23)(babel-plugin-macros@3.1.0)(jiti@2.6.1)(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)(vite@7.3.6(@types/node@20.19.23)(jiti@2.6.1)(yaml@2.8.1))(yaml@2.8.1)':
     dependencies:
       '@babel/core': 7.28.4(supports-color@8.1.1)
       '@babel/generator': 7.28.3
@@ -10297,7 +10297,7 @@ snapshots:
       '@babel/preset-typescript': 7.27.1(@babel/core@7.28.4(supports-color@8.1.1))(supports-color@8.1.1)
       '@babel/traverse': 7.28.4(supports-color@8.1.1)
       '@babel/types': 7.28.4
-      '@react-router/node': 7.15.1(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
+      '@react-router/node': 7.15.1(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
       '@remix-run/node-fetch-server': 0.13.1
       arg: 5.0.2
       babel-dead-code-elimination: 1.0.10(supports-color@8.1.1)
@@ -10314,14 +10314,14 @@ snapshots:
       pkg-types: 2.3.1
       prettier: 3.6.2
       react-refresh: 0.14.2
-      react-router: 7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-router: 7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       semver: 7.7.3
       tinyglobby: 0.2.17
       valibot: 1.4.0(typescript@5.9.3)
       vite: 7.3.6(@types/node@20.19.23)(jiti@2.6.1)(yaml@2.8.1)
       vite-node: 3.2.4(@types/node@20.19.23)(jiti@2.6.1)(supports-color@8.1.1)(yaml@2.8.1)
     optionalDependencies:
-      '@react-router/serve': 7.15.1(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)
+      '@react-router/serve': 7.15.1(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)
       typescript: 5.9.3
     transitivePeerDependencies:
       - '@types/node'
@@ -10338,7 +10338,7 @@ snapshots:
       - tsx
       - yaml
 
-  '@react-router/dev@7.15.1(@react-router/serve@7.18.0(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3))(@types/node@20.19.23)(babel-plugin-macros@3.1.0)(jiti@2.6.1)(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)(vite@7.3.6(@types/node@20.19.23)(jiti@2.6.1)(yaml@2.8.1))(yaml@2.8.1)':
+  '@react-router/dev@7.15.1(@react-router/serve@7.18.0(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3))(@types/node@20.19.23)(babel-plugin-macros@3.1.0)(jiti@2.6.1)(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)(vite@7.3.6(@types/node@20.19.23)(jiti@2.6.1)(yaml@2.8.1))(yaml@2.8.1)':
     dependencies:
       '@babel/core': 7.28.4(supports-color@8.1.1)
       '@babel/generator': 7.28.3
@@ -10347,7 +10347,7 @@ snapshots:
       '@babel/preset-typescript': 7.27.1(@babel/core@7.28.4(supports-color@8.1.1))(supports-color@8.1.1)
       '@babel/traverse': 7.28.4(supports-color@8.1.1)
       '@babel/types': 7.28.4
-      '@react-router/node': 7.15.1(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
+      '@react-router/node': 7.15.1(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
       '@remix-run/node-fetch-server': 0.13.1
       arg: 5.0.2
       babel-dead-code-elimination: 1.0.10(supports-color@8.1.1)
@@ -10364,14 +10364,14 @@ snapshots:
       pkg-types: 2.3.1
       prettier: 3.6.2
       react-refresh: 0.14.2
-      react-router: 7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-router: 7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       semver: 7.7.3
       tinyglobby: 0.2.17
       valibot: 1.4.0(typescript@5.9.3)
       vite: 7.3.6(@types/node@20.19.23)(jiti@2.6.1)(yaml@2.8.1)
       vite-node: 3.2.4(@types/node@20.19.23)(jiti@2.6.1)(supports-color@8.1.1)(yaml@2.8.1)
     optionalDependencies:
-      '@react-router/serve': 7.18.0(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)
+      '@react-router/serve': 7.18.0(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)
       typescript: 5.9.3
     transitivePeerDependencies:
       - '@types/node'
@@ -10388,7 +10388,7 @@ snapshots:
       - tsx
       - yaml
 
-  '@react-router/dev@7.9.4(@react-router/serve@7.9.4(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3))(@types/node@20.19.23)(babel-plugin-macros@3.1.0)(bluebird@3.7.2)(jiti@2.6.1)(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)(vite@7.3.6(@types/node@20.19.23)(jiti@2.6.1)(yaml@2.8.1))(yaml@2.8.1)':
+  '@react-router/dev@7.9.4(@react-router/serve@7.9.4(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3))(@types/node@20.19.23)(babel-plugin-macros@3.1.0)(bluebird@3.7.2)(jiti@2.6.1)(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)(vite@7.3.6(@types/node@20.19.23)(jiti@2.6.1)(yaml@2.8.1))(yaml@2.8.1)':
     dependencies:
       '@babel/core': 7.28.4(supports-color@8.1.1)
       '@babel/generator': 7.28.3
@@ -10398,7 +10398,7 @@ snapshots:
       '@babel/traverse': 7.28.4(supports-color@8.1.1)
       '@babel/types': 7.28.4
       '@npmcli/package-json': 4.0.1(bluebird@3.7.2)
-      '@react-router/node': 7.9.4(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
+      '@react-router/node': 7.9.4(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
       '@remix-run/node-fetch-server': 0.9.0
       arg: 5.0.2
       babel-dead-code-elimination: 1.0.10(supports-color@8.1.1)
@@ -10413,14 +10413,14 @@ snapshots:
       picocolors: 1.1.1
       prettier: 3.6.2
       react-refresh: 0.14.2
-      react-router: 7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-router: 7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       semver: 7.7.3
       tinyglobby: 0.2.15
       valibot: 1.1.0(typescript@5.9.3)
       vite: 7.3.6(@types/node@20.19.23)(jiti@2.6.1)(yaml@2.8.1)
       vite-node: 3.2.4(@types/node@20.19.23)(jiti@2.6.1)(supports-color@8.1.1)(yaml@2.8.1)
     optionalDependencies:
-      '@react-router/serve': 7.9.4(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)
+      '@react-router/serve': 7.9.4(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)
       typescript: 5.9.3
     transitivePeerDependencies:
       - '@types/node'
@@ -10438,91 +10438,91 @@ snapshots:
       - tsx
       - yaml
 
-  '@react-router/express@7.15.1(express@4.21.2(supports-color@8.1.1))(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)':
+  '@react-router/express@7.15.1(express@4.21.2(supports-color@8.1.1))(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(typescript@5.9.3)':
     dependencies:
-      '@react-router/node': 7.15.1(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
+      '@react-router/node': 7.15.1(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
       express: 4.21.2(supports-color@8.1.1)
-      react-router: 7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-router: 7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
     optionalDependencies:
       typescript: 5.9.3
 
-  '@react-router/express@7.18.0(express@4.22.2(supports-color@8.1.1))(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)':
+  '@react-router/express@7.18.0(express@4.22.2(supports-color@8.1.1))(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(typescript@5.9.3)':
     dependencies:
-      '@react-router/node': 7.18.0(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
+      '@react-router/node': 7.18.0(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
       express: 4.22.2(supports-color@8.1.1)
-      react-router: 7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-router: 7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
     optionalDependencies:
       typescript: 5.9.3
 
-  '@react-router/express@7.9.4(express@4.21.2(supports-color@8.1.1))(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)':
+  '@react-router/express@7.9.4(express@4.21.2(supports-color@8.1.1))(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(typescript@5.9.3)':
     dependencies:
-      '@react-router/node': 7.9.4(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
+      '@react-router/node': 7.9.4(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
       express: 4.21.2(supports-color@8.1.1)
-      react-router: 7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-router: 7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
     optionalDependencies:
       typescript: 5.9.3
 
-  '@react-router/node@7.15.1(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)':
+  '@react-router/node@7.15.1(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(typescript@5.9.3)':
     dependencies:
       '@mjackson/node-fetch-server': 0.2.0
-      react-router: 7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-router: 7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
     optionalDependencies:
       typescript: 5.9.3
 
-  '@react-router/node@7.18.0(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)':
+  '@react-router/node@7.18.0(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(typescript@5.9.3)':
     dependencies:
       '@mjackson/node-fetch-server': 0.2.0
-      react-router: 7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-router: 7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
     optionalDependencies:
       typescript: 5.9.3
 
-  '@react-router/node@7.9.4(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)':
+  '@react-router/node@7.9.4(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(typescript@5.9.3)':
     dependencies:
       '@mjackson/node-fetch-server': 0.2.0
-      react-router: 7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-router: 7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
     optionalDependencies:
       typescript: 5.9.3
 
-  '@react-router/serve@7.15.1(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)':
+  '@react-router/serve@7.15.1(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)':
     dependencies:
       '@mjackson/node-fetch-server': 0.2.0
-      '@react-router/express': 7.15.1(express@4.21.2(supports-color@8.1.1))(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
-      '@react-router/node': 7.15.1(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
+      '@react-router/express': 7.15.1(express@4.21.2(supports-color@8.1.1))(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
+      '@react-router/node': 7.15.1(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
       compression: 1.8.1(supports-color@8.1.1)
       express: 4.21.2(supports-color@8.1.1)
       get-port: 5.1.1
       morgan: 1.10.1(supports-color@8.1.1)
-      react-router: 7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-router: 7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       source-map-support: 0.5.21
     transitivePeerDependencies:
       - supports-color
       - typescript
 
-  '@react-router/serve@7.18.0(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)':
+  '@react-router/serve@7.18.0(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)':
     dependencies:
       '@mjackson/node-fetch-server': 0.2.0
-      '@react-router/express': 7.18.0(express@4.22.2(supports-color@8.1.1))(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
-      '@react-router/node': 7.18.0(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
+      '@react-router/express': 7.18.0(express@4.22.2(supports-color@8.1.1))(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
+      '@react-router/node': 7.18.0(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
       compression: 1.8.1(supports-color@8.1.1)
       express: 4.22.2(supports-color@8.1.1)
       get-port: 5.1.1
       morgan: 1.11.0(supports-color@8.1.1)
-      react-router: 7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-router: 7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       source-map-support: 0.5.21
     transitivePeerDependencies:
       - supports-color
       - typescript
 
-  '@react-router/serve@7.9.4(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)':
+  '@react-router/serve@7.9.4(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)':
     dependencies:
       '@mjackson/node-fetch-server': 0.2.0
-      '@react-router/express': 7.9.4(express@4.21.2(supports-color@8.1.1))(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
-      '@react-router/node': 7.9.4(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
+      '@react-router/express': 7.9.4(express@4.21.2(supports-color@8.1.1))(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
+      '@react-router/node': 7.9.4(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
       compression: 1.8.1(supports-color@8.1.1)
       express: 4.21.2(supports-color@8.1.1)
       get-port: 5.1.1
       morgan: 1.10.1(supports-color@8.1.1)
-      react-router: 7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-router: 7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       source-map-support: 0.5.21
     transitivePeerDependencies:
       - supports-color
@@ -10824,11 +10824,11 @@ snapshots:
 
   '@types/prop-types@15.7.15': {}
 
-  '@types/react-dom@19.2.2(@types/react@19.2.2)':
+  '@types/react-dom@19.2.4(@types/react@19.2.2)':
     dependencies:
       '@types/react': 19.2.2
 
-  '@types/react-dom@19.2.2(@types/react@19.2.9)':
+  '@types/react-dom@19.2.4(@types/react@19.2.9)':
     dependencies:
       '@types/react': 19.2.9
 
@@ -10856,9 +10856,9 @@ snapshots:
     dependencies:
       '@types/node': 20.19.23
 
-  '@types/recharts@2.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@types/recharts@2.0.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1)':
     dependencies:
-      recharts: 2.15.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      recharts: 2.15.4(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
     transitivePeerDependencies:
       - react
       - react-dom
@@ -14579,7 +14579,7 @@ snapshots:
       iconv-lite: 0.4.24
       unpipe: 1.0.0
 
-  react-d3-cloud@1.0.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  react-d3-cloud@1.0.6(react-dom@19.2.8(react@18.3.1))(react@18.3.1):
     dependencies:
       d3-cloud: 1.2.7
       d3-scale: 3.3.0
@@ -14587,15 +14587,14 @@ snapshots:
       d3-selection: 2.0.0
       prop-types: 15.8.1
       react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react-dom: 19.2.8(react@18.3.1)
       react-fast-compare: 3.2.2
       react-faux-dom: 4.5.0(react@18.3.1)
 
-  react-dom@18.3.1(react@18.3.1):
+  react-dom@19.2.8(react@18.3.1):
     dependencies:
-      loose-envify: 1.4.0
       react: 18.3.1
-      scheduler: 0.23.2
+      scheduler: 0.27.0
 
   react-fast-compare@3.2.2: {}
 
@@ -14623,46 +14622,46 @@ snapshots:
 
   react-refresh@0.14.2: {}
 
-  react-router-dom@7.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  react-router-dom@7.12.0(react-dom@19.2.8(react@18.3.1))(react@18.3.1):
     dependencies:
       react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      react-router: 7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-dom: 19.2.8(react@18.3.1)
+      react-router: 7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
 
-  react-router-dom@7.9.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  react-router-dom@7.9.4(react-dom@19.2.8(react@18.3.1))(react@18.3.1):
     dependencies:
       react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      react-router: 7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-dom: 19.2.8(react@18.3.1)
+      react-router: 7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
 
-  react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1):
     dependencies:
       cookie: 1.0.2
       react: 18.3.1
       set-cookie-parser: 2.7.1
     optionalDependencies:
-      react-dom: 18.3.1(react@18.3.1)
+      react-dom: 19.2.8(react@18.3.1)
 
   react-side-effect@2.1.2(react@18.3.1):
     dependencies:
       react: 18.3.1
 
-  react-smooth@4.0.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  react-smooth@4.0.4(react-dom@19.2.8(react@18.3.1))(react@18.3.1):
     dependencies:
       fast-equals: 5.3.2
       prop-types: 15.8.1
       react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      react-transition-group: 4.4.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-dom: 19.2.8(react@18.3.1)
+      react-transition-group: 4.4.5(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
 
-  react-transition-group@4.4.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  react-transition-group@4.4.5(react-dom@19.2.8(react@18.3.1))(react@18.3.1):
     dependencies:
       '@babel/runtime': 7.28.4
       dom-helpers: 5.2.1
       loose-envify: 1.4.0
       prop-types: 15.8.1
       react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react-dom: 19.2.8(react@18.3.1)
 
   react@18.3.1:
     dependencies:
@@ -14702,15 +14701,15 @@ snapshots:
     dependencies:
       decimal.js-light: 2.5.1
 
-  recharts@2.15.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  recharts@2.15.4(react-dom@19.2.8(react@18.3.1))(react@18.3.1):
     dependencies:
       clsx: 2.1.1
       eventemitter3: 4.0.7
       lodash: 4.17.21
       react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
+      react-dom: 19.2.8(react@18.3.1)
       react-is: 18.3.1
-      react-smooth: 4.0.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-smooth: 4.0.4(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       recharts-scale: 0.4.5
       tiny-invariant: 1.3.3
       victory-vendor: 36.9.2
@@ -14876,9 +14875,7 @@ snapshots:
 
   sax@1.4.3: {}
 
-  scheduler@0.23.2:
-    dependencies:
-      loose-envify: 1.4.0
+  scheduler@0.27.0: {}
 
   semver@5.7.2: {}
 
@@ -15534,22 +15531,22 @@ snapshots:
       '@microsoft/applicationinsights-clickanalytics-js': 3.3.10(tslib@2.8.1)
       '@microsoft/applicationinsights-react-js': 18.3.6(history@5.3.0)(react@18.3.1)(tslib@2.8.1)
       '@microsoft/applicationinsights-web': 3.3.10(tslib@2.8.1)
-      '@mui/icons-material': 7.3.4(@mui/material@7.3.4(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@19.2.2)(react@18.3.1)
-      '@mui/material': 7.3.4(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@react-router/node': 7.18.0(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
-      '@react-router/serve': 7.18.0(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)
+      '@mui/icons-material': 7.3.4(@mui/material@7.3.4(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(@types/react@19.2.2)(react@18.3.1)
+      '@mui/material': 7.3.4(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.2)(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
+      '@react-router/node': 7.18.0(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
+      '@react-router/serve': 7.18.0(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)
       bootstrap: 5.3.8(@popperjs/core@2.11.8)
       fast-json-patch: 3.1.1
       isbot: 5.1.31
       lodash: 4.17.21
       match-sorter: 8.1.0
       react: 18.3.1
-      react-d3-cloud: 1.0.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react-dom: 18.3.1(react@18.3.1)
+      react-d3-cloud: 1.0.6(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
+      react-dom: 19.2.8(react@18.3.1)
       react-helmet: 6.1.0(react@18.3.1)
-      react-router: 7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react-router-dom: 7.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      recharts: 2.15.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-router: 7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
+      react-router-dom: 7.12.0(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
+      recharts: 2.15.4(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       sort-by: 1.2.0
       tiny-invariant: 1.3.3
     transitivePeerDependencies:
@@ -15570,22 +15567,22 @@ snapshots:
       '@microsoft/applicationinsights-clickanalytics-js': 3.3.10(tslib@2.8.1)
       '@microsoft/applicationinsights-react-js': 18.3.6(history@5.3.0)(react@18.3.1)(tslib@2.8.1)
       '@microsoft/applicationinsights-web': 3.3.10(tslib@2.8.1)
-      '@mui/icons-material': 7.3.4(@mui/material@7.3.4(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@19.2.9)(react@18.3.1)
-      '@mui/material': 7.3.4(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@react-router/node': 7.18.0(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
-      '@react-router/serve': 7.18.0(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)
+      '@mui/icons-material': 7.3.4(@mui/material@7.3.4(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(@types/react@19.2.9)(react@18.3.1)
+      '@mui/material': 7.3.4(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@emotion/styled@11.14.1(@emotion/react@11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1))(@types/react@19.2.9)(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
+      '@react-router/node': 7.18.0(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(typescript@5.9.3)
+      '@react-router/serve': 7.18.0(react-router@7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)
       bootstrap: 5.3.8(@popperjs/core@2.11.8)
       fast-json-patch: 3.1.1
       isbot: 5.1.31
       lodash: 4.17.21
       match-sorter: 8.1.0
       react: 18.3.1
-      react-d3-cloud: 1.0.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react-dom: 18.3.1(react@18.3.1)
+      react-d3-cloud: 1.0.6(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
+      react-dom: 19.2.8(react@18.3.1)
       react-helmet: 6.1.0(react@18.3.1)
-      react-router: 7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react-router-dom: 7.12.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      recharts: 2.15.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-router: 7.15.1(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
+      react-router-dom: 7.12.0(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
+      recharts: 2.15.4(react-dom@19.2.8(react@18.3.1))(react@18.3.1)
       sort-by: 1.2.0
       tiny-invariant: 1.3.3
     transitivePeerDependencies:
