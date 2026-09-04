@@ -5,7 +5,7 @@
     "azurite.azurite",
     "ms-ossdata.vscode-pgsql",
     "ms-playwright.playwright",
-
+    "vitest.explorer",
        
     "4ops.terraform",
     "mhutchie.git-graph",

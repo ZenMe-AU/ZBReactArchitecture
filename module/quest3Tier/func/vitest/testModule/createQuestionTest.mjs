@@ -35,7 +35,7 @@ export function createQuestion(profileIdLookup) {
 }
 
 const checkQuestion = (profileIdLookup) => {
-  test.each(questionTestResult())("There should be $count questions by user $userId.", async (r) => {
+  test.each(questionTestResult())("There should be $count questions by user $userId", async (r) => {
     const response = await fetch(questionProfileUrl, {
       method: "GET",
       headers: {
