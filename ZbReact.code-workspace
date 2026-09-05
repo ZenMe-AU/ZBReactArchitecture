@@ -64,6 +64,10 @@
         "name": "Start Full Stack App",
         "configurations": [
           {
+            "name": "Start Azurite",
+            "folder": "ROOT",
+          },
+          {
             "name": "Start",
             "folder": "Portal UI",
           },
@@ -74,7 +78,8 @@
           {
             "name": "Start",
             "folder": "Q3 Func",
-          },          {
+          },       
+          {
             "name": "Start",
             "folder": "Profile Func"
           }
