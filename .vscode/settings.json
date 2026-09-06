@@ -19,7 +19,7 @@
   },
   "azureFunctions.projectSubpath": "module\\quest3Tier\\func",
   "azurite.location": "${workspaceFolder}/azurite",
-  "azurite.debug": "${workspaceFolder}/azurite/debug.log",
+  "azurite.debug": true,
   "azurite.silent": true,
   "eslint.workingDirectories": [{ "mode": "auto" }],
   "sarif-viewer.connectToGithubCodeScanning": "off",
