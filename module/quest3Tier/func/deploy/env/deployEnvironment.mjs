@@ -3,10 +3,12 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import { resolve } from "path";
+import { fileURLToPath } from "url";
+import { resolve, dirname } from "path";
 import { getTargetEnv, getModuleName } from "../../../../../deploy/util/envSetup.cjs";
-import classDeployEnvironment from "./classDeployEnvironment.js";
+import { classDeployEnvironment } from "./classDeployEnvironment.mjs";
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const moduleDir = resolve(__dirname, "..", "..", "..");
 
 (async () => {
