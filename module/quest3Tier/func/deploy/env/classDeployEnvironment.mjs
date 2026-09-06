@@ -4,7 +4,7 @@
  */
 
 import { createInterface } from "readline";
-import { terraformInit, terraformPlan, terraformApply } from "./terraformCli.js";
+import { terraformInit, terraformPlan, terraformApply } from "./terraformCli.mjs";
 import {
   getFunctionAppName,
   getResourceGroupName,
