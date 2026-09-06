@@ -5,9 +5,19 @@
       "label": "RunChain",
       "dependsOrder": "sequence",
       "dependsOn": [
-        "Q3Tier Func: Start",
-        "Q3Tier UI: Start",
-        "Portal UI: Start"
+        "Install Dependencies",
+        {
+          "task": "Start",
+          "workspaceFolder": "${workspaceFolder:Q3 Func}"
+        },
+        {
+          "task": "Start",
+          "workspaceFolder": "${workspaceFolder:Q3 UI}"
+        },
+        {
+          "task": "Start",
+          "workspaceFolder": "${workspaceFolder:Portal UI}"
+        }
       ]
     },
     {

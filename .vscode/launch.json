@@ -28,12 +28,6 @@
       "preLaunchTask": "Install Dependencies"
     },
     {
-      "name": "Start Azurite",
-      "type": "node",
-      "request": "launch",
-      "preLaunchTask": "Start Azurite"
-    },
-    {
       "name": "RunChain",
       "type": "node",
       "request": "launch",
