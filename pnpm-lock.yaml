@@ -13,8 +13,8 @@ importers:
   .:
     devDependencies:
       '@azure/identity':
-        specifier: ^4.11.1
-        version: 4.13.0(supports-color@8.1.1)
+        specifier: ^4.13.2
+        version: 4.13.2(supports-color@8.1.1)
       '@eslint/js':
         specifier: ^9.38.0
         version: 9.38.0
@@ -23,7 +23,7 @@ importers:
         version: 3.1.0(supports-color@8.1.1)
       '@microsoft/microsoft-graph-client':
         specifier: ^3.0.7
-        version: 3.0.7(@azure/identity@4.13.0(supports-color@8.1.1))(@azure/msal-browser@4.30.0)(buffer@6.0.3)
+        version: 3.0.7(@azure/identity@4.13.2(supports-color@8.1.1))(@azure/msal-browser@4.30.0)(buffer@6.0.3)
       '@playwright/test':
         specifier: ^1.62.1
         version: 1.62.1
@@ -38,7 +38,7 @@ importers:
         version: 7.0.1
       azurite:
         specifier: ^3.35.0
-        version: 3.35.0(@azure/core-client@1.10.1(supports-color@8.1.1))(@types/node@20.19.23)(debug@4.4.3(supports-color@8.1.1))(pg-hstore@2.3.4)(pg@8.16.3)(supports-color@8.1.1)
+        version: 3.35.0(@azure/core-client@1.11.1(supports-color@8.1.1))(@types/node@20.19.23)(debug@4.4.3(supports-color@8.1.1))(pg-hstore@2.3.4)(pg@8.16.3)(supports-color@8.1.1)
       dotenv:
         specifier: ^16.6.1
         version: 16.6.1
@@ -100,8 +100,8 @@ importers:
         specifier: ^4.0.0
         version: 4.8.2
       '@azure/identity':
-        specifier: ^4.4.1
-        version: 4.13.0(supports-color@8.1.1)
+        specifier: ^4.13.2
+        version: 4.13.2(supports-color@8.1.1)
       '@azure/monitor-opentelemetry-exporter':
         specifier: ^1.0.0-beta.31
         version: 1.0.0-beta.32(supports-color@8.1.1)
@@ -161,7 +161,7 @@ importers:
         version: 2.22.7
       sequelize:
         specifier: ^6.37.3
-        version: 6.37.7(mysql2@3.22.3(@types/node@24.13.3))(pg-hstore@2.3.4)(pg@8.16.3)(supports-color@8.1.1)(tedious@16.7.1(@azure/core-client@1.10.1(supports-color@8.1.1))(supports-color@8.1.1))
+        version: 6.37.7(mysql2@3.22.3(@types/node@24.13.3))(pg-hstore@2.3.4)(pg@8.16.3)(supports-color@8.1.1)(tedious@16.7.1(@azure/core-client@1.11.1(supports-color@8.1.1))(supports-color@8.1.1))
       sequelize-cli:
         specifier: ^6.6.2
         version: 6.6.3
@@ -345,8 +345,8 @@ importers:
         specifier: ^4.0.0
         version: 4.8.2
       '@azure/identity':
-        specifier: ^4.4.1
-        version: 4.13.0(supports-color@8.1.1)
+        specifier: ^4.13.2
+        version: 4.13.2(supports-color@8.1.1)
       '@azure/monitor-opentelemetry-exporter':
         specifier: ^1.0.0-beta.31
         version: 1.0.0-beta.32(supports-color@8.1.1)
@@ -403,7 +403,7 @@ importers:
         version: 2.22.7
       sequelize:
         specifier: ^6.37.3
-        version: 6.37.7(mysql2@3.22.3(@types/node@20.19.23))(pg-hstore@2.3.4)(pg@8.16.3)(supports-color@8.1.1)(tedious@16.7.1(@azure/core-client@1.10.1(supports-color@8.1.1))(supports-color@8.1.1))
+        version: 6.37.7(mysql2@3.22.3(@types/node@20.19.23))(pg-hstore@2.3.4)(pg@8.16.3)(supports-color@8.1.1)(tedious@16.7.1(@azure/core-client@1.11.1(supports-color@8.1.1))(supports-color@8.1.1))
       sequelize-cli:
         specifier: ^6.6.2
         version: 6.6.3
@@ -445,8 +445,8 @@ importers:
         specifier: ^4.0.0
         version: 4.8.2
       '@azure/identity':
-        specifier: ^4.4.1
-        version: 4.13.0(supports-color@8.1.1)
+        specifier: ^4.13.2
+        version: 4.13.2(supports-color@8.1.1)
       '@azure/monitor-opentelemetry-exporter':
         specifier: ^1.0.0-beta.31
         version: 1.0.0-beta.32(supports-color@8.1.1)
@@ -503,7 +503,7 @@ importers:
         version: 2.22.7
       sequelize:
         specifier: ^6.37.3
-        version: 6.37.7(mysql2@3.22.3(@types/node@20.19.23))(pg-hstore@2.3.4)(pg@8.16.3)(supports-color@8.1.1)(tedious@16.7.1(@azure/core-client@1.10.1(supports-color@8.1.1))(supports-color@8.1.1))
+        version: 6.37.7(mysql2@3.22.3(@types/node@20.19.23))(pg-hstore@2.3.4)(pg@8.16.3)(supports-color@8.1.1)(tedious@16.7.1(@azure/core-client@1.11.1(supports-color@8.1.1))(supports-color@8.1.1))
       sequelize-cli:
         specifier: ^6.6.2
         version: 6.6.3
@@ -672,8 +672,8 @@ importers:
         specifier: ^4.0.0
         version: 4.8.2
       '@azure/identity':
-        specifier: ^4.4.1
-        version: 4.13.0(supports-color@8.1.1)
+        specifier: ^4.13.2
+        version: 4.13.2(supports-color@8.1.1)
       '@azure/monitor-opentelemetry-exporter':
         specifier: ^1.0.0-beta.31
         version: 1.0.0-beta.32(supports-color@8.1.1)
@@ -911,8 +911,8 @@ importers:
         specifier: ^4.0.0
         version: 4.8.2
       '@azure/identity':
-        specifier: ^4.4.1
-        version: 4.13.0(supports-color@8.1.1)
+        specifier: ^4.13.2
+        version: 4.13.2(supports-color@8.1.1)
       '@azure/monitor-opentelemetry-exporter':
         specifier: ^1.0.0-beta.31
         version: 1.0.0-beta.32(supports-color@8.1.1)
@@ -972,7 +972,7 @@ importers:
         version: 2.22.7
       sequelize:
         specifier: ^6.37.3
-        version: 6.37.7(mysql2@3.22.3(@types/node@20.19.23))(pg-hstore@2.3.4)(pg@8.16.3)(supports-color@8.1.1)(tedious@16.7.1(@azure/core-client@1.10.1(supports-color@8.1.1))(supports-color@8.1.1))
+        version: 6.37.7(mysql2@3.22.3(@types/node@20.19.23))(pg-hstore@2.3.4)(pg@8.16.3)(supports-color@8.1.1)(tedious@16.7.1(@azure/core-client@1.11.1(supports-color@8.1.1))(supports-color@8.1.1))
       sequelize-cli:
         specifier: ^6.6.2
         version: 6.6.3
@@ -1150,8 +1150,8 @@ importers:
         specifier: ^4.0.0
         version: 4.8.2
       '@azure/identity':
-        specifier: ^4.4.1
-        version: 4.13.0(supports-color@8.1.1)
+        specifier: ^4.13.2
+        version: 4.13.2(supports-color@8.1.1)
       '@azure/monitor-opentelemetry-exporter':
         specifier: ^1.0.0-beta.31
         version: 1.0.0-beta.32(supports-color@8.1.1)
@@ -1211,7 +1211,7 @@ importers:
         version: 2.22.7
       sequelize:
         specifier: ^6.37.3
-        version: 6.37.7(mysql2@3.22.3(@types/node@20.19.23))(pg-hstore@2.3.4)(pg@8.16.3)(supports-color@8.1.1)(tedious@16.7.1(@azure/core-client@1.10.1(supports-color@8.1.1))(supports-color@8.1.1))
+        version: 6.37.7(mysql2@3.22.3(@types/node@20.19.23))(pg-hstore@2.3.4)(pg@8.16.3)(supports-color@8.1.1)(tedious@16.7.1(@azure/core-client@1.11.1(supports-color@8.1.1))(supports-color@8.1.1))
       sequelize-cli:
         specifier: ^6.6.2
         version: 6.6.3
@@ -1377,8 +1377,8 @@ importers:
         specifier: ^4.0.0
         version: 4.8.2
       '@azure/identity':
-        specifier: ^4.4.1
-        version: 4.13.0(supports-color@8.1.1)
+        specifier: ^4.13.2
+        version: 4.13.2(supports-color@8.1.1)
       '@azure/monitor-opentelemetry-exporter':
         specifier: ^1.0.0-beta.31
         version: 1.0.0-beta.32(supports-color@8.1.1)
@@ -1438,7 +1438,7 @@ importers:
         version: 2.22.7
       sequelize:
         specifier: ^6.37.3
-        version: 6.37.7(mysql2@3.22.3(@types/node@20.19.23))(pg-hstore@2.3.4)(pg@8.16.3)(supports-color@8.1.1)(tedious@16.7.1(@azure/core-client@1.10.1(supports-color@8.1.1))(supports-color@8.1.1))
+        version: 6.37.7(mysql2@3.22.3(@types/node@20.19.23))(pg-hstore@2.3.4)(pg@8.16.3)(supports-color@8.1.1)(tedious@16.7.1(@azure/core-client@1.11.1(supports-color@8.1.1))(supports-color@8.1.1))
       sequelize-cli:
         specifier: ^6.6.2
         version: 6.6.3
@@ -1742,9 +1742,9 @@ packages:
     resolution: {integrity: sha512-TrRLIoSQVzfAJX9H1JeFjzAoDGcoK1IYX1UImfceTZpsyYfWr09Ss1aHW1y5TrrR3iq6RZLBwJ3E24uwPhwahw==}
     engines: {node: '>=12.0.0'}
 
-  '@azure/abort-controller@2.1.2':
-    resolution: {integrity: sha512-nBrLsEWm4J2u5LpAPjxADTlq3trDgVZZXHNKabeXZtpq3d3AbN/KGO82R87rdDz5/lYB024rtEf10/q0urNgsA==}
-    engines: {node: '>=18.0.0'}
+  '@azure/abort-controller@2.2.0':
+    resolution: {integrity: sha512-fNAjWnA/nZ2jz31kxR/AqRaUT8ewHBw/WuBIosK0moMy1C9e5ValbDfFdIxJzVOOYaYkV/b2F1S4H/aHiqfVQg==}
+    engines: {node: '>=22.0.0'}
 
   '@azure/core-amqp@4.4.1':
     resolution: {integrity: sha512-eiVwGOMpHWPS6YsX0kjW4rfH+f0Pb5L2EKNDbuXldVkuFKSEfROdl81xHLsMAl5PP5wiiTjErcMcKsJqwyaRqw==}
@@ -1758,6 +1758,10 @@ packages:
     resolution: {integrity: sha512-ykRMW8PjVAn+RS6ww5cmK9U2CyH9p4Q88YJwvUslfuMmN98w/2rdGRLPqJYObapBCdzBVeDgYWdJnFPFb7qzpg==}
     engines: {node: '>=20.0.0'}
 
+  '@azure/core-auth@1.11.0':
+    resolution: {integrity: sha512-IUZydyTUkDnYdstOW9pFOOUQlBjAepK5teihDE3x6yxsPJs/hsAaaYpeGxdxrgtOiJbBKSjKW7MDk7AEhb4LRg==}
+    engines: {node: '>=22.0.0'}
+
   '@azure/core-auth@1.7.2':
     resolution: {integrity: sha512-Igm/S3fDYmnMq1uKS38Ae1/m37B3zigdlZw+kocwEhh5GjyKjPrXKO2J6rzpC1wAxrNil/jX9BJRqBshyjnF3g==}
     engines: {node: '>=18.0.0'}
@@ -1765,6 +1769,10 @@ packages:
   '@azure/core-client@1.10.1':
     resolution: {integrity: sha512-Nh5PhEOeY6PrnxNPsEHRr9eimxLwgLlpmguQaHKBinFYA/RU9+kOYVOQqOrTsCL+KSxrLLl1gD8Dk5BFW/7l/w==}
     engines: {node: '>=20.0.0'}
+
+  '@azure/core-client@1.11.1':
+    resolution: {integrity: sha512-2QygG2F76ZpMP2eMztiJvAiFMu71M9rDeU7vO/QKg5Css7MgM4frUOslFjhVjRhbGaCNPtz/S8M6y46/fFKVuQ==}
+    engines: {node: '>=22.0.0'}
 
   '@azure/core-http-compat@2.4.0':
     resolution: {integrity: sha512-f1P96IB399YiN2ARYHP7EpZi3Bf3wH4SN2lGzrw7JVwm7bbsVYtf2iKSBwTywD2P62NOPZGHFSZi+6jjb75JuA==}
@@ -1786,6 +1794,10 @@ packages:
     resolution: {integrity: sha512-YKWi9YuCU04B55h25cnOYZHxXYtEvQEbKST5vqRga7hWY9ydd3FZHdeQF8pyh+acWZvppw13M/LMGx0LABUVMA==}
     engines: {node: '>=18.0.0'}
 
+  '@azure/core-process@1.0.0':
+    resolution: {integrity: sha512-/shnJ+ooO8WPxDhPEeI/2oRQuubn16gZ6CvlbpWbEswZfzwI9tI/sMAHmF3x1LuQ9yZYXfLW3TjzGMLEC5blKg==}
+    engines: {node: '>=22.0.0'}
+
   '@azure/core-rest-pipeline@1.16.3':
     resolution: {integrity: sha512-VxLk4AHLyqcHsfKe4MZ6IQ+D+ShuByy+RfStKfSjxJoL3WBWq17VNmrz8aT8etKzqc2nAeIyLxScjpzsS4fz8w==}
     engines: {node: '>=18.0.0'}
@@ -1793,6 +1805,10 @@ packages:
   '@azure/core-rest-pipeline@1.22.1':
     resolution: {integrity: sha512-UVZlVLfLyz6g3Hy7GNDpooMQonUygH7ghdiSASOOHy97fKj/mPLqgDX7aidOijn+sCMU+WU8NjlPlNTgnvbcGA==}
     engines: {node: '>=20.0.0'}
+
+  '@azure/core-rest-pipeline@1.25.0':
+    resolution: {integrity: sha512-bMs8ekJLjX8wPV+9IPBges1SLPyuDtE9g5gLDWOpxzKcoOFQnpLGkbcT1tdw3FaAmDS1gnPmMmJ6y/T5B96kIA==}
+    engines: {node: '>=22.0.0'}
 
   '@azure/core-tracing@1.0.0-preview.11':
     resolution: {integrity: sha512-frF0pJc9HTmKncVokhBxCqipjbql02DThQ1ZJ9wLi7SDMLdPAFyDI5xZNzX5guLz+/DtPkY+SGK2li9FIXqshQ==}
@@ -1802,9 +1818,17 @@ packages:
     resolution: {integrity: sha512-9MWKevR7Hz8kNzzPLfX4EAtGM2b8mr50HPDBvio96bURP/9C+HjdH3sBlLSNNrvRAr5/k/svoH457gB5IKpmwQ==}
     engines: {node: '>=20.0.0'}
 
+  '@azure/core-tracing@1.4.0':
+    resolution: {integrity: sha512-eGwxD0AtncrxeBM4tG8R55Pc3rdX1hNW2WibJAgYpCVA6E93mvvVH+LcssoVjOBrSKWS55yEIHsk0X8ctHmfOQ==}
+    engines: {node: '>=22.0.0'}
+
   '@azure/core-util@1.13.1':
     resolution: {integrity: sha512-XPArKLzsvl0Hf0CaGyKHUyVgF7oDnhKoP85Xv6M4StF/1AhfORhZudHtOyf2s+FcbuQ9dPRAjB8J2KvRRMUK2A==}
     engines: {node: '>=20.0.0'}
+
+  '@azure/core-util@1.14.0':
+    resolution: {integrity: sha512-9n2pWK61veAuN0V20t9lOuoV4CFMdyAZ1ygZzvBGk/pBBJRib/PjL9PLXa/aI2CcPpyHfqVsxxqLCYl6uZlfDw==}
+    engines: {node: '>=22.0.0'}
 
   '@azure/core-xml@1.5.0':
     resolution: {integrity: sha512-D/sdlJBMJfx7gqoj66PKVmhDDaU6TKA49ptcolxdas29X7AfvLTmfAGLjAcIMBK7UZ2o4lygHIqVckOlQU3xWw==}
@@ -1829,9 +1853,9 @@ packages:
     resolution: {integrity: sha512-0q5DL4uyR0EZ4RXQKD8MadGH6zTIcloUoS/RVbCpNpej4pwte0xpqYxk8K97Py2RiuUvI7F4GXpoT4046VfufA==}
     engines: {node: '>=14.0.0'}
 
-  '@azure/identity@4.13.0':
-    resolution: {integrity: sha512-uWC0fssc+hs1TGGVkkghiaFkkS7NkTxfnCH+Hdg+yTehTpMcehpok4PgUKKdyCH+9ldu6FhiHRv84Ntqj1vVcw==}
-    engines: {node: '>=20.0.0'}
+  '@azure/identity@4.13.2':
+    resolution: {integrity: sha512-NXL2/pCJctLxgw8bvrwwgge743kEq8LBT+O1pmV0vyUwetzFPH9auP6jhkU/cgZCPPtWoewAe3ncaGCgPo07fA==}
+    engines: {node: '>=22.0.0'}
 
   '@azure/keyvault-common@2.1.0':
     resolution: {integrity: sha512-aCDidWuKY06LWQ4x7/8TIXK6iRqTaRWRL3t7T+LC+j1b07HtoIsOxP/tU90G4jCSBn5TAyUTCtA4MS/y5Hudaw==}
@@ -1844,6 +1868,10 @@ packages:
   '@azure/logger@1.3.0':
     resolution: {integrity: sha512-fCqPIfOcLE+CGqGPd66c8bZpwAji98tZ4JI9i/mlTNTlsIWslCfpg48s/ypyLxZTump5sypjrKn2/kY7q8oAbA==}
     engines: {node: '>=20.0.0'}
+
+  '@azure/logger@1.4.0':
+    resolution: {integrity: sha512-rbAE25KUfjU/s3XHUdJgceoCP5dEOpMx85J04kF+QMdta73XkuG9JGHHinch+XIoKpBdqljin+KqURpJriSzLA==}
+    engines: {node: '>=22.0.0'}
 
   '@azure/monitor-opentelemetry-exporter@1.0.0-beta.32':
     resolution: {integrity: sha512-Tk5Tv8KwHhKCQlXET/7ZLtjBv1Zi4lmPTadKTQ9KCURRJWdt+6hu5ze52Tlp2pVeg3mg+MRQ9vhWvVNXMZAp/A==}
@@ -1878,12 +1906,12 @@ packages:
     resolution: {integrity: sha512-HBBKfbZkMVzzF5bofvS1cXuNHFVc+gt4/HOnCmG/0hsHuZRJvJvDg/+7nTwIpoqvJc8BQp5o23rBUfisOLxR+w==}
     engines: {node: '>=0.8.0'}
 
-  '@azure/msal-common@14.16.1':
-    resolution: {integrity: sha512-nyxsA6NA4SVKh5YyRpbSXiMr7oQbwark7JU9LMeg6tJYTSPyAGkdx61wPT4gyxZfxlSxMMEyAsWaubBlNyIa1w==}
+  '@azure/msal-browser@5.21.0':
+    resolution: {integrity: sha512-80OcuXDErmcEDAIH9pBtSqBsed2sPT/IWmbG3xHLoPMl5zc8TINd6SlJAbVSmN5huGa3xGAg5qR7VnpaIEK0Zw==}
     engines: {node: '>=0.8.0'}
 
-  '@azure/msal-common@15.13.0':
-    resolution: {integrity: sha512-8oF6nj02qX7eE/6+wFT5NluXRHc05AgdCC3fJnkjiJooq8u7BcLmxaYYSwc2AfEkWRMRi6Eyvvbeqk4U4412Ag==}
+  '@azure/msal-common@14.16.1':
+    resolution: {integrity: sha512-nyxsA6NA4SVKh5YyRpbSXiMr7oQbwark7JU9LMeg6tJYTSPyAGkdx61wPT4gyxZfxlSxMMEyAsWaubBlNyIa1w==}
     engines: {node: '>=0.8.0'}
 
   '@azure/msal-common@15.14.1':
@@ -1894,13 +1922,21 @@ packages:
     resolution: {integrity: sha512-VQ5/gTLFADkwue+FohVuCqlzFPUq4xSrX8jeZe+iwZuY6moliNC8xt86qPVNYdtbQfELDf2Nu6LI+demFPHGgw==}
     engines: {node: '>=0.8.0'}
 
+  '@azure/msal-common@16.13.0':
+    resolution: {integrity: sha512-rOAy0KUcyBbdwVJ+f3uPpthXatFLLZN+/KWAsTLzk1aB23Xl9DRmmXYwSvBFOZyXj4jUQQ5FKxxRkhAFW1fOow==}
+    engines: {node: '>=0.8.0'}
+
+  '@azure/msal-common@16.14.0':
+    resolution: {integrity: sha512-A4rb55hI86Q9tBl/+jBj7TMz7iX2RFgQs/nExFzcAtoI/BFRVdaH5SL/MivrYD7qvweMpN8AgVvVMHV8UBYxew==}
+    engines: {node: '>=0.8.0'}
+
   '@azure/msal-node@2.16.3':
     resolution: {integrity: sha512-CO+SE4weOsfJf+C5LM8argzvotrXw252/ZU6SM2Tz63fEblhH1uuVaaO4ISYFuN4Q6BhTo7I3qIdi8ydUQCqhw==}
     engines: {node: '>=16'}
 
-  '@azure/msal-node@3.8.0':
-    resolution: {integrity: sha512-23BXm82Mp5XnRhrcd4mrHa0xuUNRp96ivu3nRatrfdAqjoeWAGyD0eEAafxAOHAEWWmdlyFK4ELFcdziXyw2sA==}
-    engines: {node: '>=16'}
+  '@azure/msal-node@5.6.0':
+    resolution: {integrity: sha512-uFY9NxrWHw8PwZx7gAX6PDn+9vdfS05+levc/kwkx77IkjfaldnQbbcQzzDIZ5Hq5Zdr6/z92oAIoRWKp6MnOA==}
+    engines: {node: '>=20'}
 
   '@azure/msal-react@3.0.25':
     resolution: {integrity: sha512-BtcfBJQrtkfir4mDJ6X/55BT8WL59/QwfEgxGExY/gZLRfjGrqw/VwXiyQRFyLLaVbvKngF0a8rOcFZx1Jr9qQ==}
@@ -4061,6 +4097,10 @@ packages:
     resolution: {integrity: sha512-SnbaqayTVFEA6/tYumdF0UmybY0KHyKwGPBXnyckFlrrKdhWFrL3a2HIPXHjht5ZOElKGcXfD2D63P36btb+ww==}
     engines: {node: '>=20.0.0'}
 
+  '@typespec/ts-http-runtime@0.3.9':
+    resolution: {integrity: sha512-edSdeAqkdxBVzA1yL1LrLCml1YjyCVvPMtMqJpbF+6K609tHe8V6sQUzFQSGcYNhcuhOceZtjvN32+mpIth30A==}
+    engines: {node: '>=22.0.0'}
+
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
     deprecated: Potential CWE-502 - Update to 1.3.1 or higher
@@ -4831,12 +4871,12 @@ packages:
     resolution: {integrity: sha512-3sUqbMEc77XqpdNO7FRyRog+eW3ph+GYCbj+rK+uYyRMuwsVy0rMiVtPn+QJlKFvWP/1PYpapqYn0Me2knFn+A==}
     engines: {node: '>=0.10.0'}
 
-  default-browser-id@5.0.0:
-    resolution: {integrity: sha512-A6p/pu/6fyBcA1TRz/GqWYPViplrftcW2gZC9q79ngNCKAeR/X3gcEdXQHl4KNXV+3wgIJ1CPkJQ3IHM6lcsyA==}
+  default-browser-id@5.0.1:
+    resolution: {integrity: sha512-x1VCxdX4t+8wVfd1so/9w+vQ4vx7lKd2Qp5tDRutErwmR85OgmfX7RlLRMWafRMY7hbEiXIbudNrjOAPa/hL8Q==}
     engines: {node: '>=18'}
 
-  default-browser@5.2.1:
-    resolution: {integrity: sha512-WY/3TUME0x3KPYdRRxEJJvXRHV4PyPoUsxtZa78lwItwRQRHhd2U9xOscaT/YTf8uCXIAjeJOFBVEh/7FtD8Xg==}
+  default-browser@5.5.1:
+    resolution: {integrity: sha512-m1pAzaJgZ/gssEqlOhJkPJp8Xly7QyW6xcrkUa2KKcDeDSEMP7X8xipU3snUcfisTQx0w1AGae+9UtJSfVnXGw==}
     engines: {node: '>=18'}
 
   define-data-property@1.1.4:
@@ -5794,8 +5834,8 @@ packages:
     resolution: {integrity: sha512-fKzAra0rGJUUBwGBgNkHZuToZcn+TtXHpeCgmkMJMMYx1sQDYaCSyjJBSCa2nH1DGm7s3n1oBnohoVTBaN7Lww==}
     engines: {node: '>=8'}
 
-  is-wsl@3.1.0:
-    resolution: {integrity: sha512-UcVfVfaK4Sc4m7X3dUSoHoozQGBEFeDC+zVo06t98xe8CzHSZZBekNXH+tu0NalHolcJ/QAGqS46Hef7QXBIMw==}
+  is-wsl@3.1.1:
+    resolution: {integrity: sha512-e6rvdUCiQCAuumZslxRJWR/Doq4VpPR82kqclvcS0efgt430SlGIk05vdCN58+VrzgtIcfNODjozVielycD4Sw==}
     engines: {node: '>=16'}
 
   isarray@1.0.0:
@@ -8015,22 +8055,22 @@ snapshots:
 
   '@azure-rest/core-client@1.4.0(supports-color@8.1.1)':
     dependencies:
-      '@azure/abort-controller': 2.1.2
-      '@azure/core-auth': 1.10.1(supports-color@8.1.1)
-      '@azure/core-rest-pipeline': 1.22.1(supports-color@8.1.1)
-      '@azure/core-tracing': 1.3.1
-      '@azure/core-util': 1.13.1(supports-color@8.1.1)
+      '@azure/abort-controller': 2.2.0
+      '@azure/core-auth': 1.11.0(supports-color@8.1.1)
+      '@azure/core-rest-pipeline': 1.25.0(supports-color@8.1.1)
+      '@azure/core-tracing': 1.4.0
+      '@azure/core-util': 1.14.0(supports-color@8.1.1)
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
 
   '@azure-rest/core-client@2.6.0(supports-color@8.1.1)':
     dependencies:
-      '@azure/abort-controller': 2.1.2
-      '@azure/core-auth': 1.10.1(supports-color@8.1.1)
-      '@azure/core-rest-pipeline': 1.22.1(supports-color@8.1.1)
-      '@azure/core-tracing': 1.3.1
-      '@typespec/ts-http-runtime': 0.3.1(supports-color@8.1.1)
+      '@azure/abort-controller': 2.2.0
+      '@azure/core-auth': 1.11.0(supports-color@8.1.1)
+      '@azure/core-rest-pipeline': 1.25.0(supports-color@8.1.1)
+      '@azure/core-tracing': 1.4.0
+      '@typespec/ts-http-runtime': 0.3.9(supports-color@8.1.1)
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
@@ -8039,16 +8079,16 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@azure/abort-controller@2.1.2':
+  '@azure/abort-controller@2.2.0':
     dependencies:
       tslib: 2.8.1
 
   '@azure/core-amqp@4.4.1(supports-color@8.1.1)':
     dependencies:
-      '@azure/abort-controller': 2.1.2
-      '@azure/core-auth': 1.10.1(supports-color@8.1.1)
-      '@azure/core-util': 1.13.1(supports-color@8.1.1)
-      '@azure/logger': 1.3.0(supports-color@8.1.1)
+      '@azure/abort-controller': 2.2.0
+      '@azure/core-auth': 1.11.0(supports-color@8.1.1)
+      '@azure/core-util': 1.14.0(supports-color@8.1.1)
+      '@azure/logger': 1.4.0(supports-color@8.1.1)
       buffer: 6.0.3
       events: 3.3.0
       process: 0.11.10
@@ -8063,45 +8103,65 @@ snapshots:
 
   '@azure/core-auth@1.10.1(supports-color@8.1.1)':
     dependencies:
-      '@azure/abort-controller': 2.1.2
-      '@azure/core-util': 1.13.1(supports-color@8.1.1)
+      '@azure/abort-controller': 2.2.0
+      '@azure/core-util': 1.14.0(supports-color@8.1.1)
+      tslib: 2.8.1
+    transitivePeerDependencies:
+      - supports-color
+
+  '@azure/core-auth@1.11.0(supports-color@8.1.1)':
+    dependencies:
+      '@azure/abort-controller': 2.2.0
+      '@azure/core-util': 1.14.0(supports-color@8.1.1)
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
 
   '@azure/core-auth@1.7.2(supports-color@8.1.1)':
     dependencies:
-      '@azure/abort-controller': 2.1.2
-      '@azure/core-util': 1.13.1(supports-color@8.1.1)
+      '@azure/abort-controller': 2.2.0
+      '@azure/core-util': 1.14.0(supports-color@8.1.1)
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
 
   '@azure/core-client@1.10.1(supports-color@8.1.1)':
     dependencies:
-      '@azure/abort-controller': 2.1.2
-      '@azure/core-auth': 1.10.1(supports-color@8.1.1)
-      '@azure/core-rest-pipeline': 1.22.1(supports-color@8.1.1)
-      '@azure/core-tracing': 1.3.1
-      '@azure/core-util': 1.13.1(supports-color@8.1.1)
-      '@azure/logger': 1.3.0(supports-color@8.1.1)
+      '@azure/abort-controller': 2.2.0
+      '@azure/core-auth': 1.11.0(supports-color@8.1.1)
+      '@azure/core-rest-pipeline': 1.25.0(supports-color@8.1.1)
+      '@azure/core-tracing': 1.4.0
+      '@azure/core-util': 1.14.0(supports-color@8.1.1)
+      '@azure/logger': 1.4.0(supports-color@8.1.1)
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
 
-  '@azure/core-http-compat@2.4.0(@azure/core-client@1.10.1(supports-color@8.1.1))(@azure/core-rest-pipeline@1.22.1(supports-color@8.1.1))':
+  '@azure/core-client@1.11.1(supports-color@8.1.1)':
     dependencies:
-      '@azure/abort-controller': 2.1.2
-      '@azure/core-client': 1.10.1(supports-color@8.1.1)
-      '@azure/core-rest-pipeline': 1.22.1(supports-color@8.1.1)
+      '@azure/abort-controller': 2.2.0
+      '@azure/core-auth': 1.11.0(supports-color@8.1.1)
+      '@azure/core-rest-pipeline': 1.25.0(supports-color@8.1.1)
+      '@azure/core-tracing': 1.4.0
+      '@azure/core-util': 1.14.0(supports-color@8.1.1)
+      '@azure/logger': 1.4.0(supports-color@8.1.1)
+      tslib: 2.8.1
+    transitivePeerDependencies:
+      - supports-color
+
+  '@azure/core-http-compat@2.4.0(@azure/core-client@1.11.1(supports-color@8.1.1))(@azure/core-rest-pipeline@1.25.0(supports-color@8.1.1))':
+    dependencies:
+      '@azure/abort-controller': 2.2.0
+      '@azure/core-client': 1.11.1(supports-color@8.1.1)
+      '@azure/core-rest-pipeline': 1.25.0(supports-color@8.1.1)
 
   '@azure/core-http@1.2.6(supports-color@8.1.1)':
     dependencies:
       '@azure/abort-controller': 1.1.0
       '@azure/core-asynciterator-polyfill': 1.0.2
-      '@azure/core-auth': 1.10.1(supports-color@8.1.1)
+      '@azure/core-auth': 1.11.0(supports-color@8.1.1)
       '@azure/core-tracing': 1.0.0-preview.11
-      '@azure/logger': 1.3.0(supports-color@8.1.1)
+      '@azure/logger': 1.4.0(supports-color@8.1.1)
       '@types/node-fetch': 2.6.13
       '@types/tunnel': 0.0.1
       form-data: 3.0.4
@@ -8118,9 +8178,9 @@ snapshots:
 
   '@azure/core-lro@2.7.2(supports-color@8.1.1)':
     dependencies:
-      '@azure/abort-controller': 2.1.2
-      '@azure/core-util': 1.13.1(supports-color@8.1.1)
-      '@azure/logger': 1.3.0(supports-color@8.1.1)
+      '@azure/abort-controller': 2.2.0
+      '@azure/core-util': 1.14.0(supports-color@8.1.1)
+      '@azure/logger': 1.4.0(supports-color@8.1.1)
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
@@ -8129,13 +8189,15 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
+  '@azure/core-process@1.0.0': {}
+
   '@azure/core-rest-pipeline@1.16.3(supports-color@8.1.1)':
     dependencies:
-      '@azure/abort-controller': 2.1.2
-      '@azure/core-auth': 1.10.1(supports-color@8.1.1)
-      '@azure/core-tracing': 1.3.1
-      '@azure/core-util': 1.13.1(supports-color@8.1.1)
-      '@azure/logger': 1.3.0(supports-color@8.1.1)
+      '@azure/abort-controller': 2.2.0
+      '@azure/core-auth': 1.11.0(supports-color@8.1.1)
+      '@azure/core-tracing': 1.4.0
+      '@azure/core-util': 1.14.0(supports-color@8.1.1)
+      '@azure/logger': 1.4.0(supports-color@8.1.1)
       http-proxy-agent: 7.0.2(supports-color@8.1.1)
       https-proxy-agent: 7.0.6(supports-color@8.1.1)
       tslib: 2.8.1
@@ -8144,12 +8206,24 @@ snapshots:
 
   '@azure/core-rest-pipeline@1.22.1(supports-color@8.1.1)':
     dependencies:
-      '@azure/abort-controller': 2.1.2
-      '@azure/core-auth': 1.10.1(supports-color@8.1.1)
-      '@azure/core-tracing': 1.3.1
-      '@azure/core-util': 1.13.1(supports-color@8.1.1)
-      '@azure/logger': 1.3.0(supports-color@8.1.1)
+      '@azure/abort-controller': 2.2.0
+      '@azure/core-auth': 1.11.0(supports-color@8.1.1)
+      '@azure/core-tracing': 1.4.0
+      '@azure/core-util': 1.14.0(supports-color@8.1.1)
+      '@azure/logger': 1.4.0(supports-color@8.1.1)
       '@typespec/ts-http-runtime': 0.3.1(supports-color@8.1.1)
+      tslib: 2.8.1
+    transitivePeerDependencies:
+      - supports-color
+
+  '@azure/core-rest-pipeline@1.25.0(supports-color@8.1.1)':
+    dependencies:
+      '@azure/abort-controller': 2.2.0
+      '@azure/core-auth': 1.11.0(supports-color@8.1.1)
+      '@azure/core-tracing': 1.4.0
+      '@azure/core-util': 1.14.0(supports-color@8.1.1)
+      '@azure/logger': 1.4.0(supports-color@8.1.1)
+      '@typespec/ts-http-runtime': 0.3.9(supports-color@8.1.1)
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
@@ -8164,10 +8238,22 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
+  '@azure/core-tracing@1.4.0':
+    dependencies:
+      tslib: 2.8.1
+
   '@azure/core-util@1.13.1(supports-color@8.1.1)':
     dependencies:
-      '@azure/abort-controller': 2.1.2
+      '@azure/abort-controller': 2.2.0
       '@typespec/ts-http-runtime': 0.3.1(supports-color@8.1.1)
+      tslib: 2.8.1
+    transitivePeerDependencies:
+      - supports-color
+
+  '@azure/core-util@1.14.0(supports-color@8.1.1)':
+    dependencies:
+      '@azure/abort-controller': 2.2.0
+      '@typespec/ts-http-runtime': 0.3.9(supports-color@8.1.1)
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
@@ -8217,12 +8303,12 @@ snapshots:
   '@azure/identity@3.4.2(supports-color@8.1.1)':
     dependencies:
       '@azure/abort-controller': 1.1.0
-      '@azure/core-auth': 1.10.1(supports-color@8.1.1)
-      '@azure/core-client': 1.10.1(supports-color@8.1.1)
-      '@azure/core-rest-pipeline': 1.22.1(supports-color@8.1.1)
-      '@azure/core-tracing': 1.3.1
-      '@azure/core-util': 1.13.1(supports-color@8.1.1)
-      '@azure/logger': 1.3.0(supports-color@8.1.1)
+      '@azure/core-auth': 1.11.0(supports-color@8.1.1)
+      '@azure/core-client': 1.11.1(supports-color@8.1.1)
+      '@azure/core-rest-pipeline': 1.25.0(supports-color@8.1.1)
+      '@azure/core-tracing': 1.4.0
+      '@azure/core-util': 1.14.0(supports-color@8.1.1)
+      '@azure/logger': 1.4.0(supports-color@8.1.1)
       '@azure/msal-browser': 3.30.0
       '@azure/msal-node': 2.16.3
       events: 3.3.0
@@ -8233,17 +8319,18 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@azure/identity@4.13.0(supports-color@8.1.1)':
+  '@azure/identity@4.13.2(supports-color@8.1.1)':
     dependencies:
-      '@azure/abort-controller': 2.1.2
-      '@azure/core-auth': 1.10.1(supports-color@8.1.1)
-      '@azure/core-client': 1.10.1(supports-color@8.1.1)
-      '@azure/core-rest-pipeline': 1.22.1(supports-color@8.1.1)
-      '@azure/core-tracing': 1.3.1
-      '@azure/core-util': 1.13.1(supports-color@8.1.1)
-      '@azure/logger': 1.3.0(supports-color@8.1.1)
-      '@azure/msal-browser': 4.28.1
-      '@azure/msal-node': 3.8.0
+      '@azure/abort-controller': 2.2.0
+      '@azure/core-auth': 1.11.0(supports-color@8.1.1)
+      '@azure/core-client': 1.11.1(supports-color@8.1.1)
+      '@azure/core-process': 1.0.0
+      '@azure/core-rest-pipeline': 1.25.0(supports-color@8.1.1)
+      '@azure/core-tracing': 1.4.0
+      '@azure/core-util': 1.14.0(supports-color@8.1.1)
+      '@azure/logger': 1.4.0(supports-color@8.1.1)
+      '@azure/msal-browser': 5.21.0
+      '@azure/msal-node': 5.6.0
       open: 10.2.0
       tslib: 2.8.1
     transitivePeerDependencies:
@@ -8252,29 +8339,29 @@ snapshots:
   '@azure/keyvault-common@2.1.0(supports-color@8.1.1)':
     dependencies:
       '@azure-rest/core-client': 2.6.0(supports-color@8.1.1)
-      '@azure/abort-controller': 2.1.2
-      '@azure/core-auth': 1.10.1(supports-color@8.1.1)
-      '@azure/core-rest-pipeline': 1.22.1(supports-color@8.1.1)
-      '@azure/core-tracing': 1.3.1
-      '@azure/core-util': 1.13.1(supports-color@8.1.1)
-      '@azure/logger': 1.3.0(supports-color@8.1.1)
+      '@azure/abort-controller': 2.2.0
+      '@azure/core-auth': 1.11.0(supports-color@8.1.1)
+      '@azure/core-rest-pipeline': 1.25.0(supports-color@8.1.1)
+      '@azure/core-tracing': 1.4.0
+      '@azure/core-util': 1.14.0(supports-color@8.1.1)
+      '@azure/logger': 1.4.0(supports-color@8.1.1)
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
 
-  '@azure/keyvault-keys@4.10.0(@azure/core-client@1.10.1(supports-color@8.1.1))(supports-color@8.1.1)':
+  '@azure/keyvault-keys@4.10.0(@azure/core-client@1.11.1(supports-color@8.1.1))(supports-color@8.1.1)':
     dependencies:
       '@azure-rest/core-client': 2.6.0(supports-color@8.1.1)
-      '@azure/abort-controller': 2.1.2
-      '@azure/core-auth': 1.10.1(supports-color@8.1.1)
-      '@azure/core-http-compat': 2.4.0(@azure/core-client@1.10.1(supports-color@8.1.1))(@azure/core-rest-pipeline@1.22.1(supports-color@8.1.1))
+      '@azure/abort-controller': 2.2.0
+      '@azure/core-auth': 1.11.0(supports-color@8.1.1)
+      '@azure/core-http-compat': 2.4.0(@azure/core-client@1.11.1(supports-color@8.1.1))(@azure/core-rest-pipeline@1.25.0(supports-color@8.1.1))
       '@azure/core-lro': 2.7.2(supports-color@8.1.1)
       '@azure/core-paging': 1.6.2
-      '@azure/core-rest-pipeline': 1.22.1(supports-color@8.1.1)
-      '@azure/core-tracing': 1.3.1
-      '@azure/core-util': 1.13.1(supports-color@8.1.1)
+      '@azure/core-rest-pipeline': 1.25.0(supports-color@8.1.1)
+      '@azure/core-tracing': 1.4.0
+      '@azure/core-util': 1.14.0(supports-color@8.1.1)
       '@azure/keyvault-common': 2.1.0(supports-color@8.1.1)
-      '@azure/logger': 1.3.0(supports-color@8.1.1)
+      '@azure/logger': 1.4.0(supports-color@8.1.1)
       tslib: 2.8.1
     transitivePeerDependencies:
       - '@azure/core-client'
@@ -8283,6 +8370,13 @@ snapshots:
   '@azure/logger@1.3.0(supports-color@8.1.1)':
     dependencies:
       '@typespec/ts-http-runtime': 0.3.1(supports-color@8.1.1)
+      tslib: 2.8.1
+    transitivePeerDependencies:
+      - supports-color
+
+  '@azure/logger@1.4.0(supports-color@8.1.1)':
+    dependencies:
+      '@typespec/ts-http-runtime': 0.3.9(supports-color@8.1.1)
       tslib: 2.8.1
     transitivePeerDependencies:
       - supports-color
@@ -8306,9 +8400,9 @@ snapshots:
 
   '@azure/monitor-opentelemetry-exporter@1.0.0-beta.35(supports-color@8.1.1)':
     dependencies:
-      '@azure/core-auth': 1.10.1(supports-color@8.1.1)
-      '@azure/core-client': 1.10.1(supports-color@8.1.1)
-      '@azure/core-rest-pipeline': 1.22.1(supports-color@8.1.1)
+      '@azure/core-auth': 1.11.0(supports-color@8.1.1)
+      '@azure/core-client': 1.11.1(supports-color@8.1.1)
+      '@azure/core-rest-pipeline': 1.25.0(supports-color@8.1.1)
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/api-logs': 0.205.0
       '@opentelemetry/core': 2.2.0(@opentelemetry/api@1.9.0)
@@ -8334,10 +8428,10 @@ snapshots:
 
   '@azure/monitor-opentelemetry@1.14.0(supports-color@8.1.1)':
     dependencies:
-      '@azure/core-auth': 1.10.1(supports-color@8.1.1)
-      '@azure/core-client': 1.10.1(supports-color@8.1.1)
-      '@azure/core-rest-pipeline': 1.22.1(supports-color@8.1.1)
-      '@azure/logger': 1.3.0(supports-color@8.1.1)
+      '@azure/core-auth': 1.11.0(supports-color@8.1.1)
+      '@azure/core-client': 1.11.1(supports-color@8.1.1)
+      '@azure/core-rest-pipeline': 1.25.0(supports-color@8.1.1)
+      '@azure/logger': 1.4.0(supports-color@8.1.1)
       '@azure/monitor-opentelemetry-exporter': 1.0.0-beta.35(supports-color@8.1.1)
       '@azure/opentelemetry-instrumentation-azure-sdk': 1.0.0-beta.9(supports-color@8.1.1)
       '@microsoft/applicationinsights-web-snippet': 1.2.2
@@ -8368,7 +8462,7 @@ snapshots:
 
   '@azure/ms-rest-js@1.11.2(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)':
     dependencies:
-      '@azure/core-auth': 1.10.1(supports-color@8.1.1)
+      '@azure/core-auth': 1.11.0(supports-color@8.1.1)
       axios: 0.21.4(debug@4.4.3(supports-color@8.1.1))
       form-data: 2.5.5
       tough-cookie: 2.5.0
@@ -8392,13 +8486,19 @@ snapshots:
     dependencies:
       '@azure/msal-common': 15.17.0
 
-  '@azure/msal-common@14.16.1': {}
+  '@azure/msal-browser@5.21.0':
+    dependencies:
+      '@azure/msal-common': 16.14.0
 
-  '@azure/msal-common@15.13.0': {}
+  '@azure/msal-common@14.16.1': {}
 
   '@azure/msal-common@15.14.1': {}
 
   '@azure/msal-common@15.17.0': {}
+
+  '@azure/msal-common@16.13.0': {}
+
+  '@azure/msal-common@16.14.0': {}
 
   '@azure/msal-node@2.16.3':
     dependencies:
@@ -8406,11 +8506,10 @@ snapshots:
       jsonwebtoken: 9.0.3
       uuid: 8.3.2
 
-  '@azure/msal-node@3.8.0':
+  '@azure/msal-node@5.6.0':
     dependencies:
-      '@azure/msal-common': 15.13.0
+      '@azure/msal-common': 16.13.0
       jsonwebtoken: 9.0.3
-      uuid: 8.3.2
 
   '@azure/msal-react@3.0.25(@azure/msal-browser@4.28.1)(react@18.3.1)':
     dependencies:
@@ -8424,8 +8523,8 @@ snapshots:
 
   '@azure/opentelemetry-instrumentation-azure-sdk@1.0.0-beta.9(supports-color@8.1.1)':
     dependencies:
-      '@azure/core-tracing': 1.3.1
-      '@azure/logger': 1.3.0(supports-color@8.1.1)
+      '@azure/core-tracing': 1.4.0
+      '@azure/logger': 1.4.0(supports-color@8.1.1)
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 2.2.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/instrumentation': 0.200.0(@opentelemetry/api@1.9.0)(supports-color@8.1.1)
@@ -9386,12 +9485,12 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@microsoft/microsoft-graph-client@3.0.7(@azure/identity@4.13.0(supports-color@8.1.1))(@azure/msal-browser@4.30.0)(buffer@6.0.3)':
+  '@microsoft/microsoft-graph-client@3.0.7(@azure/identity@4.13.2(supports-color@8.1.1))(@azure/msal-browser@4.30.0)(buffer@6.0.3)':
     dependencies:
       '@babel/runtime': 7.28.4
       tslib: 2.8.1
     optionalDependencies:
-      '@azure/identity': 4.13.0(supports-color@8.1.1)
+      '@azure/identity': 4.13.2(supports-color@8.1.1)
       '@azure/msal-browser': 4.30.0
       buffer: 6.0.3
 
@@ -11241,6 +11340,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  '@typespec/ts-http-runtime@0.3.9(supports-color@8.1.1)':
+    dependencies:
+      http-proxy-agent: 7.0.2(supports-color@8.1.1)
+      https-proxy-agent: 7.0.6(supports-color@8.1.1)
+      tslib: 2.8.1
+    transitivePeerDependencies:
+      - supports-color
+
   '@ungap/structured-clone@1.3.0': {}
 
   '@vitest/coverage-v8@4.1.10(vitest@4.1.9)':
@@ -11420,7 +11527,7 @@ snapshots:
       '@azure/core-auth': 1.10.1(supports-color@8.1.1)
       '@azure/functions': 4.8.2
       '@azure/functions-old': '@azure/functions@3.5.1'
-      '@azure/identity': 4.13.0(supports-color@8.1.1)
+      '@azure/identity': 4.13.2(supports-color@8.1.1)
       '@azure/monitor-opentelemetry': 1.14.0(supports-color@8.1.1)
       '@azure/monitor-opentelemetry-exporter': 1.0.0-preview.6(supports-color@8.1.1)
       '@azure/opentelemetry-instrumentation-azure-sdk': 1.0.0-beta.9(supports-color@8.1.1)
@@ -11595,7 +11702,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  azurite@3.35.0(@azure/core-client@1.10.1(supports-color@8.1.1))(@types/node@20.19.23)(debug@4.4.3(supports-color@8.1.1))(pg-hstore@2.3.4)(pg@8.16.3)(supports-color@8.1.1):
+  azurite@3.35.0(@azure/core-client@1.11.1(supports-color@8.1.1))(@types/node@20.19.23)(debug@4.4.3(supports-color@8.1.1))(pg-hstore@2.3.4)(pg@8.16.3)(supports-color@8.1.1):
     dependencies:
       '@azure/ms-rest-js': 1.11.2(debug@4.4.3(supports-color@8.1.1))(supports-color@8.1.1)
       applicationinsights: 2.9.8(supports-color@8.1.1)
@@ -11611,9 +11718,9 @@ snapshots:
       multistream: 2.1.1
       mysql2: 3.22.3(@types/node@20.19.23)
       rimraf: 3.0.2
-      sequelize: 6.37.7(mysql2@3.22.3(@types/node@20.19.23))(pg-hstore@2.3.4)(pg@8.16.3)(supports-color@8.1.1)(tedious@16.7.1(@azure/core-client@1.10.1(supports-color@8.1.1))(supports-color@8.1.1))
+      sequelize: 6.37.7(mysql2@3.22.3(@types/node@20.19.23))(pg-hstore@2.3.4)(pg@8.16.3)(supports-color@8.1.1)(tedious@16.7.1(@azure/core-client@1.11.1(supports-color@8.1.1))(supports-color@8.1.1))
       stoppable: 1.1.0
-      tedious: 16.7.1(@azure/core-client@1.10.1(supports-color@8.1.1))(supports-color@8.1.1)
+      tedious: 16.7.1(@azure/core-client@1.11.1(supports-color@8.1.1))(supports-color@8.1.1)
       to-readable-stream: 2.1.0
       tslib: 2.8.1
       uri-templates: 0.2.0
@@ -12194,12 +12301,12 @@ snapshots:
 
   deepmerge@4.3.1: {}
 
-  default-browser-id@5.0.0: {}
+  default-browser-id@5.0.1: {}
 
-  default-browser@5.2.1:
+  default-browser@5.5.1:
     dependencies:
       bundle-name: 4.1.0
-      default-browser-id: 5.0.0
+      default-browser-id: 5.0.1
 
   define-data-property@1.1.4:
     dependencies:
@@ -13389,7 +13496,7 @@ snapshots:
     dependencies:
       is-docker: 2.2.1
 
-  is-wsl@3.1.0:
+  is-wsl@3.1.1:
     dependencies:
       is-inside-container: 1.0.0
 
@@ -14387,7 +14494,7 @@ snapshots:
 
   open@10.2.0:
     dependencies:
-      default-browser: 5.2.1
+      default-browser: 5.5.1
       define-lazy-prop: 3.0.0
       is-inside-container: 1.0.0
       wsl-utils: 0.1.0
@@ -15083,7 +15190,7 @@ snapshots:
 
   sequelize-pool@8.0.1: {}
 
-  sequelize@6.37.7(mysql2@3.22.3(@types/node@20.19.23))(pg-hstore@2.3.4)(pg@8.16.3)(supports-color@8.1.1)(tedious@16.7.1(@azure/core-client@1.10.1(supports-color@8.1.1))(supports-color@8.1.1)):
+  sequelize@6.37.7(mysql2@3.22.3(@types/node@20.19.23))(pg-hstore@2.3.4)(pg@8.16.3)(supports-color@8.1.1)(tedious@16.7.1(@azure/core-client@1.11.1(supports-color@8.1.1))(supports-color@8.1.1)):
     dependencies:
       '@types/debug': 4.1.12
       '@types/validator': 13.15.4
@@ -15105,11 +15212,11 @@ snapshots:
       mysql2: 3.22.3(@types/node@20.19.23)
       pg: 8.16.3
       pg-hstore: 2.3.4
-      tedious: 16.7.1(@azure/core-client@1.10.1(supports-color@8.1.1))(supports-color@8.1.1)
+      tedious: 16.7.1(@azure/core-client@1.11.1(supports-color@8.1.1))(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
-  sequelize@6.37.7(mysql2@3.22.3(@types/node@24.13.3))(pg-hstore@2.3.4)(pg@8.16.3)(supports-color@8.1.1)(tedious@16.7.1(@azure/core-client@1.10.1(supports-color@8.1.1))(supports-color@8.1.1)):
+  sequelize@6.37.7(mysql2@3.22.3(@types/node@24.13.3))(pg-hstore@2.3.4)(pg@8.16.3)(supports-color@8.1.1)(tedious@16.7.1(@azure/core-client@1.11.1(supports-color@8.1.1))(supports-color@8.1.1)):
     dependencies:
       '@types/debug': 4.1.12
       '@types/validator': 13.15.4
@@ -15131,7 +15238,7 @@ snapshots:
       mysql2: 3.22.3(@types/node@24.13.3)
       pg: 8.16.3
       pg-hstore: 2.3.4
-      tedious: 16.7.1(@azure/core-client@1.10.1(supports-color@8.1.1))(supports-color@8.1.1)
+      tedious: 16.7.1(@azure/core-client@1.11.1(supports-color@8.1.1))(supports-color@8.1.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -15478,10 +15585,10 @@ snapshots:
       - bare-abort-controller
       - react-native-b4a
 
-  tedious@16.7.1(@azure/core-client@1.10.1(supports-color@8.1.1))(supports-color@8.1.1):
+  tedious@16.7.1(@azure/core-client@1.11.1(supports-color@8.1.1))(supports-color@8.1.1):
     dependencies:
       '@azure/identity': 3.4.2(supports-color@8.1.1)
-      '@azure/keyvault-keys': 4.10.0(@azure/core-client@1.10.1(supports-color@8.1.1))(supports-color@8.1.1)
+      '@azure/keyvault-keys': 4.10.0(@azure/core-client@1.11.1(supports-color@8.1.1))(supports-color@8.1.1)
       '@js-joda/core': 5.7.0
       bl: 6.1.6
       es-aggregate-error: 1.0.14
@@ -16102,7 +16209,7 @@ snapshots:
 
   wsl-utils@0.1.0:
     dependencies:
-      is-wsl: 3.1.0
+      is-wsl: 3.1.1
 
   xml2js@0.4.23:
     dependencies:
