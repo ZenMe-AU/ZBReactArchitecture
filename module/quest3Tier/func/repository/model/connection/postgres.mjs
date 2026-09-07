@@ -3,13 +3,13 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import { Sequelize } from "sequelize";
+import { Sequelize } from "@sequelize/core";
+import { PostgresDialect } from "@sequelize/postgres";
 import { DefaultAzureCredential } from "@azure/identity";
 
 async function createPostgresInstance(config) {
   if (!config.port) config.port = 5432;
-  if (!config.dialect) config.dialect = "postgres";
-  if (!config.dialectOptions) config.dialectOptions = {};
+  if (!config.dialect) config.dialect = PostgresDialect;
   if (!config.pool)
     config.pool = {
       max: 10, // Maximum number of connections
@@ -26,7 +26,7 @@ async function createPostgresInstance(config) {
       break;
     default:
     case "azure-ad":
-      config.dialectOptions.ssl = {
+      config.ssl = {
         require: true,
         rejectUnauthorized: false, // suggested: in production, set to true
       };
@@ -37,13 +37,18 @@ async function createPostgresInstance(config) {
       break;
   }
 
-  let sequelize;
+  const { authMode, dialectOptions, username, ...sequelizeOptions } = config;
+  const sequelizeConfig = {
+    ...sequelizeOptions,
+    password,
+    user: username,
+  };
+
   if (config.uri) {
-    sequelize = new Sequelize(config.uri, config);
-  } else {
-    sequelize = new Sequelize(config.database, config.username, password, config);
+    sequelizeConfig.url = config.uri;
   }
-  return sequelize;
+
+  return new Sequelize(sequelizeConfig);
 }
 
 async function getAzureAccessToken() {

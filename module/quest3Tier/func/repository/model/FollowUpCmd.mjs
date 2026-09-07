@@ -44,7 +44,7 @@ export default (sequelize, DataTypes) => {
   FollowUpCmd.addHook("afterUpdate", async (instance, options) => {
     try {
       if (instance.previousStatus !== 1 && instance.status === 1) {
-        const { FollowUpEvent } = instance.sequelize.models;
+        const FollowUpEvent = instance.sequelize.models.get("FollowUpEvent");
         if (!FollowUpEvent) {
           console.error("FollowUpEvent model not found.");
           return;

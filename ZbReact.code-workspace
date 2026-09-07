@@ -64,10 +64,6 @@
         "name": "Start Full Stack App",
         "configurations": [
           {
-            "name": "Start Azurite",
-            "folder": "ROOT",
-          },
-          {
             "name": "Start",
             "folder": "Portal UI",
           },

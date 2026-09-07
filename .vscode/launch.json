@@ -28,7 +28,7 @@
       "preLaunchTask": "Install Dependencies"
     },
     {
-      "name": "RunChain",
+      "name": "Start Full Stack App",
       "type": "node",
       "request": "launch",
       "preLaunchTask": "RunChain"
