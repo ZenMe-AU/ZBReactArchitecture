@@ -36,28 +36,28 @@ if ($LASTEXITCODE -ne 0) { Write-Warning "Dependency installation failed" }
 # Deploy the environment (infrastructure for Function App)
 Write-Output "Deploying the Function App environment..."
 Set-Location $env:MODULE_FOLDER\deploy\env
-node ./deployEnvironment.js --auto-approve
+node ./deployEnvironment.mjs --auto-approve
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 # Configure database security for Function App
 Write-Output "Applying database security settings..."
-node ./databaseSecurity.js
+node ./databaseSecurity.mjs
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 # Update database schema for Function App
 Write-Output "Updating database schema..."
 Set-Location $env:MODULE_FOLDER\deploy\db
-node ./updateDbSchema.js
+node ./updateDbSchema.mjs
 if ($LASTEXITCODE -ne 0) { Write-Warning "Update database schema failed" }
 
 # Deploy Function App code
 Write-Output "Deploying the Function App code..."
 Set-Location $env:MODULE_FOLDER\deploy\code
-node ./deploy.js
+node ./deploy.mjs
 if ($LASTEXITCODE -ne 0) { Write-Warning "Deploy Function App code failed" }
 
 # Verify the deployment
 Write-Output "Verifying the deployment..."
 Set-Location $env:MODULE_FOLDER\deploy\verify
-node ./verifyDeployment.js
+node ./verifyDeployment.mjs
 if ($LASTEXITCODE -ne 0) { Write-Warning "Verify deployment failed" }
