@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import { AzureMonitorTraceExporter } from "@azure/monitor-opentelemetry-exporter";
+//import { AzureMonitorTraceExporter } from "@azure/monitor-opentelemetry-exporter";
 // const { OTLPTraceExporter } = require("@opentelemetry/exporter-trace-otlp-grpc");
 import { resourceFromAttributes } from "@opentelemetry/resources";
 import { NodeSDK } from "@opentelemetry/sdk-node";
@@ -13,9 +13,9 @@ import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
 import { HttpInstrumentation } from "@opentelemetry/instrumentation-http";
 import { PgInstrumentation } from "@opentelemetry/instrumentation-pg";
 
-const exporter = new AzureMonitorTraceExporter({
-  connectionString: process.env.APPLICATIONINSIGHTS_CONNECTION_STRING,
-});
+//const exporter = new AzureMonitorTraceExporter({
+// connectionString: process.env.APPLICATIONINSIGHTS_CONNECTION_STRING,
+//});
 
 // const otlpExporter = new OTLPTraceExporter();
 // const serviceName = process.env.SERVER_OTEL_SERVICE_NAME || "FunctionApp:LocalChat";
@@ -24,7 +24,7 @@ const serviceName = "FunctionApp:LocalChat";
 console.log(`🚀 Using service name: ${serviceName} for tracing`);
 
 const sdk = new NodeSDK({
-  traceExporter: exporter,
+  //traceExporter: exporter,
   resource: resourceFromAttributes({
     [ATTR_SERVICE_NAME]: serviceName,
   }),

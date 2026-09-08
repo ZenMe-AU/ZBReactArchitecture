@@ -3,6 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
+/*
 export default (sequelize, DataTypes) => {
   const Question = sequelize.define(
     "Question",
@@ -72,4 +73,4 @@ export default (sequelize, DataTypes) => {
   });
 
   return Question;
-};
+}; */

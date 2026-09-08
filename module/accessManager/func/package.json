@@ -15,6 +15,7 @@
     "test:profile-db": "vitest --root ../../.. run module/accessManager/func/vitest/profile.test.mjs module/accessManager/func/vitest/dbTest.test.mjs --pool=forks --no-file-parallelism"
   },
   "dependencies": {
+    "@azure/data-tables": "^13.3.2",
     "@azure/functions": "^4.0.0",
     "@azure/identity": "^4.4.1",
     "@azure/monitor-opentelemetry-exporter": "^1.0.0-beta.31",

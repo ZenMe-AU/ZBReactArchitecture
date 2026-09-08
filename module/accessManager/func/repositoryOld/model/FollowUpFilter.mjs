@@ -55,7 +55,6 @@ export default (tableClient) => {
       })) {
         entities.push(entity);
       }
-
       return entities;
     },
 

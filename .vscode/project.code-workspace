@@ -42,7 +42,16 @@
     "compounds": [
       {
         "name": "Start Full Stack App",
-        "configurations": ["Start ui", "Start quest5TierEg", "Start quest5Tier", "Start quest3TierCqrs", "Start quest3Tier",, "Start accessManager" "Start profile", "Start coordinate"],
+        "configurations": [
+          "Start ui",
+          "Start quest5TierEg",
+          "Start quest5Tier",
+          "Start quest3TierCqrs",
+          "Start quest3Tier",
+          "Start accessManager",
+          "Start profile",
+          "Start coordinate",
+        ],
       },
     ],
   },
