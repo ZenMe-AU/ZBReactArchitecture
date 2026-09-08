@@ -78,7 +78,7 @@ register("db", async () => {
 
   const sequelize = await createDatabaseInstance(DB_TYPE.POSTGRES, config);
   await assertNoPendingDbMigrations(sequelize);
-  const models = createModelsLoader(DB_TYPE.POSTGRES, sequelize, modelDir);
+  const models = await createModelsLoader(DB_TYPE.POSTGRES, sequelize, modelDir);
 
   container.register("db", sequelize);
   container.register("models", models);

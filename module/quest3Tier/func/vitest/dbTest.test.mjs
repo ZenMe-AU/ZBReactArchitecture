@@ -89,7 +89,7 @@ describe("db repository CRUD", () => {
 
     container.register("db", sequelize);
     const modelsDir = path.join(__dirname, "..", "repository", "model");
-    container.register("models", createModelsLoader(DB_TYPE.POSTGRES, sequelize, modelsDir));
+    container.register("models", await createModelsLoader(DB_TYPE.POSTGRES, sequelize, modelsDir));
 
     repository = new DbTestRepository();
   });

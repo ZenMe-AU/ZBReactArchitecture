@@ -44,7 +44,7 @@ export default (sequelize, DataTypes) => {
   QuestionShareCmd.addHook("afterUpdate", async (instance, options) => {
     try {
       if (instance.previousStatus !== 1 && instance.status === 1) {
-        const { QuestionShareEvent } = instance.sequelize.models;
+        const QuestionShareEvent = instance.sequelize.models.get("QuestionShareEvent");
         if (!QuestionShareEvent) {
           console.error("QuestionShareEvent model not found.");
           return;

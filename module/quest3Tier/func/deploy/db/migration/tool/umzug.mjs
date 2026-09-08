@@ -6,7 +6,7 @@
 import { basename, join } from "path";
 import { pathToFileURL } from "url";
 import { Umzug, SequelizeStorage } from "umzug";
-import { Sequelize } from "sequelize";
+import {  Sequelize, DataTypes } from "@sequelize/core";
 
 function createUmzugInstance(sequelize, migrationDir) {
   return new Umzug({
@@ -28,7 +28,7 @@ function createUmzugInstance(sequelize, migrationDir) {
         };
       },
     },
-    context: { queryInterface: sequelize.getQueryInterface() },
+    context: { queryInterface: sequelize.queryInterface },
     storage: new SequelizeStorage({ sequelize }),
     logger: console,
   });
