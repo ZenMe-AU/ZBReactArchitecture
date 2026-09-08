@@ -3,6 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
+import { randomUUID } from "crypto";
 import * as authEntraID from "../../service/authEntraID.mjs";
 import * as authLocal from "../../service/authLocal.mjs";
 
@@ -23,14 +24,15 @@ const createUser = () => {
 
 const profileIdLookup = {
   data: [],
-  add: function (externalId) {
+  add: function (testId) {
     this.data.push({
-      externalId: externalId,
+      externalId: randomUUID(),
+      testUserId: testId,
     });
   },
   getAuthToken: function (id) {
     const token = authProviderModule.generateToken({
-      oid: id,
+      oid: this.data.find(d => d.testUserId === id)?.externalId,
     });
     return token;
   },

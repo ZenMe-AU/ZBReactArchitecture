@@ -2,23 +2,16 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "Start",
       "type": "func",
-      "label": "func: host start",
       "command": "host start",
-      "problemMatcher": "$func-node-watch",
       "isBackground": true,
-      "dependsOn": "Install Dependencies"
+      "problemMatcher": "$func-node-watch",
     },
     {
-      "type": "shell",
       "label": "Install Dependencies",
-      "command": "pnpm install --filter=quest3Tier"
-    },
-    {
       "type": "shell",
-      "label": "npm prune (functions)",
-      "command": "pnpm prune --production",
-      "problemMatcher": []
+      "command": "pnpm install --frozen-lockfile"
     }
   ]
 }

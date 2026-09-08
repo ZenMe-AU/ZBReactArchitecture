@@ -41,12 +41,12 @@ export default (sequelize, DataTypes) => {
   );
   Question.associate = (models) => {
     Question.hasMany(models.QuestionAnswer, { as: "QuestionAnswer", foreignKey: "questionId", sourceKey: "id" });
-    Question.hasMany(models.QuestionShare, { as: "QuestionShare", foreignKey: "newQuestionId", sourceKey: "id" });
+    Question.hasMany(models.QuestionShare, { as: "QuestionShares", foreignKey: "newQuestionId", sourceKey: "id" });
   };
 
   Question.addHook("afterSave", async (instance, options) => {
     if (!instance.changed("eventId")) {
-      const { QuestionLog } = instance.sequelize.models;
+      const QuestionLog = instance.sequelize.models.get("QuestionLog");
       if (!QuestionLog) {
         console.error("QuestionLog model not found.");
         return;

@@ -1,6 +1,25 @@
 {
   "version": "2.0.0",
   "tasks": [
+     {
+      "label": "RunChain",
+      "dependsOrder": "sequence",
+      "dependsOn": [
+        "Install Dependencies",
+        {
+          "task": "Start",
+          "workspaceFolder": "${workspaceFolder:Q3 Func}"
+        },
+        {
+          "task": "Start",
+          "workspaceFolder": "${workspaceFolder:Q3 UI}"
+        },
+        {
+          "task": "Start",
+          "workspaceFolder": "${workspaceFolder:Portal UI}"
+        }
+      ]
+    },
     {
       "type": "shell",
       "label": "Install Dependencies",
@@ -10,12 +29,14 @@
       }
     },
     {
-      "label": "Start azurite",
+      "label": "Start Azurite",
       "type": "shell",
       "command": "pnpm",
       "args": ["exec", "azurite", "--silent", "--location", "${workspaceFolder:ROOT}/azurite", "--debug", "${workspaceFolder:ROOT}/azurite/debug.log"],
       "isBackground": true,
-      "dependsOn": ["Install Dependencies"],
+      "options": {
+        "cwd": "${workspaceFolder:ROOT}"
+      },
       "problemMatcher": {
         "owner": "custom",
         "pattern": {
@@ -23,7 +44,7 @@
         },
         "background": {
           "activeOnStart": true,
-          "beginsPattern": ".",
+          "beginsPattern": "^Azurite Blob service is starting",
           "endsPattern": "Azurite Blob service is successfully listening"
         }
       }
