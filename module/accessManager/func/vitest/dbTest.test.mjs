@@ -3,249 +3,147 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { beforeAll, afterAll, describe, expect, it } from "vitest";
 import { v4 as uuidv4 } from "uuid";
 
-import DB_TYPE from "../enum/dbType.mjs";
-import container from "../di/diContainer.mjs";
-import models from "../repository/model/index.mjs";
-import { BaseRepository } from "../repository/baseRepository.mjs";
-import { createDatabaseInstance } from "../repository/model/connection/index.mjs";
-import { createModelsLoader } from "../repository/model/loader/index.mjs";
+import {
+  initializeTables,
+  questionRepository,
+  followUpCmdRepository,
+  followUpEventRepository,
+  rawFollowUpCmdClient,
+  rawFollowUpEventClient,
+  rawQuestionClient,
+} from "../repository/tableClient.mjs";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-function loadLocalSettingsIntoEnv() {
-  const settingsPath = path.join(__dirname, "..", "local.settings.json");
-  if (!fs.existsSync(settingsPath)) {
-    return;
-  }
-
-  const settings = JSON.parse(fs.readFileSync(settingsPath, "utf8"));
-  if (!settings || !settings.Values) {
-    return;
-  }
-
-  Object.assign(process.env, settings.Values);
-}
-
-class DbTestRepository extends BaseRepository {
-  constructor() {
-    super({
-      Question: "Question",
-    });
-  }
-}
-
-describe("db repository CRUD", () => {
-  let sequelize;
-  let repository;
-  let createdQuestionId;
-  const questionIdsToCleanup = new Set();
-  const followUpCmdIdsToCleanup = new Set();
-  const questionShareCmdIdsToCleanup = new Set();
-  const profileIdsToCleanup = new Set();
-
-  async function createTestProfile() {
-    const profileId = uuidv4();
-    await models.Profile.create({
-      internal_id: profileId,
-      external_id: profileId,
-    });
-    profileIdsToCleanup.add(profileId);
-    return profileId;
-  }
-
-  async function deleteQuestionAndLogs(questionId) {
-    if (!questionId) return 0;
-
-    await models.QuestionAction.destroy({ where: { questionId } });
-    await models.QuestionLog.destroy({ where: { questionId } });
-    return repository.Question.destroy({ where: { id: questionId } });
-  }
+describe("azure table repository CRUD", () => {
+  const createdQuestionIds = [];
+  const createdFollowUpIds = [];
 
   beforeAll(async () => {
-    loadLocalSettingsIntoEnv();
-
-    const config = {
-      username: process.env.DB_USERNAME,
-      database: process.env.DB_DATABASE,
-      host: process.env.DB_HOST,
-    };
-
-    config.authMode = "password";
-    if (process.env.DB_PASSWORD) {
-      config.password = process.env.DB_PASSWORD;
-    } else if (process.env.DB_HOST && process.env.DB_HOST.includes("postgres.database.azure.com")) {
-      config.authMode = "azure-ad";
-    }
-
-    sequelize = await createDatabaseInstance(DB_TYPE.POSTGRES, config);
-    await sequelize.authenticate();
-
-    container.register("db", sequelize);
-    const modelsDir = path.join(__dirname, "..", "repository", "model");
-    container.register("models", await createModelsLoader(DB_TYPE.POSTGRES, sequelize, modelsDir));
-
-    repository = new DbTestRepository();
+    await initializeTables();
   });
 
   afterAll(async () => {
-    if (repository && createdQuestionId) {
-      await deleteQuestionAndLogs(createdQuestionId);
+    for (const questionId of createdQuestionIds) {
+      await questionRepository.destroy({ id: questionId });
     }
 
-    if (followUpCmdIdsToCleanup.size > 0) {
-      const followUpIds = [...followUpCmdIdsToCleanup];
-      await models.FollowUpEvent.destroy({ where: { followUpId: followUpIds } });
-      await models.FollowUpCmd.destroy({ where: { id: followUpIds } });
-    }
+    for (const { senderProfileId, id } of createdFollowUpIds) {
+      try {
+        await rawFollowUpCmdClient.deleteEntity(senderProfileId, id);
+      } catch {
+        // ignore missing cleanup rows
+      }
 
-    if (questionShareCmdIdsToCleanup.size > 0) {
-      const questionShareIds = [...questionShareCmdIdsToCleanup];
-      await models.QuestionShareEvent.destroy({ where: { questionShareId: questionShareIds } });
-      await models.QuestionShareCmd.destroy({ where: { id: questionShareIds } });
-    }
-
-    if (questionIdsToCleanup.size > 0) {
-      for (const questionId of questionIdsToCleanup) {
-        await deleteQuestionAndLogs(questionId);
+      for await (const entity of rawFollowUpEventClient.listEntities({
+        filter: `followUpId eq '${id}'`,
+      })) {
+        try {
+          await rawFollowUpEventClient.deleteEntity(entity.partitionKey, entity.rowKey);
+        } catch {
+          // ignore cleanup races
+        }
       }
     }
-
-    if (profileIdsToCleanup.size > 0) {
-      await models.Profile.destroy({ where: { internal_id: [...profileIdsToCleanup] } });
-    }
-
-    if (sequelize) {
-      await sequelize.close();
-    }
   });
 
-  it("creates a question", async () => {
-    const profileId = await createTestProfile();
-    const created = await repository.Question.create({
+  it("creates, reads, updates and deletes a question", async () => {
+    const profileId = uuidv4();
+    const created = await questionRepository.create({
       profileId,
-      title: "vitest-db-create",
-      questionText: "CRUD create from vitest",
+      title: "vitest-table-create",
+      questionText: "CRUD create from Azure Table repository",
       option: [{ id: "A", text: "one" }],
     });
 
-    createdQuestionId = created.id;
+    createdQuestionIds.push(created.rowKey);
 
     expect(created).toBeTruthy();
-    expect(created.id).toBeTruthy();
-    expect(created.questionText).toBe("CRUD create from vitest");
-  });
+    expect(created.rowKey).toBeTruthy();
+    expect(created.questionText).toBe("CRUD create from Azure Table repository");
 
-  it("reads the created question", async () => {
-    const found = await repository.Question.findByPk(createdQuestionId);
-
+    const found = await questionRepository.findByPk(created.rowKey);
     expect(found).toBeTruthy();
-    expect(found.id).toBe(createdQuestionId);
-  });
+    expect(found.rowKey).toBe(created.rowKey);
 
-  it("updates the created question", async () => {
-    const found = await repository.Question.findByPk(createdQuestionId);
-
-    await found.update({
-      title: "vitest-db-updated",
-      questionText: "CRUD update from vitest",
-    });
-
-    const updated = await repository.Question.findByPk(createdQuestionId);
-
-    expect(updated.title).toBe("vitest-db-updated");
-    expect(updated.questionText).toBe("CRUD update from vitest");
-  });
-
-  it("triggers QuestionAction afterSave hook", async () => {
-    const profileId = await createTestProfile();
-    const question = await repository.Question.create({
+    const updated = await questionRepository.update({
+      id: created.rowKey,
       profileId,
-      title: "qa-hook-before",
-      questionText: "before action hook",
-      option: [{ id: "A", text: "one" }],
+      title: "vitest-table-updated",
+      questionText: "CRUD update from Azure Table repository",
     });
-    questionIdsToCleanup.add(question.id);
-
-    await models.QuestionAction.create({
-      profileId,
-      questionId: question.id,
-      action: [
-        { op: "replace", path: "/title", value: "qa-hook-after" },
-        { op: "replace", path: "/questionText", value: "after action hook" },
-        { op: "replace", path: "/option", value: [{ id: "B", text: "two" }] },
-      ],
-    });
-
-    const updated = await repository.Question.findByPk(question.id);
 
     expect(updated).toBeTruthy();
-    expect(updated.title).toBe("qa-hook-after");
-    expect(updated.questionText).toBe("after action hook");
-    expect(updated.option).toEqual([{ id: "B", text: "two" }]);
-  });
+    expect(updated.title).toBe("vitest-table-updated");
+    expect(updated.questionText).toBe("CRUD update from Azure Table repository");
 
-  it("triggers FollowUpCmd afterUpdate hook", async () => {
-    const senderProfileId = await createTestProfile();
-    const cmd = await models.FollowUpCmd.create({
-      correlationId: uuidv4(),
-      senderProfileId,
-      action: "create",
-      data: { source: "vitest" },
-      status: 0,
-    });
-    followUpCmdIdsToCleanup.add(cmd.id);
-
-    cmd.previousStatus = cmd.status;
-    await cmd.update({ status: 1 });
-
-    const createdEvent = await models.FollowUpEvent.findOne({
-      where: { followUpId: cmd.id, action: "create" },
-      order: [["createdAt", "DESC"]],
-    });
-
-    expect(createdEvent).toBeTruthy();
-    expect(createdEvent.followUpId).toBe(cmd.id);
-    expect(createdEvent.senderProfileId).toBe(cmd.senderProfileId);
-  });
-
-  it("triggers QuestionShareCmd afterUpdate hook", async () => {
-    const senderProfileId = await createTestProfile();
-    const cmd = await models.QuestionShareCmd.create({
-      correlationId: uuidv4(),
-      senderProfileId,
-      action: "create",
-      data: { source: "vitest" },
-      status: 0,
-    });
-    questionShareCmdIdsToCleanup.add(cmd.id);
-
-    cmd.previousStatus = cmd.status;
-    await cmd.update({ status: 1 });
-
-    const createdEvent = await models.QuestionShareEvent.findOne({
-      where: { questionShareId: cmd.id, action: "create" },
-      order: [["createdAt", "DESC"]],
-    });
-
-    expect(createdEvent).toBeTruthy();
-    expect(createdEvent.questionShareId).toBe(cmd.id);
-    expect(createdEvent.senderProfileId).toBe(cmd.senderProfileId);
-  });
-
-  it("deletes the created question", async () => {
-    const deletedRows = await deleteQuestionAndLogs(createdQuestionId);
-    const foundAfterDelete = await repository.Question.findByPk(createdQuestionId);
+    const deletedRows = await questionRepository.destroy({ id: created.rowKey });
+    const afterDelete = await questionRepository.findByPk(created.rowKey);
 
     expect(deletedRows).toBe(1);
-    expect(foundAfterDelete).toBeNull();
+    expect(afterDelete).toBeNull();
 
-    createdQuestionId = null;
+    createdQuestionIds.pop();
+  });
+
+  it("creates and updates a follow-up command and emits an event", async () => {
+    const senderProfileId = uuidv4();
+    const correlationId = uuidv4();
+    const cmd = await followUpCmdRepository.create({
+      senderProfileId,
+      correlationId,
+      action: "create",
+      data: { source: "vitest" },
+      status: 0,
+    });
+
+    createdFollowUpIds.push({ senderProfileId, id: cmd.rowKey });
+
+    const updated = await followUpCmdRepository.update(
+      {
+        ...cmd,
+        previousStatus: cmd.status,
+        status: 1,
+        senderProfileId,
+        id: cmd.rowKey,
+        action: "create",
+        data: { source: "vitest" },
+      },
+      { FollowUpEventTableClient: rawFollowUpEventClient }
+    );
+
+    expect(updated).toBeTruthy();
+    expect(updated.status).toBe(1);
+
+    const matchingEvents = [];
+    for await (const entity of rawFollowUpEventClient.listEntities({
+      filter: `followUpId eq '${cmd.rowKey}'`,
+    })) {
+      matchingEvents.push(entity);
+    }
+
+    expect(matchingEvents.length).toBeGreaterThan(0);
+    expect(matchingEvents[0].followUpId).toBe(cmd.rowKey);
+    expect(matchingEvents[0].senderProfileId).toBe(senderProfileId);
+  });
+
+  it("reads question entities by partition and row key", async () => {
+    const profileId = uuidv4();
+    const question = await questionRepository.create({
+      profileId,
+      title: "vitest-table-query",
+      questionText: "Query by partition and row key",
+      option: [{ id: "A", text: "one" }],
+    });
+
+    createdQuestionIds.push(question.rowKey);
+
+    const byPartition = await questionRepository.findAll({ where: { profileId } });
+    const byRowKey = await questionRepository.findByPk(question.rowKey);
+
+    expect(byPartition.some((entity) => entity.rowKey === question.rowKey)).toBe(true);
+    expect(byRowKey).toBeTruthy();
+    expect(byRowKey.rowKey).toBe(question.rowKey);
   });
 });
