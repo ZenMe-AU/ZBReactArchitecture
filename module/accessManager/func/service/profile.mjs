@@ -4,17 +4,17 @@
  */
 
 import Model from "../repository/model/index.mjs";
-import { validate as isUuid } from "uuid";
 
 async function ensureProfile(externalId) {
-  if (!externalId || !isUuid(externalId)) {
+  const _externalId = externalId.toString().trim().slice(0, 1024); // Ensure the externalId is a string and trim it to a reasonable length
+  if (!_externalId) {
     const error = new Error("Authenticated profile ID is required");
     error.status = 401;
     throw error;
   }
 
   const existingProfile = await Model.Profile.findOne({
-    where: { external_id: externalId },
+    where: { external_id: _externalId },
     order: [
       ["createdAt", "ASC"],
       ["internal_id", "ASC"],
@@ -25,7 +25,7 @@ async function ensureProfile(externalId) {
     return { profile: existingProfile, created: false };
   }
 
-  const profile = await Model.Profile.create({ external_id: externalId });
+  const profile = await Model.Profile.create({ external_id: _externalId });
   return { profile, created: true };
 }
 

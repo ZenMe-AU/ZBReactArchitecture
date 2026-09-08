@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "setup:local": "node deploy/localDev/localSetting.mjs",
-    "prestart": "pnpm run build",
+    "prestart": "",
     "start": "func start",
     "deploy": "pnpm deploy --filter accessManager --prod out",
     "test:vitest": "cross-env vitest run vitest/testQuestion.test.mjs",

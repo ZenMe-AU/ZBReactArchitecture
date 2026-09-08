@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import { describe, test, expect, beforeAll } from "vitest";
+import { describe, beforeAll } from "vitest";
 import { v4 as uuidv4 } from "uuid";
 import { createUser, profileIdLookup } from "./testModule/createUserTest.mjs";
 import { createQuestion, checkQuestion, questionIdLookup } from "./testModule/createQuestionTest.mjs";
@@ -15,7 +15,7 @@ import { checkShareQuestion, checkFollowUpQty } from "./testModule/createFollowU
 const testCorrelationId = uuidv4();
 
 describe("test question data", () => {
-  beforeAll(() => {
+  beforeAll(async () => {
     // Runs exactly once before any test in this file begins
     console.log("Pre-test global state configured.");
 
@@ -23,8 +23,8 @@ describe("test question data", () => {
 
     // TODO: Add AssertDependencies test to confirm the environment is ready for the test to run.Add
 
-    createUser();
-  });
+    await createUser();
+  }, 30000);
 
   describe("create questions", () => {
     createQuestion(profileIdLookup);

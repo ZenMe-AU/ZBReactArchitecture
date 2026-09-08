@@ -192,3 +192,9 @@ async function GetAnswerListByQuestionId(request, context) {
   console.log("processedAnswers:", processedAnswers);
   return { return: { list: processedAnswers } };
 }
+
+export default {
+  AddAnswer,
+  GetAnswerById,
+  GetAnswerListByQuestionId,
+};
