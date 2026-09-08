@@ -4,13 +4,15 @@
  */
 
 import { resolve } from "path";
+import { fileURLToPath } from "url";
 import { getTargetEnv, getModuleName } from "../../../../../deploy/util/envSetup.cjs";
-import { getDbAdminName, getPgHost, getServiceBusHost, getAppInsightsName, getResourceGroupName } from "../../../../../deploy/util/namingConvention.cjs";
+import { getDbAdminName, getPgHost, getAppInsightsName, getResourceGroupName } from "../../../../../deploy/util/namingConvention.cjs";
 import { getAppInsightsConnectionString } from "../../../../../deploy/util/azureCli.cjs";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 
+const __dirname = resolve(fileURLToPath(import.meta.url), "..");
 const moduleDir = resolve(__dirname, "..", "..", "..");
-const localPort = 7074;
+const localPort = 7077;
 const frontendUrl = "http://localhost:5173";
 const localSettingTemplate = {
   IsEncrypted: false,
@@ -59,6 +61,11 @@ const customSettings = {
     if (existsSync(path)) {
       json = JSON.parse(readFileSync(path, "utf8"));
     }
+
+    json.Host = {
+      ...localSettingTemplate.Host,
+      ...json.Host,
+    };
 
     json.Values = {
       ...json.Values,
