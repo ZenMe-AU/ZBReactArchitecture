@@ -8,7 +8,7 @@
     "setup:local": "node deploy/localDev/localSetting.js",
     "prestart": "pnpm run setup:local",
     "start": "func start",
-    "deploy": "pnpm deploy --filter quest5TierEg --prod out",
+    "build": "pnpm  --filter quest5TierEg --prod deploy out --legacy",
     "test": "jest"
   },
   "dependencies": {
