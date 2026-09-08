@@ -21,6 +21,7 @@ async function assertNoPendingDbMigrations(sequelize) {
     return;
   }
 
+  //TODO: remove dependency on the deploy folder by generating a database migration state file that can be used to check that the database schema is up to date without needing to run the migration scripts.
   const migrationDir = path.join(__dirname, "..", "deploy", "db", "migration");
   const migration = createMigrationInstance({ db: sequelize, migrationDir });
   const pendingMigrations = await migration.pending();
