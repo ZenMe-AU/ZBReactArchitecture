@@ -16,6 +16,7 @@ if %errorlevel%==0 (
 echo PowerShell 7 not found. Installing via winget...
 
 :: Install PowerShell 7 silently
+echo Warning: This install of powershell 7 only work in command line, it cannot be used by windows to open files from explorer.
 winget install --id Microsoft.PowerShell --source winget --silent --accept-package-agreements --accept-source-agreements
 
 echo Re-checking installation...

@@ -17,7 +17,6 @@ const createFollowUp = (profileIdLookup, questionIdLookup, testCorrelationId) =>
       },
       method: "POST",
       body: JSON.stringify({
-        profileId: profileIdLookup.getProfileId(followUp.userId),
         newQuestionId: questionIdLookup.getQuestionId(followUp.newQuestionId),
         question: [
           {

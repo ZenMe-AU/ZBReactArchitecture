@@ -1,5 +1,5 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
@@ -13,7 +13,7 @@ export const getQuestionsByUser = async () => {
   try {
     await loadConfig();
     const apiDomain = getConfig("QUEST3TIER_DOMAIN");
-    const response = await jwtFetch(`${apiDomain}/profile/${profileId}/question`, {
+    const response = await jwtFetch(`${apiDomain}/questions`, {
       method: "GET",
     });
 
@@ -172,7 +172,7 @@ export const getAnswerListByQuestionId = async (id: string) => {
   try {
     await loadConfig();
     const apiDomain = getConfig("QUEST3TIER_DOMAIN");
-    const response = await jwtFetch(`${apiDomain}/question/${id}/answer`, {
+    const response = await jwtFetch(`${apiDomain}/question/${id}/answers`, {
       method: "GET",
     });
 
@@ -193,7 +193,7 @@ export const getSharedQuestionList = async () => {
   try {
     await loadConfig();
     const apiDomain = getConfig("QUEST3TIER_DOMAIN");
-    const response = await jwtFetch(`${apiDomain}/profile/${profileId}/sharedQuestion`, {
+    const response = await jwtFetch(`${apiDomain}/sharedQuestions`, {
       method: "GET",
     });
 
@@ -212,7 +212,7 @@ export const getSharedQuestionList = async () => {
 type PatchOperation = {
   op: "add" | "remove" | "replace" | "move" | "copy" | "test";
   path: string;
-  value?: any;
+  value?: unknown;
 };
 
 export const updateQuestionPatch = async (id: string, patches: PatchOperation[]) => {

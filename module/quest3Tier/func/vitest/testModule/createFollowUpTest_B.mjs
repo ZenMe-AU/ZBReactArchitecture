@@ -14,7 +14,10 @@ const checkShareQuestion = (profileIdLookup, testCorrelationId) => {
   //   test.each(shareQuestionData())("check shared question by user $userId", async (shared) => {
   //     let qty = 0;
   //     for (let i = 0; i < 5; i++) {
-  //       const response = await fetch(profileUrl + "/" + profileIdLookup.getProfileId(shared.userId) + "/sharedQuestion", { method: "GET" });
+  //       const response = await fetch(profileUrl + "/sharedQuestion", {
+  //         method: "GET",
+  //         headers: { authorization: `Bearer ${profileIdLookup.getAuthToken(shared.userId)}` },
+  //       });
   //       let resultData = await response.json();
   //       qty = resultData.return.list.length;
   //       if (qty === shared.count) {

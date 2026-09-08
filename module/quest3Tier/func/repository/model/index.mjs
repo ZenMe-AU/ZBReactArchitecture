@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import { DataTypes } from "sequelize";
+import { DataTypes } from "@sequelize/core";
 import container from "../../di/diContainer.mjs";
 import questionModel from "./Question.mjs";
 import questionAnswerModel from "./QuestionAnswer.mjs";
@@ -32,10 +32,6 @@ function initModels() {
   const QuestionShareCmd = questionShareCmdModel(sequelize, DataTypes);
   const QuestionShareEvent = questionShareEventModel(sequelize, DataTypes);
   const Profile = profileModel(sequelize, DataTypes);
-  Question.hasMany(QuestionAnswer, { foreignKey: "questionId", sourceKey: "id" });
-  Question.hasMany(QuestionShare, { foreignKey: "newQuestionId", sourceKey: "id" });
-  QuestionAnswer.belongsTo(Question, { targetKey: "id", foreignKey: "questionId" });
-  QuestionShare.belongsTo(Question, { targetKey: "id", foreignKey: "newQuestionId" });
 
   models = {
     Question,
@@ -51,6 +47,10 @@ function initModels() {
     QuestionShareEvent,
     Profile,
   };
+
+  Object.values(models).forEach((model) => {
+    model.associate?.(models);
+  });
 
   return models;
 }
