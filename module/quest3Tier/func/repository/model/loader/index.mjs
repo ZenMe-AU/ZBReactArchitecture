@@ -6,7 +6,7 @@
 import DB_TYPE from "../../../enum/dbType.mjs";
 import { loadModels } from "./sequelize.cjs";
 
-function createModelsLoader(type, db, modelsDir) {
+async function createModelsLoader(type, db, modelsDir) {
   switch (type) {
     case DB_TYPE.POSTGRES:
       return loadModels(db, modelsDir);

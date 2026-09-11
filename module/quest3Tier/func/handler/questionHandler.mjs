@@ -4,7 +4,7 @@
  */
 
 import Model from "../repository/model/index.mjs";
-import { Op, Sequelize } from "sequelize";
+import {  Op } from "@sequelize/core";
 
 /**
  * @swagger
@@ -295,7 +295,7 @@ async function getCombinationListByUser(profileId) {
       },
       include: [
         {
-          model: Model.QuestionShare,
+          association: "QuestionShares",
           attributes: [],
           group: ["newQuestionId"],
         },

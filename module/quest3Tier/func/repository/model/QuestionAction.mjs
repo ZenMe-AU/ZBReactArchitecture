@@ -37,7 +37,7 @@ export default (sequelize, DataTypes) => {
   QuestionAction.addHook("afterSave", async (instance) => {
     try {
       const { questionId, action } = instance;
-      const { Question } = instance.sequelize.models;
+      const Question = instance.sequelize.models.get("Question");
       if (!Question) {
         console.error("Question model not found.");
         return;

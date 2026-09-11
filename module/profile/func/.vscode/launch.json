@@ -2,12 +2,12 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Start profile",
+      "name": "Start",
       "type": "node",
       "request": "attach",
       "restart": true,
       "port": 9229,
-      "preLaunchTask": "func: host start"
+      "preLaunchTask": "Start"
     }
   ]
 }
