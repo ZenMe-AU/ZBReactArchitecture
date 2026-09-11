@@ -5,6 +5,7 @@
 
 import Model from "../repository/model/index.mjs";
 import {  Op } from "@sequelize/core";
+import { GetQuestionById } from "./questionGetById.mjs";
 
 /**
  * @swagger
@@ -201,27 +202,6 @@ async function updateById(questionId, title = null, questionText = null, option 
  *                       type: object
  *                       description: Details of the questionnaire.
  */
-async function GetQuestionById(request, context) {
-  const { id: questionId } = request.params;
-  const questionnaire = await getById(questionId);
-  return { return: { detail: questionnaire } };
-}
-
-/**
- * Retrieve a question by its primary key.
- * @param {string} questionId - Question identifier.
- * @returns {Promise<any|null>} The found question or null when not found.
- */
-async function getById(questionId) {
-  try {
-    // return await Questionnaires.findOne({ where: { id: questionId } });
-    return await Model.Question.findByPk(questionId);
-  } catch (err) {
-    console.log(err);
-    throw new Error(`Failed to retrieve question for questionId: ${questionId}; ${err.message}`, { cause: err });
-  }
-}
-
 /**
  * @swagger
  * /profile/question:

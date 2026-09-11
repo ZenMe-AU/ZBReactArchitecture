@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "noImplicitAny": false,
+    "allowJs": false,
+    "declaration": true,
+    "noEmitOnError": true,
+    "skipLibCheck": true
+  },
+  "include": ["handler/questionGetById.mts"],
+  "exclude": ["node_modules", "**/*.mjs"]
+}
