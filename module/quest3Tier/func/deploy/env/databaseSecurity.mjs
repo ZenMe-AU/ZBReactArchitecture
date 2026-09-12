@@ -3,8 +3,9 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import { resolve } from "path";
-import classManageDataPermission from "./classManageDataPermission.js";
+import { fileURLToPath } from "url";
+import { resolve, dirname } from "path";
+import { classManageDataPermission } from "./classManageDataPermission.mjs";
 import { getTargetEnv, getModuleName } from "../../../../../deploy/util/envSetup.cjs";
 import { createDatabaseInstance } from "../../repository/model/connection/index.mjs";
 import { POSTGRES } from "../../enum/dbType.js";
@@ -19,6 +20,8 @@ import {
   getDbAdminName,
   getPgHost,
 } from "../../../../../deploy/util/namingConvention.cjs";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 (async () => {
   //basic environment setup
