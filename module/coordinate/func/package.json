@@ -37,7 +37,7 @@
     "@opentelemetry/semantic-conventions": "^1.32.0",
     "applicationinsights": "^3.6.0",
     "archiver": "^7.0.1",
-    "jsonwebtoken": "^9.0.2",
+    "jsonwebtoken": "^9.0.3",
     "jwks-rsa": "^3.2.2",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-dist": "^5.17.14",
