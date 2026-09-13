@@ -61,14 +61,19 @@ function RouteModuleElement({ routeModule }: { routeModule: FrameworkRouteModule
 
 export default function Quest3TierAppRoutes() {
   const routes = useRoutes([
-    { index: true, element: <RouteModuleElement routeModule={QuestionCombinationListModule} /> },
-    { path: "add", element: <RouteModuleElement routeModule={AddQuestionModule} /> },
-    { path: ":id", element: <RouteModuleElement routeModule={QuestionDetailModule} /> },
-    { path: ":id/add", element: <RouteModuleElement routeModule={QuestionDetailAddModule} /> },
-    { path: ":id/answer", element: <RouteModuleElement routeModule={AnswerQuestionModule} /> },
-    { path: ":id/followUp", element: <RouteModuleElement routeModule={FollowUpQuestionModule} /> },
-    { path: ":id/edit", element: <RouteModuleElement routeModule={EditQuestionModule} /> },
-    { path: ":id/share", element: <RouteModuleElement routeModule={ShareQuestionModule} /> },
+    {
+      path: "quest3Tier",
+      children: [
+        { index: true, element: <RouteModuleElement routeModule={QuestionCombinationListModule} /> },
+        { path: "add", element: <RouteModuleElement routeModule={AddQuestionModule} /> },
+        { path: ":id", element: <RouteModuleElement routeModule={QuestionDetailModule} /> },
+        { path: ":id/add", element: <RouteModuleElement routeModule={QuestionDetailAddModule} /> },
+        { path: ":id/answer", element: <RouteModuleElement routeModule={AnswerQuestionModule} /> },
+        { path: ":id/followUp", element: <RouteModuleElement routeModule={FollowUpQuestionModule} /> },
+        { path: ":id/edit", element: <RouteModuleElement routeModule={EditQuestionModule} /> },
+        { path: ":id/share", element: <RouteModuleElement routeModule={ShareQuestionModule} /> },
+      ],
+    },
   ]);
 
   return routes;
