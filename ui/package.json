@@ -3,9 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --port 5173 --strictPort",
-    "build": "vite build",
-    "preview": "vite preview --port 5173 --strictPort"
+    "dev": "react-router dev --port 5173 --strictPort",
+    "build": "react-router build",
+    "start": "react-router-preview --port 5173 --strictPort"
   },
   "dependencies": {
     "@azure/msal-browser": "^4.28.1",
