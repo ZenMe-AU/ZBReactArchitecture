@@ -27,6 +27,7 @@ param(
     [string[]]$Stages
 )
 Set-StrictMode -Version Latest
+$ErrorActionPreference = "Stop"
 
 # Import the deployment module from the script directory so relative calls work
 Import-Module (Join-Path $PSScriptRoot 'deploymentModule.psm1') -Force

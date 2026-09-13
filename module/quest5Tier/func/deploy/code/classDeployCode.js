@@ -1,5 +1,5 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
@@ -126,7 +126,7 @@ class classDeployCode {
     }
 
     execSync(
-      `pnpm deploy --filter ${this.moduleName} --prod ${outputDir} --config.node-linker=hoisted --config.symlink=false --config.package-import-method=copy`,
+      `pnpm --filter ${this.moduleName} deploy --legacy --prod ${outputDir} --config.node-linker=hoisted --config.symlink=false --config.package-import-method=copy`,
       { stdio: "inherit", cwd: funcDir }
     );
 

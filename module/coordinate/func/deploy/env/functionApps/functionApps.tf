@@ -52,6 +52,12 @@ resource "azurerm_function_app_flex_consumption" "fa" {
     application_insights_connection_string = var.application_insights_connection_string
     application_insights_key               = var.application_insights_key
   }
+
+  lifecycle {
+    ignore_changes = [
+      app_settings["JWT_SECRET"],
+    ]
+  }
 }
 
 # Set up API Management backend pointing to the Function App
