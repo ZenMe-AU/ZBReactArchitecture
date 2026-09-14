@@ -16,7 +16,7 @@ import {
   createServiceBusQueue,
   setFunctionAppCors,
 } from "../../../../../deploy/util/azureCli.cjs";
-import { npmInstall, npmPrune, zipDir } from "./cli.js";
+import { npmInstall, npmPrune, zipDir } from "./cli.cjs";
 import { getIdentityName, getAppConfigName } from "../../../../../deploy/util/namingConvention.cjs";
 import { execSync } from "child_process";
 

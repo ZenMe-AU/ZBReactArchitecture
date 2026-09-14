@@ -4,9 +4,7 @@
     {
       "name": "Start",
       "type": "node",
-      "request": "attach",
-      "restart": true,
-      "port": 9229,
+      "request": "launch",
       "preLaunchTask": "Start"
     }
   ]

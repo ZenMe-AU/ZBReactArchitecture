@@ -4,10 +4,10 @@
  */
 
 import path from "path";
-import { createMigrationInstance } from "./migration/tool/index.js";
+import { createMigrationInstance } from "./migration/tool/index.mjs";
 import { getCurrentPublicIP, getTargetEnv } from "../../../../../deploy/util/envSetup.cjs";
 import { getResourceGroupName, getPgServerName } from "../../../../../deploy/util/namingConvention.cjs";
-import { addTemporaryFirewallRule, removeTemporaryFirewallRule } from "../../../../../deploy/util/azureCli.cjs";
+import { addTemporaryFirewallRule, removeTemporaryFirewallRule, addPgServerExtensionsList, getSubscriptionId } from "../../../../../deploy/util/azureCli.cjs";
 
 class classRunMigration {
   constructor({ db, migrationDir, envType, targetEnv }) {
@@ -23,7 +23,6 @@ class classRunMigration {
   async run(direction = "up") {
     const ip = getCurrentPublicIP();
     if (this.extensionNames.length > 0) {
-      const { addPgServerExtensionsList, getSubscriptionId } = require("../../../../../deploy/util/azureCli.cjs");
       addPgServerExtensionsList({
         resourceGroup: this.resourceGroupName,
         serverName: this.pgServerName,

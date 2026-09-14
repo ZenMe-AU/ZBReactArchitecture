@@ -6,6 +6,7 @@
   "main": "index.js",
   "scripts": {
     "start": "func start",
+    "build": "pnpm  --filter quest5TierEg --prod deploy out --legacy",
     "deploy": "pnpm deploy --filter quest5TierEg --prod out",
     "test:vitest": "cross-env vitest run vitest/testQuestion.test.mjs",
     "test:vitest:debug": "cross-env NODE_OPTIONS=--inspect-brk=9230 vitest run vitest/testQuestion.test.mjs --pool=forks --no-file-parallelism"

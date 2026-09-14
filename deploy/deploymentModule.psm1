@@ -634,13 +634,11 @@ function Test-InitializationEnvironment {
     Write-Output "Checking .env file"
     $envFile = Join-Path $env:ROOT_FOLDER "deploy\.env"
     if (-not (Test-Path $envFile)) {
-        Write-Error ".env file not found. Please run node .\initEnv\build.mjs and get an admin to run it."
-        return 1
+        throw ".env file not found. Please run node ./deploy/initEnv/build.mjs and execute it with admin."
     }
     $content = Get-Content $envFile -Raw
     if ($content -notmatch "^TARGET_ENV\s*=\s*.+") {
-        Write-Error "TARGET_ENV is missing or empty. Please run node .\initEnv\build.mjs and get an admin to run it."
-        return 1
+        throw "TARGET_ENV is missing or empty. Please run node ./deploy/initEnv/build.mjs and execute it with admin."
     }
     $match = [regex]::Match($content, "^TARGET_ENV\s*=\s*(.+)", [System.Text.RegularExpressions.RegexOptions]::Multiline)
     $targetEnv = $match.Groups[1].Value.Trim()

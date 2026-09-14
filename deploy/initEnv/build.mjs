@@ -42,6 +42,8 @@ async function main() {
   const distDirName = "dist";
   const distDir = resolve(__dirname, distDirName);
   const centralEnvFileName = "central.env";
+  console.log("This script generates a deployment package for the resource group.");
+  console.log("The script must be run by an administrator.");
   console.log("Step 1: Building project.");
   //   execSync("pnpm install", { stdio: "inherit" });
 

@@ -4,11 +4,13 @@
  */
 
 // Test that the deployment succeeded and all dependencies are in place. This test will not change any data.
-import { resolve } from "path";
+import { fileURLToPath } from "url";
+import { resolve, dirname } from "path";
 import { execSync } from "child_process";
 import { getTargetEnv, getModuleName } from "../../../../../deploy/util/envSetup.cjs";
 import { getFunctionAppName, getResourceGroupName } from "../../../../../deploy/util/namingConvention.cjs";
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const moduleDir = resolve(__dirname, "..", "..", "..");
 const expectedFunctionList = [
   "AddAnswer",
@@ -18,7 +20,7 @@ const expectedFunctionList = [
   "getEventByCorrelationId",
   "GetQuestionById",
   "GetQuestionListByUser",
-  "GetSharedQuestionListByUser",
+  "GetSharedQuestionList",
   "PatchQuestionById",
   "SendFollowUpCmd",
   "ShareQuestion",

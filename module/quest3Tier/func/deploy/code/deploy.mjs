@@ -13,13 +13,15 @@
  * @license MIT
  */
 
-import { resolve } from "path";
+import { fileURLToPath } from "url";
+import { resolve, dirname } from "path";
 import minimist from "minimist";
 import { getTargetEnv, getModuleName } from "../../../../../deploy/util/envSetup.cjs";
 import { getResourceGroupName, getServiceBusName, getFunctionAppName, getStorageAccountName } from "../../../../../deploy/util/namingConvention.cjs";
 import { getSubscriptionId } from "../../../../../deploy/util/azureCli.cjs";
-import classDeployCode from "./classDeployCode.js";
+import { classDeployCode } from "./classDeployCode.mjs";
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const moduleDir = resolve(__dirname, "..", "..", "..");
 const args = minimist(process.argv.slice(2));
 const deployFilePath = args.deployFile ? resolve(args.deployFile) : null;
