@@ -4,7 +4,7 @@
     {
       "label": "Start",
       "type": "func",
-      "command": "host start",
+      "command": "host start --language-worker -- \"--inspect-brk=9229\"",
       "isBackground": true,
       "problemMatcher": "$func-node-watch",
     },
