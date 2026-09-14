@@ -3,10 +3,40 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-"use strict";
+interface MigrationAttribute {
+  allowNull: boolean;
+  primaryKey?: boolean;
+  type: unknown;
+  defaultValue?: unknown;
+}
 
-/** @type {import('sequelize-cli').Migration} */
-export async function up(queryInterface, Sequelize) {
+interface CreateTableOptions {
+  primaryKeys?: string[];
+}
+
+interface MigrationQueryInterface {
+  createTable(
+    tableName: string,
+    attributes: Record<string, MigrationAttribute>,
+    options?: CreateTableOptions,
+  ): Promise<unknown>;
+
+  dropTable(tableName: string): Promise<unknown>;
+}
+
+interface SequelizeDataTypes {
+  UUID: unknown;
+  UUIDV4: unknown;
+  SMALLINT: unknown;
+  JSON: unknown;
+  DATE: unknown;
+  NOW: unknown;
+}
+
+export async function up(
+  queryInterface: MigrationQueryInterface,
+  Sequelize: SequelizeDataTypes,
+): Promise<void> {
   await queryInterface.createTable(
     "followUpFilter",
     {
@@ -45,9 +75,13 @@ export async function up(queryInterface, Sequelize) {
     },
     {
       primaryKeys: ["id", "order"],
-    }
+    },
   );
 }
-export async function down(queryInterface, Sequelize) {
+
+export async function down(
+  queryInterface: MigrationQueryInterface,
+  _Sequelize: SequelizeDataTypes,
+): Promise<void> {
   await queryInterface.dropTable("followUpFilter");
 }

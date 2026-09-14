@@ -3,10 +3,50 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-"use strict";
+interface MigrationAttribute {
+  allowNull: boolean;
+  primaryKey?: boolean;
+  type: unknown;
+  defaultValue?: unknown;
+}
 
-/** @type {import('sequelize-cli').Migration} */
-export async function up(queryInterface, Sequelize) {
+interface ForeignKeyConstraint {
+  fields: string[];
+  type: "foreign key";
+  name: string;
+  references: {
+    table: string;
+    field: string;
+  };
+  onDelete?: "CASCADE" | "SET NULL" | "RESTRICT" | "NO ACTION";
+}
+
+interface MigrationQueryInterface {
+  createTable(
+    tableName: string,
+    attributes: Record<string, MigrationAttribute>,
+  ): Promise<unknown>;
+
+  addConstraint(
+    tableName: string,
+    constraint: ForeignKeyConstraint,
+  ): Promise<unknown>;
+
+  dropTable(tableName: string): Promise<unknown>;
+}
+
+interface SequelizeDataTypes {
+  UUID: unknown;
+  UUIDV4: unknown;
+  DATE: unknown;
+  NOW: unknown;
+  SMALLINT: unknown;
+}
+
+export async function up(
+  queryInterface: MigrationQueryInterface,
+  Sequelize: SequelizeDataTypes,
+): Promise<void> {
   await queryInterface.createTable("questionShare", {
     id: {
       allowNull: false,
@@ -43,11 +83,6 @@ export async function up(queryInterface, Sequelize) {
     },
   });
 
-  // await queryInterface.sequelize.query(
-  //   'ALTER TABLE question_share ADD CONSTRAINT share_questionId_fkey FOREIGN KEY ("questionId") REFERENCES question (id);',
-  //   'ALTER TABLE question_share ADD CONSTRAINT share_senderId_fkey FOREIGN KEY ("senderId") REFERENCES profiles (id);',
-  //   'ALTER TABLE question_share ADD CONSTRAINT share_receiverId_fkey FOREIGN KEY ("receiverId") REFERENCES profiles (id);'
-  // );
   await queryInterface.addConstraint("questionShare", {
     fields: ["newQuestionId"],
     type: "foreign key",
@@ -58,28 +93,11 @@ export async function up(queryInterface, Sequelize) {
     },
     onDelete: "CASCADE",
   });
-
-  // await queryInterface.addConstraint("questionShare", {
-  //   fields: ["senderProfileId"],
-  //   type: "foreign key",
-  //   name: "share_senderId_fkey",
-  //   references: {
-  //     table: "profiles",
-  //     field: "id",
-  //   },
-  //   onDelete: "CASCADE",
-  // });
-  // await queryInterface.addConstraint("questionShare", {
-  //   fields: ["receiverProfileId"],
-  //   type: "foreign key",
-  //   name: "share_receiverId_fkey",
-  //   references: {
-  //     table: "profiles",
-  //     field: "id",
-  //   },
-  //   onDelete: "CASCADE",
-  // });
 }
-export async function down(queryInterface, Sequelize) {
+
+export async function down(
+  queryInterface: MigrationQueryInterface,
+  _Sequelize: SequelizeDataTypes,
+): Promise<void> {
   await queryInterface.dropTable("questionShare");
 }

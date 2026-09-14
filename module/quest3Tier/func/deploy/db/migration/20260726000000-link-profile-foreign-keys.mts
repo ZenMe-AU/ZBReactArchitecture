@@ -3,9 +3,57 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-"use strict";
+type ProfileReference = readonly [
+  table: string,
+  field: string,
+  constraintName: string,
+];
 
-const profileReferences = [
+interface Transaction {
+  [key: string]: unknown;
+}
+
+interface QueryOptions {
+  transaction: Transaction;
+}
+
+interface ForeignKeyConstraint extends QueryOptions {
+  fields: string[];
+  type: "foreign key";
+  name: string;
+  references: {
+    table: string;
+    field: string;
+  };
+  onUpdate?: "CASCADE" | "SET NULL" | "RESTRICT" | "NO ACTION";
+  onDelete?: "CASCADE" | "SET NULL" | "RESTRICT" | "NO ACTION";
+}
+
+interface MigrationQueryInterface {
+  sequelize: {
+    transaction<T>(
+      callback: (transaction: Transaction) => Promise<T>,
+    ): Promise<T>;
+
+    query(
+      sql: string,
+      options: QueryOptions,
+    ): Promise<unknown>;
+  };
+
+  addConstraint(
+    tableName: string,
+    constraint: ForeignKeyConstraint,
+  ): Promise<unknown>;
+
+  removeConstraint(
+    tableName: string,
+    constraintName: string,
+    options: QueryOptions,
+  ): Promise<unknown>;
+}
+
+const profileReferences: readonly ProfileReference[] = [
   ["question", "profileId", "question_profileId_fkey"],
   ["questionAnswer", "profileId", "questionAnswer_profileId_fkey"],
   ["questionShare", "senderProfileId", "questionShare_senderProfileId_fkey"],
@@ -19,15 +67,17 @@ const profileReferences = [
   ["questionShareEvent", "senderProfileId", "questionShareEvent_senderProfileId_fkey"],
 ];
 
-// TODO: This doesn't seem to be secure parameter handling, investigate how to secure it.
 const existingProfileIdsSql = profileReferences
-  .map(([table, field]) => `SELECT "${field}" AS id FROM "${table}" WHERE "${field}" IS NOT NULL`)
+  .map(
+    ([table, field]) =>
+      `SELECT "${field}" AS id FROM "${table}" WHERE "${field}" IS NOT NULL`,
+  )
   .join("\nUNION\n");
 
-/** @type {import('sequelize-cli').Migration} */
-export async function up(queryInterface) {
+export async function up(
+  queryInterface: MigrationQueryInterface,
+): Promise<void> {
   await queryInterface.sequelize.transaction(async (transaction) => {
-    //TODO: This doesn't seem to be secure parameter handling, investigate how to secure it.
     await queryInterface.sequelize.query(
       `
         INSERT INTO "profile" ("internal_id", "external_id", "createdAt")
@@ -35,7 +85,7 @@ export async function up(queryInterface) {
         FROM (${existingProfileIdsSql}) AS existing_profiles
         ON CONFLICT ("internal_id") DO NOTHING;
       `,
-      { transaction }
+      { transaction },
     );
 
     for (const [table, field, name] of profileReferences) {
@@ -55,10 +105,16 @@ export async function up(queryInterface) {
   });
 }
 
-export async function down(queryInterface) {
+export async function down(
+  queryInterface: MigrationQueryInterface,
+): Promise<void> {
   await queryInterface.sequelize.transaction(async (transaction) => {
     for (const [table, , name] of [...profileReferences].reverse()) {
-      await queryInterface.removeConstraint(table, name, { transaction });
+      await queryInterface.removeConstraint(
+        table,
+        name,
+        { transaction },
+      );
     }
   });
 }
