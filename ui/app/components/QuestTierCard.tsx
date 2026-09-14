@@ -6,6 +6,7 @@
 import { Box, Card, CardActionArea, CardContent, Chip, Typography } from "@mui/material";
 import type { ReactNode } from "react";
 import { Link } from "react-router";
+import { getConfig, loadConfig } from "../../config/loadConfig";
 
 interface QuestTierCardProps {
   title: string;
@@ -17,9 +18,15 @@ interface QuestTierCardProps {
   href: string;
 }
 
+function getHrefFromConfig(href: string): string {
+  try { return getConfig(href) || ""; } catch { return ""; }
+}
+
 export default function QuestTierCard({ title, description, tierLabel, tierColor, icon, updatedAgo, href }: QuestTierCardProps) {
+  loadConfig();
+  
   return (
-    <Card
+  <Card
       variant="outlined"
       sx={{
         borderTop: `3px solid ${tierColor}`,
@@ -32,7 +39,7 @@ export default function QuestTierCard({ title, description, tierLabel, tierColor
         },
       }}
     >
-      <CardActionArea component={Link} to={href} sx={{ flexGrow: 1, display: "flex", flexDirection: "column", alignItems: "stretch" }}>
+      <CardActionArea component={Link} to={getHrefFromConfig(href)} sx={{ flexGrow: 1, display: "flex", flexDirection: "column", alignItems: "stretch" }}>
         <CardContent>
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>
             <Box

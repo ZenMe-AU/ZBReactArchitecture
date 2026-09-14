@@ -3,8 +3,49 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import { Typography } from "@mui/material";
+import { EditNote as EditNoteIcon, EmojiEvents as EmojiEventsIcon, Shield as ShieldIcon } from "@mui/icons-material";
+import { Grid, Typography } from "@mui/material";
 import { Helmet } from "react-helmet";
+import QuestTierCard from "../components/QuestTierCard";
+
+const questTiers = [
+  {
+    title: "Quest 3 Tier",
+    description: "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore.",
+    tierLabel: "3 Tier",
+    tierColor: "#1976d2",
+    icon: <ShieldIcon />,
+    updatedAgo: "Updated 2h ago",
+    href: "QUEST3TIER_UI",
+  },
+  {
+    title: "Quest 5 Tier",
+    description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla.",
+    tierLabel: "5 Tier",
+    tierColor: "#2e7d32",
+    icon: <EditNoteIcon />,
+    updatedAgo: "Updated 5h ago",
+    href: "QUEST5TIER_UI",
+  },
+  {
+    title: "Quest 5 Tier EG",
+    description: "Ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo.",
+    tierLabel: "5 Tier EG",
+    tierColor: "#6a1b9a",
+    icon: <EmojiEventsIcon />,
+    updatedAgo: "Updated 1d ago",
+    href: "QUEST5TIEREG_UI",
+  },
+  {
+    title: "Access Manager",
+    description: "Manage access control and permissions for your applications.",
+    tierLabel: "Access Manager",
+    tierColor: "#ff9800",
+    icon: <ShieldIcon />,
+    updatedAgo: "Updated 1d ago",
+    href: "ACCESSMANAGER_UI",
+  },
+];
 
 // export async function clientLoader() {
 // }
@@ -20,8 +61,16 @@ export default function HomePage() {
         Welcome to the Portal
       </Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-        Select an available Portal feature to get started.
+        Select a quest tier module to get started, or browse all available modules below.
       </Typography>
+
+      <Grid container spacing={3}>
+        {questTiers.map((tier) => (
+          <Grid size={{ xs: 12, sm: 6, md: 4 }} key={tier.href}>
+            <QuestTierCard {...tier} />
+          </Grid>
+        ))}
+      </Grid>
     </>
   );
 }
