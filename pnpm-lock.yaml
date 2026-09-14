@@ -780,6 +780,12 @@ importers:
 
   module/quest3Tier/ui:
     dependencies:
+      '@azure/msal-browser':
+        specifier: ^4.28.1
+        version: 4.30.0
+      '@azure/msal-react':
+        specifier: ^3.0.25
+        version: 3.0.29(@azure/msal-browser@4.30.0)(react@18.3.1)
       '@emotion/react':
         specifier: ^11.14.0
         version: 11.14.0(@types/react@19.2.2)(react@18.3.1)(supports-color@8.1.1)

@@ -4,7 +4,7 @@
  */
 
 import { Helmet } from "react-helmet";
-import { Link, Navigate } from "react-router";
+import { Link } from "react-router";
 import { getQuestionsByUser } from "../api/question";
 import { Alert, Container, Typography, List, ListItem, ListItemButton, ListItemText, Button, Box, Divider } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
@@ -14,25 +14,12 @@ import { logEvent, setOperationId } from "@zenmechat/shared-ui/monitor/telemetry
 import { Suspense } from "react";
 import { Await } from "react-router";
 import { Skeleton } from "@mui/material";
-import { useAuthState } from "@zenmechat/shared-ui/app/providers/AuthProvider";
 
 export async function clientLoader() {
   return { questions: getQuestionsByUser(), profileId: localStorage.getItem("profileId") };
 }
 
 export default function QuestionCombinationList({ loaderData }: { loaderData: any }) {
- const { profile, isAuthenticated, isAuthReady } = useAuthState();
- 
-if (!isAuthReady) {
-    return;
-  }
-  if (!isAuthenticated) {
-    if (location.pathname !== "/logout") {
-      sessionStorage.setItem("postLoginRedirect", location.pathname + location.search);
-      return <Navigate to="/login" replace />;
-    }
-  }
-  
   const { questions, profileId } = loaderData;
   const handleOpenAnswer = (questionId: string) => {
     const correlationId = setOperationId();
