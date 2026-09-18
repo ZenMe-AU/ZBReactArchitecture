@@ -101,19 +101,17 @@ function Install-Pnpm {
     # Ensure pnpm is installed and setup
     if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
         Write-Output "pnpm is not installed. Installing pnpm globally using npm..."
-        if ($script:IsMacOS) {
-            Write-Output "MacOS requires sudo to globally install: npm install -g pnpm"
-            Write-Output "Please enter your password."
-            sudo npm install -g pnpm
-        } elseif ($script:IsUbuntu) {
+        if ($script:IsUbuntu) {
             Write-Output "Ubuntu requires sudo to globally install pnpm: npm install -g pnpm"
             sudo npm install -g pnpm
         } else {
             npm install -g pnpm
         }
+        if ($LASTEXITCODE -ne 0) {
+            throw "pnpm installation failed with exit code $LASTEXITCODE."
+        }
         if (-not (Get-Command pnpm -ErrorAction SilentlyContinue)) {
-            Write-Error "pnpm installation failed. Please install pnpm manually."
-            return 1
+            throw "pnpm installation failed. Please install pnpm manually."
         }
     }
     Write-Output "pnpm is installed."
@@ -573,6 +571,7 @@ function Set-ProjectRootFolder {
 function Install-ProjectDependencies {
     Write-Output "Install dependencies with pnpm install"
     pnpm install
+    if ($LASTEXITCODE -ne 0) { throw "pnpm install failed with exit code $LASTEXITCODE." }
 }
 
 #Initialise the resource group that will contain all components and setup minimal components to support the Terraform backend.
@@ -580,7 +579,7 @@ function Initialize-ResourceGroupBootstrap {
     Write-Output "Initialise the resource group that will contain all components and setup minimal components to support the Terraform backend."
     Set-Location $env:ROOT_FOLDER\deploy\initEnv
     node ./initEnvironment.cjs --envDir="$env:ROOT_FOLDER/deploy" --auto-approve
-    if ($LASTEXITCODE -ne 0) { return $LASTEXITCODE }
+    if ($LASTEXITCODE -ne 0) { throw "Resource group bootstrap failed with exit code $LASTEXITCODE." }
 }
 
 #Deploy the main environment, databases, securitye, etc.
@@ -588,13 +587,14 @@ function Publish-MainEnvironment {
     Write-Output "Deploy the main environment, databases, security, etc."
     Set-Location $env:ROOT_FOLDER\deploy\deployEnv
     node ./deployEnvironment.js --auto-approve
-    if ($LASTEXITCODE -ne 0) { return $LASTEXITCODE }
+    if ($LASTEXITCODE -ne 0) { throw "Main environment deployment failed with exit code $LASTEXITCODE." }
 }
 
 # Deploy modules by looping through their paths
 function Publish-ModuleDeployments {
     $moduleRoot = Join-Path $env:ROOT_FOLDER 'module'
     $moduleFolders = Get-ChildItem -Path $moduleRoot -Directory | ForEach-Object { $_.Name }
+    $failedModules = @()
     foreach ($modulePath in $moduleFolders) {
         Write-Output "Deploy the $modulePath module"
         $deployFolder = Join-Path $moduleRoot "$modulePath\func\deploy"
@@ -602,13 +602,21 @@ function Publish-ModuleDeployments {
             Set-Location $deployFolder
             if (Test-Path './deployModule.ps1') {
                 ./deployModule.ps1
-                if ($LASTEXITCODE -ne 0) { Write-Warning "Module $modulePath deployment failed" }
+                if ($LASTEXITCODE -ne 0) {
+                    Write-Warning "Module $modulePath deployment failed"
+                    $failedModules += $modulePath
+                }
             } else {
                 Write-Warning "deployModule.ps1 not found in $deployFolder"
+                $failedModules += $modulePath
             }
         } else {
             Write-Warning "Deploy folder not found for module $modulePath"
+            $failedModules += $modulePath
         }
+    }
+    if ($failedModules.Count -gt 0) {
+        throw "Module deployments failed: $($failedModules -join ', ')"
     }
 }
 
@@ -620,12 +628,12 @@ function Publish-UserInterface {
         Set-Location $uiDeployFolder
         if (Test-Path './deployUi.ps1') {
             ./deployUi.ps1
-            if ($LASTEXITCODE -ne 0) { Write-Warning "UI deployment failed" }
+            if ($LASTEXITCODE -ne 0) { throw "UI deployment failed with exit code $LASTEXITCODE." }
         } else {
-            Write-Warning "deployUi.ps1 not found in $uiDeployFolder"
+            throw "deployUi.ps1 not found in $uiDeployFolder"
         }
     } else {
-        Write-Warning "UI deploy folder not found: $uiDeployFolder"
+        throw "UI deploy folder not found: $uiDeployFolder"
     }
 }
 

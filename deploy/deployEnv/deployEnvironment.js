@@ -163,6 +163,14 @@ function initEnvironment() {
   const appConfigName = getAppConfigName(targetEnv);
   process.env.TF_VAR_appconfig_name = appConfigName;
   console.log(`Setting appconfig_name to: ${process.env.TF_VAR_appconfig_name}`);
+  const centralEnvContent = readFileSync(resolve(__dirname, "..", "central.env"), "utf8");
+  const centralEnvName = centralEnvContent.match(/^CENTRAL_ENV=(.+)$/m)?.[1].trim();
+  const centralDns = centralEnvContent.match(/^CENTRAL_DNS=(.+)$/m)?.[1].trim();
+  if (!centralEnvName || !centralDns) {
+    throw new Error("CENTRAL_ENV and CENTRAL_DNS must be defined in central.env");
+  }
+  process.env.TF_VAR_dns_resource_group_name ||= getResourceGroupName("root", centralEnvName);
+  process.env.TF_VAR_parent_domain_name ||= centralDns;
   // Auto-detect existing DNS records and avoid managing them if already present
   try {
     const dnsRg = process.env.TF_VAR_dns_resource_group_name;

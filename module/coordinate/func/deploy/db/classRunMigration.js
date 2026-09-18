@@ -17,7 +17,7 @@ class classRunMigration {
     this.resourceGroupName = getResourceGroupName(envType, targetEnv);
     this.pgServerName = getPgServerName(targetEnv);
     this.firewallRuleName = "temp-access-rule";
-    this.extensionNames = [];
+    this.extensionNames = ["POSTGIS"];
   }
 
   async run(direction = "up") {
