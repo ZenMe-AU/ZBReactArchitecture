@@ -19,6 +19,15 @@ const questTiers = [
     href: "QUEST3TIER_UI",
   },
   {
+    title: "Quest 3 Tier CQRS",
+    description: "Explore the CQRS implementation of the Quest 3 Tier module.",
+    tierLabel: "3 Tier CQRS",
+    tierColor: "#0288d1",
+    icon: <ShieldIcon />,
+    updatedAgo: "Updated 2h ago",
+    href: "QUEST3TIERCQRS_UI",
+  },
+  {
     title: "Quest 5 Tier",
     description: "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla.",
     tierLabel: "5 Tier",
