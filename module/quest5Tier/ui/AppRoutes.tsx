@@ -26,9 +26,12 @@ type FrameworkRouteModule = {
 function RouteModuleElement({ routeModule }: { routeModule: FrameworkRouteModule }) {
   const location = useLocation();
   const params = useParams();
+  const routeKey = `${location.pathname}${location.search}`;
   const [loaderData, setLoaderData] = useState<unknown>(undefined);
   const [isLoading, setIsLoading] = useState(Boolean(routeModule.clientLoader));
   const [loadError, setLoadError] = useState<unknown>(null);
+  const [loadedRouteKey, setLoadedRouteKey] = useState<string | null>(null);
+  const [errorRouteKey, setErrorRouteKey] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -36,21 +39,26 @@ function RouteModuleElement({ routeModule }: { routeModule: FrameworkRouteModule
     const load = async () => {
       if (!routeModule.clientLoader) {
         setLoaderData(undefined);
+        setLoadedRouteKey(routeKey);
+        setErrorRouteKey(null);
         setIsLoading(false);
         return;
       }
 
       setIsLoading(true);
       setLoadError(null);
+      setErrorRouteKey(null);
       setLoaderData(undefined);
       try {
         const nextData = await routeModule.clientLoader({ params });
         if (isMounted) {
           setLoaderData(nextData);
+          setLoadedRouteKey(routeKey);
         }
       } catch (error) {
         if (isMounted) {
           setLoadError(error);
+          setErrorRouteKey(routeKey);
         }
       } finally {
         if (isMounted) {
@@ -64,13 +72,13 @@ function RouteModuleElement({ routeModule }: { routeModule: FrameworkRouteModule
     return () => {
       isMounted = false;
     };
-  }, [routeModule, location.pathname, location.search, params]);
+  }, [routeModule, routeKey]);
 
-  if (isLoading) {
+  if (isLoading || (routeModule.clientLoader && loadedRouteKey !== routeKey && errorRouteKey !== routeKey)) {
     return null;
   }
 
-  if (loadError) {
+  if (loadError && errorRouteKey === routeKey) {
     return (
       <div role="alert" style={{ padding: 24, textAlign: "center" }}>
         Quest 5 data could not be loaded. Please check the Q5 API and try again.
