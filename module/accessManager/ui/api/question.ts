@@ -9,11 +9,10 @@ import { getConfig, loadConfig } from "@zenmechat/shared-ui/config/loadConfig"; 
 
 // Fetch list of questions for a specific user
 export const getQuestionsByUser = async () => {
-  const profileId = localStorage.getItem("profileId");
   try {
     await loadConfig();
     const apiDomain = getConfig("ACCESSMANAGER_DOMAIN");
-    const response = await jwtFetch(`${apiDomain}/profile/${profileId}/question`, {
+    const response = await jwtFetch(`${apiDomain}/questions`, {
       method: "GET",
     });
 

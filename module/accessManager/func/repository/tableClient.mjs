@@ -33,24 +33,14 @@ const createTableClient = (tableName) => {
 };
 
 // initialising raw Azure SDK clients
-export const rawQuestionClient = createTableClient("Question");
-export const rawFollowUpCmdClient = createTableClient("FollowUpCmd");
-export const rawFollowUpEventClient = createTableClient("FollowUpEvent");
+export const questionTableClient = createTableClient("Question");
 
 // injecting clients into repositories
-export const questionRepository = Question(rawQuestionClient);
-export const followUpCmdRepository = createFollowUpCmdRepository(rawFollowUpCmdClient);
-export const followUpEventRepository = createFollowUpEventRepository(rawFollowUpEventClient);
+export const questionRepository = Question(questionTableClient);
 
-/**
- * Ensures your Azurite/Azure storage infrastructure has the tables provisioned.
- * Run this function once during your Azure Function startup sequence.
- */
 export async function initializeTables() {
   try {
-    await rawQuestionClient.createTable();
-    await rawFollowUpCmdClient.createTable();
-    await rawFollowUpEventClient.createTable();
+    await questionTableClient.createTable();
     console.log("Azure Table Storage NoSQL Table initialized successfully.");
   } catch (error) {
     console.error("Failed to initialize tables:", error);

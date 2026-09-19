@@ -7,7 +7,7 @@ import { register, startup } from "./diRegistry.mjs";
 import container from "./diContainer.mjs";
 import * as authEntraID from "../service/authEntraID.mjs";
 import * as authLocal from "../service/authLocal.mjs";
-import { questionRepository, rawQuestionClient } from "../repository/tableClient.mjs";
+import { questionRepository, questionTableClient } from "../repository/tableClient.mjs";
 
 register("authProvider", async () => {
   const authProviders = {
@@ -21,9 +21,8 @@ register("authProvider", async () => {
 });
 
 register("questionRepository", async () => {
-  await rawQuestionClient.createTable();
+  await questionTableClient.createTable();
   container.register("questionRepository", questionRepository);
-  console.log("Azure Table Question repository initialized");
 });
 
 // register something else...(e.g. telemetry etc)

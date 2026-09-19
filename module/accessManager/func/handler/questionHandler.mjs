@@ -4,7 +4,6 @@
  */
 
 import Model from "../repository/model/index.mjs";
-import { Op, Sequelize } from "sequelize";
 
 /**
  * @swagger
@@ -55,7 +54,7 @@ async function CreateQuestion(request, context) {
   const profileId = request.userData.profileId;
   const { title = null, option = null, questionText } = request.clientParams;
   const questionnaire = await create(profileId, title, questionText, option);
-  return { return: { id: questionnaire.id } };
+  return { return: { id: questionnaire.rowKey } };
 }
 
 /**
@@ -138,8 +137,9 @@ async function create(profileId, title = null, question = null, option = null) {
 async function UpdateQuestionById(request, context) {
   const { id: questionId } = request.params;
   const { title = null, option = null, questionText } = request.clientParams;
-  const question = await updateById(questionId, title, questionText, option);
-  return { return: { id: question.id } };
+  const profileId = request.userData.profileId;
+  const question = await updateById(profileId, questionId, title, questionText, option);
+  return { return: { id: question.rowKey } };
 }
 
 /**
@@ -150,21 +150,18 @@ async function UpdateQuestionById(request, context) {
  * @param {string|null} [option=null] - Updated option metadata.
  * @returns {Promise<any>} Result of the update operation.
  */
-async function updateById(questionId, title = null, questionText = null, option = null) {
+async function updateById(profileId, questionId, title = null, questionText = null, option = null) {
   try {
-    return await Model.Question.update(
-      {
-        title: title,
-        questionText: questionText,
-        option: option,
-      },
-      {
-        where: {
-          id: questionId,
-        },
-        individualHooks: true,
-      }
+    const question = await Model.Question.update(
+      { id: questionId, profileId, title, questionText, option },
+      { where: { id: questionId } }
     );
+    if (!question) {
+      const error = new Error(`Question not found: ${questionId}`);
+      error.status = 404;
+      throw error;
+    }
+    return question;
   } catch (err) {
     console.log(err);
     throw new Error(`Failed to update question for questionId: ${questionId}; ${err.message}`, { cause: err });
@@ -284,23 +281,7 @@ async function GetQuestionListByUser(request, context) {
  */
 async function getCombinationListByUser(profileId) {
   try {
-    return await Model.Question.findAll({
-      where: {
-        [Op.or]: [
-          { profileId: profileId },
-          {
-            "$QuestionShares.receiverProfileId$": profileId,
-          },
-        ],
-      },
-      include: [
-        {
-          association: "QuestionShares",
-          attributes: [],
-          group: ["newQuestionId"],
-        },
-      ],
-    });
+    return await Model.Question.findAll({ where: { profileId } });
   } catch (err) {
     console.log(err);
     throw new Error(`Failed to retrieve questions for profileId: ${profileId}; ${err.message}`, { cause: err });
