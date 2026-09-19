@@ -35,12 +35,14 @@ function RouteModuleElement({ routeModule }: { routeModule: FrameworkRouteModule
 
     const load = async () => {
       if (!routeModule.clientLoader) {
+        setLoaderData(undefined);
         setIsLoading(false);
         return;
       }
 
       setIsLoading(true);
       setLoadError(null);
+      setLoaderData(undefined);
       try {
         const nextData = await routeModule.clientLoader({ params });
         if (isMounted) {
