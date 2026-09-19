@@ -3,8 +3,9 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import { questionRepository as Question } from "../tableClient.mjs";
+import { profileRepository as Profile, questionRepository as Question } from "../tableClient.mjs";
 
 export default {
   Question,
+  Profile,
 };

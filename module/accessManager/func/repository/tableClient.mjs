@@ -6,6 +6,7 @@
 import { TableClient, AzureNamedKeyCredential } from "@azure/data-tables";
 
 import Question from "./Question.mjs";
+import Profile from "./Profile.mjs";
 import createFollowUpCmdRepository from "./FollowUpCmd.mjs";
 import createFollowUpEventRepository from "./FollowUpEvent.mjs";
 
@@ -34,13 +35,17 @@ const createTableClient = (tableName) => {
 
 // initialising raw Azure SDK clients
 export const questionTableClient = createTableClient("Question");
+export const profileTableClient = createTableClient("Profile");
+
 
 // injecting clients into repositories
 export const questionRepository = Question(questionTableClient);
+export const profileRepository = Profile(profileTableClient);
 
 export async function initializeTables() {
   try {
     await questionTableClient.createTable();
+    await profileTableClient.createTable();
     console.log("Azure Table Storage NoSQL Table initialized successfully.");
   } catch (error) {
     console.error("Failed to initialize tables:", error);

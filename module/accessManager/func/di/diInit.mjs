@@ -7,7 +7,7 @@ import { register, startup } from "./diRegistry.mjs";
 import container from "./diContainer.mjs";
 import * as authEntraID from "../service/authEntraID.mjs";
 import * as authLocal from "../service/authLocal.mjs";
-import { questionRepository, questionTableClient } from "../repository/tableClient.mjs";
+import { profileRepository, profileTableClient, questionRepository, questionTableClient } from "../repository/tableClient.mjs";
 
 register("authProvider", async () => {
   const authProviders = {
@@ -22,7 +22,9 @@ register("authProvider", async () => {
 
 register("questionRepository", async () => {
   await questionTableClient.createTable();
+  await profileTableClient.createTable();
   container.register("questionRepository", questionRepository);
+  container.register("profileRepository", profileRepository);
 });
 
 // register something else...(e.g. telemetry etc)

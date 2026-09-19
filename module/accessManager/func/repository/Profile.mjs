@@ -40,6 +40,21 @@ export default (tableClient) => ({
     }
   },
 
+  async findOne({ where } = {}) {
+    const externalId = where?.external_id;
+    if (!externalId) return null;
+
+    for await (const entity of tableClient.listEntities({
+      queryOptions: {
+        filter: `external_id eq '${externalId.replaceAll("'", "''")}'`,
+      },
+    })) {
+      return entity;
+    }
+
+    return null;
+  },
+
   /**
    * Find profiles using a filter.
    * @param {string} [filter]
