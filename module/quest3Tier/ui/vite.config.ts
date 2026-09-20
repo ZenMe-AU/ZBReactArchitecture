@@ -5,22 +5,11 @@
 
 import { defineConfig } from "vite";
 import { fileURLToPath, URL } from "node:url";
-import federation from "@originjs/vite-plugin-federation";
 
 export default defineConfig({
   esbuild: {
     jsx: "automatic", // this is just a workaround for not having tsconfig.json set up yet
   },
-  plugins: [
-    federation({
-      name: "quest3TierRemote",
-      filename: "remoteEntry.js",
-      exposes: {
-        "./AppRoutes": "./AppRoutes.tsx",
-      },
-      shared: ["react", "react-dom", "react-router", "react-router-dom"],
-    }),
-  ],
   build: {
     target: "esnext",
     minify: false,

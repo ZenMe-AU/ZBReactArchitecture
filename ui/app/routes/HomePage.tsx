@@ -16,7 +16,7 @@ const questTiers = [
     tierColor: "#1976d2",
     icon: <ShieldIcon />,
     updatedAgo: "Updated 2h ago",
-    href: "/quest3Tier",
+    href: "QUEST3TIER_UI",
   },
   {
     title: "Quest 5 Tier",
@@ -25,7 +25,7 @@ const questTiers = [
     tierColor: "#2e7d32",
     icon: <EditNoteIcon />,
     updatedAgo: "Updated 5h ago",
-    href: "/quest5Tier",
+    href: "QUEST5TIER_UI",
   },
   {
     title: "Quest 5 Tier EG",
@@ -34,7 +34,7 @@ const questTiers = [
     tierColor: "#6a1b9a",
     icon: <EmojiEventsIcon />,
     updatedAgo: "Updated 1d ago",
-    href: "/quest5TierEg",
+    href: "QUEST5TIEREG_UI",
   },
   {
     title: "Access Manager",
@@ -43,7 +43,7 @@ const questTiers = [
     tierColor: "#ff9800",
     icon: <ShieldIcon />,
     updatedAgo: "Updated 1d ago",
-    href: "/accessManager",
+    href: "ACCESSMANAGER_UI",
   },
 ];
 
