@@ -18,9 +18,10 @@ export function createQuestion(profileIdLookup, testCorrelationId) {
   test.each(questionData())("create question $questionId", async (q) => {
     const response = await fetch(cmdUrl + "/createQuestion", {
       headers: { "Content-Type": "application/json", "x-correlation-id": testCorrelationId },
+      // headers: { "Content-Type": "application/json", authorization: `Bearer ${profileIdLookup.getAuthToken(q.userId)}` },
       method: "POST",
       body: JSON.stringify({
-        profileId: profileIdLookup.getProfileId(q.userId),
+        profileId: profileIdLookup.getProfileId(q.userId), //TODO: Remove this when using the header method above
         title: q.title,
         questionText: q.question,
         option: q.option,

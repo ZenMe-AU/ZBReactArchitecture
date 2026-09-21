@@ -12,8 +12,9 @@ const createAnswer = (profileIdLookup, questionIdLookup, testCorrelationId) => {
     const response = await fetch(cmdUrl + "/createAnswer/" + questionIdLookup.getQuestionId(a.questionId), {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-correlation-id": testCorrelationId },
+      //headers: { "Content-Type": "application/json", authorization: `Bearer ${profileIdLookup.getAuthToken(a.userId)}` },
       body: JSON.stringify({
-        profileId: profileIdLookup.getProfileId(a.userId),
+        profileId: profileIdLookup.getProfileId(a.userId), //TODO: Remove this when using the header method above
         question: a.question,
         option: [a.option],
         answer: a.answer,

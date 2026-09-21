@@ -12,11 +12,12 @@ const createFollowUp = (profileIdLookup, questionIdLookup, testCorrelationId) =>
     const response = await fetch(cmdUrl + "/sendFollowUp", {
       headers: {
         "Content-Type": "application/json",
+//        authorization: `Bearer ${profileIdLookup.getAuthToken(followUp.userId)}`,
         "x-correlation-id": testCorrelationId,
       },
       method: "POST",
       body: JSON.stringify({
-        profileId: profileIdLookup.getProfileId(followUp.userId),
+        profileId: profileIdLookup.getProfileId(followUp.userId), //TODO: Remove this when using the header method above
         questionIdList: [questionIdLookup.getQuestionId(followUp.questionId)],
         question: [
           {
