@@ -7,7 +7,8 @@
 const { trace, context: sContext, TraceFlags, SpanKind, SpanStatusCode } = require("@opentelemetry/api");
 const { randomBytes } = require("crypto");
 // const { startup } = require("../di/diRegistry");
-const { decode } = require("../service/authUtils.js");
+const container = require("../di/diContainer.js");
+//const { ensureProfile } = require("../service/profile.mjs");
 
 const requestHandler =
   (fn, { schemas = [], customParams = {}, requireAuth = true } = {}) =>
@@ -21,7 +22,7 @@ const requestHandler =
     const correlationId = request.headers.get("X-Correlation-Id");
 
     const parentCtx = trace.setSpanContext(sContext.active(), buildSpanContext(correlationId));
-    const span = tracer.startSpan(
+    const tracerSpan = tracer.startSpan(
       functionName + "-API",
       {
         // kind: SpanKind.SERVER,
@@ -40,6 +41,7 @@ const requestHandler =
     try {
       let user = null;
       if (requireAuth) {
+        const provider = container.get("authProvider");
         const authorization = request.headers.get("authorization");
         if (!authorization) {
           const err = new Error("Authorization header is missing");
@@ -47,10 +49,13 @@ const requestHandler =
           throw err;
         }
         const token = authorization.replace("Bearer ", "");
-        const decoded = await decode(token);
-        const profileId = decoded.oid;
-        user = { profileId };
-        span.setAttribute("app.profile_id", profileId);
+        const decoded = await provider.decode(token);
+        const externalId = decoded.oid;
+        //const { profile, created: profileCreated } = await ensureProfile(externalId);
+        //const profileId = profile.internal_id; //TODO: Fix profile DB creation
+        const profileId = externalId;
+        user = { profileId, externalId, profile: null, profileCreated: true };
+        tracerSpan.setAttribute("app.profile_id", profileId);
       }
       request.userData = user;
       request.correlationId = request.headers.get("X-Correlation-Id");
@@ -77,9 +82,9 @@ const requestHandler =
       //   },
       // });
       let result;
-      await sContext.with(trace.setSpan(parentCtx, span), async () => {
+      await sContext.with(trace.setSpan(parentCtx, tracerSpan), async () => {
         result = await fn(request, context);
-        span.setStatus({ code: SpanStatusCode.OK });
+        tracerSpan.setStatus({ code: SpanStatusCode.OK });
       });
       return {
         status: result?.status || 200,
@@ -96,8 +101,8 @@ const requestHandler =
       console.log("message:", error.message || "no"); // "Hello"
       console.log("name:", error.name || "no");
       console.log("stack:", error.stack || "no");
-      span.recordException(error);
-      span.setStatus({ code: SpanStatusCode.ERROR, message: error.message || "error" });
+      tracerSpan.recordException(error);
+      tracerSpan.setStatus({ code: SpanStatusCode.ERROR, message: error.message || "error" });
       // context.log.error(error);
       // appInsights.defaultClient.trackException({
       //   exception: error,
@@ -119,7 +124,7 @@ const requestHandler =
         },
       };
     } finally {
-      span.end();
+      tracerSpan.end();
     }
   };
 
@@ -144,7 +149,7 @@ const serviceBusHandler = (fn) => async (message, context) => {
   console.log("💁functionName:", functionName);
 
   const parentCtx = trace.setSpanContext(sContext.active(), buildSpanContext(correlationId));
-  const span = tracer.startSpan(
+  const tracerSpan = tracer.startSpan(
     functionName + "-ServiceBus",
     {
       // kind: SpanKind.CONSUMER,
@@ -161,20 +166,20 @@ const serviceBusHandler = (fn) => async (message, context) => {
   );
 
   try {
-    await sContext.with(trace.setSpan(parentCtx, span), async () => {
+    await sContext.with(trace.setSpan(parentCtx, tracerSpan), async () => {
       const messageBody = {
         ...message,
         messageId,
       };
       const result = await fn(messageBody, context);
-      span.setStatus({ code: SpanStatusCode.OK });
+      tracerSpan.setStatus({ code: SpanStatusCode.OK });
     });
   } catch (error) {
-    span.recordException(error);
-    span.setStatus({ code: SpanStatusCode.ERROR, message: error.message || "error" });
+    tracerSpan.recordException(error);
+    tracerSpan.setStatus({ code: SpanStatusCode.ERROR, message: error.message || "error" });
     throw error;
   } finally {
-    span.end();
+    tracerSpan.end();
   }
 };
 
