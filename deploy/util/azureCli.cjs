@@ -122,8 +122,8 @@ function addTemporaryFirewallRule({ resourceGroup, serverName, ruleName, ip }) {
     execSync(
       `az postgres flexible-server firewall-rule create \
      --resource-group ${resourceGroup} \
-     --name ${serverName} \
-     --rule-name ${ruleName} \
+     --server-name ${serverName} \
+     --name ${ruleName} \
      --start-ip-address ${ip} \
      --end-ip-address ${ip}`,
       { stdio: "inherit" }
@@ -143,8 +143,8 @@ function removeTemporaryFirewallRule({ resourceGroup, serverName, ruleName }) {
     execSync(
       `az postgres flexible-server firewall-rule delete \
      --resource-group ${resourceGroup} \
-     --name ${serverName} \
-     --rule-name ${ruleName} \
+     --server-name ${serverName} \
+     --name ${ruleName} \
      --yes`,
       { stdio: "inherit" }
     );
@@ -357,6 +357,16 @@ function getEventGridTopicEndpoint({ resourceGroupName, eventGridName }) {
   }
 }
 
+function getEventGridTopicId({ resourceGroupName, eventGridName }) {
+  try {
+    return execSync(`az eventgrid topic show -n ${eventGridName} -g ${resourceGroupName} --query id -o tsv`, {
+      encoding: "utf8",
+    }).trim();
+  } catch (error) {
+    throw new Error("Could not retrieve Event Grid Topic ID." + error.message);
+  }
+}
+
 function createEventGridTopic({ resourceGroupName, eventGridNamespaceName, topicName }) {
   try {
     execSync(`az eventgrid namespace topic create -g ${resourceGroupName} --namespace-name ${eventGridNamespaceName} -n ${topicName}`, {
@@ -418,6 +428,7 @@ module.exports = {
   getEventGridNamespaceHostname,
   getEventGridDomainEndpoint,
   getEventGridTopicEndpoint,
+  getEventGridTopicId,
   createEventGridTopic,
   getEventGridTopicList,
   getEventGridSubscriptionList,

@@ -20,7 +20,7 @@ const {
   getEventGridName,
   getApimName,
 } = require("../../../../../deploy/util/namingConvention.cjs");
-const { getSubscriptionId, getEventGridDomainId } = require("../../../../../deploy/util/azureCli.cjs");
+const { getSubscriptionId, getEventGridTopicId } = require("../../../../../deploy/util/azureCli.cjs");
 
 class classDeployEnvironment {
   constructor({ envType, targetEnv, moduleName, dbName, backendConfig, logLevel = "", autoApprove = false }) {
@@ -82,14 +82,14 @@ class classDeployEnvironment {
     terraformInit({ backendConfig: this.backendConfig });
     if (this.#hasEventGridModule()) {
       try {
-        const eventGridId = getEventGridDomainId({
-          eventGridDomainName: this.eventGridName,
+        const eventGridId = getEventGridTopicId({
+          eventGridName: this.eventGridName,
           resourceGroupName: this.resourceGroupName,
         });
-        console.log("Importing existing Event Grid Domain with ID:", eventGridId);
+        console.log("Importing existing Event Grid Topic with ID:", eventGridId);
         terraformImport("module.event_grid.azurerm_eventgrid_topic.egtopic", eventGridId);
       } catch (error) {
-        console.log("Event Grid Domain not found. It will be created.");
+        console.log("Event Grid Topic not found. It will be created.");
       }
       // event grid module exists
       // try {
