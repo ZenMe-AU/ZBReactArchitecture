@@ -3,6 +3,9 @@
  * @license SPDX-License-Identifier: MIT
  */
 
+// This is the repository layer for managing question-related models and their interactions with the database.
+// TODO: Rename this file to repository.ts and move it to the repository layer folder.
+
 import { DataTypes } from "@sequelize/core";
 import container from "../../di/diContainer.mjs";
 import questionModel from "./Question.mjs";
@@ -16,11 +19,12 @@ import followUpEventModel from "./FollowUpEvent.mjs";
 import questionShareCmdModel from "./QuestionShareCmd.mjs";
 import questionShareEventModel from "./QuestionShareEvent.mjs";
 import profileModel from "./Profile.mjs";
+import { Question } from "../interfaces.js";
 
 let models: Record<string, any> | null = null;
-function initModels() {
+
+export function initRepository(sequelize) {
   if (models) return models;
-  const sequelize = container.get("db");
   const Question = questionModel(sequelize, DataTypes);
   const QuestionAnswer = questionAnswerModel(sequelize, DataTypes);
   const QuestionShare = questionShareModel(sequelize, DataTypes);
@@ -54,12 +58,17 @@ function initModels() {
   return models;
 }
 
-export default new Proxy(
-  {},
-  {
-    get(target, prop) {
-      const initialized = initModels();
-      return typeof prop === "string" ? initialized[prop] : undefined;
-    },
+export async function getById(questionId: string): Promise<Question | null> {
+  try {
+    const question = await models.Question.findByPk(questionId);
+    if (!question) {
+      return null;
+    }
+    const { id, title, questionText, option, profileId } = question.dataValues;
+    return { id, title, questionText, option, profileId };
+  } catch (err) {
+    console.log(err);
+    const message = err instanceof Error ? err.message : String(err);
+    throw new Error(`Failed to retrieve question for questionId: ${questionId}; ${message}`, { cause: err });
   }
-);
+}

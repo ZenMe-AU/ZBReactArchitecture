@@ -3,7 +3,8 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-//TODO: This file should not be here, instead refer to the interface definition in the repository layer.
+// This is the public interface for the repository layer, defining the data structures for Profile, Question, and Answer.
+// It specifically does not expose any internal data store details like sequelize or datatables, ensuring a clean separation between the repository layer and the underlying database implementation.
 
 // Define the Profile interface
 export interface Profile {

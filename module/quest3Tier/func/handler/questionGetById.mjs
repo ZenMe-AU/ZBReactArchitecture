@@ -5,6 +5,9 @@ export async function GetQuestionById(request, context) {
     const questionnaire = await getById(questionId);
     return { return: { detail: questionnaire } };
 }
+
+
+// TODO: This function depends on sequelize and should be moved to the repository layer and made to return results based on the repository public interface.
 export async function getById(questionId) {
     try {
         const questionnaire = await model.Question.findByPk(questionId);

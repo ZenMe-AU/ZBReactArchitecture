@@ -58,7 +58,7 @@ register("authProvider", async () => {
 // register db
 register("db", async () => {
   const { createDatabaseInstance } = await import("../repository/model/connection/index.mjs");
-  const { createModelsLoader } = await import("../repository/model/loader/index.mjs");
+  const { initRepository } = await import("../repository/model/index.mjs");
   const DB_TYPE = (await import("../enum/dbType.mjs")).default;
 
   const modelDir = path.join(__dirname, "..", "repository", "model");
@@ -78,7 +78,7 @@ register("db", async () => {
 
   const sequelize = await createDatabaseInstance(DB_TYPE.POSTGRES, config);
   await assertNoPendingDbMigrations(sequelize);
-  const models = await createModelsLoader(DB_TYPE.POSTGRES, sequelize, modelDir);
+  const models = initRepository(sequelize);
 
   container.register("db", sequelize);
   container.register("models", models);

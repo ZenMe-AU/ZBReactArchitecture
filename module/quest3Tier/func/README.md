@@ -29,3 +29,6 @@ https://github.com/sequelize/cli/issues/990
 1. `npx sequelize-cli db:migrate --env local`
 2. `npx sequelize-cli db:seed:all --env local`
 3.
+
+
+

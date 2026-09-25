@@ -59,6 +59,7 @@ async function CreateQuestion(request, context) {
   return { return: { id: questionnaire.id } };
 }
 
+// TODO: This function depends on sequelize and should be moved to the repository layer and made to return results based on the repository public interface.
 /**
  * Create a new question record.
  * @param {string} profileId - Owner profile identifier.
@@ -143,6 +144,7 @@ async function UpdateQuestionById(request, context) {
   return { return: { id: question.id } };
 }
 
+// TODO: This function depends on sequelize and should be moved to the repository layer and made to return results based on the repository public interface.
 /**
  * Update a question by its id.
  * @param {string} questionId - Identifier of the question to update.
@@ -257,6 +259,7 @@ async function GetQuestionListByUser(request, context) {
   return { return: { list: question } };
 }
 
+// TODO: This function depends on sequelize and should be moved to the repository layer and made to return results based on the repository public interface.
 /**
  * Retrieve questions belonging to a user or shared with a user.
  * @param {string} profileId - Profile identifier.
@@ -349,6 +352,7 @@ async function PatchQuestionById(request, context) {
   return { return: { id: questionAction.id } };
 }
 
+// TODO: This function depends on sequelize and should be moved to the repository layer and made to return results based on the repository public interface.
 /**
  * Patch a question action by its ID.
  * @param {string} profileId - Identifier of the user.
