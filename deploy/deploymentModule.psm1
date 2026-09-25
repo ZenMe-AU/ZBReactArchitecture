@@ -95,6 +95,8 @@ function Install-DevAiTools {
     Install-Jq
     Install-Yq
     Install-GitHubCli
+    Install-Packer
+    Install-DockerCli
 }
 
 function Install-Pnpm {
@@ -273,6 +275,68 @@ function Install-Terraform {
         }
     } else {
         Write-Output "Terraform is already installed."
+    }
+}
+
+# Ensure Packer is installed
+function Install-Packer {
+    $packerInstalled = Get-Command packer -ErrorAction SilentlyContinue
+    if (-not $packerInstalled) {
+        if ($script:IsWindows) {
+            Write-Output "Packer not found. Installing Packer using winget..."
+            winget install -e --id Hashicorp.Packer
+        } elseif ($script:IsMacOS) {
+            # Future placeholder: install Packer using Homebrew.
+            # Invoke-Brew tap hashicorp/tap
+            # Invoke-Brew install hashicorp/tap/packer
+        } elseif ($script:IsUbuntu) {
+            # Future placeholder: install Packer using apt on Ubuntu.
+            # $sudo = Get-SudoPrefix
+            # bash -lc "$sudo apt-get update -y && $sudo apt-get install -y gnupg software-properties-common curl"
+            # bash -lc "curl -fsSL https://apt.releases.hashicorp.com/gpg | $sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg"
+            # bash -lc "echo 'deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main' | $sudo tee /etc/apt/sources.list.d/hashicorp.list"
+            # bash -lc "$sudo apt-get update -y && $sudo apt-get install -y packer"
+        } else {
+            Write-Warning "Unsupported OS for automatic Packer installation. Please install Packer manually."
+            return 1
+        }
+        # Re-check installation
+        $packerInstalled = Get-Command packer -ErrorAction SilentlyContinue
+        if (-not $packerInstalled) {
+            Write-Error "Packer installation failed. Please install it manually. Visit https://developer.hashicorp.com/packer/downloads for instructions."
+            return 1
+        }
+    } else {
+        Write-Output "Packer is already installed."
+    }
+}
+
+# Ensure Docker CLI is installed
+function Install-DockerCli {
+    $dockerCliInstalled = Get-Command docker -ErrorAction SilentlyContinue
+    if (-not $dockerCliInstalled) {
+        if ($script:IsWindows) {
+            Write-Output "Docker CLI not found. Installing Docker CLI using winget..."
+            winget install Docker.DockerCLI
+        } elseif ($script:IsMacOS) {
+            # Future placeholder: install Docker CLI using Homebrew.
+            # Invoke-Brew install docker
+        } elseif ($script:IsUbuntu) {
+            # Future placeholder: install Docker CLI using apt on Ubuntu.
+            # $sudo = Get-SudoPrefix
+            # bash -lc "$sudo apt-get update -y && $sudo apt-get install -y docker-cli"
+        } else {
+            Write-Warning "Unsupported OS for automatic Docker CLI installation. Please install Docker CLI manually."
+            return 1
+        }
+        # Re-check installation
+        $dockerCliInstalled = Get-Command docker -ErrorAction SilentlyContinue
+        if (-not $dockerCliInstalled) {
+            Write-Error "Docker CLI installation failed. Please install it manually. Visit https://docs.docker.com/engine/install/ for instructions."
+            return 1
+        }
+    } else {
+        Write-Output "Docker CLI is already installed."
     }
 }
 
@@ -661,4 +725,4 @@ function Update-ProcessPathFromEnvironment {
     }
 }
 
-Export-ModuleMember -Function Initialize-PlatformState,Install-Pnpm,Install-NodeJsAndNpm,Install-Terraform,Install-PostgreSql,Install-AwsCli,Install-AzureCli,Install-Ripgrep,Install-Fd,Install-Jq,Install-Yq,Install-GitHubCli,Set-TerraformEnvironmentType,Set-ProjectRootFolder,Install-ProjectDependencies,Initialize-ResourceGroupBootstrap,Publish-MainEnvironment,Publish-ModuleDeployments,Publish-UserInterface,Test-InitializationEnvironment,Install-DevTools,Install-DevAiTools
+Export-ModuleMember -Function Initialize-PlatformState,Install-Pnpm,Install-NodeJsAndNpm,Install-Terraform,Install-Packer,Install-DockerCli,Install-PostgreSql,Install-AwsCli,Install-AzureCli,Install-Ripgrep,Install-Fd,Install-Jq,Install-Yq,Install-GitHubCli,Set-TerraformEnvironmentType,Set-ProjectRootFolder,Install-ProjectDependencies,Initialize-ResourceGroupBootstrap,Publish-MainEnvironment,Publish-ModuleDeployments,Publish-UserInterface,Test-InitializationEnvironment,Install-DevTools,Install-DevAiTools
