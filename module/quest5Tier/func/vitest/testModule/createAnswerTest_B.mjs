@@ -5,7 +5,7 @@
 
 import { test, expect } from "vitest";
 
-const baseUrl = process.env.BASE_URL;
+const baseUrl = process.env.QUESTION_URL;
 const questionUrl = new URL("/questionQry", baseUrl);
 
 const checkAnswer = (profileIdLookup, questionIdLookup) => {

@@ -3,8 +3,8 @@
   "tasks": [
     {
       "label": "Start",
-      "type": "func",
-      "command": "host start --language-worker -- \"--inspect-brk=9229\"",
+      "type": "shell",
+      "command": "pnpm run start",
       "isBackground": true,
       "problemMatcher": "$func-node-watch",
     },

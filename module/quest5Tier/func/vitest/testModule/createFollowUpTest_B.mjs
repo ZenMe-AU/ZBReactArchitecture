@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const baseUrl = process.env.BASE_URL;
+const baseUrl = process.env.QUESTION_URL;
 const qryUrl = new URL("/questionQry", baseUrl);
 const followUpQuestionQty = 5;
 import { test, expect } from "vitest";

@@ -10,7 +10,8 @@ import { test, expect } from "vitest";
 const require = createRequire(import.meta.url);
 const { getMessageById, removeMessagesByIds } = require("../../test/receiveMessages");
 const { qNameQuestionCreatedEvent } = require("../../serviceBus/queueNameList");
-const baseUrl = process.env.BASE_URL;
+const baseUrl = process.env.QUESTION_URL;
+console.log("Base URL:", baseUrl);
 const qryUrl = new URL("/questionQry", baseUrl);
 const cmdUrl = new URL("/questionCmd", baseUrl);
 

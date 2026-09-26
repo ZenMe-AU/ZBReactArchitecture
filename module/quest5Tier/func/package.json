@@ -5,11 +5,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "setup:local": "node deploy/localDev/localSetting.js",
-    "prestart": "pnpm run setup:local",
     "start": "func start",
-    "deploy": "pnpm deploy --filter quest5Tier --prod out",
-    "test": "jest"
+    "deploy": "pnpm deploy --filter quest5Tier --prod out"
   },
   "dependencies": {
     "@azure/functions": "^4.0.0",
