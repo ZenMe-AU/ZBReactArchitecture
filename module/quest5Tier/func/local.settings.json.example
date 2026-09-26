@@ -20,6 +20,7 @@
     "DB_IGNORE_MIGRATION_STATE": "false",
     "CLIENT_ID": "87aa3687-66a4-4fab-bf59-70de6bf768fa",
     "TENANT_ID": "15fb0613-7977-4551-801b-6aadac824241",
+    "AUTH_LOCAL_SECRET": "local-test-only-change-me",
     "DB_PASSWORD": "vscode",
     "QUESTION_URL": "http://localhost:7075"
   },

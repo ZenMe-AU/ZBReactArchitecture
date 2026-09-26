@@ -12,7 +12,7 @@ const createFollowUp = (profileIdLookup, questionIdLookup, testCorrelationId) =>
     const response = await fetch(cmdUrl + "/sendFollowUp", {
       headers: {
         "Content-Type": "application/json",
-//        authorization: `Bearer ${profileIdLookup.getAuthToken(followUp.userId)}`,
+        authorization: `Bearer ${profileIdLookup.getAuthToken(followUp.userId)}`,
         "x-correlation-id": testCorrelationId,
       },
       method: "POST",

@@ -17,7 +17,7 @@ const cmdUrl = new URL("/questionCmd", baseUrl);
 export function createQuestion(profileIdLookup, testCorrelationId) {
   test.each(questionData())("create question $questionId", async (q) => {
     const response = await fetch(cmdUrl + "/createQuestion", {
-      headers: { "Content-Type": "application/json", "x-correlation-id": testCorrelationId },
+      headers: { "Content-Type": "application/json", authorization: `Bearer ${profileIdLookup.getAuthToken(q.userId)}`, "x-correlation-id": testCorrelationId },
       // headers: { "Content-Type": "application/json", authorization: `Bearer ${profileIdLookup.getAuthToken(q.userId)}` },
       method: "POST",
       body: JSON.stringify({
@@ -43,6 +43,7 @@ const checkQuestion = (profileIdLookup) => {
       method: "GET",
       headers: {
         Accept: "application/json",
+        authorization: `Bearer ${profileIdLookup.getAuthToken(r.userId)}`,
         "Access-Control-Allow-Origin": "*",
       },
     });

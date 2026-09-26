@@ -11,7 +11,7 @@ const createAnswer = (profileIdLookup, questionIdLookup, testCorrelationId) => {
   test.each(answerData())("answer question $questionId by user $userId", async (a) => {
     const response = await fetch(cmdUrl + "/createAnswer/" + questionIdLookup.getQuestionId(a.questionId), {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-correlation-id": testCorrelationId },
+      headers: { "Content-Type": "application/json", authorization: `Bearer ${profileIdLookup.getAuthToken(a.userId)}`, "x-correlation-id": testCorrelationId },
       //headers: { "Content-Type": "application/json", authorization: `Bearer ${profileIdLookup.getAuthToken(a.userId)}` },
       body: JSON.stringify({
         profileId: profileIdLookup.getProfileId(a.userId), //TODO: Remove this when using the header method above

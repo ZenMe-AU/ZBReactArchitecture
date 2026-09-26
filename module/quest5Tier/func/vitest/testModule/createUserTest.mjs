@@ -4,6 +4,10 @@
  */
 
 import { v4 as uuidv4 } from "uuid";
+import { createRequire } from "module";
+
+const require = createRequire(import.meta.url);
+const authLocal = require("../../service/authLocal.js");
 
 const createUser = () => {
   createUserData().forEach((u) => {
@@ -22,6 +26,9 @@ const profileIdLookup = {
   getProfileId: function (id) {
     const obj = this.data.filter(({ testId }) => testId == id).pop();
     return obj ? obj.profileId : null;
+  },
+  getAuthToken: function (id) {
+    return authLocal.generateToken({ oid: this.getProfileId(id) });
   },
 };
 
