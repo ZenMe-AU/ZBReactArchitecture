@@ -10,6 +10,6 @@
     "noEmitOnError": true,
     "skipLibCheck": true
   },
-  "include": ["handler/questionGetById.mts"],
+  "include": ["handler/questionGetById.mts", "repository/table/*.mts"],
   "exclude": ["node_modules", "**/*.mjs"]
 }

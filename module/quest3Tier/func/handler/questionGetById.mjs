@@ -7,11 +7,11 @@ export async function GetQuestionById(request, context) {
 }
 export async function getById(questionId) {
     try {
-        const questionnaire = await model.Question.findByPk(questionId);
-        if (!questionnaire) {
+        const question = await model.Question.findByPk(questionId);
+        if (!question) {
             return null;
         }
-        const { id, title, questionText, option, profileId } = questionnaire.dataValues;
+        const { id, title, questionText, option, profileId } = question.dataValues;
         return { id, title, questionText, option, profileId };
     }
     catch (err) {
