@@ -17,6 +17,7 @@
   ],
   "scripts": {
     "prepare": "husky",
+    "knip": "cross-env KNIP_DISABLE_RAW_TRANSFER=1 knip",
     "build:init": "esbuild ./deploy/initEnv/initEnvironment.cjs --bundle --platform=node --outfile=./deploy/initEnv/dist/initEnvironment.cjs"
   },
   "devDependencies": {
@@ -29,6 +30,7 @@
     "@vitest/coverage-v8": "^4.1.10",
     "archiver": "^7.0.1",
     "azurite": "^3.35.0",
+    "cross-env": "7.0.3",
     "dotenv": "^16.6.1",
     "esbuild": "^0.27.0",
     "eslint": "^9.38.0",
@@ -40,6 +42,7 @@
     "glob": "^11.0.3",
     "globals": "^16.4.0",
     "husky": "^9.1.7",
+    "knip": "^6.38.0",
     "lint-staged": "^16.2.6",
     "minimist": "^1.2.8",
     "prettier": "^3.6.2",
