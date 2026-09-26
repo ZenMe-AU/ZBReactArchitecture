@@ -1,18 +1,20 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
 const baseUrl = process.env.QUESTION_URL;
 const cmdUrl = new URL("/questionCmd", baseUrl);
+import { test, expect } from "vitest";
 
 const createAnswer = (profileIdLookup, questionIdLookup, testCorrelationId) => {
   test.each(answerData())("answer question $questionId by user $userId", async (a) => {
     const response = await fetch(cmdUrl + "/createAnswer/" + questionIdLookup.getQuestionId(a.questionId), {
       method: "POST",
-      headers: { "Content-Type": "application/json", "x-correlation-id": testCorrelationId },
+      headers: { "Content-Type": "application/json", authorization: `Bearer ${profileIdLookup.getAuthToken(a.userId)}`, "x-correlation-id": testCorrelationId },
+      //headers: { "Content-Type": "application/json", authorization: `Bearer ${profileIdLookup.getAuthToken(a.userId)}` },
       body: JSON.stringify({
-        profileId: profileIdLookup.getProfileId(a.userId),
+        profileId: profileIdLookup.getProfileId(a.userId), //TODO: Remove this when using the header method above
         question: a.question,
         option: [a.option],
         answer: a.answer,
@@ -377,8 +379,7 @@ function answerData() {
     {
       userId: 1,
       questionId: 3,
-      question:
-        "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
+      question: "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Pingxi",
       answer: null,
       duration: 1150,
@@ -386,8 +387,7 @@ function answerData() {
     {
       userId: 2,
       questionId: 3,
-      question:
-        "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
+      question: "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Kenting",
       answer: null,
       duration: 1325,
@@ -395,8 +395,7 @@ function answerData() {
     {
       userId: 3,
       questionId: 3,
-      question:
-        "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
+      question: "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Pingxi",
       answer: null,
       duration: 1200,
@@ -404,8 +403,7 @@ function answerData() {
     {
       userId: 4,
       questionId: 3,
-      question:
-        "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
+      question: "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Tamsui",
       answer: null,
       duration: 1270,
@@ -413,8 +411,7 @@ function answerData() {
     {
       userId: 5,
       questionId: 3,
-      question:
-        "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
+      question: "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Pingxi",
       answer: null,
       duration: 1330,
@@ -422,8 +419,7 @@ function answerData() {
     {
       userId: 6,
       questionId: 3,
-      question:
-        "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
+      question: "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Pingxi",
       answer: null,
       duration: 1250,
@@ -431,8 +427,7 @@ function answerData() {
     {
       userId: 7,
       questionId: 3,
-      question:
-        "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
+      question: "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Pingxi",
       answer: null,
       duration: 1360,
@@ -440,8 +435,7 @@ function answerData() {
     {
       userId: 8,
       questionId: 3,
-      question:
-        "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
+      question: "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Kenting",
       answer: null,
       duration: 1240,
@@ -449,8 +443,7 @@ function answerData() {
     {
       userId: 9,
       questionId: 3,
-      question:
-        "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
+      question: "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Tamsui",
       answer: null,
       duration: 1305,
@@ -458,8 +451,7 @@ function answerData() {
     {
       userId: 10,
       questionId: 3,
-      question:
-        "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
+      question: "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Pingxi",
       answer: null,
       duration: 1125,
@@ -467,8 +459,7 @@ function answerData() {
     {
       userId: 11,
       questionId: 3,
-      question:
-        "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
+      question: "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Pingxi",
       answer: null,
       duration: 1260,
@@ -476,8 +467,7 @@ function answerData() {
     {
       userId: 12,
       questionId: 3,
-      question:
-        "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
+      question: "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Pingxi",
       answer: null,
       duration: 1180,
@@ -485,8 +475,7 @@ function answerData() {
     {
       userId: 13,
       questionId: 3,
-      question:
-        "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
+      question: "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Pingxi",
       answer: null,
       duration: 1375,
@@ -494,8 +483,7 @@ function answerData() {
     {
       userId: 14,
       questionId: 3,
-      question:
-        "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
+      question: "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Tamsui",
       answer: null,
       duration: 1220,
@@ -503,8 +491,7 @@ function answerData() {
     {
       userId: 15,
       questionId: 3,
-      question:
-        "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
+      question: "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Pingxi",
       answer: null,
       duration: 1165,
@@ -512,8 +499,7 @@ function answerData() {
     {
       userId: 16,
       questionId: 3,
-      question:
-        "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
+      question: "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Pingxi",
       answer: null,
       duration: 1400,
@@ -521,8 +507,7 @@ function answerData() {
     {
       userId: 17,
       questionId: 3,
-      question:
-        "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
+      question: "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Pingxi",
       answer: null,
       duration: 1185,
@@ -530,8 +515,7 @@ function answerData() {
     {
       userId: 18,
       questionId: 3,
-      question:
-        "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
+      question: "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Pingxi",
       answer: null,
       duration: 1335,
@@ -539,8 +523,7 @@ function answerData() {
     {
       userId: 19,
       questionId: 3,
-      question:
-        "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
+      question: "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Pingxi",
       answer: null,
       duration: 1205,
@@ -548,8 +531,7 @@ function answerData() {
     {
       userId: 20,
       questionId: 3,
-      question:
-        "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
+      question: "Which town in Taiwan is famous for its sky lantern festival, where people write wishes on lanterns and release them into the night sky?",
       option: "Kenting",
       answer: null,
       duration: 1290,
@@ -1057,7 +1039,7 @@ function answerData() {
   ];
 }
 
-module.exports = { createAnswer };
+export { createAnswer };
 
 // Question 7: What is your favorite actor?
 

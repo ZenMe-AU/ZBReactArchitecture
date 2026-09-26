@@ -1,19 +1,24 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
 const baseUrl = process.env.QUESTION_URL;
 const qryUrl = new URL("/questionQry", baseUrl);
-const cmdUrl = new URL("/questionCmd", baseUrl);
 const followUpQuestionQty = 5;
+import { test, expect } from "vitest";
 
 const checkShareQuestion = (profileIdLookup, testCorrelationId) => {
   test.each(shareQuestionData())("check shared question by user $userId", async (shared) => {
     let qty = 0;
     for (let i = 0; i < 5; i++) {
-      const response = await fetch(qryUrl + "/getSharedQuestions/" + profileIdLookup.getProfileId(shared.userId), { method: "GET" });
-      let resultData = await response.json();
+      const response = await fetch(qryUrl + "/getSharedQuestions/" + profileIdLookup.getProfileId(shared.userId), {
+        method: "GET",
+        headers: {
+          authorization: `Bearer ${profileIdLookup.getAuthToken(shared.userId)}`,
+        },
+      });
+      const resultData = await response.json();
       qty = resultData.return.list.length;
       if (qty === shared.count) {
         break;
@@ -25,13 +30,18 @@ const checkShareQuestion = (profileIdLookup, testCorrelationId) => {
   });
 };
 
-const checkFollowUpQty = (testCorrelationId) => {
+const checkFollowUpQty = (testCorrelationId, profileIdLookup) => {
   test(
     "check follow up question by Correlation Id:" + testCorrelationId,
     async () => {
       let qty = 0;
       for (let i = 0; i < 5; i++) {
-        const response = await fetch(qryUrl + "/getFollowUpEvents/" + testCorrelationId, { method: "GET" });
+        const response = await fetch(qryUrl + "/getFollowUpEvents/" + testCorrelationId, {
+          method: "GET",
+          headers: {
+            authorization: `Bearer ${profileIdLookup.getAuthToken(1)}`,
+          },
+        });
         if (!response.ok) {
           console.error(`Error: ${response.status} - ${response.statusText}`);
           break;
@@ -77,4 +87,4 @@ function shareQuestionData() {
   ];
 }
 
-module.exports = { checkShareQuestion, checkFollowUpQty };
+export { checkShareQuestion, checkFollowUpQty };

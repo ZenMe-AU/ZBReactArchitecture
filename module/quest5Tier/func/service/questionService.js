@@ -223,14 +223,14 @@ async function sendFollowUp(cmdId, cmdType, cmdBody, correlationId, senderId, qu
     });
     const receiverIds = await QuestionQueryService.getFollowUpReceiver(cmdBody); // filters the receiver IDs based on the answers to the questions
     // shares the question with the specified receiver IDs
-    const sharedQuestions = questionIdList.map(async (questionId) => {
+    const sharedQuestions = await Promise.all(questionIdList.map(async (questionId) => {
       const result = await ShareRepo.insertQuestionShare({
         questionId,
         senderId,
         receiverIds,
         transaction,
       });
-      result.map(async (r) => {
+      await Promise.all(result.map(async (r) => {
         // -------- notify that a new question has been updated -------- //
         // Send Event to qNameQuestionSharedEvent service bus queue
         const eventBody = {
@@ -261,9 +261,9 @@ async function sendFollowUp(cmdId, cmdType, cmdBody, correlationId, senderId, qu
           correlationId,
           transaction,
         });
-      });
+      }));
       return result;
-    });
+    }));
     // Send Event to questionUpdatedEvent service bus queue
     const eventBody = {
       aggregateType: AGGREGATE_TYPE.FOLLOW_UP,
