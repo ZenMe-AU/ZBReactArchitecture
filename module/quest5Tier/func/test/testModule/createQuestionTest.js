@@ -3,7 +3,8 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const baseUrl = process.env.BASE_URL;
+const baseUrl = process.env.QUESTION_URL;
+console.log("Base URL:", baseUrl);
 const qryUrl = new URL("/questionQry", baseUrl);
 const cmdUrl = new URL("/questionCmd", baseUrl);
 const { questionData, questionTestResult } = require("./createQuestionTestData");

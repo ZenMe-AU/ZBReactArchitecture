@@ -1,22 +1,23 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
 const baseUrl = process.env.QUESTION_URL;
-const qryUrl = new URL("/questionQry", baseUrl);
 const cmdUrl = new URL("/questionCmd", baseUrl);
+import { test, expect } from "vitest";
 
 const createFollowUp = (profileIdLookup, questionIdLookup, testCorrelationId) => {
   test.each(followUpData())("send follow-up question by user $userId", async (followUp) => {
     const response = await fetch(cmdUrl + "/sendFollowUp", {
       headers: {
         "Content-Type": "application/json",
+        authorization: `Bearer ${profileIdLookup.getAuthToken(followUp.userId)}`,
         "x-correlation-id": testCorrelationId,
       },
       method: "POST",
       body: JSON.stringify({
-        profileId: profileIdLookup.getProfileId(followUp.userId),
+        profileId: profileIdLookup.getProfileId(followUp.userId), //TODO: Remove this when using the header method above
         questionIdList: [questionIdLookup.getQuestionId(followUp.questionId)],
         question: [
           {
@@ -77,4 +78,4 @@ function followUpData() {
   ];
 }
 
-module.exports = { createFollowUp };
+export { createFollowUp };
