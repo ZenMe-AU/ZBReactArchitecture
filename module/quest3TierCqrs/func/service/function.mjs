@@ -250,25 +250,26 @@ async function shareQuestion(newQuestionId, senderId, receiverIds) {
  * @returns {Promise<any[]>} List of created follow-up records.
  */
 async function addFollowUpByQuestionId(newQuestionId, senderId, questionList, isSave) {
-  try {
-    const addData = questionList.map(function (question) {
-      return {
-        senderProfileId: senderId,
-        refQuestionId: question.questionId,
-        refOption: question.option,
-        newQuestionId: newQuestionId,
-        isSave: isSave,
-      };
-    });
-    const list = await Model.FollowUpCmd.bulkCreate(addData);
-    // await followUpCmdQueue.add("processFollowUpCmd", { tasks: list });
-    // console.log(list.map(({ id }) => id));
-    // await followUpCmdQueue.add("processFollowUpCmd", { tasks: list.map(({ id }) => id) });
-    return list;
-  } catch (err) {
-    console.log(err);
-    throw new Error(`Failed to add follow-up question; ${err.message}`, { cause: err });
-  }
+  // try {
+  //   const addData = questionList.map(function (question) {
+  //     return {
+  //       senderProfileId: senderId,
+  //       refQuestionId: question.questionId,
+  //       refOption: question.option,
+  //       newQuestionId: newQuestionId,
+  //       isSave: isSave,
+  //     };
+  //   });
+  //   const list = await Model.FollowUpCmd.bulkCreate(addData);
+  //   // await followUpCmdQueue.add("processFollowUpCmd", { tasks: list });
+  //   // console.log(list.map(({ id }) => id));
+  //   // await followUpCmdQueue.add("processFollowUpCmd", { tasks: list.map(({ id }) => id) });
+  //   return list;
+  // } catch (err) {
+  //   console.log(err);
+  //   throw new Error(`Failed to add follow-up question; ${err.message}`, { cause: err });
+  // }
+  throw new Error("Not implemented");
 }
 
 /**
@@ -485,12 +486,13 @@ async function getSharedQuestionListByUser(profileId) {
  * @returns {Promise<any[]>} List of shared questions.
  */
 async function patchById(questionId, action, profileId) {
-  try {
-    return await Model.QuestionAction.create({ questionId, profileId, action });
-  } catch (err) {
-    console.log(err);
-    throw new Error(`Failed to patch question by ID: ${questionId}; ${err.message}`, { cause: err });
-  }
+  // try {
+  //   return await Model.QuestionAction.create({ questionId, profileId, action });
+  // } catch (err) {
+    // console.log(err);
+    // throw new Error(`Failed to patch question by ID: ${questionId}; ${err.message}`, { cause: err });
+  // }
+  throw new Error("Not implemented");
 }
 
 /**

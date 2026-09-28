@@ -813,14 +813,15 @@ async function PatchQuestionById(request, context) {
  *                       example: 5
  */
 async function GetEventByCorrelationId(request, context) {
-  const { name, correlationId } = request.params;
-  const result = await Question.getEventByCorrelationId(name, correlationId);
-  return { return: { qty: result.length } };
+  // const { name, correlationId } = request.params;
+  // const result = await Question.getEventByCorrelationId(name, correlationId);
+  // return { return: { qty: result.length } };
+  throw new Error("Not implemented");
 }
 
 async function SendFollowUpCmd(request, context) {
   const { correlationId, clientParams: body } = request;
-  const cmd = await Question.insertFollowUpCmd(body["profileId"], body, correlationId);
+  // const cmd = await Question.insertFollowUpCmd(body["profileId"], body, correlationId);
   const filters = Question.insertFollowUpFilter(body);
   const receiverIds = Question.getFollowUpReceiver(body);
   const sharedQuestions = Question.shareQuestion(body["newQuestionId"], body["profileId"], await receiverIds);
@@ -832,16 +833,16 @@ async function SendFollowUpCmd(request, context) {
     throw new Error("Operations failed: " + errors.map((e) => e.message || e).join("; "));
   }
 
-  await Question.updateFollowUpCmdStatus(cmd["id"]);
+  // await Question.updateFollowUpCmdStatus(cmd["id"]);
   return { return: true };
 }
 
 async function ShareQuestionCmd(request, context) {
   const { correlationId, clientParams: body } = request;
-  const cmd = await Question.insertQuestionShareCmd(body["profileId"], body, correlationId);
+  // const cmd = await Question.insertQuestionShareCmd(body["profileId"], body, correlationId);
   const sharedQuestions = await Question.shareQuestion(body["newQuestionId"], body["profileId"], body["receiverIds"]);
 
-  await Question.updateQuestionShareCmdStatus(cmd["id"]);
+  // await Question.updateQuestionShareCmdStatus(cmd["id"]);
   return { return: true };
 }
 
