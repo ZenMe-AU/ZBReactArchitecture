@@ -393,6 +393,22 @@ async function patchById(questionId, action, profileId) {
   }
 }
 
+export async function getById(questionId) {
+    try {
+        const question = await model.Question.findByPk(questionId);
+        if (!question) {
+            return null;
+        }
+        const { id, title, questionText, option, profileId } = question.dataValues;
+        return { id, title, questionText, option, profileId };
+    }
+    catch (err) {
+        console.log(err);
+        const message = err instanceof Error ? err.message : String(err);
+        throw new Error(`Failed to retrieve question for questionId: ${questionId}; ${message}`, { cause: err });
+    }
+}
+
 export default {
   patchById,
   getCombinationListByUser,
