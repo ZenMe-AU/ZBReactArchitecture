@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import Model from "../repository/model/index.mjs";
+import * as answerRepository from "../dist/repository/table/answerRepository.mjs";
 
 /**
  * @swagger
@@ -70,13 +70,7 @@ async function AddAnswer(request, context) {
  */
 async function addAnswerByQuestionId(questionId, profileId, duration, answer = null, option = null) {
   try {
-    return await Model.QuestionAnswer.create({
-      questionId: questionId,
-      profileId: profileId,
-      answerText: answer,
-      optionId: option,
-      duration: duration,
-    });
+    return await answerRepository.addAnswer({ questionId, profileId, answerText: answer, optionId: option, duration });
   } catch (err) {
     console.log(err);
     throw new Error(`Failed to add answer for questionId: ${questionId}; ${err.message}`, { cause: err });
@@ -135,7 +129,7 @@ async function GetAnswerById(request, context) {
  */
 async function getAnswerById(questionId, answerId) {
   try {
-    return await Model.QuestionAnswer.findOne({ where: { id: answerId, questionId: questionId } });
+    return await answerRepository.getAnswerById(questionId, answerId);
   } catch (err) {
     console.log(err);
     throw new Error(`Failed to retrieve answer for questionId ${questionId} and answerId ${answerId}: ${err.message}`, { cause: err });
@@ -231,40 +225,7 @@ async function GetAnswerListByQuestionId(request, context) {
  */
 async function getAnswerListByQuestionId(questionId) {
   try {
-    // return await QuestionAnswer.findAll({ where: { questionId: questionId }, order: [["createdAt", "DESC"]] });
-    // return await QuestionAnswer.findAll({
-    //   attributes: [
-    //     "profileId",
-    //     [Sequelize.fn("MAX", Sequelize.col("createdAt")), "latestCreatedAt"],
-    //     [Sequelize.fn("COUNT", Sequelize.col("id")), "answerCount"],
-    //     [Sequelize.literal(`FIRST_VALUE("answerText") OVER (PARTITION BY "profileId" ORDER BY "createdAt" DESC)`), "answerText"],
-    //     [Sequelize.literal(`FIRST_VALUE("optionId") OVER (PARTITION BY "profileId" ORDER BY "createdAt" DESC)`), "optionId"],
-    //    ],
-    //   where: { questionId },
-    //   group: ["profileId"],
-    //   order: [[Sequelize.fn("MAX", Sequelize.col("createdAt")), "DESC"]],
-    //   raw: true,
-    // });
-    return await Model.QuestionAnswer.sequelize.query(
-      `
-          SELECT DISTINCT ON ("profileId")
-            "id",
-            "profileId",
-            "createdAt",
-            COUNT("id") OVER (PARTITION BY "profileId") AS "answerCount",
-            "questionId",
-            "answerText",
-            "optionId",
-            "duration"
-          FROM "questionAnswer"
-          WHERE "questionId" = :questionId
-          ORDER BY "profileId", "createdAt" DESC;
-        `,
-      {
-        replacements: { questionId },
-        type: Model.QuestionAnswer.sequelize.QueryTypes.SELECT,
-      }
-    );
+    return await answerRepository.getAnswerListByQuestionId(questionId);
   } catch (err) {
     console.log(err);
     throw new Error(`Failed to retrieve answers for questionId: ${questionId}; ${err.message}`, { cause: err });

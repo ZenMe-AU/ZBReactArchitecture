@@ -30,3 +30,10 @@ export const ANSWER_ROW_KEY_RANGE_END = "answer;";
 export function eventRowKey(eventId: string): string {
   return `event:${eventId}`;
 }
+
+export function shareRowKey(shareId: string): string {
+  return `share:${shareId}`;
+}
+
+export const SHARE_ROW_KEY_RANGE_START = "share:";
+export const SHARE_ROW_KEY_RANGE_END = "share;";

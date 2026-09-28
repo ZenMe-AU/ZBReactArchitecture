@@ -49,7 +49,7 @@ app.http("AddAnswer", {
 });
 
 app.http("GetAnswerById", {
-  route: "question/{id:int}/answer/{answerId:int}",
+  route: "question/{id}/answer/{answerId}",
   methods: ["GET"],
   authLevel: "anonymous",
   handler: requestHandler(answerHandler.GetAnswerById),

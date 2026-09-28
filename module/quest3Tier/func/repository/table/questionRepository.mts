@@ -3,18 +3,26 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-// Explicit Question repository functions backed by Azure Table Storage,
-// replacing repository/model/Question.mjs, QuestionLog.mjs and
-// QuestionAction.mjs. Every write also appends an audit event row in the
+// Question repository backed by Azure Table Storage. Every write also appends an audit event row in the
 // same partition (questionId), submitted as one Table batch transaction so
 // the question row and its audit trail can never go out of sync.
 
 import { randomUUID } from "crypto";
-import { TableTransaction } from "@azure/data-tables";
+import fastJsonPatch from "fast-json-patch";
+import { odata, TableTransaction } from "@azure/data-tables";
 import type { UpdateMode } from "@azure/data-tables";
 import { getTableClient, isNotFoundError } from "./tableClient.mjs";
-import { QUESTION_DATA_TABLE, questionPartitionKey, questionRowKey, eventRowKey } from "./keys.mjs";
-import type { QuestionEntity, QuestionEventEntity, QuestionDetail } from "./entities.mjs";
+import { assertProfileExists } from "./profileRepository.mjs";
+import {
+  QUESTION_DATA_TABLE,
+  questionPartitionKey,
+  questionRowKey,
+  eventRowKey,
+  shareRowKey,
+  SHARE_ROW_KEY_RANGE_START,
+  SHARE_ROW_KEY_RANGE_END,
+} from "./keys.mjs";
+import type { QuestionEntity, QuestionEventEntity, QuestionDetail, QuestionListItem, QuestionShareEntity } from "./entities.mjs";
 
 export interface CreateQuestionInput {
   profileId: string;
@@ -40,8 +48,10 @@ function toQuestionDetail(entity: QuestionEntity): QuestionDetail {
 }
 
 export async function createQuestion(input: CreateQuestionInput): Promise<{ id: string }> {
+  await assertProfileExists(input.profileId);
   const id = randomUUID();
   const eventId = randomUUID();
+  const createdAt = new Date().toISOString();
   const questionEntity: QuestionEntity = {
     partitionKey: questionPartitionKey(id),
     rowKey: questionRowKey(),
@@ -51,6 +61,7 @@ export async function createQuestion(input: CreateQuestionInput): Promise<{ id: 
     questionText: input.questionText,
     option: JSON.stringify(input.option ?? null),
     eventId,
+    createdAt,
   };
   const logEntity: QuestionEventEntity = {
     partitionKey: questionPartitionKey(id),
@@ -63,7 +74,7 @@ export async function createQuestion(input: CreateQuestionInput): Promise<{ id: 
     actionData: JSON.stringify(toQuestionDetail(questionEntity)),
     originalData: null,
     lastEventId: null,
-    createdAt: new Date().toISOString(),
+    createdAt,
   };
 
   const transaction = new TableTransaction();
@@ -91,6 +102,62 @@ async function getQuestionEntity(questionId: string): Promise<(QuestionEntity & 
   }
 }
 
+function toQuestionListItem(entity: QuestionEntity): QuestionListItem {
+  return { ...toQuestionDetail(entity), eventId: entity.eventId ?? null, createdAt: entity.createdAt };
+}
+
+/**
+ * Questions the profile owns plus questions shared with it, oldest first --
+ * the Postgres "profileId = me OR QuestionShares.receiverProfileId = me" query.
+ */
+export async function getQuestionListByProfileId(profileId: string): Promise<QuestionListItem[]> {
+  const client = await getTableClient(QUESTION_DATA_TABLE);
+  // ponytail: both lookups scan the whole table; add a per-profile index table if QuestionData grows large.
+  const owned = client.listEntities<QuestionEntity>({
+    queryOptions: { filter: odata`RowKey eq ${questionRowKey()} and profileId eq ${profileId}` },
+  });
+  const questions = new Map<string, QuestionListItem>();
+  for await (const entity of owned) questions.set(entity.id, toQuestionListItem(entity));
+
+  for (const question of await getSharedQuestionListByProfileId(profileId)) questions.set(question.id, question);
+
+  return [...questions.values()].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+}
+
+export async function getSharedQuestionListByProfileId(profileId: string): Promise<QuestionListItem[]> {
+  const client = await getTableClient(QUESTION_DATA_TABLE);
+  // ponytail: this scans QuestionData; add a per-profile index table when measured volume requires it.
+  const shares = client.listEntities<QuestionShareEntity>({
+    queryOptions: { filter: odata`RowKey ge ${SHARE_ROW_KEY_RANGE_START} and RowKey lt ${SHARE_ROW_KEY_RANGE_END} and receiverProfileId eq ${profileId}` },
+  });
+  const sharedIds = new Set<string>();
+  for await (const share of shares) sharedIds.add(share.newQuestionId);
+  const questions = await Promise.all([...sharedIds].map(getQuestionEntity));
+  return questions.filter((entity): entity is QuestionEntity & { etag: string } => entity !== null).map(toQuestionListItem).sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+}
+
+export async function shareQuestion(questionId: string, senderProfileId: string, receiverProfileIds: string[]): Promise<void> {
+  // Postgres enforced these with foreign keys.
+  await Promise.all([senderProfileId, ...receiverProfileIds].map(assertProfileExists));
+  if (!(await getQuestionEntity(questionId))) {
+    throw new Error(`Question not found for questionId: ${questionId}`);
+  }
+
+  const createdAt = new Date().toISOString();
+  const shares = receiverProfileIds.map((receiverProfileId): QuestionShareEntity => {
+    const id = randomUUID();
+    return { partitionKey: questionPartitionKey(questionId), rowKey: shareRowKey(id), id, newQuestionId: questionId, senderProfileId, receiverProfileId, status: 0, createdAt };
+  });
+
+  const client = await getTableClient(QUESTION_DATA_TABLE);
+  // ponytail: a Table transaction holds at most 100 rows, so sharing with more receivers is not atomic.
+  for (let i = 0; i < shares.length; i += 100) {
+    const transaction = new TableTransaction();
+    for (const share of shares.slice(i, i + 100)) transaction.createEntity(share);
+    await client.submitTransaction(transaction.actions);
+  }
+}
+
 /**
  * Builds the (question row, audit log row) pair for a field update, without
  * submitting them. Shared by updateQuestionById and patchQuestionById so the
@@ -112,6 +179,7 @@ function buildUpdateEntities(
     questionText: next.questionText ?? existing.questionText,
     option: JSON.stringify(next.option ?? null),
     eventId,
+    createdAt: existing.createdAt,
   };
   const logEntity: QuestionEventEntity = {
     partitionKey: questionPartitionKey(questionId),
@@ -150,18 +218,17 @@ export async function updateQuestionById(questionId: string, input: UpdateQuesti
 /**
  * Apply a JSON Patch (RFC 6902) to a question, recording both the raw patch
  * (audit) and the resulting field change (log) in one batch transaction --
- * matching the two rows the Sequelize QuestionAction -> afterSave ->
- * Question.update hook chain used to produce, but atomic. Returns the id of
+ * matching the previous action and update event rows, but atomically. Returns the id of
  * the recorded patch action.
  */
 export async function patchQuestionById(questionId: string, profileId: string, patchOps: unknown): Promise<{ id: string }> {
+  await assertProfileExists(profileId);
   const existing = await getQuestionEntity(questionId);
   if (!existing) {
     throw new Error(`Question not found for questionId: ${questionId}`);
   }
 
-  const { applyPatch } = await import("fast-json-patch");
-  const patched = applyPatch(toQuestionDetail(existing), patchOps as never).newDocument;
+  const patched = fastJsonPatch.applyPatch(toQuestionDetail(existing), patchOps as never).newDocument;
 
   const actionId = randomUUID();
   const actionEntity: QuestionEventEntity = {

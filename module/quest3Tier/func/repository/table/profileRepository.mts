@@ -84,3 +84,9 @@ export async function getProfileByInternalId(internalId: string): Promise<Profil
     throw err;
   }
 }
+
+export async function assertProfileExists(internalId: string): Promise<void> {
+  if (!(await getProfileByInternalId(internalId))) {
+    throw new Error(`Profile not found for profileId: ${internalId}`);
+  }
+}

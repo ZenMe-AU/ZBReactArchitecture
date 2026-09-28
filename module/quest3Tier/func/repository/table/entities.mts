@@ -17,6 +17,7 @@ export interface QuestionEntity {
   questionText: string;
   option: string; // JSON-encoded string[] | null
   eventId: string;
+  createdAt: string;
   etag?: string;
 }
 
@@ -46,13 +47,33 @@ export interface AnswerEntity {
   createdAt: string;
 }
 
+// Field names follow the Postgres "questionShare" table.
+export interface QuestionShareEntity {
+  partitionKey: string;
+  rowKey: string;
+  id: string;
+  newQuestionId: string;
+  senderProfileId: string;
+  receiverProfileId: string;
+  status: number;
+  createdAt: string;
+}
+
 // Shapes returned to handlers, matching the existing API response contract.
+export type AnswerRecord = Omit<AnswerEntity, "partitionKey" | "rowKey">;
+
 export interface QuestionDetail {
   id: string;
   title: string | null;
   questionText: string;
   option: string[] | null;
   profileId: string;
+}
+
+// The full Postgres "question" row, which GetQuestionListByUser returned.
+export interface QuestionListItem extends QuestionDetail {
+  eventId: string | null;
+  createdAt: string;
 }
 
 export interface AnswerListItem {

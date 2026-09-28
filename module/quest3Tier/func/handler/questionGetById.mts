@@ -1,15 +1,5 @@
-import Model from "../repository/model/index.mjs";
+import { getQuestionById } from "../repository/table/questionRepository.mjs";
 import type { Question } from "./interfaces.ts";
-
-type Questionnaire = {
-  dataValues: Question;
-};
-
-const model = Model as {
-  Question: {
-    findByPk(questionId: string): Promise<Questionnaire | null>;
-  };
-};
 
 type RequestWithQuestionId = {
   params: {
@@ -31,12 +21,7 @@ export async function GetQuestionById(request: RequestWithQuestionId, context: u
 
 export async function getById(questionId: string): Promise<Question | null> {
   try {
-    const question = await model.Question.findByPk(questionId);
-    if (!question) {
-      return null;
-    }
-    const { id, title, questionText, option, profileId } = question.dataValues;
-    return { id, title, questionText, option, profileId };
+    return await getQuestionById(questionId);
   } catch (err) {
     console.log(err);
     const message = err instanceof Error ? err.message : String(err);

@@ -8,39 +8,27 @@ import container from "../di/diContainer.mjs";
 import { requestHandler } from "../handler/handlerWrapper.mjs";
 import { ensureProfile } from "../service/profile.mjs";
 
-const { findOne, create } = vi.hoisted(() => ({
-  findOne: vi.fn(),
-  create: vi.fn(),
+const { ensureProfileRow } = vi.hoisted(() => ({
+  ensureProfileRow: vi.fn(),
 }));
 
-vi.mock("../repository/model/index.mjs", () => ({
-  default: {
-    Profile: { findOne, create },
-  },
+vi.mock("../dist/repository/table/profileRepository.mjs", () => ({
+  ensureProfile: ensureProfileRow,
 }));
 
 describe("ensureProfile", () => {
   beforeEach(() => {
-    findOne.mockReset();
-    create.mockReset();
+    ensureProfileRow.mockReset();
   });
 
   it("creates a profile with a generated internal ID when none exists", async () => {
     const externalId = "8bc796d2-4731-4d0b-8299-1d1a067c4be7";
     const internalId = "63fddfe4-b1c2-4314-a65c-f4f3fba185b6";
-    findOne.mockResolvedValue(null);
-    create.mockResolvedValue({ internal_id: internalId, external_id: externalId });
+    ensureProfileRow.mockResolvedValue({ profile: { internalId, externalId }, created: true });
 
     const result = await ensureProfile(externalId);
 
-    expect(findOne).toHaveBeenCalledWith({
-      where: { external_id: externalId },
-      order: [
-        ["createdAt", "ASC"],
-        ["internal_id", "ASC"],
-      ],
-    });
-    expect(create).toHaveBeenCalledWith({ external_id: externalId });
+    expect(ensureProfileRow).toHaveBeenCalledWith(externalId);
     expect(result.profile.internal_id).toBe(internalId);
     expect(result.created).toBe(true);
   });
@@ -51,31 +39,31 @@ describe("ensureProfile", () => {
       internal_id: "63fddfe4-b1c2-4314-a65c-f4f3fba185b6",
       external_id: externalId,
     };
-    findOne.mockResolvedValue(firstProfile);
+    ensureProfileRow.mockResolvedValue({
+      profile: { internalId: firstProfile.internal_id, externalId: firstProfile.external_id },
+      created: false,
+    });
 
     const result = await ensureProfile(externalId);
 
-    expect(result.profile).toBe(firstProfile);
+    expect(result.profile).toEqual(firstProfile);
     expect(result.created).toBe(false);
-    expect(create).not.toHaveBeenCalled();
   });
 
   it("rejects a missing authenticated profile ID", async () => {
     await expect(ensureProfile()).rejects.toMatchObject({ status: 401 });
-    expect(findOne).not.toHaveBeenCalled();
-    expect(create).not.toHaveBeenCalled();
+    expect(ensureProfileRow).not.toHaveBeenCalled();
   });
 
   it("rejects a malformed authenticated profile ID", async () => {
     await expect(ensureProfile("not-a-uuid")).rejects.toMatchObject({ status: 401 });
-    expect(findOne).not.toHaveBeenCalled();
-    expect(create).not.toHaveBeenCalled();
+    expect(ensureProfileRow).not.toHaveBeenCalled();
   });
 
   it("passes the Quest3 internal profile ID to an authenticated handler", async () => {
     const externalId = "8bc796d2-4731-4d0b-8299-1d1a067c4be7";
     const internalId = "63fddfe4-b1c2-4314-a65c-f4f3fba185b6";
-    findOne.mockResolvedValue({ internal_id: internalId, external_id: externalId });
+    ensureProfileRow.mockResolvedValue({ profile: { internalId, externalId }, created: false });
     container.singletons.set("authProvider", {
       decode: vi.fn().mockResolvedValue({ oid: externalId }),
     });

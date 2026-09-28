@@ -6,7 +6,7 @@
 // classDeployCode.js
 import path, { dirname } from "path";
 const { resolve } = path;
-import { existsSync, rmSync, mkdirSync, unlinkSync } from "fs";
+import { cpSync, existsSync, rmSync, mkdirSync, unlinkSync } from "fs";
 import {
   getFunctionAppPrincipalId,
   setFunctionAppSetting,
@@ -46,7 +46,7 @@ class classDeployCode {
     this.deployFilePath = deployFilePath;
     this.distPath = "dist/dist.zip";
     this.outputDir = "out";
-    this.excludeList = ["dist/*", ".vscode/*", ".git/*", "local.settings.json", "local.settings.json.template", "deploy/*"];
+    this.excludeList = ["**/*.ts", "**/*.mts", "**/*.cts", ".vscode/*", ".git/*", "local.settings.json", "local.settings.json.template", "deploy/*"];
     this.appSettings = {
       // ServiceBusConnection__fullyQualifiedNamespace: `${this.serviceBusName}.servicebus.windows.net`,
       // ServiceBusConnection__credential: "managedidentity",
@@ -137,10 +137,13 @@ class classDeployCode {
         rmSync(outputDir, { recursive: true, force: true });
       }
 
+      execSync("pnpm run build", { stdio: "inherit", cwd: funcDir });
       execSync(
         `pnpm deploy --filter ${this.moduleName} --prod ${outputDir} --config.node-linker=hoisted --config.symlink=false --config.package-import-method=copy`,
         { stdio: "inherit", cwd: funcDir }
       );
+      // dist/ is gitignored, so pnpm deploy leaves out the compiled .mts output; the previous deploy zip also lives there.
+      cpSync(resolve(funcDir, "dist"), resolve(outputDir, "dist"), { recursive: true, filter: (src) => src !== resolve(funcDir, this.distPath) });
 
       console.log("Step 3: Creating dist directory.");
       const distFile = resolve(funcDir, this.distPath);

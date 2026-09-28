@@ -3,8 +3,9 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import Model from "../repository/model/index.mjs";
-import { v4 as uuidv4 } from "uuid";
+import * as answerRepository from "../dist/repository/table/answerRepository.mjs";
+import * as questionRepository from "../dist/repository/table/questionRepository.mjs";
+import * as workflowRepository from "../dist/repository/table/workflowRepository.mjs";
 import cmdName from "../enum/cmdName.mjs";
 
 /**
@@ -54,8 +55,8 @@ import cmdName from "../enum/cmdName.mjs";
  */
 async function GetEventByCorrelationId(request, context) {
   const { name, correlationId } = request.params;
-  const result = await getEventByCorrelationId(name, correlationId);
-  return { return: { qty: result.length } };
+  const qty = await getEventByCorrelationId(name, correlationId);
+  return { return: { qty } };
 }
 
 /**
@@ -65,23 +66,11 @@ async function GetEventByCorrelationId(request, context) {
  * @returns {Promise<any[]>} List of matching events.
  */
 async function getEventByCorrelationId(name, correlationId) {
-  let model;
-  switch (name) {
-    case cmdName.FollowUpCmd:
-      model = Model.FollowUpEvent;
-      break;
-    case cmdName.QuestionShareCmd:
-      model = Model.QuestionShareEvent;
-      break;
-    default:
-      throw new Error(`Unknown eventName: ${name}`);
+  if (name !== cmdName.FollowUpCmd && name !== cmdName.QuestionShareCmd) {
+    throw new Error(`Unknown eventName: ${name}`);
   }
   try {
-    return await model.findAll({
-      where: {
-        correlationId,
-      },
-    });
+    return await workflowRepository.countEvents(name, correlationId);
   } catch (err) {
     console.log(err);
     throw new Error(`Failed to get event by correlationId: ${correlationId}; ${err.message}`, { cause: err });
@@ -93,7 +82,7 @@ async function SendFollowUpCmd(request, context) {
   const { correlationId, clientParams: body } = request;
   const profileId = request.userData.profileId;
   const cmd = await insertFollowUpCmd(profileId, body, correlationId);
-  const filters = insertFollowUpFilter(profileId, body);
+  const filters = insertFollowUpFilter(cmd, body);
   const receiverIds = getFollowUpReceiver(profileId, body);
   const sharedQuestions = shareQuestion(body["newQuestionId"], profileId, await receiverIds);
 
@@ -104,7 +93,7 @@ async function SendFollowUpCmd(request, context) {
     throw new Error("Operations failed: " + errors.map((e) => e.message || e).join("; "));
   }
 
-  await updateFollowUpCmdStatus(cmd["id"]);
+  await updateFollowUpCmdStatus(cmd);
   return { return: true };
 }
 
@@ -117,12 +106,7 @@ async function SendFollowUpCmd(request, context) {
  */
 async function insertFollowUpCmd(senderId, cmdData, correlationId) {
   try {
-    return await Model.FollowUpCmd.create({
-      senderProfileId: senderId,
-      action: "create",
-      data: cmdData,
-      correlationId: correlationId,
-    });
+    return await workflowRepository.createCommand(cmdName.FollowUpCmd, senderId, cmdData, correlationId);
   } catch (err) {
     console.log(err);
     throw new Error(`Failed to insert follow-up command; ${err.message}`, { cause: err });
@@ -131,30 +115,22 @@ async function insertFollowUpCmd(senderId, cmdData, correlationId) {
 
 /**
  * Insert a new follow-up filter.
- * @param {string} senderId - Identifier of the authenticated sender.
+ * @param {object} command - The follow-up command.
  * @param {any} cmdData - Data for the follow-up filter.
  * @returns {Promise<any[]>} List of created follow-up filters.
  */
-async function insertFollowUpFilter(senderId, cmdData) {
-  try {
-    if (cmdData.save) {
-      const filterId = uuidv4();
-      const filterDataAry = cmdData.question.map(function (filter, i) {
-        return {
-          id: filterId,
-          order: i + 1,
-          senderProfileId: senderId,
-          refQuestionId: filter.questionId,
-          refOption: filter.option,
-          newQuestionId: cmdData.newQuestionId,
-        };
-      });
-      return await Model.FollowUpFilter.bulkCreate(filterDataAry);
-    }
-  } catch (err) {
-    console.log(err);
-  }
-  return;
+async function insertFollowUpFilter(command, cmdData) {
+  if (!cmdData.isSave) return;
+  return workflowRepository.createFollowUpFilters(
+    cmdData.question.map((filter, i) => ({
+      id: command.id,
+      order: i + 1,
+      senderProfileId: command.senderProfileId,
+      refQuestionId: filter.questionId,
+      refOption: filter.option,
+      newQuestionId: cmdData.newQuestionId,
+    }))
+  );
 }
 
 /**
@@ -180,7 +156,7 @@ async function getFollowUpReceiver(senderId, cmdData) {
     return filterReceiverIdAry.reduce((acc, arr) => {
       const set = new Set(arr);
       return acc.filter((item) => set.has(item));
-    });
+    }, filterReceiverIdAry[0] ?? []);
   } catch (err) {
     console.log(err);
     throw new Error(`Failed to retrieve follow-up receivers; ${err.message}`, { cause: err });
@@ -189,12 +165,12 @@ async function getFollowUpReceiver(senderId, cmdData) {
 
 /**
  * Update the status of a follow-up command.
- * @param {string} id - Identifier of the follow-up command.
- * @returns {Promise<any>} The updated follow-up command.
+ * @param {object} command - The follow-up command returned by insertFollowUpCmd.
+ * @returns {Promise<void>}
  */
-async function updateFollowUpCmdStatus(id) {
+async function updateFollowUpCmdStatus(command) {
   try {
-    return await Model.FollowUpCmd.update({ status: 1 }, { where: { id: id }, individualHooks: true });
+    return await workflowRepository.completeCommand(command);
   } catch (err) {
     console.log(err);
     throw new Error(`Failed to update follow-up command status; ${err.message}`, { cause: err });
@@ -208,8 +184,17 @@ async function ShareQuestionCmd(request, context) {
   const cmd = await insertQuestionShareCmd(profileId, body, correlationId);
   const sharedQuestions = await shareQuestion(body["newQuestionId"], profileId, body["receiverIds"]);
 
-  await updateQuestionShareCmdStatus(cmd["id"]);
+  await updateQuestionShareCmdStatus(cmd);
   return { return: true };
+}
+
+async function ShareQuestionById(request, context) {
+  await shareQuestion(request.params.id, request.userData.profileId, request.clientParams.receiverIds ?? []);
+  return { return: true };
+}
+
+async function GetSharedQuestionListByUser(request, context) {
+  return { return: { list: await questionRepository.getSharedQuestionListByProfileId(request.userData.profileId) } };
 }
 
 /**
@@ -217,19 +202,12 @@ async function ShareQuestionCmd(request, context) {
  * @param {string} newQuestionId - Identifier of the new question.
  * @param {string} senderId - Identifier of the sender.
  * @param {string[]} receiverIds - List of receiver identifiers.
- * @returns {Promise<any[]>} List of created sharing records.
+ * @returns {Promise<void>}
  */
 async function shareQuestion(newQuestionId, senderId, receiverIds) {
   try {
     console.log("shareQuestion data:", newQuestionId, senderId, receiverIds);
-    const addData = receiverIds.map(function (receiverId) {
-      return {
-        newQuestionId: newQuestionId,
-        senderProfileId: senderId,
-        receiverProfileId: receiverId,
-      };
-    });
-    return await Model.QuestionShare.bulkCreate(addData);
+    return await questionRepository.shareQuestion(newQuestionId, senderId, receiverIds);
   } catch (err) {
     console.log(err);
     throw new Error(`Failed to share question from senderId ${senderId} to receiversIds ${receiverIds.join(", ")}; ${err.message}`, { cause: err });
@@ -243,40 +221,7 @@ async function shareQuestion(newQuestionId, senderId, receiverIds) {
  */
 async function getAnswerListByQuestionId(questionId) {
   try {
-    // return await QuestionAnswer.findAll({ where: { questionId: questionId }, order: [["createdAt", "DESC"]] });
-    // return await QuestionAnswer.findAll({
-    //   attributes: [
-    //     "profileId",
-    //     [Sequelize.fn("MAX", Sequelize.col("createdAt")), "latestCreatedAt"],
-    //     [Sequelize.fn("COUNT", Sequelize.col("id")), "answerCount"],
-    //     [Sequelize.literal(`FIRST_VALUE("answerText") OVER (PARTITION BY "profileId" ORDER BY "createdAt" DESC)`), "answerText"],
-    //     [Sequelize.literal(`FIRST_VALUE("optionId") OVER (PARTITION BY "profileId" ORDER BY "createdAt" DESC)`), "optionId"],
-    //    ],
-    //   where: { questionId },
-    //   group: ["profileId"],
-    //   order: [[Sequelize.fn("MAX", Sequelize.col("createdAt")), "DESC"]],
-    //   raw: true,
-    // });
-    return await Model.QuestionAnswer.sequelize.query(
-      `
-          SELECT DISTINCT ON ("profileId")
-            "id",
-            "profileId",
-            "createdAt",
-            COUNT("id") OVER (PARTITION BY "profileId") AS "answerCount",
-            "questionId",
-            "answerText",
-            "optionId",
-            "duration"
-          FROM "questionAnswer"
-          WHERE "questionId" = :questionId
-          ORDER BY "profileId", "createdAt" DESC;
-        `,
-      {
-        replacements: { questionId },
-        type: Model.QuestionAnswer.sequelize.QueryTypes.SELECT,
-      }
-    );
+    return await answerRepository.getAnswerListByQuestionId(questionId);
   } catch (err) {
     console.log(err);
     throw new Error(`Failed to retrieve answers for questionId: ${questionId}; ${err.message}`, { cause: err });
@@ -285,12 +230,7 @@ async function getAnswerListByQuestionId(questionId) {
 
 async function insertQuestionShareCmd(senderId, cmdData, correlationId) {
   try {
-    return await Model.QuestionShareCmd.create({
-      senderProfileId: senderId,
-      action: "create",
-      data: cmdData,
-      correlationId: correlationId,
-    });
+    return await workflowRepository.createCommand(cmdName.QuestionShareCmd, senderId, cmdData, correlationId);
   } catch (err) {
     console.log(err);
     throw new Error(`Failed to insert question share command; ${err.message}`, { cause: err });
@@ -299,12 +239,12 @@ async function insertQuestionShareCmd(senderId, cmdData, correlationId) {
 
 /**
  * Update the status of a question share command.
- * @param {string} id - Identifier of the question share command.
- * @returns {Promise<any>} The updated question share command.
+ * @param {object} command - The question share command returned by insertQuestionShareCmd.
+ * @returns {Promise<void>}
  */
-async function updateQuestionShareCmdStatus(id) {
+async function updateQuestionShareCmdStatus(command) {
   try {
-    return await Model.QuestionShareCmd.update({ status: 1 }, { where: { id: id }, individualHooks: true });
+    return await workflowRepository.completeCommand(command);
   } catch (err) {
     console.log(err);
     throw new Error(`Failed to update question share command status; ${err.message}`, { cause: err });
@@ -314,5 +254,7 @@ async function updateQuestionShareCmdStatus(id) {
 export default {
   SendFollowUpCmd,
   ShareQuestionCmd,
+  ShareQuestionById,
+  GetSharedQuestionListByUser,
   GetEventByCorrelationId,
 };

@@ -3,30 +3,21 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import Model from "../repository/model/index.mjs";
+import * as profileRepository from "../dist/repository/table/profileRepository.mjs";
 
 async function ensureProfile(externalId) {
-  const _externalId = externalId.toString().trim().slice(0, 1024); // Ensure the externalId is a string and trim it to a reasonable length
-  if (!_externalId) {
-    const error = new Error("Authenticated profile ID is required");
+  const _externalId = String(externalId ?? "").trim();
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(_externalId)) {
+    const error = new Error("Authenticated profile ID must be a UUID");
     error.status = 401;
     throw error;
   }
 
-  const existingProfile = await Model.Profile.findOne({
-    where: { external_id: _externalId },
-    order: [
-      ["createdAt", "ASC"],
-      ["internal_id", "ASC"],
-    ],
-  });
-
-  if (existingProfile) {
-    return { profile: existingProfile, created: false };
-  }
-
-  const profile = await Model.Profile.create({ external_id: _externalId });
-  return { profile, created: true };
+  const result = await profileRepository.ensureProfile(_externalId);
+  return {
+    ...result,
+    profile: { internal_id: result.profile.internalId, external_id: result.profile.externalId, createdAt: result.profile.createdAt },
+  };
 }
 
 export { ensureProfile };

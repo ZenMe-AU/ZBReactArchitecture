@@ -3,9 +3,8 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import Model from "../repository/model/index.mjs";
-import {  Op } from "@sequelize/core";
-import { GetQuestionById } from "./questionGetById.mjs";
+import * as questionRepository from "../dist/repository/table/questionRepository.mjs";
+import { GetQuestionById } from "../dist/handler/questionGetById.mjs";
 
 /**
  * @swagger
@@ -69,12 +68,7 @@ async function CreateQuestion(request, context) {
  */
 async function create(profileId, title = null, question = null, option = null) {
   try {
-    return await Model.Question.create({
-      profileId: profileId,
-      title: title,
-      questionText: question,
-      option: option,
-    });
+    return await questionRepository.createQuestion({ profileId, title, questionText: question, option });
   } catch (err) {
     console.log(err);
     throw new Error(`Failed to create question for profileId: ${profileId}; ${err.message}`, { cause: err });
@@ -153,19 +147,7 @@ async function UpdateQuestionById(request, context) {
  */
 async function updateById(questionId, title = null, questionText = null, option = null) {
   try {
-    return await Model.Question.update(
-      {
-        title: title,
-        questionText: questionText,
-        option: option,
-      },
-      {
-        where: {
-          id: questionId,
-        },
-        individualHooks: true,
-      }
-    );
+    return await questionRepository.updateQuestionById(questionId, { title, questionText, option });
   } catch (err) {
     console.log(err);
     throw new Error(`Failed to update question for questionId: ${questionId}; ${err.message}`, { cause: err });
@@ -264,23 +246,7 @@ async function GetQuestionListByUser(request, context) {
  */
 async function getCombinationListByUser(profileId) {
   try {
-    return await Model.Question.findAll({
-      where: {
-        [Op.or]: [
-          { profileId: profileId },
-          {
-            "$QuestionShares.receiverProfileId$": profileId,
-          },
-        ],
-      },
-      include: [
-        {
-          association: "QuestionShares",
-          attributes: [],
-          group: ["newQuestionId"],
-        },
-      ],
-    });
+    return await questionRepository.getQuestionListByProfileId(profileId);
   } catch (err) {
     console.log(err);
     throw new Error(`Failed to retrieve questions for profileId: ${profileId}; ${err.message}`, { cause: err });
@@ -358,7 +324,7 @@ async function PatchQuestionById(request, context) {
  */
 async function patchById(questionId, action, profileId) {
   try {
-    return await Model.QuestionAction.create({ questionId, profileId, action });
+    return await questionRepository.patchQuestionById(questionId, profileId, action);
   } catch (err) {
     console.log(err);
     throw new Error(`Failed to patch question by ID: ${questionId}; ${err.message}`, { cause: err });

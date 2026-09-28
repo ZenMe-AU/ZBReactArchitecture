@@ -12,14 +12,23 @@ import { describe, it, expect, beforeAll } from "vitest";
 import * as questionRepository from "../repository/table/questionRepository.mjs";
 import * as answerRepository from "../repository/table/answerRepository.mjs";
 import * as profileRepository from "../repository/table/profileRepository.mjs";
+import * as workflowRepository from "../repository/table/workflowRepository.mjs";
 import { randomUUID } from "crypto";
+
+const newProfileId = async () => (await profileRepository.ensureProfile(randomUUID())).profile.internalId;
 
 describe("Azure Table question repository", () => {
   let questionId;
   let profileId;
 
-  beforeAll(() => {
-    profileId = randomUUID();
+  beforeAll(async () => {
+    profileId = await newProfileId();
+  });
+
+  it("rejects a question for a profile that does not exist", async () => {
+    await expect(
+      questionRepository.createQuestion({ profileId: randomUUID(), title: "orphan", questionText: "orphan", option: null })
+    ).rejects.toThrow(/profile not found/i);
   });
 
   it("creates a question", async () => {
@@ -83,12 +92,33 @@ describe("Azure Table question repository", () => {
   });
 });
 
+describe("Azure Table sharing and workflow repositories", () => {
+  it("shares a question and lists it for the receiver", async () => {
+    const senderProfileId = await newProfileId();
+    const receiverProfileId = await newProfileId();
+    const question = await questionRepository.createQuestion({ profileId: senderProfileId, title: "shared", questionText: "share me", option: null });
+
+    await questionRepository.shareQuestion(question.id, senderProfileId, [receiverProfileId]);
+
+    expect((await questionRepository.getSharedQuestionListByProfileId(receiverProfileId)).map(({ id }) => id)).toEqual([question.id]);
+  });
+
+  it("completes a command and records its event", async () => {
+    const correlationId = randomUUID();
+    const command = await workflowRepository.createCommand("FollowUpCmd", await newProfileId(), {}, correlationId.replaceAll("-", ""));
+
+    await workflowRepository.completeCommand(command);
+
+    expect(await workflowRepository.countEvents("FollowUpCmd", correlationId)).toBe(1);
+  });
+});
+
 describe("Azure Table answer repository", () => {
   let questionId;
 
   beforeAll(async () => {
     const created = await questionRepository.createQuestion({
-      profileId: randomUUID(),
+      profileId: await newProfileId(),
       title: "answers",
       questionText: "Which city?",
       option: ["Taipei", "Taichung"],
@@ -96,19 +126,35 @@ describe("Azure Table answer repository", () => {
     questionId = created.id;
   });
 
-  it("adds an answer and reads it back by id", async () => {
-    const profileId = randomUUID();
+  it("adds an answer and reads it back by id without Table Storage keys", async () => {
+    const profileId = await newProfileId();
     const added = await answerRepository.addAnswer({ questionId, profileId, answerText: null, optionId: "Taipei", duration: 120 });
 
     const found = await answerRepository.getAnswerById(questionId, added.id);
-    expect(found).toBeTruthy();
-    expect(found.profileId).toBe(profileId);
-    expect(found.optionId).toBe("Taipei");
+    expect(found).toEqual({
+      id: added.id,
+      questionId,
+      profileId,
+      answerText: null,
+      optionId: "Taipei",
+      duration: 120,
+      createdAt: expect.any(String),
+    });
+  });
+
+  it("rejects an answer to a question that does not exist", async () => {
+    const input = { questionId: randomUUID(), profileId: await newProfileId(), answerText: "x", optionId: null, duration: 1 };
+    await expect(answerRepository.addAnswer(input)).rejects.toThrow(/question not found/i);
+  });
+
+  it("rejects an answer from a profile that does not exist", async () => {
+    const input = { questionId, profileId: randomUUID(), answerText: "x", optionId: null, duration: 1 };
+    await expect(answerRepository.addAnswer(input)).rejects.toThrow(/profile not found/i);
   });
 
   it("returns only the latest answer per profile, with a running count", async () => {
-    const profileA = randomUUID();
-    const profileB = randomUUID();
+    const profileA = await newProfileId();
+    const profileB = await newProfileId();
 
     await answerRepository.addAnswer({ questionId, profileId: profileA, answerText: null, optionId: "Taipei", duration: 100 });
     await new Promise((resolve) => setTimeout(resolve, 5));
@@ -122,6 +168,7 @@ describe("Azure Table answer repository", () => {
     expect(byProfile[profileA].answerCount).toBe(2);
     expect(byProfile[profileB].optionId).toBe("Taipei");
     expect(byProfile[profileB].answerCount).toBe(1);
+    expect(byProfile[profileB].answerText).toBeNull();
   });
 });
 
@@ -133,6 +180,7 @@ describe("Azure Table profile repository", () => {
     expect(result.created).toBe(true);
     expect(result.profile.internalId).toBeTruthy();
     expect(result.profile.externalId).toBe(externalId);
+    expect(await profileRepository.getProfileByInternalId(result.profile.internalId)).toEqual(result.profile);
   });
 
   it("reuses the same internal id for a repeat external id", async () => {
@@ -141,7 +189,7 @@ describe("Azure Table profile repository", () => {
     const second = await profileRepository.ensureProfile(externalId);
 
     expect(second.created).toBe(false);
-    expect(second.profile.internalId).toBe(first.profile.internalId);
+    expect(second.profile).toEqual(first.profile);
   });
 
   it("dedupes concurrent first calls for the same external id to one internal id", async () => {
@@ -150,5 +198,6 @@ describe("Azure Table profile repository", () => {
 
     expect(a.profile.internalId).toBe(b.profile.internalId);
     expect([a.created, b.created].filter(Boolean)).toHaveLength(1);
+    expect(await profileRepository.getProfileByInternalId(a.profile.internalId)).toEqual(a.profile);
   });
 });
