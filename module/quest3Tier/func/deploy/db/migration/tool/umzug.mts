@@ -11,7 +11,7 @@ import {  Sequelize, DataTypes } from "@sequelize/core";
 function createUmzugInstance(sequelize, migrationDir) {
   return new Umzug({
     migrations: {
-      glob: join(migrationDir, "*.{mjs,cjs,js}").replace(/\\/g, "/"),
+      glob: join(migrationDir, "*.{mts,cts,ts,mjs,cjs,js}").replace(/\\/g, "/"),
       resolve: ({ name, path, context }) => {
         const migrationName = name ?? basename(path);
         const migrationModule = import(pathToFileURL(path).href);

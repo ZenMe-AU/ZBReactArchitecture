@@ -1,4 +1,4 @@
-import {getById} from "../repository/repository.js"; //TODO: This should be calling the repository layer instead of directly accessing the model.
+import repository from "../repository/repository.mjs"; //TODO: This should be calling the repository layer instead of directly accessing the model.
 import type { Question } from "../repository/interfaces.ts";
 
 type Questionnaire = {
@@ -19,6 +19,6 @@ type HandlerResponse = {
 
 export async function GetQuestionById(request: RequestWithQuestionId, context: unknown): Promise<HandlerResponse> {
   const { id: questionId } = request.params;
-  const questionnaire: Question | null = await getById(questionId);
+  const questionnaire: Question | null = await repository.getById(questionId);
   return { return: { detail: questionnaire } };
 }

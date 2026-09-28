@@ -392,8 +392,62 @@ async function patchById(questionId, action, profileId) {
     throw new Error(`Failed to patch question by ID: ${questionId}; ${err.message}`, { cause: err });
   }
 }
+async function getById(questionId) {
+  try {
+    return await models.Question.getQuestionById(questionId);
+  } catch (err) {
+    console.log(err);
+    throw new Error(`Function failed: ${err.message}`, { cause: err });
+  }
+}
+async function findProfileByExternalId(externalId) {
+  try {
+    return await models.Profile.findOne({
+      where: { external_id: externalId },
+      order: [
+        ["createdAt", "ASC"],
+        ["internal_id", "ASC"],
+      ],
+    });
+  } catch (err) {
+    console.log(err);
+    throw new Error(`Function failed: ${err.message}`, { cause: err });
+  }
+}
+
+async function createProfile(externalId) {
+  try {
+    return await models.Profile.create({ external_id: externalId });
+  } catch (err) {
+    console.log(err);
+    throw new Error(`Function failed: ${err.message}`, { cause: err });
+  }
+}
+
+async function getSharedQuestionListByProfileId(profileId) {
+  try {
+    return await models.Question.findAll({
+      where: {
+        "$QuestionShares.receiverProfileId$": profileId,
+      },
+      include: [
+        {
+          association: "QuestionShares",
+          attributes: [],
+        },
+      ],
+    });
+  } catch (err) {
+    console.log(err);
+    throw new Error(`Failed to retrieve shared questions for profileId: ${profileId}; ${err.message}`, { cause: err });
+  }
+}
 
 export default {
+  getSharedQuestionListByProfileId,
+  findProfileByExternalId,
+  createProfile,
+  getById,  
   patchById,
   getCombinationListByUser,
   updateById,

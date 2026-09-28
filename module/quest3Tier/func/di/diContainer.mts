@@ -4,6 +4,9 @@
  */
 
 class Container {
+  registry: Map<string, any>;
+  singletons: Map<string, any>;
+
   constructor() {
     this.registry = new Map();
     this.singletons = new Map();

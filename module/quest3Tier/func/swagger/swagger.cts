@@ -34,7 +34,7 @@ const swaggerOptions = {
     //   },
     // ],
   },
-  apis: [path.join(process.cwd(), "./handler.mjs"), path.join(process.cwd(), "./handler/*.mjs")], // Point to your function files
+  apis: [path.join(__dirname, "../handler/*.mjs")], // Point to your function files
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);

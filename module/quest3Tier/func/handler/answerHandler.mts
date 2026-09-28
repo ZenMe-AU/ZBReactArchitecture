@@ -3,6 +3,8 @@
  * @license SPDX-License-Identifier: MIT
  */
 
+import repository from "../repository/repository.mjs";
+
 /**
  * @swagger
  * /question/{id}/answer:
@@ -53,7 +55,7 @@ async function AddAnswer(request, context) {
   const { id: questionId } = request.params;
   const profileId = request.userData.profileId;
   const { answer = null, option = null, duration } = request.clientParams;
-  const questionnaire = await addAnswerByQuestionId(questionId, profileId, duration, answer, option);
+  const questionnaire = await repository.addAnswerByQuestionId(questionId, profileId, duration, answer, option);
   return { return: { id: questionnaire.id } };
 }
 
@@ -97,7 +99,7 @@ async function AddAnswer(request, context) {
  */
 async function GetAnswerById(request, context) {
   const { id: questionId, answerId } = request.params;
-  const answer = await getAnswerById(questionId, answerId);
+  const answer = await repository.getAnswerById(questionId, answerId);
   return { return: { detail: answer } };
 }
 
@@ -170,7 +172,7 @@ async function GetAnswerById(request, context) {
 async function GetAnswerListByQuestionId(request, context) {
   const { id: questionId } = request.params;
   const profileId = request.userData?.profileId;
-  const answers = await getAnswerListByQuestionId(questionId);
+  const answers = await repository.getAnswerListByQuestionId(questionId);
   const processedAnswers = answers.map((ans) => {
     return {
       ...ans,
