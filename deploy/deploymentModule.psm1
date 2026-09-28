@@ -461,10 +461,10 @@ function Install-AzureStorageExplorer {
             Write-Output "Azure Storage Explorer is already installed."
         }
     } elseif ($script:IsMacOS) {
-        $installed = Invoke-Brew list --cask azure-storage-explorer 2>$null
+        $installed = Invoke-Brew list --cask microsoft-azure-storage-explorer 2>$null
         if ($LASTEXITCODE -ne 0) {
             Write-Output "Azure Storage Explorer not found. Installing using Homebrew..."
-            Invoke-Brew install --cask azure-storage-explorer
+            Invoke-Brew install --cask microsoft-azure-storage-explorer
         } else {
             Write-Output "Azure Storage Explorer is already installed."
         }
