@@ -395,7 +395,7 @@ async function patchById(questionId, action, profileId) {
 
 export async function getById(questionId) {
     try {
-        const question = await model.Question.findByPk(questionId);
+        const question = await models.Question.findByPk(questionId);
         if (!question) {
             return null;
         }
