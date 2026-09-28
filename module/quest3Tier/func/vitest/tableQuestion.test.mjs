@@ -13,6 +13,7 @@ import * as questionRepository from "../repository/table/questionRepository.mjs"
 import * as answerRepository from "../repository/table/answerRepository.mjs";
 import * as profileRepository from "../repository/table/profileRepository.mjs";
 import * as workflowRepository from "../repository/table/workflowRepository.mjs";
+import { getTableClient } from "../repository/table/tableClient.mjs";
 import { randomUUID } from "crypto";
 
 const newProfileId = async () => (await profileRepository.ensureProfile(randomUUID())).profile.internalId;
@@ -181,6 +182,18 @@ describe("Azure Table profile repository", () => {
     expect(result.profile.internalId).toBeTruthy();
     expect(result.profile.externalId).toBe(externalId);
     expect(await profileRepository.getProfileByInternalId(result.profile.internalId)).toEqual(result.profile);
+
+    const stored = await (await getTableClient(profileRepository.PROFILES_TABLE)).getEntity(result.profile.internalId, "profile");
+    expect(stored.internal_id).toBe(result.profile.internalId);
+    expect(stored.external_id).toBe(externalId);
+    expect(stored.internalId).toBeUndefined();
+    expect(stored.externalId).toBeUndefined();
+
+    const storedIndex = await (await getTableClient(profileRepository.PROFILE_BY_EXTERNAL_ID_TABLE)).getEntity(externalId, "profile");
+    expect(storedIndex.internal_id).toBe(result.profile.internalId);
+    expect(storedIndex.external_id).toBe(externalId);
+    expect(storedIndex.internalId).toBeUndefined();
+    expect(storedIndex.externalId).toBeUndefined();
   });
 
   it("reuses the same internal id for a repeat external id", async () => {
@@ -199,5 +212,33 @@ describe("Azure Table profile repository", () => {
     expect(a.profile.internalId).toBe(b.profile.internalId);
     expect([a.created, b.created].filter(Boolean)).toHaveLength(1);
     expect(await profileRepository.getProfileByInternalId(a.profile.internalId)).toEqual(a.profile);
+  });
+
+  it("repairs a missing Profiles row from the external-id index", async () => {
+    const externalId = randomUUID();
+    const internalId = randomUUID();
+    const createdAt = new Date().toISOString();
+    const index = await getTableClient(profileRepository.PROFILE_BY_EXTERNAL_ID_TABLE);
+    await index.createEntity({ partitionKey: externalId, rowKey: "profile", internal_id: internalId, external_id: externalId, createdAt });
+
+    const result = await profileRepository.ensureProfile(externalId);
+
+    expect(result).toEqual({ profile: { internalId, externalId, createdAt }, created: false });
+    expect(await profileRepository.getProfileByInternalId(internalId)).toEqual(result.profile);
+  });
+
+  it("reads camelCase profile entities created earlier on this branch", async () => {
+    const externalId = randomUUID();
+    const internalId = randomUUID();
+    const createdAt = new Date().toISOString();
+    const legacy = { internalId, externalId, createdAt };
+    await (await getTableClient(profileRepository.PROFILE_BY_EXTERNAL_ID_TABLE)).createEntity({
+      partitionKey: externalId,
+      rowKey: "profile",
+      ...legacy,
+    });
+    await (await getTableClient(profileRepository.PROFILES_TABLE)).createEntity({ partitionKey: internalId, rowKey: "profile", ...legacy });
+
+    expect(await profileRepository.ensureProfile(externalId)).toEqual({ profile: legacy, created: false });
   });
 });

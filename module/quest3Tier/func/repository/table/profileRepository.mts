@@ -26,8 +26,11 @@ export interface ProfileRecord {
 interface ProfileByExternalIdEntity {
   partitionKey: string;
   rowKey: string;
-  internalId: string;
-  externalId: string;
+  internal_id?: string;
+  external_id?: string;
+  // Read compatibility for entities created earlier on this branch.
+  internalId?: string;
+  externalId?: string;
   createdAt: string;
 }
 
@@ -40,14 +43,36 @@ function isConflictError(err: unknown): boolean {
   return typeof err === "object" && err !== null && (err as { statusCode?: number }).statusCode === 409;
 }
 
+function toProfileRecord(entity: ProfileByExternalIdEntity): ProfileRecord {
+  const internalId = entity.internal_id ?? entity.internalId;
+  const externalId = entity.external_id ?? entity.externalId;
+  if (!internalId || !externalId) throw new Error("Invalid profile entity");
+  return { internalId, externalId, createdAt: entity.createdAt };
+}
+
+async function createProfileIfMissing(profile: ProfileRecord): Promise<void> {
+  const profilesClient = await getTableClient(PROFILES_TABLE);
+  try {
+    await profilesClient.createEntity({
+      partitionKey: profile.internalId,
+      rowKey: PROFILE_ROW_KEY,
+      internal_id: profile.internalId,
+      external_id: profile.externalId,
+      createdAt: profile.createdAt,
+    });
+  } catch (err) {
+    if (!isConflictError(err)) throw err;
+  }
+}
+
 export async function ensureProfile(externalId: string): Promise<EnsureProfileResult> {
   const byExternalIdClient = await getTableClient(PROFILE_BY_EXTERNAL_ID_TABLE);
 
   const candidate: ProfileByExternalIdEntity = {
     partitionKey: externalId,
     rowKey: PROFILE_ROW_KEY,
-    internalId: randomUUID(),
-    externalId,
+    internal_id: randomUUID(),
+    external_id: externalId,
     createdAt: new Date().toISOString(),
   };
 
@@ -59,26 +84,21 @@ export async function ensureProfile(externalId: string): Promise<EnsureProfileRe
   } catch (err) {
     if (!isConflictError(err)) throw err;
     const existing = await byExternalIdClient.getEntity<ProfileByExternalIdEntity>(externalId, PROFILE_ROW_KEY);
-    return { profile: { internalId: existing.internalId, externalId: existing.externalId, createdAt: existing.createdAt }, created: false };
+    const profile = toProfileRecord(existing);
+    await createProfileIfMissing(profile);
+    return { profile, created: false };
   }
 
-  const profilesClient = await getTableClient(PROFILES_TABLE);
-  await profilesClient.createEntity({
-    partitionKey: candidate.internalId,
-    rowKey: PROFILE_ROW_KEY,
-    internalId: candidate.internalId,
-    externalId: candidate.externalId,
-    createdAt: candidate.createdAt,
-  });
-
-  return { profile: { internalId: candidate.internalId, externalId: candidate.externalId, createdAt: candidate.createdAt }, created: true };
+  const profile = toProfileRecord(candidate);
+  await createProfileIfMissing(profile);
+  return { profile, created: true };
 }
 
 export async function getProfileByInternalId(internalId: string): Promise<ProfileRecord | null> {
   const client = await getTableClient(PROFILES_TABLE);
   try {
     const entity = await client.getEntity<ProfileByExternalIdEntity>(internalId, PROFILE_ROW_KEY);
-    return { internalId: entity.internalId, externalId: entity.externalId, createdAt: entity.createdAt };
+    return toProfileRecord(entity);
   } catch (err) {
     if (isNotFoundError(err)) return null;
     throw err;
