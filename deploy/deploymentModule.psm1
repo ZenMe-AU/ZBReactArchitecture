@@ -97,6 +97,7 @@ function Install-DevAiTools {
     Install-Jq
     Install-Yq
     Install-GitHubCli
+    Install-GitHubCopilotCli
     Install-Packer
     Install-DockerCli
 }
@@ -627,6 +628,34 @@ function Install-GitHubCli {
     }
 }
 
+# Ensures GitHub Copilot CLI is installed.
+function Install-GitHubCopilotCli {
+    $copilotCli = Get-Command copilot -ErrorAction SilentlyContinue
+    if (-not $copilotCli) {
+        if ($script:IsWindows) {
+            Write-Output "GitHub Copilot CLI not found. Installing using WinGet..."
+            winget install GitHub.Copilot -e --silent
+        } elseif ($script:IsMacOS) {
+            Write-Output "GitHub Copilot CLI not found. Installing using Homebrew..."
+            Invoke-Brew install --cask copilot-cli
+        } elseif ($script:IsUbuntu) {
+            Write-Output "GitHub Copilot CLI not found. Installing using npm..."
+            curl -fsSL https://gh.io/copilot-install | bash
+        } else {
+            Write-Warning "Unsupported OS for automatic GitHub Copilot CLI installation. Please install it manually."
+            return 1
+        }
+        Update-ProcessPathFromEnvironment
+        $copilotCli = Get-Command copilot -ErrorAction SilentlyContinue
+        if (-not $copilotCli) {
+            Write-Error "GitHub Copilot CLI installation failed. Please install it manually. Visit https://docs.github.com/en/copilot/how-tos/set-up/install-copilot-cli for instructions."
+            return 1
+        }
+    } else {
+        Write-Output "GitHub Copilot CLI is already installed."
+    }
+}
+
 function Set-TerraformEnvironmentType {
     param(
         [string]$type = "dev"
@@ -750,4 +779,4 @@ function Update-ProcessPathFromEnvironment {
     }
 }
 
-Export-ModuleMember -Function Initialize-PlatformState,Install-Pnpm,Install-NodeJsAndNpm,Install-Terraform,Install-Packer,Install-DockerCli,Install-PostgreSql,Install-AwsCli,Install-AzureCli,Install-AzureStorageExplorer,Install-Ripgrep,Install-Fd,Install-Jq,Install-Yq,Install-GitHubCli,Set-TerraformEnvironmentType,Set-ProjectRootFolder,Install-ProjectDependencies,Initialize-ResourceGroupBootstrap,Publish-MainEnvironment,Publish-ModuleDeployments,Publish-UserInterface,Test-InitializationEnvironment,Install-DevTools,Install-DevAiTools
+Export-ModuleMember -Function Initialize-PlatformState,Install-Pnpm,Install-NodeJsAndNpm,Install-Terraform,Install-Packer,Install-DockerCli,Install-PostgreSql,Install-AwsCli,Install-AzureCli,Install-AzureStorageExplorer,Install-Ripgrep,Install-Fd,Install-Jq,Install-Yq,Install-GitHubCli,Install-GitHubCopilotCli,Set-TerraformEnvironmentType,Set-ProjectRootFolder,Install-ProjectDependencies,Initialize-ResourceGroupBootstrap,Publish-MainEnvironment,Publish-ModuleDeployments,Publish-UserInterface,Test-InitializationEnvironment,Install-DevTools,Install-DevAiTools
