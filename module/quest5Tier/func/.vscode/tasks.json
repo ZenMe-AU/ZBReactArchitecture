@@ -3,8 +3,8 @@
   "tasks": [
     {
       "label": "Start",
-      "type": "func",
-      "command": "host start",
+      "type": "shell",
+      "command": "pnpm run start",
       "isBackground": true,
       "problemMatcher": "$func-node-watch",
     },

@@ -80,6 +80,7 @@ function Install-DevTools {
     Install-PostgreSql
     Install-AwsCli
     Install-AzureCli
+    Install-AzureStorageExplorer
     Install-GitHubCli
 }
 
@@ -90,6 +91,7 @@ function Install-DevAiTools {
     Install-PostgreSql
     Install-AwsCli
     Install-AzureCli
+    Install-AzureStorageExplorer
     Install-Ripgrep
     Install-Fd
     Install-Jq
@@ -448,6 +450,29 @@ function Install-AzureCli {
     }
 }
 
+# Ensures Azure Storage Explorer is installed (Windows: winget, Mac: brew)
+function Install-AzureStorageExplorer {
+    if ($script:IsWindows) {
+        $installed = winget list --id Microsoft.AzureStorageExplorer -e --accept-source-agreements 2>$null
+        if ($LASTEXITCODE -ne 0 -or -not ($installed -match 'Microsoft\.AzureStorageExplorer')) {
+            Write-Output "Azure Storage Explorer not found. Installing using winget..."
+            winget install --id Microsoft.Azure.StorageExplorer -e --silent --accept-source-agreements --accept-package-agreements
+        } else {
+            Write-Output "Azure Storage Explorer is already installed."
+        }
+    } elseif ($script:IsMacOS) {
+        $installed = Invoke-Brew list --cask azure-storage-explorer 2>$null
+        if ($LASTEXITCODE -ne 0) {
+            Write-Output "Azure Storage Explorer not found. Installing using Homebrew..."
+            Invoke-Brew install --cask azure-storage-explorer
+        } else {
+            Write-Output "Azure Storage Explorer is already installed."
+        }
+    } else {
+        Write-Warning "Automatic Azure Storage Explorer installation is not configured for this OS. Please install it manually from https://azure.microsoft.com/products/storage/storage-explorer/."
+    }
+}
+
 # Ensures ripgrep (rg) is installed, and installs if missing (Windows: winget, Mac: brew)
 function Install-Ripgrep {
     $rg = Get-Command rg -ErrorAction SilentlyContinue
@@ -754,4 +779,4 @@ function Update-ProcessPathFromEnvironment {
     }
 }
 
-Export-ModuleMember -Function Initialize-PlatformState,Install-Pnpm,Install-NodeJsAndNpm,Install-Terraform,Install-Packer,Install-DockerCli,Install-PostgreSql,Install-AwsCli,Install-AzureCli,Install-Ripgrep,Install-Fd,Install-Jq,Install-Yq,Install-GitHubCli,Install-GitHubCopilotCli,Set-TerraformEnvironmentType,Set-ProjectRootFolder,Install-ProjectDependencies,Initialize-ResourceGroupBootstrap,Publish-MainEnvironment,Publish-ModuleDeployments,Publish-UserInterface,Test-InitializationEnvironment,Install-DevTools,Install-DevAiTools
+Export-ModuleMember -Function Initialize-PlatformState,Install-Pnpm,Install-NodeJsAndNpm,Install-Terraform,Install-Packer,Install-DockerCli,Install-PostgreSql,Install-AwsCli,Install-AzureCli,Install-AzureStorageExplorer,Install-Ripgrep,Install-Fd,Install-Jq,Install-Yq,Install-GitHubCli,Install-GitHubCopilotCli,Set-TerraformEnvironmentType,Set-ProjectRootFolder,Install-ProjectDependencies,Initialize-ResourceGroupBootstrap,Publish-MainEnvironment,Publish-ModuleDeployments,Publish-UserInterface,Test-InitializationEnvironment,Install-DevTools,Install-DevAiTools

@@ -6,8 +6,7 @@
   "main": "index.js",
   "scripts": {
     "start": "func start",
-    "deploy": "pnpm deploy --filter quest5Tier --prod out",
-    "test": "jest"
+    "deploy": "pnpm deploy --filter quest5Tier --prod out"
   },
   "dependencies": {
     "@azure/functions": "^4.0.0",
