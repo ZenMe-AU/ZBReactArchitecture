@@ -5,8 +5,8 @@
 
 // Row shapes stored under the QuestionData table. Table Storage properties
 // are limited to String/Int32/Int64/Double/Boolean/DateTime/Guid/Binary, so
-// arrays and objects (option, actionData, originalData) are stored as JSON
-// strings and parsed back at the repository boundary.
+// arrays (option) are stored as JSON strings and parsed back at the
+// repository boundary.
 
 export interface QuestionEntity {
   partitionKey: string;
@@ -19,20 +19,6 @@ export interface QuestionEntity {
   eventId: string;
   createdAt: string;
   etag?: string;
-}
-
-export interface QuestionEventEntity {
-  partitionKey: string;
-  rowKey: string;
-  id: string;
-  questionId: string;
-  profileId: string;
-  eventKind: "log" | "action";
-  action: string; // "create" | "update" for eventKind=log, JSON Patch ops for eventKind=action
-  actionData: string | null; // JSON-encoded question snapshot, log rows only
-  originalData: string | null; // JSON-encoded previous question snapshot, log rows only
-  lastEventId: string | null;
-  createdAt: string;
 }
 
 export interface AnswerEntity {

@@ -41,4 +41,4 @@ describe("test question data", () => {
     checkShareQuestion(profileIdLookup, testCorrelationId);
     checkFollowUpQty(testCorrelationId, profileIdLookup);
   });
-});
+ });

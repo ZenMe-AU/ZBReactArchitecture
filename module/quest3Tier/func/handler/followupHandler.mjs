@@ -55,7 +55,7 @@ import cmdName from "../enum/cmdName.mjs";
  */
 async function GetEventByCorrelationId(request, context) {
   const { name, correlationId } = request.params;
-  const qty = await getEventByCorrelationId(name, correlationId);
+  const qty = await getEventByCorrelationId(name, correlationId, request.userData.profileId);
   return { return: { qty } };
 }
 
@@ -65,12 +65,12 @@ async function GetEventByCorrelationId(request, context) {
  * @param {string} correlationId - Correlation ID for the events.
  * @returns {Promise<any[]>} List of matching events.
  */
-async function getEventByCorrelationId(name, correlationId) {
+async function getEventByCorrelationId(name, correlationId, profileId) {
   if (name !== cmdName.FollowUpCmd && name !== cmdName.QuestionShareCmd) {
     throw new Error(`Unknown eventName: ${name}`);
   }
   try {
-    return await workflowRepository.countEvents(name, correlationId);
+    return await workflowRepository.countEvents(name, correlationId, profileId);
   } catch (err) {
     console.log(err);
     throw new Error(`Failed to get event by correlationId: ${correlationId}; ${err.message}`, { cause: err });

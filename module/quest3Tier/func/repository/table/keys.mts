@@ -3,36 +3,32 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-// PartitionKey/RowKey builders for the QuestionData table. One partition per
-// questionId keeps Question + its answers + its audit trail inside a single
-// Azure Table batch transaction (same-partition, up to 100 ops / 4 MiB).
-// See: https://learn.microsoft.com/en-us/azure/storage/tables/table-storage-design-guidelines
+// QuestionData is partitioned by profileId. RowKey prefixes preserve each
+// PostgreSQL record type while keeping every record as a separate entity.
 
 export const QUESTION_DATA_TABLE = "QuestionData";
 
-export function questionPartitionKey(questionId: string): string {
-  return questionId;
+export function questionPartitionKey(profileId: string): string {
+  return profileId;
 }
 
-export function questionRowKey(): string {
-  return "question";
+export function questionRowKey(questionId: string): string {
+  return `question:${questionId}`;
 }
 
-export function answerRowKey(profileId: string, createdAt: string, answerId: string): string {
-  return `answer:${profileId}:${createdAt}:${answerId}`;
+export const QUESTION_ROW_KEY_RANGE_START = "question:";
+export const QUESTION_ROW_KEY_RANGE_END = "question;";
+
+export function answerRowKey(questionId: string, answerId: string): string {
+  return `answer:${questionId}:${answerId}`;
 }
 
-// RowKey range bounds for "all answer rows in this partition". ':' + 1 char
-// code point (';') bounds a prefix scan without matching unrelated rows.
-export const ANSWER_ROW_KEY_RANGE_START = "answer:";
-export const ANSWER_ROW_KEY_RANGE_END = "answer;";
-
-export function eventRowKey(eventId: string): string {
-  return `event:${eventId}`;
+export function answerRowKeyRange(questionId: string): [string, string] {
+  return [`answer:${questionId}:`, `answer:${questionId};`];
 }
 
-export function shareRowKey(shareId: string): string {
-  return `share:${shareId}`;
+export function shareRowKey(questionId: string, shareId: string): string {
+  return `share:${questionId}:${shareId}`;
 }
 
 export const SHARE_ROW_KEY_RANGE_START = "share:";

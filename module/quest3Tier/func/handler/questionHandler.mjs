@@ -132,8 +132,9 @@ async function create(profileId, title = null, question = null, option = null) {
  */
 async function UpdateQuestionById(request, context) {
   const { id: questionId } = request.params;
+  const profileId = request.userData.profileId;
   const { title = null, option = null, questionText } = request.clientParams;
-  const question = await updateById(questionId, title, questionText, option);
+  const question = await updateById(questionId, title, questionText, option, profileId);
   return { return: { id: question.id } };
 }
 
@@ -145,9 +146,9 @@ async function UpdateQuestionById(request, context) {
  * @param {string|null} [option=null] - Updated option metadata.
  * @returns {Promise<any>} Result of the update operation.
  */
-async function updateById(questionId, title = null, questionText = null, option = null) {
+async function updateById(questionId, title = null, questionText = null, option = null, profileId) {
   try {
-    return await questionRepository.updateQuestionById(questionId, { title, questionText, option });
+    return await questionRepository.updateQuestionById(questionId, { title, questionText, option }, profileId);
   } catch (err) {
     console.log(err);
     throw new Error(`Failed to update question for questionId: ${questionId}; ${err.message}`, { cause: err });

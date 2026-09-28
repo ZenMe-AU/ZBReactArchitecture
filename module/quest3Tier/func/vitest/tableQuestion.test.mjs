@@ -21,9 +21,11 @@ const newProfileId = async () => (await profileRepository.ensureProfile(randomUU
 describe("Azure Table question repository", () => {
   let questionId;
   let profileId;
+  let updateProfileId;
 
   beforeAll(async () => {
     profileId = await newProfileId();
+    updateProfileId = await newProfileId();
   });
 
   it("rejects a question for a profile that does not exist", async () => {
@@ -42,6 +44,8 @@ describe("Azure Table question repository", () => {
 
     questionId = created.id;
     expect(questionId).toBeTruthy();
+    const stored = await (await getTableClient("QuestionData")).getEntity(profileId, `question:${questionId}`);
+    expect(stored.profileId).toBe(profileId);
   });
 
   it("reads the created question", async () => {
@@ -64,30 +68,52 @@ describe("Azure Table question repository", () => {
       title: "table-updated",
       questionText: "CRUD update via Table Storage",
       option: null,
-    });
+    }, updateProfileId);
 
     const updated = await questionRepository.getQuestionById(questionId);
 
     expect(updated.title).toBe("table-updated");
     expect(updated.questionText).toBe("CRUD update via Table Storage");
     expect(updated.option).toBeNull();
+    expect(updated.profileId).toBe(profileId);
   });
 
   it("applies a JSON Patch and records the action", async () => {
-    const action = await questionRepository.patchQuestionById(questionId, profileId, [
+    const patchOps = [
       { op: "replace", path: "/title", value: "table-patched" },
       { op: "replace", path: "/option", value: [{ id: "B", text: "two" }] },
-    ]);
+    ];
+    const action = await questionRepository.patchQuestionById(questionId, profileId, patchOps);
 
     expect(action.id).toBeTruthy();
 
     const patched = await questionRepository.getQuestionById(questionId);
     expect(patched.title).toBe("table-patched");
     expect(patched.option).toEqual([{ id: "B", text: "two" }]);
+
+    const userEvents = await (await getTableClient(workflowRepository.USER_EVENTS_TABLE)).getEntity(
+      profileId,
+      "events"
+    );
+    expect(JSON.parse(userEvents.items).filter(({ eventType }) => eventType === "LogQuestion")).toHaveLength(2);
+    expect(JSON.parse(userEvents.items).filter(({ eventType }) => eventType === "QuestionAction")).toEqual([
+      { eventType: "QuestionAction", id: action.id, questionId, profileId, action: JSON.stringify(patchOps), createdAt: expect.any(String) },
+    ]);
+
+    const updaterEvents = await (await getTableClient(workflowRepository.USER_EVENTS_TABLE)).getEntity(updateProfileId, "events");
+    const updaterLogs = JSON.parse(updaterEvents.items).filter(({ eventType }) => eventType === "LogQuestion");
+    expect(updaterLogs).toHaveLength(1);
+    expect(updaterLogs[0].profileId).toBe(updateProfileId);
+
+    const questionRows = [];
+    for await (const row of (await getTableClient("QuestionData")).listEntities({ queryOptions: { filter: `PartitionKey eq '${profileId}'` } })) {
+      questionRows.push(row);
+    }
+    expect(questionRows.map(({ rowKey }) => rowKey)).toEqual([`question:${questionId}`]);
   });
 
   it("rejects an update to a question that no longer exists", async () => {
-    await expect(questionRepository.updateQuestionById(randomUUID(), { title: "x", questionText: "x", option: null })).rejects.toThrow(
+    await expect(questionRepository.updateQuestionById(randomUUID(), { title: "x", questionText: "x", option: null }, profileId)).rejects.toThrow(
       /not found/i
     );
   });
@@ -105,18 +131,32 @@ describe("Azure Table sharing and workflow repositories", () => {
     const client = await getTableClient("QuestionData");
     let storedShare;
     for await (const entity of client.listEntities()) {
-      if (entity.partitionKey === question.id && entity.rowKey.startsWith("share:")) storedShare = entity;
+      if (entity.rowKey.startsWith(`share:${question.id}:`)) storedShare = entity;
     }
+    expect(storedShare.partitionKey).toBe(senderProfileId);
     expect(storedShare.type).toBe(0);
   });
 
-  it("completes a command and records its event", async () => {
-    const correlationId = randomUUID();
-    const command = await workflowRepository.createCommand("FollowUpCmd", await newProfileId(), {}, correlationId.replaceAll("-", ""));
+  it("stores follow-up and question-share commands and events in one user projection", async () => {
+    const profileId = await newProfileId();
 
-    await workflowRepository.completeCommand(command);
+    for (const commandName of ["FollowUpCmd", "QuestionShareCmd"]) {
+      const correlationId = randomUUID();
+      const command = await workflowRepository.createCommand(commandName, profileId, {}, correlationId.replaceAll("-", ""));
+      await workflowRepository.completeCommand(command);
+      expect(await workflowRepository.countEvents(commandName, correlationId, profileId)).toBe(1);
+    }
 
-    expect(await workflowRepository.countEvents("FollowUpCmd", correlationId)).toBe(1);
+    const stored = await (await getTableClient(workflowRepository.USER_EVENTS_TABLE)).getEntity(
+      profileId,
+      "events"
+    );
+    expect(JSON.parse(stored.items).map(({ eventType }) => eventType)).toEqual([
+      "FollowUpCmd",
+      "FollowUpEvent",
+      "QuestionShareCmd",
+      "QuestionShareEvent",
+    ]);
   });
 });
 
@@ -147,6 +187,8 @@ describe("Azure Table answer repository", () => {
       duration: 120,
       createdAt: expect.any(String),
     });
+    const stored = await (await getTableClient("QuestionData")).getEntity(profileId, `answer:${questionId}:${added.id}`);
+    expect(stored.profileId).toBe(profileId);
   });
 
   it("rejects an answer to a question that does not exist", async () => {
