@@ -1,4 +1,4 @@
-import {getById} from "../repository/repository.js"; //TODO: This should be calling the repository layer instead of directly accessing the model.
+import {getById} from "../repository/repository"; //TODO: This should be calling the repository layer instead of directly accessing the model.
 import type { Question } from "../repository/interfaces.ts";
 
 type Questionnaire = {

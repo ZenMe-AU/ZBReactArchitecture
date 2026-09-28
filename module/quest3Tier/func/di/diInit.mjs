@@ -57,8 +57,8 @@ register("authProvider", async () => {
 
 // register db
 register("db", async () => {
-  const { createDatabaseInstance } = await import("../repository/model/connection/index.mjs");
-  const { initRepository } = await import("../repository/repository.js");
+  const { createDatabaseInstance } = await import("../repository/models/connection/index");
+  const { initRepository } = await import("../repository/repository");
   const DB_TYPE = (await import("../enum/dbType.mjs")).default;
 
   const modelDir = path.join(__dirname, "..", "repository", "model");
