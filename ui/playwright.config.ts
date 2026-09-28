@@ -57,6 +57,15 @@ export default defineConfig({
       testMatch: ["/pwtests/**/*.spec.ts"],
       use: { ...devices["Desktop Chrome"] },
     },
+
+    {
+      name: "access-pass-setup",
+      testMatch: /azure-passkey\.setup\.ts/,
+      fullyParallel: false,
+      use: {
+        ...devices["Desktop Chrome"],
+      },
+    },
   ],
 
   /* Run your local dev server before starting the tests */
