@@ -102,6 +102,12 @@ describe("Azure Table sharing and workflow repositories", () => {
     await questionRepository.shareQuestion(question.id, senderProfileId, [receiverProfileId]);
 
     expect((await questionRepository.getSharedQuestionListByProfileId(receiverProfileId)).map(({ id }) => id)).toEqual([question.id]);
+    const client = await getTableClient("QuestionData");
+    let storedShare;
+    for await (const entity of client.listEntities()) {
+      if (entity.partitionKey === question.id && entity.rowKey.startsWith("share:")) storedShare = entity;
+    }
+    expect(storedShare.type).toBe(0);
   });
 
   it("completes a command and records its event", async () => {

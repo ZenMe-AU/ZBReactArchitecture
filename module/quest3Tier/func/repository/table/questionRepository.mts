@@ -146,7 +146,7 @@ export async function shareQuestion(questionId: string, senderProfileId: string,
   const createdAt = new Date().toISOString();
   const shares = receiverProfileIds.map((receiverProfileId): QuestionShareEntity => {
     const id = randomUUID();
-    return { partitionKey: questionPartitionKey(questionId), rowKey: shareRowKey(id), id, newQuestionId: questionId, senderProfileId, receiverProfileId, status: 0, createdAt };
+    return { partitionKey: questionPartitionKey(questionId), rowKey: shareRowKey(id), id, newQuestionId: questionId, senderProfileId, receiverProfileId, status: 0, type: 0, createdAt };
   });
 
   const client = await getTableClient(QUESTION_DATA_TABLE);

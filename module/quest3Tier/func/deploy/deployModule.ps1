@@ -1,8 +1,6 @@
 # This script deploys the Function App by:
 # 1. Building the environment (terraform).
-# 2. Applying database security configurations.
-# 3. Updating the database schema.
-# 4. Deploying the Function App code.
+# 2. Deploying the Function App code.
 
 # Define a script parameter named "type" (string).
 # This allows the script to be called with -type <value>, e.g.: .\deploy.ps1 -type dev
@@ -38,17 +36,6 @@ Write-Output "Deploying the Function App environment..."
 Set-Location $env:MODULE_FOLDER\deploy\env
 node ./deployEnvironment.mjs --auto-approve
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-# Configure database security for Function App
-Write-Output "Applying database security settings..."
-node ./databaseSecurity.mjs
-if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-
-# Update database schema for Function App
-Write-Output "Updating database schema..."
-Set-Location $env:MODULE_FOLDER\deploy\db
-node ./updateDbSchema.mjs
-if ($LASTEXITCODE -ne 0) { Write-Warning "Update database schema failed" }
 
 # Deploy Function App code
 Write-Output "Deploying the Function App code..."

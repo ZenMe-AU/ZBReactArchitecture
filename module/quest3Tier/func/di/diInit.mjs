@@ -8,8 +8,6 @@ import container from "./diContainer.mjs";
 import * as authEntraID from "../service/authEntraID.mjs";
 import * as authLocal from "../service/authLocal.mjs";
 
-// ponytail: legacy Sequelize files stay for a separate cleanup; Q3 runtime no longer initializes PostgreSQL.
-
 register("authProvider", async () => {
   const authProviders = {
     authEntraID,

@@ -11,7 +11,6 @@ import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
 // const { SimpleSpanProcessor } = require("@opentelemetry/sdk-trace-node");
 // const { ErrorOrSampleProcessor } = require("./errorOrSampleProcessor");
 import { HttpInstrumentation } from "@opentelemetry/instrumentation-http";
-import { PgInstrumentation } from "@opentelemetry/instrumentation-pg";
 
 const exporter = new AzureMonitorTraceExporter({
   connectionString: process.env.APPLICATIONINSIGHTS_CONNECTION_STRING,
@@ -28,7 +27,7 @@ const sdk = new NodeSDK({
   resource: resourceFromAttributes({
     [ATTR_SERVICE_NAME]: serviceName,
   }),
-  instrumentations: [new HttpInstrumentation(), new PgInstrumentation()],
+  instrumentations: [new HttpInstrumentation()],
   //   spanProcessors: [new ErrorOrSampleProcessor(exporter, 0.05), new ErrorOrSampleProcessor(otlpExporter, 0.05)],
 });
 

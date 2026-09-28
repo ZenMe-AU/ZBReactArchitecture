@@ -3,7 +3,6 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import { createInterface } from "readline";
 import { terraformInit, terraformPlan, terraformApply } from "./terraformCli.mjs";
 import {
   getFunctionAppName,
@@ -12,10 +11,8 @@ import {
   getAppConfigName,
   getAppInsightsName,
   getIdentityName,
-  getDbAdminName,
   getModuleServicePlanName,
   getModuleStorageAccountContainerName,
-  getPgServerName,
   getStorageAccountWebName,
   getLogAnalyticsWorkspaceName,
   getApimName,
@@ -23,11 +20,10 @@ import {
 import { getSubscriptionId } from "../../../../../deploy/util/azureCli.cjs";
 
 class classDeployEnvironment {
-  constructor({ envType, targetEnv, moduleName, dbName, backendConfig, logLevel = "", autoApprove = false }) {
+  constructor({ envType, targetEnv, moduleName, backendConfig, logLevel = "", autoApprove = false }) {
     this.envType = envType;
     this.targetEnv = targetEnv;
     this.moduleName = moduleName;
-    this.dbName = dbName || moduleName;
     this.logLevel = logLevel;
     this.autoApprove = autoApprove;
 
@@ -37,10 +33,8 @@ class classDeployEnvironment {
     this.storageAccountName = getStorageAccountName(this.targetEnv);
     this.appInsightsName = getAppInsightsName(this.targetEnv);
     this.identityName = getIdentityName(this.targetEnv);
-    this.dbAdminName = getDbAdminName(this.targetEnv);
     this.servicePlanName = getModuleServicePlanName(this.targetEnv, this.moduleName);
     this.storageAccountContainerName = getModuleStorageAccountContainerName(this.targetEnv, this.moduleName);
-    this.pgServerName = getPgServerName(this.targetEnv);
     this.storageAccountWebName = getStorageAccountWebName(this.targetEnv);
     this.appConfigName = getAppConfigName(this.targetEnv);
     this.logAnalyticsWorkspaceName = getLogAnalyticsWorkspaceName(this.targetEnv);
@@ -60,7 +54,6 @@ class classDeployEnvironment {
     process.env.TF_VAR_target_env = this.targetEnv;
     process.env.TF_VAR_module_name = this.moduleName;
     process.env.TF_VAR_subscription_id = this.subscriptionId;
-    process.env.TF_VAR_db_name = this.dbName;
     process.env.TF_LOG = this.logLevel;
 
     process.env.TF_VAR_function_app_name = this.functionAppName;
@@ -68,10 +61,8 @@ class classDeployEnvironment {
     process.env.TF_VAR_storage_account_name = this.storageAccountName;
     process.env.TF_VAR_app_insights_name = this.appInsightsName;
     process.env.TF_VAR_identity_name = this.identityName;
-    process.env.TF_VAR_db_admin_name = this.dbAdminName;
     process.env.TF_VAR_service_plan_name = this.servicePlanName;
     process.env.TF_VAR_storage_account_container_name = this.storageAccountContainerName;
-    process.env.TF_VAR_pg_server_name = this.pgServerName;
     process.env.TF_VAR_storage_account_web_name = this.storageAccountWebName;
     process.env.TF_VAR_appconfig_name = this.appConfigName;
     process.env.TF_VAR_log_analytics_workspace_name = this.logAnalyticsWorkspaceName;

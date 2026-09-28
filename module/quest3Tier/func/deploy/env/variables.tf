@@ -53,16 +53,6 @@ variable "storage_account_container_name" {
   type        = string
 }
 
-variable "pg_server_name" {
-  description = "The name of the postgreSQL server"
-  type        = string
-}
-
-variable "db_name" {
-  description = "The name of the database"
-  type        = string
-}
-
 variable "appconfig_name" {
   description = "The name of the app configuration"
   type        = string
@@ -133,11 +123,6 @@ data "azurerm_app_configuration" "config" {
 data "azurerm_app_configuration_key" "app_client_id" {
   configuration_store_id = data.azurerm_app_configuration.config.id
   key                    = "AppClientId"
-}
-# Get the postgreSQL server details
-data "azurerm_postgresql_flexible_server" "main_server" {
-  name                = var.pg_server_name
-  resource_group_name = data.azurerm_resource_group.main_rg.name
 }
 # Get the Log Analytics Workspace details
 data "azurerm_log_analytics_workspace" "log_analytics_workspace" {

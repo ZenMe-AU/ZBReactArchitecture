@@ -3,10 +3,8 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-// Explicit TableClient factory, mirroring the two auth modes already used by
-// repository/model/connection/postgres.mjs: a connection string for local
-// dev (Azurite), DefaultAzureCredential against the user-assigned identity
-// in Azure. No ORM, no model loader: one TableClient per table name.
+// Use a connection string for local Azurite and managed identity in Azure.
+// No ORM or model loader: one TableClient per table name.
 
 import { TableClient } from "@azure/data-tables";
 import { DefaultAzureCredential } from "@azure/identity";

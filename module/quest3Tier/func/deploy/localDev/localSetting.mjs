@@ -4,8 +4,8 @@
  */
 
 import { resolve } from "path";
-import { getTargetEnv, getModuleName } from "../../../../../deploy/util/envSetup.cjs";
-import { getDbAdminName, getPgHost, getServiceBusHost, getAppInsightsName, getResourceGroupName } from "../../../../../deploy/util/namingConvention.cjs";
+import { getTargetEnv } from "../../../../../deploy/util/envSetup.cjs";
+import { getAppInsightsName, getResourceGroupName } from "../../../../../deploy/util/namingConvention.cjs";
 import { getAppInsightsConnectionString } from "../../../../../deploy/util/azureCli.cjs";
 import { existsSync, readFileSync, writeFileSync } from "fs";
 
@@ -37,23 +37,17 @@ const customSettings = {
 (async () => {
   const fileName = "local.settings.json";
   const path = resolve(moduleDir, "func", fileName);
-  let targetEnv,
-    moduleName,
-    envType,
-    json,
-    isEnvSetUp = true;
+  let targetEnv, envType, json;
   try {
     envType = process.env.TF_VAR_env_type || "dev";
     targetEnv = (() => {
       try {
         return getTargetEnv();
       } catch (err) {
-        isEnvSetUp = false;
         console.warn("[WARNING] Failed to determine target environment, defaulting to 'localDev':", err.message);
         return "localDev";
       }
     })();
-    moduleName = getModuleName(moduleDir);
     json = localSettingTemplate;
 
     if (existsSync(path)) {
@@ -73,18 +67,8 @@ const customSettings = {
           return "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://westus-0.in.applicationinsights.azure.com/";
         }
       })(),
-      // ServiceBusConnection: getServiceBusHost(targetEnv),
-      DB_USERNAME: getDbAdminName(envType),
-      DB_DATABASE: moduleName,
-      DB_HOST: getPgHost(targetEnv),
       ...customSettings,
     };
-
-    if (!isEnvSetUp) {
-      json.Values.DB_USERNAME = "root";
-      json.Values.DB_HOST = "localhost";
-      json.Values.DB_PASSWORD = "DatabasePassword123!";
-    }
 
     writeFileSync(path, JSON.stringify(json, null, 2));
     console.log(`Environment variables initialized in ${fileName}`);

@@ -56,6 +56,7 @@ export interface QuestionShareEntity {
   senderProfileId: string;
   receiverProfileId: string;
   status: number;
+  type: number;
   createdAt: string;
 }
 
