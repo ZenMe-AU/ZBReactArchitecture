@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import DB_TYPE from "../enum/dbType.mjs";
 import container from "../di/diContainer.mjs";
-import models from "../repository/model/index.mjs";
+import models from "../repository/repository.js";
 import { BaseRepository } from "../repository/baseRepository.mjs";
 import { createDatabaseInstance } from "../repository/model/connection/index.mjs";
 import { createModelsLoader } from "../repository/model/loader/index.mjs";
