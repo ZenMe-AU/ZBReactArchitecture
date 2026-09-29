@@ -8,7 +8,7 @@
 // endpoint by endpoint while both exist. Requires Azurite's table service
 // (see package.json "test:table" script).
 
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import * as questionRepository from "../repository/table/questionRepository.mjs";
 import * as answerRepository from "../repository/table/answerRepository.mjs";
 import * as profileRepository from "../repository/table/profileRepository.mjs";
@@ -288,5 +288,59 @@ describe("Azure Table profile repository", () => {
     await (await getTableClient(profileRepository.PROFILES_TABLE)).createEntity({ partitionKey: internalId, rowKey: "profile", ...legacy });
 
     expect(await profileRepository.ensureProfile(externalId)).toEqual({ profile: legacy, created: false });
+  });
+});
+
+describe("Azure Table profile share list", () => {
+  const namedProfiles = [];
+  const newNamedProfile = async (name, email) => {
+    const { profile } = await profileRepository.ensureProfile(randomUUID(), { name, email });
+    namedProfiles.push(profile);
+    return profile;
+  };
+  const storedProfile = async (internalId) => (await getTableClient(profileRepository.PROFILES_TABLE)).getEntity(internalId, "profile");
+
+  // Named profiles would otherwise show up in the local dev share list.
+  afterAll(async () => {
+    const profiles = await getTableClient(profileRepository.PROFILES_TABLE);
+    const index = await getTableClient(profileRepository.PROFILE_BY_EXTERNAL_ID_TABLE);
+    await Promise.all(
+      namedProfiles.flatMap(({ internalId, externalId }) => [profiles.deleteEntity(internalId, "profile"), index.deleteEntity(externalId, "profile")])
+    );
+  });
+
+  it("stores the name and email from the token and keeps them when a later call has none", async () => {
+    const profile = await newNamedProfile("Table Test Receiver", "receiver@example.com");
+    expect(await storedProfile(profile.internalId)).toMatchObject({ name: "Table Test Receiver", email: "receiver@example.com" });
+
+    await profileRepository.ensureProfile(profile.externalId, { name: "Table Test Renamed" });
+    expect(await storedProfile(profile.internalId)).toMatchObject({ name: "Table Test Renamed", email: "receiver@example.com" });
+
+    await profileRepository.ensureProfile(profile.externalId);
+    expect(await storedProfile(profile.internalId)).toMatchObject({ name: "Table Test Renamed", email: "receiver@example.com" });
+  });
+
+  it("lists named profiles without the caller or unnamed profiles", async () => {
+    const caller = await newNamedProfile("Table Test Caller");
+    const target = await newNamedProfile("Table Test Target", "target@example.com");
+    const unnamedId = await newProfileId();
+
+    const list = await profileRepository.listProfiles(caller.internalId);
+    const ids = list.map(({ id }) => id);
+
+    expect(list).toContainEqual({ id: target.internalId, name: "Table Test Target", email: "target@example.com" });
+    expect(ids).not.toContain(caller.internalId);
+    expect(ids).not.toContain(unnamedId);
+  });
+
+  it("shares a question with a profile taken from the list", async () => {
+    const sender = await newNamedProfile("Table Test Sender");
+    const receiver = await newNamedProfile("Table Test Share Receiver");
+    const question = await questionRepository.createQuestion({ profileId: sender.internalId, title: "share list", questionText: "share me", option: null });
+
+    const listed = (await profileRepository.listProfiles(sender.internalId)).find(({ id }) => id === receiver.internalId);
+    await questionRepository.shareQuestion(question.id, sender.internalId, [listed.id]);
+
+    expect((await questionRepository.getSharedQuestionListByProfileId(receiver.internalId)).map(({ id }) => id)).toEqual([question.id]);
   });
 });

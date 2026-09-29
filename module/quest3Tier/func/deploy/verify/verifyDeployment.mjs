@@ -18,6 +18,7 @@ const expectedFunctionList = [
   "GetAnswerById",
   "GetAnswerListByQuestionId",
   "getEventByCorrelationId",
+  "GetProfiles",
   "GetQuestionById",
   "GetQuestionListByUser",
   "GetSharedQuestionList",

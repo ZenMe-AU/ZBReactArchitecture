@@ -7,7 +7,8 @@
 export interface Profile {
   id: string;
   name: string;
-  avatar: string | null;
+  email?: string | null;
+  avatar?: string | null;
 }
 
 export interface Question {

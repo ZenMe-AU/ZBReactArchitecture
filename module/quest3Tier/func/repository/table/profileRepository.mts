@@ -11,6 +11,7 @@
 // secondary index. See: https://learn.microsoft.com/en-us/azure/storage/tables/table-storage-design-guidelines
 
 import { randomUUID } from "crypto";
+import { odata } from "@azure/data-tables";
 import { getTableClient, isNotFoundError } from "./tableClient.mjs";
 
 export const PROFILES_TABLE = "Profiles";
@@ -34,6 +35,23 @@ interface ProfileByExternalIdEntity {
   createdAt: string;
 }
 
+// Profiles rows also carry the display name and email from the sign-in token, for the share list.
+interface ProfileEntity extends ProfileByExternalIdEntity {
+  name?: string;
+  email?: string;
+}
+
+export interface ProfileDetails {
+  name?: string;
+  email?: string;
+}
+
+export interface ProfileListItem {
+  id: string;
+  name: string;
+  email: string | null;
+}
+
 export interface EnsureProfileResult {
   profile: ProfileRecord;
   created: boolean;
@@ -50,22 +68,24 @@ function toProfileRecord(entity: ProfileByExternalIdEntity): ProfileRecord {
   return { internalId, externalId, createdAt: entity.createdAt };
 }
 
-async function createProfileIfMissing(profile: ProfileRecord): Promise<void> {
+// Merge upsert: creates the Profiles row if it is missing and refreshes the name/email from the token.
+// It replaces an insert that failed with 409 on every request for existing users, so the call count is unchanged.
+// A missing claim is left out of the write, so it never clears a stored value.
+async function upsertProfile(profile: ProfileRecord, details: ProfileDetails): Promise<void> {
   const profilesClient = await getTableClient(PROFILES_TABLE);
-  try {
-    await profilesClient.createEntity({
-      partitionKey: profile.internalId,
-      rowKey: PROFILE_ROW_KEY,
-      internal_id: profile.internalId,
-      external_id: profile.externalId,
-      createdAt: profile.createdAt,
-    });
-  } catch (err) {
-    if (!isConflictError(err)) throw err;
-  }
+  const entity: ProfileEntity = {
+    partitionKey: profile.internalId,
+    rowKey: PROFILE_ROW_KEY,
+    internal_id: profile.internalId,
+    external_id: profile.externalId,
+    createdAt: profile.createdAt,
+  };
+  if (details.name) entity.name = details.name;
+  if (details.email) entity.email = details.email;
+  await profilesClient.upsertEntity(entity, "Merge");
 }
 
-export async function ensureProfile(externalId: string): Promise<EnsureProfileResult> {
+export async function ensureProfile(externalId: string, details: ProfileDetails = {}): Promise<EnsureProfileResult> {
   const byExternalIdClient = await getTableClient(PROFILE_BY_EXTERNAL_ID_TABLE);
 
   const candidate: ProfileByExternalIdEntity = {
@@ -85,12 +105,12 @@ export async function ensureProfile(externalId: string): Promise<EnsureProfileRe
     if (!isConflictError(err)) throw err;
     const existing = await byExternalIdClient.getEntity<ProfileByExternalIdEntity>(externalId, PROFILE_ROW_KEY);
     const profile = toProfileRecord(existing);
-    await createProfileIfMissing(profile);
+    await upsertProfile(profile, details);
     return { profile, created: false };
   }
 
   const profile = toProfileRecord(candidate);
-  await createProfileIfMissing(profile);
+  await upsertProfile(profile, details);
   return { profile, created: true };
 }
 
@@ -109,4 +129,24 @@ export async function assertProfileExists(internalId: string): Promise<void> {
   if (!(await getProfileByInternalId(internalId))) {
     throw new Error(`Profile not found for profileId: ${internalId}`);
   }
+}
+
+/**
+ * Profiles a question can be shared with: those that have a name, excluding the caller, sorted by name.
+ * Profiles only get a name from a signed-in user's token, so test and service identities never appear.
+ */
+export async function listProfiles(excludeInternalId: string, limit = 200): Promise<ProfileListItem[]> {
+  const client = await getTableClient(PROFILES_TABLE);
+  // ponytail: this scans every named profile (one partition each); add paging or search when the list outgrows `limit`.
+  const rows = client.listEntities<ProfileEntity>({
+    queryOptions: { filter: odata`name gt ''`, select: ["internal_id", "internalId", "name", "email"] },
+  });
+  const profiles: ProfileListItem[] = [];
+  for await (const row of rows) {
+    const id = row.internal_id ?? row.internalId;
+    if (!id || !row.name || id === excludeInternalId) continue;
+    profiles.push({ id, name: row.name, email: row.email ?? null });
+  }
+  // Sort before capping, so the cap keeps the first names alphabetically rather than an arbitrary id range.
+  return profiles.sort((a, b) => a.name.localeCompare(b.name)).slice(0, limit);
 }

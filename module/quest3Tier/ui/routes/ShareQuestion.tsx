@@ -7,7 +7,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { Helmet } from "react-helmet";
 import { shareQuestion } from "../api/question";
-import { getProfileList } from "@zenmechat/shared-ui/api/profile";
+import { getProfiles } from "../api/profile";
 import type { Profile } from "../types/interfaces";
 import { Container, Typography, Box, Button, IconButton, Alert, TextField } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -18,6 +18,7 @@ function ShareQuestion() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [friends, setFriends] = useState<Profile[]>([]);
+  const [friendsLoaded, setFriendsLoaded] = useState<boolean>(false);
   const [selectedReceivers, setSelectedReceivers] = useState<Profile[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,8 +26,9 @@ function ShareQuestion() {
   useEffect(() => {
     const fetchFriends = async () => {
       try {
-        const profiles = await getProfileList(); // Fetch profiles using API
+        const profiles = await getProfiles();
         setFriends(profiles);
+        setFriendsLoaded(true);
         if (!id) throw new Error("Question ID is undefined");
       } catch (err) {
         console.error("Error fetching profile list:", err);
@@ -72,12 +74,12 @@ function ShareQuestion() {
         parentId: "SubmitButton",
         questionId: id,
       });
+      navigate(`/quest3Tier/${id}/answer`); // Navigate back to the question detail
     } catch (err) {
       setError("Failed to share the question. Please try again.");
       console.error(err);
     } finally {
       setLoading(false);
-      navigate(`/quest3Tier/${id}/answer`); // Navigate back to the question detail
     }
   };
 
@@ -107,11 +109,20 @@ function ShareQuestion() {
             multiple
             id="share-receivers"
             options={friends}
-            getOptionLabel={(option) => `${option.id} - ${option.name}`}
+            getOptionLabel={(option) => (option.email ? `${option.name} (${option.email})` : option.name)}
+            getOptionKey={(option) => option.id}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
             onChange={(_, newValue) => {
               setSelectedReceivers(newValue);
             }}
-            renderInput={(params) => <TextField {...params} label="Select Friends" placeholder="Choose friends to share with" />}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Select Friends"
+                placeholder="Choose friends to share with"
+                helperText={friendsLoaded && friends.length === 0 ? "Only people who have signed in to Quest 3 appear here." : undefined}
+              />
+            )}
             value={selectedReceivers}
             limitTags={3}
           />

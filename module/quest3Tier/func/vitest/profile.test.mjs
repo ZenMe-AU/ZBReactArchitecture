@@ -28,7 +28,7 @@ describe("ensureProfile", () => {
 
     const result = await ensureProfile(externalId);
 
-    expect(ensureProfileRow).toHaveBeenCalledWith(externalId);
+    expect(ensureProfileRow).toHaveBeenCalledWith(externalId, {});
     expect(result.profile.internal_id).toBe(internalId);
     expect(result.created).toBe(true);
   });
@@ -50,6 +50,16 @@ describe("ensureProfile", () => {
     expect(result.created).toBe(false);
   });
 
+  it("passes the name and email through to the repository", async () => {
+    const externalId = "8bc796d2-4731-4d0b-8299-1d1a067c4be7";
+    const details = { name: "Jane Doe", email: "jane.doe@example.com" };
+    ensureProfileRow.mockResolvedValue({ profile: { internalId: "63fddfe4-b1c2-4314-a65c-f4f3fba185b6", externalId }, created: false });
+
+    await ensureProfile(externalId, details);
+
+    expect(ensureProfileRow).toHaveBeenCalledWith(externalId, details);
+  });
+
   it("rejects a missing authenticated profile ID", async () => {
     await expect(ensureProfile()).rejects.toMatchObject({ status: 401 });
     expect(ensureProfileRow).not.toHaveBeenCalled();
@@ -65,7 +75,7 @@ describe("ensureProfile", () => {
     const internalId = "63fddfe4-b1c2-4314-a65c-f4f3fba185b6";
     ensureProfileRow.mockResolvedValue({ profile: { internalId, externalId }, created: false });
     container.singletons.set("authProvider", {
-      decode: vi.fn().mockResolvedValue({ oid: externalId }),
+      decode: vi.fn().mockResolvedValue({ oid: externalId, name: "Jane Doe", upn: "jane.doe@example.com" }),
     });
 
     const handler = requestHandler(async (request) => ({
@@ -89,6 +99,7 @@ describe("ensureProfile", () => {
     });
 
     expect(response.status).toBe(200);
+    expect(ensureProfileRow).toHaveBeenCalledWith(externalId, { name: "Jane Doe", email: "jane.doe@example.com" });
     expect(response.jsonBody).toEqual({
       success: true,
       return: { profileId: internalId, profileCreated: false },

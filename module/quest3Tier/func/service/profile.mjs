@@ -5,7 +5,7 @@
 
 import * as profileRepository from "../dist/repository/table/profileRepository.mjs";
 
-async function ensureProfile(externalId) {
+async function ensureProfile(externalId, details = {}) {
   const _externalId = String(externalId ?? "").trim();
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(_externalId)) {
     const error = new Error("Authenticated profile ID must be a UUID");
@@ -13,7 +13,7 @@ async function ensureProfile(externalId) {
     throw error;
   }
 
-  const result = await profileRepository.ensureProfile(_externalId);
+  const result = await profileRepository.ensureProfile(_externalId, details);
   return {
     ...result,
     profile: { internal_id: result.profile.internalId, external_id: result.profile.externalId, createdAt: result.profile.createdAt },

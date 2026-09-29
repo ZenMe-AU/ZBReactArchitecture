@@ -8,6 +8,7 @@ import { requestHandler } from "./handler/handlerWrapper.mjs";
 import questionHandler from "./handler/questionHandler.mjs";
 import answerHandler from "./handler/answerHandler.mjs";
 import followupHandler from "./handler/followupHandler.mjs";
+import profileHandler from "./handler/profileHandler.mjs";
 import { sendFollowUpCmdSchema } from "./schema/sendFollowUpCmdSchema.mjs";
 import { shareQuestionCmdSchema } from "./schema/shareQuestionCmdSchema.mjs";
 
@@ -81,6 +82,13 @@ app.http("GetSharedQuestionList", {
   methods: ["GET"],
   authLevel: "anonymous",
   handler: requestHandler(followupHandler.GetSharedQuestionListByUser),
+});
+
+app.http("GetProfiles", {
+  route: "profiles",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: requestHandler(profileHandler.GetProfiles),
 });
 
 app.http("SendFollowUpCmd", {

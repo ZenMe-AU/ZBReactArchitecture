@@ -51,7 +51,9 @@ const requestHandler =
         const token = authorization.replace("Bearer ", "");
         const decoded = await provider.decode(token);
         const externalId = decoded.oid;
-        const { profile, created: profileCreated } = await ensureProfile(externalId);
+        // The name and email are stored on the profile for the share list (GET /profiles).
+        const details = { name: decoded.name, email: decoded.preferred_username ?? decoded.upn ?? decoded.email };
+        const { profile, created: profileCreated } = await ensureProfile(externalId, details);
         const profileId = profile.internal_id;
         user = { profileId, externalId, profile, profileCreated };
         tracerSpan.setAttribute("app.profile_id", profileId);
