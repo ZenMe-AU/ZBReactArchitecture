@@ -43,7 +43,6 @@ function FollowUpQuestion() {
   const navigate = useNavigate();
   const [optionList, setOptionList] = useState<string[]>([]);
 
-  const [saveFilter, setSaveFilter] = useState<boolean>(false);
   const [cards, setCards] = useState<string[]>([]);
   const [selectedQuestions, setSelectedQuestions] = useState<Record<string, string>>({});
   const [selectedOptions, setSelectedOptions] = useState<Record<string, string[]>>({});
@@ -172,7 +171,7 @@ function FollowUpQuestion() {
     // return;
     try {
       setSubmitting(true);
-      const response = await sendFollowUpQuestion(id, filterData, followUpQuestionId ?? "", saveFilter);
+      const response = await sendFollowUpQuestion(id, filterData, followUpQuestionId ?? "");
       console.log("Response:", response);
       // navigate(`/quest3Tier/${id}`, { replace: true });
     } catch (error) {
@@ -425,7 +424,6 @@ function FollowUpQuestion() {
           <Button variant="contained" onClick={handleFollowUp} sx={{ mx: 1 }} disabled={submitting}>
             send
           </Button>
-          <FormControlLabel sx={{ mx: 1 }} control={<Checkbox checked={saveFilter} onChange={(e) => setSaveFilter(e.target.checked)} />} label="Save Filter" />
         </Box>
       </Container>
     </Container>

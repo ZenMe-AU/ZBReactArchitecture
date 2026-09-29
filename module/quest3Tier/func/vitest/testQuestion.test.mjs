@@ -10,7 +10,7 @@ import { createQuestion, checkQuestion, questionIdLookup } from "./testModule/cr
 import { createAnswer } from "./testModule/createAnswerTest.mjs";
 import { checkAnswer } from "./testModule/createAnswerTest_B.mjs";
 import { createFollowUp } from "./testModule/createFollowUpTest.mjs";
-import { checkShareQuestion, checkFollowUpQty } from "./testModule/createFollowUpTest_B.mjs";
+import { checkShareQuestion } from "./testModule/createFollowUpTest_B.mjs";
 
 const testCorrelationId = uuidv4();
 
@@ -39,6 +39,5 @@ describe("test question data", () => {
   describe("create follow-ups", () => {
     createFollowUp(profileIdLookup, questionIdLookup, testCorrelationId);
     checkShareQuestion(profileIdLookup, testCorrelationId);
-    checkFollowUpQty(testCorrelationId, profileIdLookup);
   });
  });

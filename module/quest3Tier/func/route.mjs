@@ -108,10 +108,3 @@ app.http("ShareQuestionCmd", {
     schemas: [shareQuestionCmdSchema],
   }),
 });
-
-app.http("getEventByCorrelationId", {
-  route: "getEventByCorrelationId/{name}/{correlationId}",
-  methods: ["GET"],
-  authLevel: "anonymous",
-  handler: requestHandler(followupHandler.GetEventByCorrelationId),
-});

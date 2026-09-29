@@ -12,7 +12,6 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import * as questionRepository from "../repository/table/questionRepository.mjs";
 import * as answerRepository from "../repository/table/answerRepository.mjs";
 import * as profileRepository from "../repository/table/profileRepository.mjs";
-import * as workflowRepository from "../repository/table/workflowRepository.mjs";
 import { getTableClient } from "../repository/table/tableClient.mjs";
 import { randomUUID } from "crypto";
 
@@ -105,7 +104,7 @@ describe("Azure Table question repository", () => {
   });
 });
 
-describe("Azure Table sharing and workflow repositories", () => {
+describe("Azure Table sharing repository", () => {
   it("shares a question and lists it for the receiver", async () => {
     const senderProfileId = await newProfileId();
     const receiverProfileId = await newProfileId();
@@ -121,28 +120,6 @@ describe("Azure Table sharing and workflow repositories", () => {
     }
     expect(storedShare.partitionKey).toBe(senderProfileId);
     expect(storedShare.type).toBe(0);
-  });
-
-  it("stores follow-up and question-share commands and events in one user projection", async () => {
-    const profileId = await newProfileId();
-
-    for (const commandName of ["FollowUpCmd", "QuestionShareCmd"]) {
-      const correlationId = randomUUID();
-      const command = await workflowRepository.createCommand(commandName, profileId, {}, correlationId.replaceAll("-", ""));
-      await workflowRepository.completeCommand(command);
-      expect(await workflowRepository.countEvents(commandName, correlationId, profileId)).toBe(1);
-    }
-
-    const stored = await (await getTableClient(workflowRepository.USER_EVENTS_TABLE)).getEntity(
-      profileId,
-      "events"
-    );
-    expect(JSON.parse(stored.items).map(({ eventType }) => eventType)).toEqual([
-      "FollowUpCmd",
-      "FollowUpEvent",
-      "QuestionShareCmd",
-      "QuestionShareEvent",
-    ]);
   });
 });
 

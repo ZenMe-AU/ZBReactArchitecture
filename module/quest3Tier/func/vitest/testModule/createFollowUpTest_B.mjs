@@ -4,64 +4,20 @@
  */
 
 const baseUrl = process.env.QUESTION_URL;
-// const profileBaseUrl = process.env.PROFILE_URL;
-// const profileUrl = new URL("/profile", profileBaseUrl);
-const eventUrl = new URL("/getEventByCorrelationId", baseUrl);
-const followUpQuestionQty = 5;
+const sharedQuestionUrl = new URL("/sharedQuestions", baseUrl);
 import { test, expect } from "vitest";
 
-const checkShareQuestion = (profileIdLookup, testCorrelationId) => {
-  //   test.each(shareQuestionData())("check shared question by user $userId", async (shared) => {
-  //     let qty = 0;
-  //     for (let i = 0; i < 5; i++) {
-  //       const response = await fetch(profileUrl + "/sharedQuestion", {
-  //         method: "GET",
-  //         headers: { authorization: `Bearer ${profileIdLookup.getAuthToken(shared.userId)}` },
-  //       });
-  //       let resultData = await response.json();
-  //       qty = resultData.return.list.length;
-  //       if (qty === shared.count) {
-  //         break;
-  //       }
-  //       await new Promise((resolve) => setTimeout(resolve, 1000));
-  //     }
-  //     expect(qty).toBe(shared.count);
-  //   });
-};
-
-const checkFollowUpQty = (testCorrelationId, profileIdLookup) => {
-  test(
-    "check follow up question by Correlation Id:" + testCorrelationId,
-    async () => {
-      let qty = 0;
-      for (let i = 0; i < 5; i++) {
-        const response = await fetch(eventUrl + "/FollowUpCmd/" + testCorrelationId, {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-            authorization: `Bearer ${profileIdLookup.getAuthToken(1)}`,
-            "Access-Control-Allow-Origin": "*",
-          },
-        });
-        if (!response.ok) {
-          console.error(`Error: ${response.status} - ${response.statusText}`);
-          break;
-        }
-        let resultData = await response.json();
-        qty = resultData.return.qty;
-
-        if (qty === followUpQuestionQty) {
-          break;
-        } else {
-          console.log(`Retrying... expected qty: ${followUpQuestionQty}, current qty: ${qty}`);
-        }
-
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-      }
-      expect(qty).toBe(followUpQuestionQty);
-    },
-    100000
-  );
+// Follow-ups are no longer stored as commands/events, so the check is on the receiving side:
+// each receiver's shared list must contain the follow-up questions sent to them.
+const checkShareQuestion = (profileIdLookup) => {
+  test.each(shareQuestionData())("There should be $count follow-up questions shared with user $userId", async (shared) => {
+    const response = await fetch(sharedQuestionUrl, {
+      method: "GET",
+      headers: { Accept: "application/json", authorization: `Bearer ${profileIdLookup.getAuthToken(shared.userId)}` },
+    });
+    const resultData = await response.json();
+    expect(resultData.return.list.length).toBe(shared.count);
+  });
 };
 
 function shareQuestionData() {
@@ -88,4 +44,4 @@ function shareQuestionData() {
   ];
 }
 
-export { checkShareQuestion, checkFollowUpQty };
+export { checkShareQuestion };

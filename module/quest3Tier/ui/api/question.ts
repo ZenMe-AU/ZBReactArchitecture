@@ -250,8 +250,7 @@ export const updateQuestionPatch = async (id: string, patches: PatchOperation[])
 export const sendFollowUpQuestion = async (
   questionId: string,
   questionFilter: { option: string[]; questionId: string }[],
-  followUpQuestionId: string,
-  saveFilter: boolean
+  followUpQuestionId: string
 ) => {
   try {
     await loadConfig();
@@ -261,7 +260,6 @@ export const sendFollowUpQuestion = async (
       body: JSON.stringify({
         newQuestionId: followUpQuestionId,
         question: questionFilter,
-        isSave: saveFilter,
       }),
     });
 
