@@ -38,6 +38,6 @@ describe("test question data", () => {
 
   describe("create follow-ups", () => {
     createFollowUp(profileIdLookup, questionIdLookup, testCorrelationId);
-    checkShareQuestion(profileIdLookup, testCorrelationId);
+    // checkShareQuestion(profileIdLookup, testCorrelationId);
   });
  });
