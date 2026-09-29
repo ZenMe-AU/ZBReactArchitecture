@@ -29,6 +29,14 @@ export function createQuestion(profileIdLookup) {
       questionIdLookup.add(q.questionId, questionId);
 
       expect(response.ok).toBeTruthy();
+      const detailResponse = await fetch(new URL(`/question/${questionId}`, baseUrl), {
+        headers: { authorization: `Bearer ${profileIdLookup.getAuthToken(q.userId)}` },
+      });
+      expect((await detailResponse.json()).return.detail.isOwner).toBe(true);
+      const otherUserResponse = await fetch(new URL(`/question/${questionId}`, baseUrl), {
+        headers: { authorization: `Bearer ${profileIdLookup.getAuthToken(2)}` },
+      });
+      expect((await otherUserResponse.json()).return.detail.isOwner).toBe(false);
     },
     10000
   );
@@ -47,6 +55,7 @@ const checkQuestion = (profileIdLookup) => {
     const resultData = await response.json();
     const qty = resultData.return.list.length;
     expect(qty).toBe(r.count);
+    expect(resultData.return.list.every((question) => question.isOwner)).toBe(true);
   });
 };
 

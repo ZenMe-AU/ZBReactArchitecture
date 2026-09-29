@@ -16,11 +16,11 @@ import { Await } from "react-router";
 import { Skeleton } from "@mui/material";
 
 export async function clientLoader() {
-  return { questions: getQuestionsByUser(), profileId: localStorage.getItem("profileId") };
+  return { questions: getQuestionsByUser() };
 }
 
 export default function QuestionCombinationList({ loaderData }: { loaderData: any }) {
-  const { questions, profileId } = loaderData;
+  const { questions } = loaderData;
   const handleOpenAnswer = (questionId: string) => {
     const correlationId = setOperationId();
     logEvent("btnAnswerDetailClick", {
@@ -82,8 +82,8 @@ export default function QuestionCombinationList({ loaderData }: { loaderData: an
                             size="small"
                             startIcon={<EditIcon />}
                             component={Link}
-                            to={`/quest3Tier/${q.id}` + (q.profileId !== profileId ? "/add" : "")}
-                            onClick={() => handleEditQuestion(q.id, q.profileId !== profileId)}
+                            to={`/quest3Tier/${q.id}` + (q.isOwner ? "" : "/add")}
+                            onClick={() => handleEditQuestion(q.id, !q.isOwner)}
                           >
                             Edit
                           </Button>

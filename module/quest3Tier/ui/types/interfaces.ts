@@ -17,6 +17,7 @@ export interface Question {
   questionText: string;
   option: string[] | null;
   profileId: string;
+  isOwner: boolean;
 }
 
 export interface Answer {

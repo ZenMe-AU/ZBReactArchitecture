@@ -19,6 +19,7 @@ function EditQuestion() {
     questionText: "",
     option: null,
     profileId: "",
+    isOwner: false,
   });
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);

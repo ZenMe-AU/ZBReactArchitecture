@@ -35,7 +35,7 @@ export async function clientLoader({ params }: { params: { id: string } }) {
   }
 
   const question = await getQuestionById(id);
-  if (question.profileId === localStorage.getItem("profileId")) {
+  if (question.isOwner) {
     return redirect(`/quest3Tier/${id}`);
   }
 

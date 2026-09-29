@@ -237,7 +237,7 @@ async function updateById(questionId, title = null, questionText = null, option 
 async function GetQuestionListByUser(request, context) {
   const profileId = request.userData.profileId;
   const question = await getCombinationListByUser(profileId);
-  return { return: { list: question } };
+  return { return: { list: question.map((item) => ({ ...item, isOwner: item.profileId === profileId })) } };
 }
 
 /**

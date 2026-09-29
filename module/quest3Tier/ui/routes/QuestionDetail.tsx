@@ -43,7 +43,7 @@ function QuestionDetail() {
         const data = await getQuestionById(id!);
         setQuestionData(data);
         setEditedData(data); // Initialize editing data
-        if (data.profileId !== localStorage.getItem("profileId")) {
+        if (!data.isOwner) {
           navigate(`/quest3Tier/${id}/add`, { replace: true });
         }
       } catch (error) {
