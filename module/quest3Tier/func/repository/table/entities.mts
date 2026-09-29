@@ -16,7 +16,6 @@ export interface QuestionEntity {
   title: string | null;
   questionText: string;
   option: string; // JSON-encoded string[] | null
-  eventId: string;
   createdAt: string;
   etag?: string;
 }
@@ -59,7 +58,6 @@ export interface QuestionDetail {
 
 // The full Postgres "question" row, which GetQuestionListByUser returned.
 export interface QuestionListItem extends QuestionDetail {
-  eventId: string | null;
   createdAt: string;
 }
 

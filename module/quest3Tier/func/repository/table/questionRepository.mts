@@ -3,8 +3,8 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-// Question repository backed by Azure Table Storage. Question logs and actions
-// are stored in the acting profile's UserEvents projection.
+// Question repository backed by Azure Table Storage. Questions and shares are
+// stored in QuestionData.
 
 import { randomUUID } from "crypto";
 import fastJsonPatch from "fast-json-patch";
@@ -12,8 +12,6 @@ import { odata, TableTransaction } from "@azure/data-tables";
 import type { UpdateMode } from "@azure/data-tables";
 import { getTableClient, isNotFoundError } from "./tableClient.mjs";
 import { assertProfileExists } from "./profileRepository.mjs";
-import { appendQuestionLog, removeQuestionLog } from "./workflowRepository.mjs";
-import type { QuestionAction, QuestionLog } from "./workflowRepository.mjs";
 import {
   QUESTION_DATA_TABLE,
   questionPartitionKey,
@@ -52,7 +50,6 @@ function toQuestionDetail(entity: QuestionEntity): QuestionDetail {
 export async function createQuestion(input: CreateQuestionInput): Promise<{ id: string }> {
   await assertProfileExists(input.profileId);
   const id = randomUUID();
-  const eventId = randomUUID();
   const createdAt = new Date().toISOString();
   const questionEntity: QuestionEntity = {
     partitionKey: questionPartitionKey(input.profileId),
@@ -62,22 +59,11 @@ export async function createQuestion(input: CreateQuestionInput): Promise<{ id: 
     title: input.title,
     questionText: input.questionText,
     option: JSON.stringify(input.option ?? null),
-    eventId,
-    createdAt,
-  };
-  const logEntity: QuestionLog = {
-    id: eventId,
-    questionId: id,
-    profileId: input.profileId,
-    action: "create",
-    actionData: JSON.stringify(toQuestionDetail(questionEntity)),
-    originalData: null,
-    lastEventId: null,
     createdAt,
   };
 
   const client = await getTableClient(QUESTION_DATA_TABLE);
-  await writeWithQuestionLog(input.profileId, logEntity, () => client.createEntity(questionEntity));
+  await client.createEntity(questionEntity);
 
   return { id };
 }
@@ -97,7 +83,7 @@ async function getQuestionEntity(questionId: string): Promise<(QuestionEntity & 
 }
 
 function toQuestionListItem(entity: QuestionEntity): QuestionListItem {
-  return { ...toQuestionDetail(entity), eventId: entity.eventId ?? null, createdAt: entity.createdAt };
+  return { ...toQuestionDetail(entity), createdAt: entity.createdAt };
 }
 
 /**
@@ -164,51 +150,17 @@ export async function shareQuestion(questionId: string, senderProfileId: string,
   }
 }
 
-/**
- * Builds the (question row, audit log row) pair for a field update, without
- * submitting them. Shared by updateQuestionById and patchQuestionById so the
- * log row shape stays in exactly one place.
- */
-function buildUpdateEntities(
-  questionId: string,
-  existing: QuestionEntity & { etag: string },
-  next: UpdateQuestionInput,
-  action: "update",
-  eventProfileId: string
-): { updatedEntity: QuestionEntity; logEntity: QuestionLog } {
-  const eventId = randomUUID();
-  const updatedEntity: QuestionEntity = {
+function toUpdatedEntity(existing: QuestionEntity, next: UpdateQuestionInput): QuestionEntity {
+  return {
     partitionKey: existing.partitionKey,
     rowKey: existing.rowKey,
-    id: questionId,
+    id: existing.id,
     profileId: existing.profileId,
     title: next.title,
     questionText: next.questionText ?? existing.questionText,
     option: JSON.stringify(next.option ?? null),
-    eventId,
     createdAt: existing.createdAt,
   };
-  const logEntity: QuestionLog = {
-    id: eventId,
-    questionId,
-    profileId: eventProfileId,
-    action,
-    actionData: JSON.stringify(toQuestionDetail(updatedEntity)),
-    originalData: JSON.stringify(toQuestionDetail(existing)),
-    lastEventId: existing.eventId ?? null,
-    createdAt: new Date().toISOString(),
-  };
-  return { updatedEntity, logEntity };
-}
-
-async function writeWithQuestionLog(profileId: string, log: QuestionLog, write: () => Promise<unknown>, action?: QuestionAction): Promise<void> {
-  await appendQuestionLog(profileId, log, action);
-  try {
-    await write();
-  } catch (err) {
-    await removeQuestionLog(profileId, log.id, action?.id);
-    throw err;
-  }
 }
 
 export async function updateQuestionById(questionId: string, input: UpdateQuestionInput, profileId: string): Promise<{ id: string }> {
@@ -217,21 +169,17 @@ export async function updateQuestionById(questionId: string, input: UpdateQuesti
   if (!existing) {
     throw new Error(`Question not found for questionId: ${questionId}`);
   }
-  const { updatedEntity, logEntity } = buildUpdateEntities(questionId, existing, input, "update", profileId);
 
   const replaceMode: UpdateMode = "Replace";
   const client = await getTableClient(QUESTION_DATA_TABLE);
-  await writeWithQuestionLog(profileId, logEntity, () => client.updateEntity(updatedEntity, replaceMode, { etag: existing.etag }));
+  await client.updateEntity(toUpdatedEntity(existing, input), replaceMode, { etag: existing.etag });
 
   return { id: questionId };
 }
 
 /**
- * Apply a JSON Patch (RFC 6902) to a question, recording both the raw patch
- * (action) and the resulting field change (log) in the acting profile's
- * UserEvents projection in one write, then updating the question; both
- * records are removed if the question update fails. Returns the id of the
- * recorded patch action.
+ * Apply a JSON Patch (RFC 6902) to a question's title, questionText and
+ * option. Returns the question id, the same as updateQuestionById.
  */
 export async function patchQuestionById(questionId: string, profileId: string, patchOps: unknown): Promise<{ id: string }> {
   await assertProfileExists(profileId);
@@ -241,26 +189,11 @@ export async function patchQuestionById(questionId: string, profileId: string, p
   }
 
   const patched = fastJsonPatch.applyPatch(toQuestionDetail(existing), patchOps as never).newDocument;
-
-  const action: QuestionAction = {
-    id: randomUUID(),
-    questionId,
-    profileId,
-    action: JSON.stringify(patchOps),
-    createdAt: new Date().toISOString(),
-  };
-
-  const { updatedEntity, logEntity } = buildUpdateEntities(
-    questionId,
-    existing,
-    { title: patched.title, questionText: patched.questionText, option: patched.option },
-    "update",
-    profileId
-  );
+  const next = { title: patched.title, questionText: patched.questionText, option: patched.option };
 
   const replaceMode: UpdateMode = "Replace";
   const client = await getTableClient(QUESTION_DATA_TABLE);
-  await writeWithQuestionLog(profileId, logEntity, () => client.updateEntity(updatedEntity, replaceMode, { etag: existing.etag }), action);
+  await client.updateEntity(toUpdatedEntity(existing, next), replaceMode, { etag: existing.etag });
 
-  return { id: action.id };
+  return { id: questionId };
 }

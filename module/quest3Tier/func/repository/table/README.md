@@ -1,19 +1,15 @@
 # Q3 Azure Table repositories
 
-Q3 uses five Azure tables:
+Q3 uses three Azure tables:
 
 | Table | Purpose |
 |---|---|
-| `Profiles` | Profiles keyed by internal profile ID |
+| `Profiles` | Profiles keyed by internal profile ID, with the display name and email from the sign-in token for the share list (`GET /profiles`) |
 | `ProfileByExternalId` | External-to-internal profile ID lookup |
 | `QuestionData` | Questions, answers, and shares |
-| `WorkflowData` | Follow-up filters |
-| `UserEvents` | Question logs and actions plus follow-up and question-share commands/events aggregated per user |
 
 `QuestionData` uses `PartitionKey = profileId` and record-prefixed RowKeys
 such as `question:<questionId>` and `answer:<questionId>:<answerId>`.
-`WorkflowData` retains follow-up filters. `UserEvents` uses
-`PartitionKey = profileId` and `RowKey = events`.
 
 Local clients use the `AzureWebJobsStorage` Azurite connection string. Azure
 clients use `AzureWebJobsStorage__tableServiceUri` and the Function App's

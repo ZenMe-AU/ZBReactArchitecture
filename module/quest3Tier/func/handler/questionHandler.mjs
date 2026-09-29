@@ -261,7 +261,7 @@ async function getCombinationListByUser(profileId) {
  *     tags:
  *       - Question
  *     summary: Update a question using JSON Patch
- *     description: Apply JSON Patch operations to update a question's data. Changes are recorded in the question_action table.
+ *     description: Apply JSON Patch operations to update a question's title, questionText, or option.
  *     parameters:
  *       - name: id
  *         in: path
@@ -294,7 +294,7 @@ async function getCombinationListByUser(profileId) {
  *                   example: "Updated Title"
  *     responses:
  *       200:
- *         description: Successfully queued patch operation.
+ *         description: Successfully patched the question.
  *         content:
  *           application/json:
  *             schema:
@@ -306,14 +306,14 @@ async function getCombinationListByUser(profileId) {
  *                     id:
  *                       type: string
  *                       format: uuid
- *                       description: The unique identifier of the created question_action record.
+ *                       description: The ID of the patched question.
  *                       example: "b08992c2-7c89-43a6-a152-9d24a74349a7"
  */
 async function PatchQuestionById(request, context) {
   const profileId = request.userData.profileId;
   const { id: questionId } = request.params;
-  const questionAction = await patchById(questionId, request.clientParams, profileId);
-  return { return: { id: questionAction.id } };
+  const question = await patchById(questionId, request.clientParams, profileId);
+  return { return: { id: question.id } };
 }
 
 /**

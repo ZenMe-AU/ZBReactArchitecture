@@ -78,32 +78,18 @@ describe("Azure Table question repository", () => {
     expect(updated.profileId).toBe(profileId);
   });
 
-  it("applies a JSON Patch and records the action", async () => {
+  it("applies a JSON Patch and returns the question id", async () => {
     const patchOps = [
       { op: "replace", path: "/title", value: "table-patched" },
       { op: "replace", path: "/option", value: [{ id: "B", text: "two" }] },
     ];
-    const action = await questionRepository.patchQuestionById(questionId, profileId, patchOps);
+    const result = await questionRepository.patchQuestionById(questionId, profileId, patchOps);
 
-    expect(action.id).toBeTruthy();
+    expect(result).toEqual({ id: questionId });
 
     const patched = await questionRepository.getQuestionById(questionId);
     expect(patched.title).toBe("table-patched");
     expect(patched.option).toEqual([{ id: "B", text: "two" }]);
-
-    const userEvents = await (await getTableClient(workflowRepository.USER_EVENTS_TABLE)).getEntity(
-      profileId,
-      "events"
-    );
-    expect(JSON.parse(userEvents.items).filter(({ eventType }) => eventType === "LogQuestion")).toHaveLength(2);
-    expect(JSON.parse(userEvents.items).filter(({ eventType }) => eventType === "QuestionAction")).toEqual([
-      { eventType: "QuestionAction", id: action.id, questionId, profileId, action: JSON.stringify(patchOps), createdAt: expect.any(String) },
-    ]);
-
-    const updaterEvents = await (await getTableClient(workflowRepository.USER_EVENTS_TABLE)).getEntity(updateProfileId, "events");
-    const updaterLogs = JSON.parse(updaterEvents.items).filter(({ eventType }) => eventType === "LogQuestion");
-    expect(updaterLogs).toHaveLength(1);
-    expect(updaterLogs[0].profileId).toBe(updateProfileId);
 
     const questionRows = [];
     for await (const row of (await getTableClient("QuestionData")).listEntities({ queryOptions: { filter: `PartitionKey eq '${profileId}'` } })) {
