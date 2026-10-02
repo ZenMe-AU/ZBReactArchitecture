@@ -392,14 +392,6 @@ async function patchById(questionId, action, profileId) {
     throw new Error(`Failed to patch question by ID: ${questionId}; ${err.message}`, { cause: err });
   }
 }
-async function getById(questionId) {
-  try {
-    return await models.Question.getQuestionById(questionId);
-  } catch (err) {
-    console.log(err);
-    throw new Error(`Function failed: ${err.message}`, { cause: err });
-  }
-}
 async function findProfileByExternalId(externalId) {
   try {
     return await models.Profile.findOne({
@@ -441,6 +433,22 @@ async function getSharedQuestionListByProfileId(profileId) {
     console.log(err);
     throw new Error(`Failed to retrieve shared questions for profileId: ${profileId}; ${err.message}`, { cause: err });
   }
+}
+
+export async function getById(questionId) {
+    try {
+        const question = await models.Question.findByPk(questionId);
+        if (!question) {
+            return null;
+        }
+        const { id, title, questionText, option, profileId } = question.dataValues;
+        return { id, title, questionText, option, profileId };
+    }
+    catch (err) {
+        console.log(err);
+        const message = err instanceof Error ? err.message : String(err);
+        throw new Error(`Failed to retrieve question for questionId: ${questionId}; ${message}`, { cause: err });
+    }
 }
 
 export default {
