@@ -6,10 +6,12 @@
 import { createMigrationInstance } from "./migration/tool/index.mjs";
 
 class classRunMigration {
-  constructor({ db, migrationDir, envType, targetEnv }) {
+  db: any;
+  migration: ReturnType<typeof createMigrationInstance>;
+
+  constructor({ db, migrationDir, envType }) {
     this.db = db;
     this.migration = createMigrationInstance({ db, migrationDir });
-    this.extensionNames = [];
   }
 
   async run(direction = "up") {
