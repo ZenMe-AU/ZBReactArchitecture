@@ -3,6 +3,8 @@
  * @license SPDX-License-Identifier: MIT
  */
 
+import repository from "../repository/repository.mjs";
+
 import { v4 as uuidv4 } from "uuid";
 import cmdName from "../enum/cmdName.mjs";
 
@@ -53,7 +55,7 @@ import cmdName from "../enum/cmdName.mjs";
  */
 async function GetEventByCorrelationId(request, context) {
   const { name, correlationId } = request.params;
-  const result = await getEventByCorrelationId(name, correlationId);
+  const result = await repository.getEventByCorrelationId(name, correlationId);
   return { return: { qty: result.length } };
 }
 
@@ -61,10 +63,10 @@ async function GetEventByCorrelationId(request, context) {
 async function SendFollowUpCmd(request, context) {
   const { correlationId, clientParams: body } = request;
   const profileId = request.userData.profileId;
-  const cmd = await insertFollowUpCmd(profileId, body, correlationId);
-  const filters = insertFollowUpFilter(profileId, body);
+  const cmd = await repository.insertFollowUpCmd(profileId, body, correlationId);
+  const filters = repository.insertFollowUpFilter(profileId, body);
   const receiverIds = getFollowUpReceiver(profileId, body);
-  const sharedQuestions = shareQuestion(body["newQuestionId"], profileId, await receiverIds);
+  const sharedQuestions = repository.shareQuestion(body["newQuestionId"], profileId, await receiverIds);
 
   const settled = await Promise.allSettled([filters, sharedQuestions]);
   const errors = settled.filter((result) => result.status === "rejected").map((result) => result.reason);
@@ -73,7 +75,7 @@ async function SendFollowUpCmd(request, context) {
     throw new Error("Operations failed: " + errors.map((e) => e.message || e).join("; "));
   }
 
-  await updateFollowUpCmdStatus(cmd["id"]);
+  await repository.updateFollowUpCmdStatus(cmd["id"]);
   return { return: true };
 }
 
@@ -87,7 +89,7 @@ async function getFollowUpReceiver(senderId, cmdData) {
   try {
     const filterReceiverIdAry = await Promise.all(
       cmdData.question.map(async function (filter) {
-        const ansList = await getAnswerListByQuestionId(filter.questionId);
+        const ansList = await repository.getAnswerListByQuestionId(filter.questionId);
         return ansList.reduce((acc, ans) => {
           if (ans.profileId !== senderId && filter.option.includes(ans.optionId)) {
             acc.push(ans.profileId);
@@ -111,14 +113,25 @@ async function getFollowUpReceiver(senderId, cmdData) {
 async function ShareQuestionCmd(request, context) {
   const { correlationId, clientParams: body } = request;
   const profileId = request.userData.profileId;
-  const cmd = await insertQuestionShareCmd(profileId, body, correlationId);
-  const sharedQuestions = await shareQuestion(body["newQuestionId"], profileId, body["receiverIds"]);
+  const cmd = await repository.insertQuestionShareCmd(profileId, body, correlationId);
+  const sharedQuestions = await repository.shareQuestion(body["newQuestionId"], profileId, body["receiverIds"]);
 
-  await updateQuestionShareCmdStatus(cmd["id"]);
+  await repository.updateQuestionShareCmdStatus(cmd["id"]);
   return { return: true };
 }
 
+async function ShareQuestionById(request, context) {
+  await repository.shareQuestion(request.params.id, request.userData.profileId, request.clientParams.receiverIds ?? []);
+  return { return: true };
+}
+
+async function GetSharedQuestionListByUser(request, context) {
+  return { return: { list: await repository.getSharedQuestionListByProfileId(request.userData.profileId) } };
+}
+
 export default {
+  ShareQuestionById,
+  GetSharedQuestionListByUser,
   SendFollowUpCmd,
   ShareQuestionCmd,
   GetEventByCorrelationId,

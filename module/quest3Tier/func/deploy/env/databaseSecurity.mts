@@ -8,7 +8,7 @@ import { resolve, dirname } from "path";
 import { classManageDataPermission } from "./classManageDataPermission.mjs";
 import { getTargetEnv, getModuleName } from "../../../../../deploy/util/envSetup.cjs";
 import { createDatabaseInstance } from "../../repository/model/connection/index.mjs";
-import { POSTGRES } from "../../enum/dbType.js";
+import { POSTGRES } from "../../enum/dbType.mjs";
 import {
   getFunctionAppName,
   getResourceGroupName,

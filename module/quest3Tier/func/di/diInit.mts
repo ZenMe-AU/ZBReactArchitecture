@@ -57,12 +57,12 @@ register("authProvider", async () => {
 
 // register db
 register("db", async () => {
-  const { createDatabaseInstance } = await import("../repository/models/connection/index");
-  const { initRepository } = await import("../repository/repository");
+  const { createDatabaseInstance } = await import("../repository/models/connection/index.mjs");
+  const { initRepository } = await import("../repository/repository.mjs");
   const DB_TYPE = (await import("../enum/dbType.mjs")).default;
 
   const modelDir = path.join(__dirname, "..", "repository", "model");
-  const config = {
+  const config: Record<string, any> = {
     username: process.env.DB_USERNAME,
     database: process.env.DB_DATABASE,
     host: process.env.DB_HOST,

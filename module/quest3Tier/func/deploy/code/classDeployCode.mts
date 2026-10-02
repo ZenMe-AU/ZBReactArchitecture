@@ -44,9 +44,9 @@ class classDeployCode {
     this.moduleDir = moduleDir;
 
     this.deployFilePath = deployFilePath;
-    this.distPath = "dist/dist.zip";
+    this.distPath = ".deploy/dist.zip";
     this.outputDir = "out";
-    this.excludeList = ["dist/*", ".vscode/*", ".git/*", "local.settings.json", "local.settings.json.template", "deploy/*"];
+    this.excludeList = [".deploy/*", ".vscode/*", ".git/*", "local.settings.json", "local.settings.json.template", "deploy/*"];
     this.appSettings = {
       // ServiceBusConnection__fullyQualifiedNamespace: `${this.serviceBusName}.servicebus.windows.net`,
       // ServiceBusConnection__credential: "managedidentity",
@@ -136,6 +136,9 @@ class classDeployCode {
         console.log(`Deleting existing output directory.`);
         rmSync(outputDir, { recursive: true, force: true });
       }
+
+      console.log("Step 2-5: Compiling TypeScript to dist.");
+      execSync("pnpm run build", { stdio: "inherit", cwd: funcDir });
 
       execSync(
         `pnpm deploy --filter ${this.moduleName} --prod ${outputDir} --config.node-linker=hoisted --config.symlink=false --config.package-import-method=copy`,

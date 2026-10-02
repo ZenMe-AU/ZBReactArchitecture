@@ -6,6 +6,6 @@
 import mod from "./swagger.cjs";
 
 export default async function swaggerJSON(context, req) {
-  const swaggerDocs = mod?.default ?? mod;
+  const swaggerDocs = mod;
   return { jsonBody: swaggerDocs };
 }

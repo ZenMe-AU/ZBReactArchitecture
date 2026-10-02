@@ -8,7 +8,7 @@ import { resolve, dirname } from "path";
 import { classRunMigration } from "./classRunMigrationAzure.mjs";
 import { getTargetEnv, getModuleName } from "../../../../../deploy/util/envSetup.cjs";
 import { createDatabaseInstance } from "../../repository/model/connection/index.mjs";
-import { POSTGRES } from "../../enum/dbType.js";
+import { POSTGRES } from "../../enum/dbType.mjs";
 import { getDbAdminName, getPgHost } from "../../../../../deploy/util/namingConvention.cjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));

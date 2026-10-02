@@ -14,7 +14,7 @@ export default async function (request, context) {
   const filePath = path.join(__dirname, "../node_modules/swagger-ui-dist", request.params.path || "index.html");
   console.log(filePath);
   if (fs.existsSync(filePath)) {
-    let content = fs.readFileSync(filePath);
+    let content: string | Buffer = fs.readFileSync(filePath);
     if (request.params.path === "swagger-initializer.js") {
       content = content.toString().replace("https://petstore.swagger.io/v2/swagger.json", "/swagger.json");
     }
