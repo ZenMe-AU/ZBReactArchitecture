@@ -99,7 +99,7 @@ function Install-DevAiTools {
     Install-GitHubCli
     Install-GitHubCopilotCli
     Install-Packer
-    Install-DockerCli
+    #Install-DockerCli
 }
 
 function Install-Pnpm {
