@@ -344,6 +344,7 @@ function Install-DockerCli {
 }
 
 function Install-PostgreSql {
+    # the default password is postgres
     if ($script:IsWindows) {
         $postgresqlInstalled = (Get-Service *postgres* -ErrorAction SilentlyContinue).Count -gt 0
     } else {
