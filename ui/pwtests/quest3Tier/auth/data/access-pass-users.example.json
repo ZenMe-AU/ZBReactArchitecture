@@ -3,46 +3,19 @@
     "id": "NameD",
     "email": "Name.D.LastName@brandedkeys.com",
     "expectedPostLoginText": "Azure Access Pass",
-    "tenantId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "expectedEntraResult": "users",
-    "canCreateAccessPass": true,
-    "targetEntraUsers": [
-      {
-        "id": "name-j",
-        "email": "Name.J.LastName@brandedkeys.com",
-        "allowRealAccessPassCreation": true
-      }
-    ]
+    "tenantId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
   },
   {
     "id": "NameE",
     "email": "Name.E.LastName@brandedkeys.com",
     "expectedPostLoginText": "Azure Access Pass",
-    "tenantId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "expectedEntraResult": "empty",
-    "expectedEntraMessage": "No Entra users found",
-    "targetEntraUsers": [],
-    "canCreateAccessPass": true
+    "tenantId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
   },
   
     {
     "id": "NameA",
     "email": "Name.A.LastName@brandedkeys.com",
-    "expectedPostLoginText": "Select Entra user",
-    "tenantId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-    "expectedEntraResult": "users",
-    "canCreateAccessPass": true,
-    "targetEntraUsers": [
-      {
-        "id": "name-d",
-        "email": "Name.D.LastName@brandedkeys.com",
-        "allowRealAccessPassCreation": false
-      },
-      {
-        "id": "name-e",
-        "email": "Name.E.LastName@brandedkeys.com",
-        "allowRealAccessPassCreation": false
-      }
-    ]   
+    "expectedPostLoginText": "Azure Access Pass",
+    "tenantId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" 
   }
 ]

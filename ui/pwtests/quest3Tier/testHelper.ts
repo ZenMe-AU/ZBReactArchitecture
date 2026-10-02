@@ -6,7 +6,7 @@
 // Provides shared Playwright helpers for auth bootstrap, tenant flows, and snapshot assertions.
 
 import { expect, test, type Browser, type Locator, type Page, type TestInfo } from "@playwright/test";
-import { getUserAuthFiles, restoreSessionStorage, userAuthFilesExist } from "./authState";
+import { getUserAuthFiles, restoreSessionStorage, userAuthFilesExist } from "./setupHelper";
 import { ACCESS_PASS_URL, type ViewportSize } from "../testInit";
 import fs from "fs";
 import path from "path";
@@ -61,15 +61,20 @@ function validateAccessPassUsers(users: AccessPassUser[], filePath: string) {
       throw new Error(`Access Pass user "${user.id}" must have an email.`);
     }
 
-    if (!["users", "empty", "forbidden"].includes(user.expectedEntraResult ?? "")) {
-      throw new Error(`Invalid expectedEntraResult for "${user.id}".`);
-    }
-
     // Normalize targetEntraUsers: treat null/undefined as empty array; reject other non-array values
     if (user.targetEntraUsers == null) {
       user.targetEntraUsers = [];
     } else if (!Array.isArray(user.targetEntraUsers)) {
       throw new Error(`targetEntraUsers must be an array for "${user.id}" in ${filePath}`);
+    }
+
+    // Normalize expectedEntraResult when omitted.
+    if (!user.expectedEntraResult) {
+      user.expectedEntraResult = user.targetEntraUsers.length > 0 ? "users" : "empty";
+    }
+
+    if (!["users", "empty", "forbidden"].includes(user.expectedEntraResult)) {
+      throw new Error(`Invalid expectedEntraResult for "${user.id}".`);
     }
 
     if (user.expectedEntraResult !== "users" && !user.expectedEntraMessage?.trim()) {
@@ -494,4 +499,35 @@ export async function expectConfiguredTenantOutcome(page: Page, user: AccessPass
       throw new Error(`Unsupported expected Entra result: ${String(user.expectedEntraResult)}`);
     }
   }
+}
+
+export async function expectVisibleWithin(locator: Locator, label: string, timeoutMs = 500) {
+  const start = performance.now();
+  try {
+    await expect(locator).toBeVisible({ timeout: timeoutMs });
+  } finally {
+    const elapsedMs = performance.now() - start;
+    console.log(`${label} visible in ${elapsedMs.toFixed(1)}ms (timeout ${timeoutMs}ms)`);
+  }
+}
+
+export async function waitForLocatorContentLoaded(locator: Locator, emptyPlaceholder = "No options", label: string, timeoutMs = 500) {
+  await expect
+    .poll(
+      async () => {
+        const texts = (await locator.allTextContents()).map((value) => value.trim()).filter(Boolean);
+        if (!texts.length) {
+          return false;
+        }
+        if (texts.length === 1 && texts[0] === emptyPlaceholder) {
+          return false;
+        }
+        return true;
+      },
+      {
+        timeout: timeoutMs,
+        message: `${label} content did not load`,
+      }
+    )
+    .toBeTruthy();
 }

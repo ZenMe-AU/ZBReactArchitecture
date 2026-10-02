@@ -6,7 +6,7 @@
       "type": "shell",
       "command": "pnpm run start",
       "isBackground": true,
-      "problemMatcher": "$func-node-watch",
+      "problemMatcher": "$func-node-watch"
     },
     {
       "label": "Install Dependencies",
@@ -15,3 +15,4 @@
     }
   ]
 }
+ 
