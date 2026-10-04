@@ -2,6 +2,31 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Agent Start",
+      "type": "node",
+      "request": "launch",
+      "autoAttachChildProcesses": false,
+      "program": "${workspaceFolder}/vitest/agents/viewer/server.mjs",
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "Start Agent Test API",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "name": "Agent Test",
+      "type": "node",
+      "request": "launch",
+      "autoAttachChildProcesses": false,
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "program": "${workspaceFolder}/../../../node_modules/vitest/vitest.mjs",
+      "args": ["run", "module/quest3Tier/func/vitest/agents/agentChat.test.mjs", "--disableConsoleIntercept"],
+      "env": { "AGENT_RUN": "1" },
+      "cwd": "${workspaceFolder}/../../..",
+      "preLaunchTask": "Start Agent Test API",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
       "name": "Start",
       "type": "node",
       "request": "attach",

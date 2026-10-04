@@ -17,7 +17,7 @@
     "*.tsv": "duckdb.dataFileViewer",
     "*.xlsx": "duckdb.dataFileViewer"
   },
-  "azureFunctions.projectSubpath": "module\\quest3Tier\\func",
+  "azureFunctions.projectSubpath": "module/quest3Tier/func",
   "azurite.location": "${workspaceFolder}/azurite",
   "azurite.debug": true,
   "azurite.silent": true,
@@ -25,5 +25,9 @@
   "sarif-viewer.connectToGithubCodeScanning": "off",
   "cSpell.language": "en-AU",
   "cSpell.dictionaries": ["en-au"],
-  "cSpell.enabledLanguageIds": ["markdown", "plaintext", "javascript", "typescript", "typescriptreact"]
+  "cSpell.enabledLanguageIds": ["markdown", "plaintext", "javascript", "typescript", "typescriptreact"],
+  "azureFunctions.deploySubpath": "module/quest3Tier/func",
+  "azureFunctions.projectLanguage": "TypeScript",
+  "azureFunctions.projectRuntime": "~4",
+  "azureFunctions.preDeployTask": "npm prune (functions)"
 }

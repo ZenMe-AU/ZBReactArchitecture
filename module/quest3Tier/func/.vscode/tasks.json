@@ -6,7 +6,21 @@
       "type": "shell",
       "command": "pnpm run start",
       "isBackground": true,
-      "problemMatcher": "$func-node-watch",
+      "problemMatcher": "$func-node-watch"
+    },
+    {
+      "label": "Start Agent Test API",
+      "type": "shell",
+      "command": "pnpm run start",
+      "options": { "env": { "AUTH_PROVIDER": "authLocal" } },
+      "isBackground": true,
+      "dependsOn": [
+        {
+          "task": "Start Azurite",
+          "workspaceFolder": "${workspaceFolder:ROOT}"
+        }
+      ],
+      "problemMatcher": "$func-node-watch"
     },
     {
       "label": "Install Dependencies",
