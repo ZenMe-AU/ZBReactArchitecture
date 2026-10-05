@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import * as authLocal from "../../service/authLocal.mjs";
@@ -12,6 +12,47 @@ import { NAMES } from "./agentChat.config.mjs";
 export const AGENTS_DIR = path.dirname(fileURLToPath(import.meta.url));
 export const RUNS_DIR = path.join(AGENTS_DIR, "runs");
 export const LOCK_PATH = path.join(RUNS_DIR, ".lock");
+const MEMORY_END = "<!-- /Q3_MEMORY -->";
+
+const memoryStart = (name) => `<!-- Q3_MEMORY:${name} -->`;
+
+function parseMemory(text, owner) {
+  return Object.fromEntries(
+    NAMES.filter((name) => name !== owner).map((name) => {
+      const start = text.indexOf(memoryStart(name));
+      const end = start < 0 ? -1 : text.indexOf(MEMORY_END, start);
+      return [name, start < 0 || end < 0 ? "" : text.slice(start + memoryStart(name).length, end).trim()];
+    })
+  );
+}
+
+export async function writeMemory(file, owner, memory) {
+  const sections = NAMES.filter((name) => name !== owner).map(
+    (name) => `${memoryStart(name)}\n## ${name}\n\n${memory[name] ?? ""}\n${MEMORY_END}`
+  );
+  await writeFile(file, `# ${owner}'s memory\n\n${sections.join("\n\n")}\n`);
+}
+
+async function loadMemory(name) {
+  const file = path.join(AGENTS_DIR, name, "memory.md");
+  const combined = await readFile(file, "utf8").catch(() => "");
+  if (combined) return { file, memory: parseMemory(combined, name) };
+
+  const legacyDir = path.join(AGENTS_DIR, name, "memory");
+  const memory = Object.fromEntries(
+    await Promise.all(
+      NAMES.filter((other) => other !== name).map(async (other) => [
+        other,
+        await readFile(path.join(legacyDir, `${other}.md`), "utf8").catch(() => ""),
+      ])
+    )
+  );
+  if (Object.values(memory).some(Boolean)) {
+    await writeMemory(file, name, memory);
+    await rm(legacyDir, { recursive: true, force: true });
+  }
+  return { file, memory };
+}
 
 const isAlive = (pid) => {
   try {
@@ -45,18 +86,13 @@ export async function loadAgent(name) {
   const meta = Object.fromEntries(
     frontmatter.split("\n").map((line) => [line.slice(0, line.indexOf(":")).trim(), line.slice(line.indexOf(":") + 1).trim()])
   );
-  const memoryDir = path.join(AGENTS_DIR, name, "memory");
-  await mkdir(memoryDir, { recursive: true });
-  const memory = {};
-  for (const other of NAMES.filter((candidate) => candidate !== name)) {
-    memory[other] = await readFile(path.join(memoryDir, `${other}.md`), "utf8").catch(() => "");
-  }
+  const { file: memoryFile, memory } = await loadMemory(name);
   return {
     name,
     persona,
     model: process.env.AGENT_MODEL ?? meta.model,
     token: authLocal.generateToken({ oid: meta.oid, name, preferred_username: meta.email }),
-    memoryDir,
+    memoryFile,
     memory,
     updated: new Set(),
     used: { questionWrites: 0, answerWrites: 0 },

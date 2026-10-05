@@ -23,10 +23,9 @@ import path from "node:path";
 import { LIMITS, MAX_LENGTH, MEMORY_SCHEMA, NAMES, reflectPrompt, rules, STEP_SCHEMA, writeKind } from "./agentChat.config.mjs";
 import { assertLlmReady, llm } from "./agentChat.llm.mjs";
 import { judge, report } from "./agentChat.report.mjs";
-import { AGENTS_DIR, loadAgent, LOCK_PATH, pickParticipants, RUNS_DIR, takeLock } from "./agentChat.setup.mjs";
+import { AGENTS_DIR, loadAgent, LOCK_PATH, pickParticipants, RUNS_DIR, takeLock, writeMemory } from "./agentChat.setup.mjs";
 
 const MAX_STEPS = Number(process.env.AGENT_STEPS ?? 20);
-const REFLECT_EVERY = 10;
 const RECENT_STEPS = 8;
 const POLL_MS = 5 * 1000;
 const IDLE_POLLS = 3;
@@ -177,8 +176,8 @@ async function saveMemory(agent, memory) {
     if (!NAMES.includes(other) || other === agent.name) continue;
     agent.memory[other] = md;
     agent.updated.add(other);
-    await writeFile(path.join(agent.memoryDir, `${other}.md`), md);
   }
+  await writeMemory(agent.memoryFile, agent.name, agent.memory);
 }
 
 // One human-readable line per API call for the live chat log.
@@ -235,7 +234,8 @@ async function runAgent(agent, agents, others, sandbox, log, say) {
       await say(`${agent.name} stops after 3 LLM errors in a row.`);
       break;
     }
-    if (step % REFLECT_EVERY === 0) await reflect(agent, others, sandbox, say);
+    const learnedSomething = state.news.length > 0 || (typeof result?.status === "number" && result.status < 400);
+    if (learnedSomething) await reflect(agent, others, sandbox, say);
   }
   agent.done = true;
 }
