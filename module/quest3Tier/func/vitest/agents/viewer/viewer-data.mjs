@@ -20,6 +20,7 @@ export const KINDS = {
 
 export const VIEWS = {
   results: { title: "Results", kinds: [] },
+  questions: { title: "Questions", kinds: [] },
   overview: {
     title: "Recent activity",
     kinds: ["question", "edit", "share", "answer", "finding", "error", "memory", "start", "system"],
@@ -79,7 +80,12 @@ const tableRows = (text, heading, nextHeading) => {
   return section
     .split("\n")
     .filter((line) => line.startsWith("|") && !line.includes("---") && !line.includes("| Agent |") && !line.includes("| Observer |"))
-    .map((line) => line.slice(1, -1).split(/(?<!\\)\|/).map((cell) => cell.trim().replaceAll("\\|", "|")));
+    .map((line) =>
+      line
+        .slice(1, -1)
+        .split(/(?<!\\)\|/)
+        .map((cell) => cell.trim().replaceAll("\\|", "|"))
+    );
 };
 
 export function parseReport(text) {
@@ -91,12 +97,28 @@ export function parseReport(text) {
     links,
     note,
   }));
-  const leaks = (text.match(/### Leaks\n\n([\s\S]*?)(?=\n\n## )/)?.[1] ?? "")
-    .split("\n\n")
-    .filter((line) => line.startsWith("- ") && line !== "- none");
+  const leaks = (text.match(/### Leaks\n\n([\s\S]*?)(?=\n\n## )/)?.[1] ?? "").split("\n\n").filter((line) => line.startsWith("- ") && line !== "- none");
   const total = (index) => metrics.reduce((sum, row) => sum + (Number(row[index]) || 0), 0);
   const answered = metrics.reduce((sum, row) => sum + (Number(row[6]?.split("/")[0]) || 0), 0);
   const seen = metrics.reduce((sum, row) => sum + (Number(row[6]?.split("/")[1]) || 0), 0);
+  const questionSection = text.match(/## Questions \(final\)\n\n([\s\S]*?)(?=\n\n## Call log)/)?.[1] ?? "";
+  const questions = questionSection
+    .split(/\n\n(?=### )/)
+    .map((block) => {
+      const separator = block.indexOf("\n\n");
+      const heading = separator < 0 ? block : block.slice(0, separator);
+      const body = separator < 0 ? "" : block.slice(separator + 2);
+      const match = heading.match(/^### (.+) \(owner (.+)\)$/);
+      if (!match) return null;
+      const lines = body.split("\n").filter(Boolean);
+      return {
+        title: match[1],
+        owner: match[2],
+        text: lines.find((line) => !line.startsWith("- ")) ?? "",
+        answers: lines.filter((line) => line.startsWith("- ")).map((line) => line.slice(2)),
+      };
+    })
+    .filter(Boolean);
   return {
     pairs,
     leaks,
@@ -109,5 +131,6 @@ export function parseReport(text) {
     rejected: total(8),
     apiErrors: total(9),
     llmErrors: total(10),
+    questionList: questions,
   };
 }

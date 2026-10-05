@@ -27,6 +27,7 @@ const STATIC_FILES = {
   "/viewer.mjs": ["viewer.mjs", "text/javascript; charset=utf-8"],
   "/viewer-data.mjs": ["viewer-data.mjs", "text/javascript; charset=utf-8"],
   "/viewer-results.mjs": ["viewer-results.mjs", "text/javascript; charset=utf-8"],
+  "/viewer-questions.mjs": ["viewer-questions.mjs", "text/javascript; charset=utf-8"],
 };
 let runProcess;
 let azuriteProcess;

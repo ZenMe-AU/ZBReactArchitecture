@@ -4,6 +4,7 @@
  */
 
 import { AGENTS, classifyFinding, KINDS, parseLog, parseReport, VIEWS } from "./viewer-data.mjs";
+import { renderQuestions } from "./viewer-questions.mjs";
 import { renderResults as showResults } from "./viewer-results.mjs";
 
 const elements =
@@ -52,8 +53,7 @@ function setCount(name, value) {
   if (target) target.textContent = String(value);
 }
 
-const participantsFor = (events) =>
-  new Set(events.find((event) => event.kind === "start")?.participants ?? events.map((event) => event.agent).filter(Boolean));
+const participantsFor = (events) => new Set(events.find((event) => event.kind === "start")?.participants ?? events.map((event) => event.agent).filter(Boolean));
 
 function visibleEvents() {
   const view = VIEWS[activeView];
@@ -92,6 +92,8 @@ function renderAgentCards(participants) {
 function renderFeed() {
   const view = VIEWS[activeView];
   if (activeView === "results") return renderResults();
+  if (activeView === "questions")
+    return renderQuestions({ activeAgent, elements, events: currentEvents, questions: currentReport.questionList, renderInspector });
   const events = visibleEvents();
   elements.viewTitle.textContent = view.title;
   elements.filterNote.textContent = activeAgent ? `${activeAgent} only` : "All agents";
