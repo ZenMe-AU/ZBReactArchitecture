@@ -51,3 +51,11 @@ local.settings.json
 /playwright/.cache/
 /playwright/.auth/
 AzuriteConfig
+
+# Q3 Agent Lab runtime output and local review documents
+module/quest3Tier/func/vitest/agents/*/memory.md
+module/quest3Tier/func/vitest/agents/runs/
+module/quest3Tier/func/vitest/agents/CODE_REVIEW_REPORT.ko.md
+module/quest3Tier/func/vitest/agents/FILE_GUIDE.ko.md
+module/quest3Tier/func/vitest/agents/Q3_AGENT_LAB_CODE_REVIEW.ko.pdf
+module/quest3Tier/func/vitest/agents/Q3_AGENT_LAB_FILE_GUIDE.ko.pdf
