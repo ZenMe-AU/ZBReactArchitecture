@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist/migrate"
+  },
+  "include": [
+    "deploy/db/updateDbSchemaLocal.mts",
+    "deploy/db/migration/**/*.mts"
+  ],
+  "exclude": ["node_modules", "dist", "build", ".azure", "coverage", "vitest", "testOld"]
+}

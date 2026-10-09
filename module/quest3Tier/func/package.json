@@ -8,6 +8,8 @@
     "start": "func start",
     "deploy": "pnpm deploy --filter quest3Tier --prod out",
     "build": "tsc --project tsconfig.json",
+    "build:deploy-db": "tsc --project tsconfig.deploy.json",
+    "migrate:local": "pnpm run build:deploy-db && node dist/migrate/deploy/db/updateDbSchemaLocal.mjs",
     "watch": "tsc --project tsconfig.json --watch",
     "prestart": "pnpm run build",
     "test:vitest": "cross-env vitest run vitest/testQuestion.test.mts",

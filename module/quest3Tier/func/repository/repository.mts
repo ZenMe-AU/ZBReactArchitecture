@@ -392,7 +392,6 @@ async function patchById(questionId, action, profileId) {
     throw new Error(`Failed to patch question by ID: ${questionId}; ${err.message}`, { cause: err });
   }
 }
-
 async function findProfileByExternalId(externalId) {
   try {
     return await models.Profile.findOne({
