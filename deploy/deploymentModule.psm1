@@ -353,7 +353,7 @@ function Install-PostgreSql {
     if (-not $postgresqlInstalled) {
         if ($script:IsWindows) {
             Write-Output "postgresql not found. Installing postgresql using winget..."
-            winget install PostgreSQL.PostgreSQL -e --silent
+            winget install PostgreSQL.PostgreSQL.18 -e --silent
         } elseif ($script:IsMacOS) {
             Write-Output "postgresql not found. Installing postgresql using Homebrew..."
             Invoke-Brew install postgresql
