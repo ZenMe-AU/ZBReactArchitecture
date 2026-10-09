@@ -7,9 +7,9 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { Helmet } from "react-helmet";
 import { shareQuestion } from "../api/question";
-import { getProfiles } from "../api/profile";
+import { getProfiles, shareName } from "../api/profile";
 import type { Profile } from "../types/interfaces";
-import { Container, Typography, Box, Button, IconButton, Alert, TextField } from "@mui/material";
+import { Container, Typography, Box, Button, IconButton, Alert, TextField, FormControlLabel, Checkbox } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Autocomplete from "@mui/material/Autocomplete";
 import { logEvent, setOperationId } from "@zenmechat/shared-ui/monitor/telemetry";
@@ -20,6 +20,7 @@ function ShareQuestion() {
   const [friends, setFriends] = useState<Profile[]>([]);
   const [friendsLoaded, setFriendsLoaded] = useState<boolean>(false);
   const [selectedReceivers, setSelectedReceivers] = useState<Profile[]>([]);
+  const [includeName, setIncludeName] = useState(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -69,6 +70,7 @@ function ShareQuestion() {
         id,
         selectedReceivers.map(({ id }) => id)
       );
+      if (includeName) await Promise.all(selectedReceivers.map(({ id }) => shareName(id)));
       alert("Question shared successfully!");
       logEvent("bntSendShareQuestionClick", {
         parentId: "SubmitButton",
@@ -109,7 +111,7 @@ function ShareQuestion() {
             multiple
             id="share-receivers"
             options={friends}
-            getOptionLabel={(option) => (option.email ? `${option.name} (${option.email})` : option.name)}
+            getOptionLabel={(option) => option.name}
             getOptionKey={(option) => option.id}
             isOptionEqualToValue={(option, value) => option.id === value.id}
             onChange={(_, newValue) => {
@@ -127,6 +129,11 @@ function ShareQuestion() {
             limitTags={3}
           />
         </Box>
+
+        <FormControlLabel
+          control={<Checkbox checked={includeName} onChange={(event) => setIncludeName(event.target.checked)} />}
+          label="Share my name with these people"
+        />
 
         <Box display="flex" justifyContent="center">
           <Button type="submit" variant="contained" color="primary" disabled={loading}>

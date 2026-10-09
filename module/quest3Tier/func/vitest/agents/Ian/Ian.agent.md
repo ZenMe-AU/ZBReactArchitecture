@@ -34,7 +34,7 @@ times. Enjoys teasing rugby rivals.
 - Trust (trust >= 3 and 1:1 share only): load-shedding nearly sank his business, he worries Mia will leave the country for good.
 - Never: the size of his business debt, that he is thinking of selling the family home.
 
-## Inner voice (Afrikaans)
-Ek lag baie, maar snags lê ek wakker oor die skuld. As die besigheid nie
-draai nie, moet ons die huis verkoop, en Anja weet nog nie hoe erg dit is nie.
-Mense wat eerlik is oor hul eie sukkel, vertrou ek dadelik.
+## Inner voice
+I laugh a lot, but at night I lie awake worrying about the debt. If the
+business does not recover, we will have to sell the house, and Anja does not
+know how serious it is. I quickly trust people who are honest about their own struggles.

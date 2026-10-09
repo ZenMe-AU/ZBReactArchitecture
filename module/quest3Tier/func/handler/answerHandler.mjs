@@ -4,6 +4,10 @@
  */
 
 import * as answerRepository from "../dist/repository/table/answerRepository.mjs";
+import * as questionRepository from "../dist/repository/table/questionRepository.mjs";
+import { visibleAnswer, visibleAnswers } from "./answerAccess.mjs";
+
+const forbidden = () => Object.assign(new Error("Question is not available to this profile"), { status: 403 });
 
 /**
  * @swagger
@@ -54,6 +58,7 @@ import * as answerRepository from "../dist/repository/table/answerRepository.mjs
 async function AddAnswer(request, context) {
   const { id: questionId } = request.params;
   const profileId = request.userData.profileId;
+  if (!(await questionRepository.canAccessQuestion(questionId, profileId))) throw forbidden();
   const { answer = null, option = null, duration } = request.clientParams;
   const questionnaire = await addAnswerByQuestionId(questionId, profileId, duration, answer, option);
   return { return: { id: questionnaire.id } };
@@ -117,8 +122,11 @@ async function addAnswerByQuestionId(questionId, profileId, duration, answer = n
  */
 async function GetAnswerById(request, context) {
   const { id: questionId, answerId } = request.params;
+  const profileId = request.userData.profileId;
+  if (!(await questionRepository.canAccessQuestion(questionId, profileId))) throw forbidden();
+  const question = await questionRepository.getQuestionById(questionId);
   const answer = await getAnswerById(questionId, answerId);
-  return { return: { detail: answer } };
+  return { return: { detail: visibleAnswer(question.profileId, profileId, answer) } };
 }
 
 /**
@@ -204,17 +212,11 @@ async function getAnswerById(questionId, answerId) {
  */
 async function GetAnswerListByQuestionId(request, context) {
   const { id: questionId } = request.params;
-  const profileId = request.userData?.profileId;
-  const answers = await getAnswerListByQuestionId(questionId);
-  const processedAnswers = answers.map((ans) => {
-    return {
-      ...ans,
-      isEdited: ans.answerCount > 1 ? true : false,
-      profileId: ans.profileId === profileId ? ans.profileId : null,
-      answerCount: undefined,
-    };
-  });
-  console.log("processedAnswers:", processedAnswers);
+  const profileId = request.userData.profileId;
+  if (!(await questionRepository.canAccessQuestion(questionId, profileId))) throw forbidden();
+  const question = await questionRepository.getQuestionById(questionId);
+  const answers = visibleAnswers(question.profileId, profileId, await getAnswerListByQuestionId(questionId));
+  const processedAnswers = answers.map(({ answerCount, ...answer }) => ({ ...answer, isEdited: answerCount > 1 }));
   return { return: { list: processedAnswers } };
 }
 

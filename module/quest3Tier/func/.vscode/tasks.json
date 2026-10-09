@@ -12,7 +12,7 @@
       "label": "Start Agent Test API",
       "type": "shell",
       "command": "pnpm run start",
-      "options": { "env": { "AUTH_PROVIDER": "authLocal" } },
+      "options": { "env": { "AUTH_PROVIDER": "authLocal", "ENABLE_HUMAN_TEST": "1" } },
       "isBackground": true,
       "dependsOn": [
         {

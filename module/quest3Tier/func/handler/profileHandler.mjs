@@ -12,7 +12,7 @@ import * as profileRepository from "../dist/repository/table/profileRepository.m
  *     tags:
  *       - Profile
  *     summary: List people a question can be shared with
- *     description: Returns Quest 3 profiles that have a display name, excluding the caller. Only people who have signed in to Quest 3 appear.
+ *     description: Returns other Quest 3 profiles. Names stay anonymous until that person shares their name with the caller.
  *     responses:
  *       200:
  *         description: Successfully retrieved the profile list.
@@ -36,15 +36,31 @@ import * as profileRepository from "../dist/repository/table/profileRepository.m
  *                           name:
  *                             type: string
  *                             example: "Jane Doe"
- *                           email:
- *                             type: string
- *                             nullable: true
- *                             example: "jane.doe@example.com"
+ *                           isNameShared:
+ *                             type: boolean
  */
 async function GetProfiles(request, context) {
-  return { return: { list: await profileRepository.listProfiles(request.userData.profileId) } };
+  const identityBlind = process.env.IDENTITY_BLIND === "1" || request.userData.identityBlind;
+  return { return: { list: await profileRepository.listProfiles(request.userData.profileId, 200, identityBlind) } };
+}
+
+async function GetMyProfile(request, context) {
+  return { return: { id: request.userData.profileId } };
+}
+
+async function ShareName(request, context) {
+  const receiverId = request.clientParams.receiverId;
+  if (typeof receiverId !== "string" || !receiverId) {
+    const error = new Error("receiverId is required");
+    error.status = 400;
+    throw error;
+  }
+  await profileRepository.shareName(request.userData.profileId, receiverId);
+  return { return: true };
 }
 
 export default {
   GetProfiles,
+  GetMyProfile,
+  ShareName,
 };

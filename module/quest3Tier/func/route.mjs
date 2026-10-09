@@ -9,6 +9,7 @@ import questionHandler from "./handler/questionHandler.mjs";
 import answerHandler from "./handler/answerHandler.mjs";
 import followupHandler from "./handler/followupHandler.mjs";
 import profileHandler from "./handler/profileHandler.mjs";
+import localExperimentHandler from "./handler/localExperimentHandler.mjs";
 import { sendFollowUpCmdSchema } from "./schema/sendFollowUpCmdSchema.mjs";
 import { shareQuestionCmdSchema } from "./schema/shareQuestionCmdSchema.mjs";
 
@@ -89,6 +90,27 @@ app.http("GetProfiles", {
   methods: ["GET"],
   authLevel: "anonymous",
   handler: requestHandler(profileHandler.GetProfiles),
+});
+
+app.http("GetMyProfile", {
+  route: "profile/me",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: requestHandler(profileHandler.GetMyProfile),
+});
+
+app.http("HumanSession", {
+  route: "experiment/human-session",
+  methods: ["POST"],
+  authLevel: "anonymous",
+  handler: requestHandler(localExperimentHandler.HumanSession, { requireAuth: false }),
+});
+
+app.http("ShareName", {
+  route: "profile/share-name",
+  methods: ["POST"],
+  authLevel: "anonymous",
+  handler: requestHandler(profileHandler.ShareName),
 });
 
 app.http("SendFollowUpCmd", {

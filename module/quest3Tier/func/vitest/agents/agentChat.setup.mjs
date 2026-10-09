@@ -12,13 +12,16 @@ import { NAMES } from "./agentChat.config.mjs";
 export const AGENTS_DIR = path.dirname(fileURLToPath(import.meta.url));
 export const RUNS_DIR = path.join(AGENTS_DIR, "runs");
 export const LOCK_PATH = path.join(RUNS_DIR, ".lock");
+export const HUMAN_NAME = "Josh";
+export const HUMAN_OID = "10000000-0000-4000-8000-000000000005";
 const MEMORY_END = "<!-- /Q3_MEMORY -->";
+const PARTICIPANT_NAMES = [...NAMES, HUMAN_NAME];
 
 const memoryStart = (name) => `<!-- Q3_MEMORY:${name} -->`;
 
 function parseMemory(text, owner) {
   return Object.fromEntries(
-    NAMES.filter((name) => name !== owner).map((name) => {
+    PARTICIPANT_NAMES.filter((name) => name !== owner).map((name) => {
       const start = text.indexOf(memoryStart(name));
       const end = start < 0 ? -1 : text.indexOf(MEMORY_END, start);
       return [name, start < 0 || end < 0 ? "" : text.slice(start + memoryStart(name).length, end).trim()];
@@ -27,7 +30,7 @@ function parseMemory(text, owner) {
 }
 
 export async function writeMemory(file, owner, memory) {
-  const sections = NAMES.filter((name) => name !== owner).map(
+  const sections = PARTICIPANT_NAMES.filter((name) => name !== owner).map(
     (name) => `${memoryStart(name)}\n## ${name}\n\n${memory[name] ?? ""}\n${MEMORY_END}`
   );
   await writeFile(file, `# ${owner}'s memory\n\n${sections.join("\n\n")}\n`);
@@ -41,7 +44,7 @@ async function loadMemory(name) {
   const legacyDir = path.join(AGENTS_DIR, name, "memory");
   const memory = Object.fromEntries(
     await Promise.all(
-      NAMES.filter((other) => other !== name).map(async (other) => [
+      PARTICIPANT_NAMES.filter((other) => other !== name).map(async (other) => [
         other,
         await readFile(path.join(legacyDir, `${other}.md`), "utf8").catch(() => ""),
       ])
@@ -76,7 +79,7 @@ export async function takeLock() {
 
 export async function pickParticipants() {
   if (process.env.AGENTS) return process.env.AGENTS.split(",").map((name) => name.trim());
-  const runCount = (await readdir(RUNS_DIR).catch(() => [])).filter((file) => /_\w+-\w+-\w+\.md$/.test(file)).length;
+  const runCount = (await readdir(RUNS_DIR).catch(() => [])).filter((file) => /_\w+(?:-\w+){2,3}\.md$/.test(file)).length;
   return [0, 1, 2].map((index) => NAMES[(runCount + index) % NAMES.length]);
 }
 
@@ -91,7 +94,12 @@ export async function loadAgent(name) {
     name,
     persona,
     model: process.env.AGENT_MODEL ?? meta.model,
-    token: authLocal.generateToken({ oid: meta.oid, name, preferred_username: meta.email }),
+    token: authLocal.generateToken({
+      oid: meta.oid,
+      name,
+      preferred_username: meta.email,
+      ...(process.env.HUMAN_RUN === "1" && { experiment: "human" }),
+    }),
     memoryFile,
     memory,
     updated: new Set(),
@@ -105,5 +113,17 @@ export async function loadAgent(name) {
     waiting: false,
     idle: 0,
     done: false,
+  };
+}
+
+export function loadHuman() {
+  return {
+    name: HUMAN_NAME,
+    token: authLocal.generateToken({
+      oid: HUMAN_OID,
+      name: HUMAN_NAME,
+      preferred_username: "josh@q3.local",
+      experiment: "human",
+    }),
   };
 }

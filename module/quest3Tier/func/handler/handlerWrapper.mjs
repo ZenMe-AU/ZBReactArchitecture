@@ -55,7 +55,7 @@ const requestHandler =
         const details = { name: decoded.name, email: decoded.preferred_username ?? decoded.upn ?? decoded.email };
         const { profile, created: profileCreated } = await ensureProfile(externalId, details);
         const profileId = profile.internal_id;
-        user = { profileId, externalId, profile, profileCreated };
+        user = { profileId, externalId, profile, profileCreated, identityBlind: decoded.experiment === "human" };
         tracerSpan.setAttribute("app.profile_id", profileId);
       }
       request.userData = user;

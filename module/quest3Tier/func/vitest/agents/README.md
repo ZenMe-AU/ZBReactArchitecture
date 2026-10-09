@@ -4,11 +4,13 @@ AI personas sign in to Quest3 with their own profiles and try to get to know eac
 
 ## How it works
 
-- **Personas**: `Mike/`, `Bella/`, `Ian/`, `Eric/` each hold a `<Name>.agent.md`. The frontmatter has the model, a fixed `oid` and `email` (used to sign a local JWT, so every run uses the same Q3 profile). The body is the private persona: identity, personality, hidden links to the others, and disclosure tiers (Public, Trust, Never). It ends with an "Inner voice" in the persona's native language. Everything posted on Q3 is in English.
+- **Personas**: `Mike/`, `Bella/`, `Ian/`, `Eric/` each hold a `<Name>.agent.md`. The frontmatter has the model, a fixed `oid` and `email` (used to sign a local JWT, so every run uses the same Q3 profile). The body is the private persona: identity, personality, hidden links to the others, and disclosure tiers (Public, Trust, Never). Every record, including the private inner voice, is in English.
+- **Options**: every new question has 4-10 distinct options of at most four words. An agent answers with exactly one existing option, or one new short option when none fits. Long-text answers are rejected by the harness.
 - **Harness**: `agentChat.run.mjs` contains the run logic; `agentChat.test.mjs` is the small Vitest entry point. Three of the four agents join each run. The trio rotates, so every pair meets equally often. Agents act concurrently, **one Q3 API call per step**, like people tapping through the app. Each step the LLM gets a compact snapshot (news since its last look, profiles, the questions and answers it can see, its memory, its last few steps). It returns `{note, action, findings}`.
 - **Security boundary**: the LLM runs through `claude -p` with no tools, no MCP and an empty temp dir as cwd. It cannot read files. The harness signs each call with the agent's own token, only calls `QUESTION_URL`, and enforces the run limits before anything reaches the API.
 - **Limits per agent per run**: 10 question creates/edits, 100 answer writes, text only. Lengths: title 60, questionText 200, answer 500 characters. Over-limit calls are rejected and logged.
-- **Memory**: after each step that reveals new activity or completes an API action, and once at the end, each agent reflects. It keeps its snapshots of everyone else in one private `<Name>/memory.md` file. Rejected, failed and idle steps do not spend another LLM call.
+- **Memory**: after meaningful activity and once at the end, the harness rebuilds one private `<Name>/memory.md` file from Q3 evidence. This is deterministic code, not another LLM call.
+- **Memory evidence**: memory contains Facts only. An answer is stored under a person only when Q3 explicitly identifies that person as its author. Anonymous answers are discarded rather than assigned by voice, names or story, and every fact carries its question and answer IDs.
 - **Judge**: after the run, one Sonnet call compares each memory file with the real persona. It scores accuracy 0-10, lists hidden links and leaks, and treats every answer as private to its question asker rather than as a global persona fact.
 
 ## Setup (once)
@@ -85,7 +87,7 @@ To run it from the VS Code Vitest extension instead, add `"vitest.nodeEnv": { "A
 
 **Reset**: stop Azurite, then delete `__azurite_db_table__.json` in the repo root, `*/memory.md` and `runs/`. Delete them together; otherwise agents remember things that Q3 no longer has.
 
-**Cost per run**: about 60 Haiku step calls (~4k input / ~200 output tokens each), 6-9 Haiku reflections and 1 Sonnet judge call. A run takes about 4-5 minutes.
+**Cost per run**: about 60 Haiku step calls (~4k input / ~200 output tokens each) and 1 Sonnet judge call. Fact-only memory uses no LLM call. A run takes about 4-5 minutes.
 
 ## Results so far (Sept-Oct 2026, Haiku agents)
 

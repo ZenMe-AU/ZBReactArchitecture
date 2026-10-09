@@ -9,7 +9,7 @@
 // harness is its only way out: it signs every call with the agent's own token and
 // enforces the per-run limits before anything reaches the API.
 // Three agents join each run and act concurrently, one small step (one API call) at a time,
-// like people tapping through the app. They reflect into their memory files every few steps
+// like people tapping through the app. Verified answer facts are written to memory every few steps
 // and once more at the end; a judge then grades the memories against the personas.
 // Run from the repo root:
 //   AGENT_RUN=1 pnpm vitest run module/quest3Tier/func/vitest/agents/agentChat.test.mjs --disableConsoleIntercept
@@ -20,15 +20,17 @@ import { appendFile, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { setTimeout as sleep } from "node:timers/promises";
 import os from "node:os";
 import path from "node:path";
-import { LIMITS, MAX_LENGTH, MEMORY_SCHEMA, NAMES, reflectPrompt, rules, STEP_SCHEMA, writeKind } from "./agentChat.config.mjs";
+import { invalidAction, LIMITS, rules, STEP_SCHEMA, writeKind } from "./agentChat.config.mjs";
 import { assertLlmReady, llm } from "./agentChat.llm.mjs";
+import { factMemory } from "./agentChat.memory.mjs";
 import { judge, report } from "./agentChat.report.mjs";
-import { AGENTS_DIR, loadAgent, LOCK_PATH, pickParticipants, RUNS_DIR, takeLock, writeMemory } from "./agentChat.setup.mjs";
+import { resetHumanExperiment } from "./agentChat.reset.mjs";
+import { HUMAN_NAME, loadAgent, loadHuman, LOCK_PATH, pickParticipants, RUNS_DIR, takeLock, writeMemory } from "./agentChat.setup.mjs";
 
 const MAX_STEPS = Number(process.env.AGENT_STEPS ?? 20);
 const RECENT_STEPS = 8;
 const POLL_MS = 5 * 1000;
-const IDLE_POLLS = 3;
+const IDLE_POLLS = Number(process.env.HUMAN_RUN === "1" ? 60 : 3);
 
 async function call(agent, method, url, body) {
   // A JSON Content-Type with an empty body makes the handler wrapper 500, so only send it with a body.
@@ -49,25 +51,16 @@ async function call(agent, method, url, body) {
 const list = async (agent, p) => (await call(agent, "GET", new URL(p, process.env.QUESTION_URL))).response?.return?.list ?? [];
 const clip = (s, n = 200) => (String(s).length > n ? `${String(s).slice(0, n)}...` : String(s));
 
-// Control arm of the anonymity experiment: REVEAL_AUTHORS=1 names the author of every answer.
-// ponytail: reads the author via GET /question/{id}/answer/{answerId}, which leaks profileId today; use the harness's own answer log if that leak gets fixed.
-const authorOf = new Map();
-
 async function snapshot(agent) {
   const profiles = await list(agent, "/profiles");
   const names = Object.fromEntries(profiles.map((p) => [p.id, p.name]));
   const questions = await list(agent, "/questions");
   for (const q of questions) {
     q.answers = await list(agent, `/question/${q.id}/answers`);
-    if (!process.env.REVEAL_AUTHORS) continue;
     for (const ans of q.answers) {
-      if (!authorOf.has(ans.id))
-        authorOf.set(
-          ans.id,
-          (await call(agent, "GET", new URL(`/question/${q.id}/answer/${ans.id}`, process.env.QUESTION_URL))).response?.return?.detail?.profileId
-        );
-      const pid = authorOf.get(ans.id);
-      ans.author = !pid ? "unknown" : (names[pid] ?? agent.name); // /profiles leaves out yourself
+      if (!ans.profileId) continue;
+      ans.author = names[ans.profileId] ?? agent.name;
+      ans.memoryAuthor = agent.realNamesById?.[ans.profileId] ?? ans.author;
     }
   }
   return { questions, profiles };
@@ -77,18 +70,19 @@ async function snapshot(agent) {
 const knownMemory = (agent) => Object.fromEntries(Object.entries(agent.memory).filter(([, md]) => md));
 
 // What the LLM sees of a question: only what a person reads in the app, which keeps every step's prompt small.
-// Answer authors stay hidden exactly as Q3 hides them, except your own answers and the REVEAL_AUTHORS control arm.
-// Answers already digested into memory (and your own) shrink to a preview; new ones and reflections get the full text.
+// The API returns only relationship-authorized answers; its profileId becomes the evidence author.
+// Answers already digested into memory (and your own) shrink to a preview; new ones get the full value.
 const view = (questions, names, digested = new Set()) =>
   questions.map((q) => ({
     id: q.id,
     owner: q.isOwner ? "you" : (names[q.profileId] ?? "unknown"),
     title: q.title,
     text: q.questionText,
+    options: q.option ?? [],
     answers: q.answers.map((a) => ({
       id: a.id,
-      ...(a.profileId ? { by: "you" } : a.author && { by: a.author }),
-      text: a.profileId || digested.has(a.id) ? clip(a.answerText, 120) : a.answerText,
+      ...(a.author && { by: a.author }),
+      option: a.optionId ?? a.answerText,
       ...(a.isEdited && { edited: true }),
     })),
   }));
@@ -106,13 +100,15 @@ async function observe(agent) {
       news.push(q.isOwner ? `Your question "${q.title}" is live.` : `${names[q.profileId] ?? "Someone"} shared a question with you: "${q.title}"`);
     agent.seen.add(q.id);
     for (const ans of q.answers) {
-      const key = `${ans.id}:${ans.answerText}`;
-      if (!agent.seen.has(key) && ans.profileId === null) news.push(`New answer on "${q.title}": ${clip(ans.answerText, 120)}`);
+      const value = ans.optionId ?? ans.answerText;
+      const key = `${ans.id}:${value}`;
+      if (!agent.seen.has(key) && ans.profileId === null) news.push(`New answer on "${q.title}": ${clip(value, 120)}`);
       agent.seen.add(key);
     }
   }
   return {
     you: agent.name,
+    online: agent.online,
     step: agent.steps + 1,
     budget: {
       questionWritesLeft: LIMITS.questionWrites - agent.used.questionWrites,
@@ -123,7 +119,9 @@ async function observe(agent) {
     news: news.slice(-15),
     profiles,
     questions: view(questions, names, agent.digested),
-    memory: knownMemory(agent),
+    memory: Object.fromEntries(
+      Object.entries(knownMemory(agent)).map(([name, value]) => [agent.labelsByName?.[name] ?? name, value])
+    ),
     recent: agent.recent.slice(-RECENT_STEPS),
   };
 }
@@ -138,46 +136,23 @@ async function think(agent, state, sandbox) {
   }
 }
 
-async function reflect(agent, others, sandbox, say) {
-  try {
-    // snapshot, not observe: reflecting must not mark news as seen before the agent has reacted to it.
-    const { questions, profiles } = await snapshot(agent);
-    const names = Object.fromEntries(profiles.map((p) => [p.id, p.name]));
-    const input = { profiles, questions: view(questions, names), memory: knownMemory(agent), recent: agent.recent.slice(-RECENT_STEPS) };
-    const out = await llm(`${reflectPrompt(agent.name, others)}\n\n# Your persona\n${agent.persona}`, input, agent.model, MEMORY_SCHEMA, sandbox, FAST);
-    await saveMemory(agent, out.memory);
-    digest(agent, questions);
-    await say(`${agent.name} updated memory: ${Object.keys(out.memory).join(", ")}`);
-  } catch (err) {
-    await say(`${agent.name} memory update failed: ${err.message}`);
-  }
+async function reflect(agent, others, say) {
+  const { questions } = await snapshot(agent);
+  agent.memory = factMemory(agent.name, others, questions);
+  others.forEach((name) => agent.updated.add(name));
+  await writeMemory(agent.memoryFile, agent.name, agent.memory);
+  digest(agent, questions);
+  await say(`${agent.name} updated memory with verified facts: ${others.join(", ")}`);
 }
-
-const invalidBody = (body) => {
-  // PATCH bodies are JSON Patch ops; map "/questionText" -> value so both shapes check the same way.
-  const fields = Array.isArray(body) ? Object.fromEntries(body.map((op) => [String(op?.path).slice(1), op?.value])) : (body ?? {});
-  if (fields.option != null) return "text-only";
-  const over = Object.entries(MAX_LENGTH).find(([field, max]) => typeof fields[field] === "string" && fields[field].length > max);
-  return over ? `length:${over[0]}` : null;
-};
 
 async function act(agent, { method, path: p, body }) {
   const baseUrl = new URL(process.env.QUESTION_URL);
   const url = URL.canParse(p, baseUrl) ? new URL(p, baseUrl) : null;
   const kind = url && writeKind(method, url.pathname);
-  const reason = url?.origin !== baseUrl.origin ? "origin" : kind && agent.used[kind] >= LIMITS[kind] ? `limit:${kind}` : invalidBody(body);
+  const reason = url?.origin !== baseUrl.origin ? "origin" : kind && agent.used[kind] >= LIMITS[kind] ? `limit:${kind}` : invalidAction(method, url?.pathname ?? "", body);
   if (reason) return { method, path: p, body, status: "REJECTED", reason };
   if (kind) agent.used[kind]++;
   return { method, path: url.pathname, body, ...(await call(agent, method, url, body)) };
-}
-
-async function saveMemory(agent, memory) {
-  for (const [other, md] of Object.entries(memory)) {
-    if (!NAMES.includes(other) || other === agent.name) continue;
-    agent.memory[other] = md;
-    agent.updated.add(other);
-  }
-  await writeMemory(agent.memoryFile, agent.name, agent.memory);
 }
 
 // One human-readable line per API call for the live chat log.
@@ -187,9 +162,9 @@ function narrate(r, titles, names) {
   if (r.status === "REJECTED") return `tried ${r.method} ${r.path}, rejected (${r.reason})`;
   if (r.status >= 400) return `${r.method} ${r.path} failed (${r.status})`;
   if (r.method === "GET") return `looked at ${r.path}`;
-  if (root === "question" && !id) return `asked "${clip(r.body?.title, 80)}": ${clip(r.body?.questionText)}`;
+  if (root === "question" && !id) return `asked "${clip(r.body?.title, 80)}": ${clip(r.body?.questionText)} [${(r.body?.option ?? []).join(", ")}]`;
   if (root === "question" && sub === "share") return `shared ${q} with ${(r.body?.receiverIds ?? []).map((pid) => names[pid] ?? pid).join(", ")}`;
-  if (root === "question" && sub === "answer") return `answered ${q}: ${clip(r.body?.answer)}`;
+  if (root === "question" && sub === "answer") return `answered ${q}: ${clip(r.body?.option)}`;
   if (root === "question" && !sub) return `edited ${q}: ${clip(JSON.stringify(r.body))}`;
   return `${r.method} ${r.path} ${clip(JSON.stringify(r.body))}`;
 }
@@ -235,7 +210,7 @@ async function runAgent(agent, agents, others, sandbox, log, say) {
       break;
     }
     const learnedSomething = state.news.length > 0 || (typeof result?.status === "number" && result.status < 400);
-    if (learnedSomething) await reflect(agent, others, sandbox, say);
+    if (learnedSomething) await reflect(agent, others, say);
   }
   agent.done = true;
 }
@@ -246,7 +221,9 @@ export async function runAgentChat() {
   await assertLlmReady();
   await takeLock();
   try {
-    const participants = await pickParticipants();
+    const aiParticipants = await pickParticipants();
+    const humanMode = process.env.HUMAN_RUN === "1";
+    const participants = humanMode ? [...aiParticipants, HUMAN_NAME] : aiParticipants;
     const runName = `${new Date().toISOString().replaceAll(":", "-")}_${participants.join("-")}`;
     // Live chat log: printed as it happens (run vitest with --disableConsoleIntercept) and appended to a file you can keep open.
     const chatPath = path.join(RUNS_DIR, `${runName}.chat.md`);
@@ -256,26 +233,49 @@ export async function runAgentChat() {
       await appendFile(chatPath, `${text}\n\n`);
     };
     await say(`Run starts. Online: ${participants.join(", ")}.`);
-    const agents = await Promise.all(participants.map(loadAgent));
+    const agents = await Promise.all(aiParticipants.map(loadAgent));
+    const human = humanMode ? loadHuman() : null;
+    const actors = human ? [...agents, human] : agents;
+    for (const actor of actors) {
+      const me = await call(actor, "GET", new URL("/profile/me", process.env.QUESTION_URL));
+      if (me.status >= 400) throw new Error(`Could not register ${actor.name} (${me.status})`);
+      actor.profileId = me.response.return.id;
+    }
+    const realNamesById = Object.fromEntries(actors.map((actor) => [actor.profileId, actor.name]));
+    if (humanMode) {
+      const removed = await resetHumanExperiment(actors.map((actor) => actor.profileId));
+      await say(`Fresh human session. Cleared ${removed.records} Q3 records and ${removed.disclosures} name disclosures.`);
+    }
+    for (const agent of agents) {
+      const profiles = await list(agent, "/profiles");
+      const labelsById = Object.fromEntries(profiles.map((profile) => [profile.id, profile.name]));
+      agent.realNamesById = realNamesById;
+      agent.labelsByName = Object.fromEntries(actors.map((actor) => [actor.name, actor === agent ? "you" : labelsById[actor.profileId] ?? "unknown"]));
+      agent.online = actors.map((actor) => agent.labelsByName[actor.name]);
+    }
     const sandbox = await mkdtemp(path.join(os.tmpdir(), "q3-agent-"));
     const log = [];
 
     const othersOf = (agent) => participants.filter((n) => n !== agent.name);
     await Promise.all(agents.map((agent) => runAgent(agent, agents, othersOf(agent), sandbox, log, say)));
     await say("Everyone is done. Final memory update...");
-    await Promise.all(agents.map((agent) => reflect(agent, othersOf(agent), sandbox, say)));
+    await Promise.all(agents.map((agent) => reflect(agent, othersOf(agent), say)));
     await say("Judge is grading...");
 
     // Every question is visible to its owner, so the union over participants covers everything they touched.
     const questions = new Map();
     const names = {};
-    for (const agent of agents) {
+    for (const agent of actors) {
       for (const p of await list(agent, "/profiles")) names[p.id] = p.name;
       const visible = await list(agent, "/questions");
-      agent.seenOthers = visible.filter((q) => !q.isOwner).length;
+      if (agent.steps !== undefined) agent.seenOthers = visible.filter((q) => !q.isOwner).length;
       for (const q of visible) questions.set(q.id, q);
     }
-    for (const q of questions.values()) q.answers = await list(agents[0], `/question/${q.id}/answers`);
+    Object.assign(names, realNamesById);
+    for (const q of questions.values()) {
+      const owner = actors.find((actor) => actor.name === names[q.profileId]) ?? agents[0];
+      q.answers = await list(owner, `/question/${q.id}/answers`);
+    }
     const judgement = await judge(agents, [...questions.values()], names, log, sandbox).catch((err) => ({ error: err.message }));
 
     const reportPath = path.join(RUNS_DIR, `${runName}.md`);

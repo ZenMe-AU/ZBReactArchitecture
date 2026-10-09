@@ -18,6 +18,7 @@ export default function Login() {
   const location = useLocation();
   const [error, setError] = useState("");
   const [isSigningIn, setIsSigningIn] = useState(false);
+  const isHumanTest = new URLSearchParams(location.search).get("human") === "1" || sessionStorage.getItem("q3HumanTest") === "1";
   const returnTo = safeReturnPath((location.state as { from?: unknown } | null)?.from ?? sessionStorage.getItem("postLoginRedirect"));
 
   useEffect(() => {
@@ -46,8 +47,8 @@ export default function Login() {
     try {
       await login();
     } catch (loginError) {
-      console.error("Microsoft login failed", loginError);
-      setError("Sign in failed. Please try again.");
+      console.error(isHumanTest ? "Human test login failed" : "Microsoft login failed", loginError);
+      setError(isHumanTest ? "Could not join the human test. Please try again." : "Sign in failed. Please try again.");
       setIsSigningIn(false);
     }
   };
@@ -75,7 +76,7 @@ export default function Login() {
             onClick={handleLogin}
             sx={{ width: "100%", minHeight: 48, textTransform: "none" }}
           >
-            {isSigningIn ? "Redirecting…" : "Sign in with Microsoft"}
+            {isSigningIn ? "Connecting…" : isHumanTest ? "Retry as Josh" : "Sign in with Microsoft"}
           </Button>
         </CardContent>
       </Card>

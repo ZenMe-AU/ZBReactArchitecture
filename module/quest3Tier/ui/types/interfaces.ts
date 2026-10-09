@@ -7,7 +7,7 @@
 export interface Profile {
   id: string;
   name: string;
-  email?: string | null;
+  isNameShared: boolean;
   avatar?: string | null;
 }
 

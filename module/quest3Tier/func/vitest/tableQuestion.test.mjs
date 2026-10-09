@@ -113,6 +113,9 @@ describe("Azure Table sharing repository", () => {
     await questionRepository.shareQuestion(question.id, senderProfileId, [receiverProfileId]);
 
     expect((await questionRepository.getSharedQuestionListByProfileId(receiverProfileId)).map(({ id }) => id)).toEqual([question.id]);
+    expect(await questionRepository.canAccessQuestion(question.id, senderProfileId)).toBe(true);
+    expect(await questionRepository.canAccessQuestion(question.id, receiverProfileId)).toBe(true);
+    expect(await questionRepository.canAccessQuestion(question.id, await newProfileId())).toBe(false);
     const client = await getTableClient("QuestionData");
     let storedShare;
     for await (const entity of client.listEntities()) {
@@ -267,6 +270,12 @@ describe("Azure Table profile share list", () => {
   afterAll(async () => {
     const profiles = await getTableClient(profileRepository.PROFILES_TABLE);
     const index = await getTableClient(profileRepository.PROFILE_BY_EXTERNAL_ID_TABLE);
+    const disclosures = await getTableClient(profileRepository.PROFILE_DISCLOSURES_TABLE);
+    for (const { internalId } of namedProfiles) {
+      for await (const row of disclosures.listEntities({ queryOptions: { filter: `PartitionKey eq '${internalId}'` } })) {
+        await disclosures.deleteEntity(row.partitionKey, row.rowKey);
+      }
+    }
     await Promise.all(
       namedProfiles.flatMap(({ internalId, externalId }) => [profiles.deleteEntity(internalId, "profile"), index.deleteEntity(externalId, "profile")])
     );
@@ -283,17 +292,26 @@ describe("Azure Table profile share list", () => {
     expect(await storedProfile(profile.internalId)).toMatchObject({ name: "Table Test Renamed", email: "receiver@example.com" });
   });
 
-  it("lists named profiles without the caller or unnamed profiles", async () => {
+  it("keeps profiles anonymous until that person shares their name", async () => {
     const caller = await newNamedProfile("Table Test Caller");
     const target = await newNamedProfile("Table Test Target", "target@example.com");
     const unnamedId = await newProfileId();
 
-    const list = await profileRepository.listProfiles(caller.internalId);
-    const ids = list.map(({ id }) => id);
+    const anonymousList = await profileRepository.listProfiles(caller.internalId, 200, true);
+    const anonymousTarget = anonymousList.find(({ id }) => id === target.internalId);
 
-    expect(list).toContainEqual({ id: target.internalId, name: "Table Test Target", email: "target@example.com" });
-    expect(ids).not.toContain(caller.internalId);
-    expect(ids).not.toContain(unnamedId);
+    expect(anonymousTarget).toMatchObject({ id: target.internalId, isNameShared: false });
+    expect(anonymousTarget.name).toMatch(/^Person [0-9A-F]{4}$/);
+    expect(anonymousTarget).not.toHaveProperty("email");
+    expect(anonymousList.map(({ id }) => id)).not.toContain(caller.internalId);
+    expect(anonymousList.map(({ id }) => id)).not.toContain(unnamedId);
+
+    await profileRepository.shareName(target.internalId, caller.internalId);
+    expect(await profileRepository.listProfiles(caller.internalId, 200, true)).toContainEqual({
+      id: target.internalId,
+      name: "Table Test Target",
+      isNameShared: true,
+    });
   });
 
   it("shares a question with a profile taken from the list", async () => {

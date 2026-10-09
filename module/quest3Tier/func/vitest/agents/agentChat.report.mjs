@@ -16,11 +16,12 @@ export async function judge(agents, questions, names, log, sandbox) {
     questions: questions.map((question) => ({
       title: question.title,
       questionText: question.questionText,
+      options: question.option ?? [],
       owner: names[question.profileId] ?? question.profileId,
       sharedWithThisRun: [...(sharedWith[question.id] ?? [])],
       answers: question.answers.map((answer) => ({
         author: names[answer.profileId] ?? answer.profileId,
-        text: answer.answerText,
+        option: answer.optionId ?? answer.answerText,
         edited: answer.isEdited,
       })),
     })),
@@ -94,7 +95,8 @@ export function report(participants, agents, log, questions, names, judgement) {
     ...questions.flatMap((question) => [
       `### ${question.title ?? "(no title)"} (owner ${names[question.profileId] ?? question.profileId})`,
       question.questionText,
-      ...question.answers.map((answer) => `- ${answer.isEdited ? "(edited) " : ""}${answer.answerText}`),
+      `Options: ${(question.option ?? []).join(" · ")}`,
+      ...question.answers.map((answer) => `- ${answer.isEdited ? "(edited) " : ""}${answer.optionId ?? answer.answerText}`),
     ]),
     "## Call log",
     [

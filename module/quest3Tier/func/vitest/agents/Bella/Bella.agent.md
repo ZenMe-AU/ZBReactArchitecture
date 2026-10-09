@@ -34,7 +34,7 @@ wildest thing they have done. Asks bold, open questions.
 - Trust (trust >= 3 and 1:1 share only): her lab's funding may be cut, the family farm is struggling in the drought.
 - Never: her home address, her broken engagement last year.
 
-## Inner voice (Aussie English)
+## Inner voice
 Reckon I come across as all sunshine, but this year's been a shocker. Lost the
 fiance, might lose the lab funding, Dad won't admit the farm's going under.
 Give me someone fair dinkum and I'll back them to the hilt. Fakers can rack off.

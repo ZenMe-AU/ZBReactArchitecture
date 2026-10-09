@@ -31,6 +31,7 @@ const STATIC_FILES = {
 };
 let runProcess;
 let azuriteProcess;
+let uiProcess;
 let runState = { status: "idle" };
 
 const isRunName = (name) => typeof name === "string" && path.basename(name) === name && name.endsWith(".chat.md");
@@ -59,9 +60,9 @@ function send(response, status, contentType, body) {
 const sendJson = (response, status, body) => send(response, status, "application/json; charset=utf-8", JSON.stringify(body));
 const isSameOrigin = (request) => request.headers.origin === `http://${HOST}:${PORT}`;
 
-const portOpen = (port) =>
+const portOpen = (port, host = HOST) =>
   new Promise((resolve) => {
-    const socket = connect(port, HOST);
+    const socket = connect(port, host);
     socket.setTimeout(300);
     socket.once("connect", () => {
       socket.destroy();
@@ -75,7 +76,7 @@ const portOpen = (port) =>
     });
   });
 
-async function ensureServices() {
+async function ensureServices(humanMode) {
   if (!(await portOpen(10002))) {
     azuriteProcess = spawn(process.execPath, [AZURITE_BIN, "--location", REPO_DIR, "--tableHost", HOST, "--tablePort", "10002", "--silent"], {
       cwd: REPO_DIR,
@@ -88,18 +89,34 @@ async function ensureServices() {
     if (!(await portOpen(10002))) throw new Error("Azurite Table did not start on port 10002");
   }
   if (!(await portOpen(7073))) throw new Error("Q3 API is not running on port 7073. Start the Agent Start debug configuration first.");
+  if (humanMode && !(await portOpen(5183, "localhost"))) {
+    uiProcess = spawn("pnpm", ["run", "dev"], {
+      cwd: path.join(REPO_DIR, "module/quest3Tier/ui"),
+      env: CHILD_ENV,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    uiProcess.stdout.pipe(process.stdout);
+    uiProcess.stderr.pipe(process.stderr);
+    for (let attempt = 0; attempt < 100 && !(await portOpen(5183, "localhost")); attempt++) await delay(100);
+    if (!(await portOpen(5183, "localhost"))) throw new Error("Q3 UI did not start on port 5183");
+  }
 }
 
-async function startRun() {
-  runState = { status: "starting", startedAt: new Date().toISOString() };
-  await ensureServices();
+async function startRun(humanMode = false) {
+  runState = { status: "starting", humanMode, startedAt: new Date().toISOString() };
+  await ensureServices(humanMode);
   const child = spawn("pnpm", ["vitest", "run", TEST_FILE, "--disableConsoleIntercept"], {
     cwd: REPO_DIR,
-    env: { ...CHILD_ENV, AGENT_RUN: "1" },
+    env: { ...CHILD_ENV, AGENT_RUN: "1", ...(humanMode && { HUMAN_RUN: "1" }) },
     stdio: ["ignore", "pipe", "pipe"],
   });
   runProcess = child;
-  runState = { status: "running", startedAt: new Date().toISOString() };
+  runState = {
+    status: "running",
+    humanMode,
+    startedAt: new Date().toISOString(),
+    ...(humanMode && { joinUrl: "http://localhost:5183/login?human=1" }),
+  };
   child.stdout.pipe(process.stdout);
   child.stderr.pipe(process.stderr);
   const finish = (status, detail) => {
@@ -117,7 +134,10 @@ async function handle(request, response) {
     if (!isSameOrigin(request)) return sendJson(response, 403, { error: "Same-origin request required" });
     if (runProcess || runState.status === "starting") return sendJson(response, 409, runState);
     try {
-      await startRun();
+      const chunks = [];
+      for await (const chunk of request) chunks.push(chunk);
+      const body = chunks.length ? JSON.parse(Buffer.concat(chunks).toString("utf8")) : {};
+      await startRun(body.humanMode === true);
       return sendJson(response, 202, runState);
     } catch (error) {
       runState = { ...runState, status: "failed", error: error.message, finishedAt: new Date().toISOString() };

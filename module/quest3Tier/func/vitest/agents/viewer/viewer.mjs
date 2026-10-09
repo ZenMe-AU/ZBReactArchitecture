@@ -19,6 +19,8 @@ const elements =
         eventTitle: document.querySelector("#event-title"),
         feed: document.querySelector("#event-feed"),
         filterNote: document.querySelector("#filter-note"),
+        humanMode: document.querySelector("#human-mode"),
+        joinHuman: document.querySelector("#join-human"),
         runList: document.querySelector("#run-list"),
         runParticipants: document.querySelector("#run-participants"),
         startButton: document.querySelector("#run-start"),
@@ -219,6 +221,11 @@ async function loadRunState() {
   elements.startButton.disabled = running;
   elements.startButton.textContent = state.status === "starting" ? "Starting services..." : running ? "Running..." : "New test";
   elements.startButton.title = state.error ?? (state.status === "failed" ? `Test exited with code ${state.exitCode ?? "unknown"}` : "");
+  elements.humanMode.disabled = running;
+  // Preserve the user's pending choice while idle. Only an active run owns this control's value.
+  if (running) elements.humanMode.checked = Boolean(state.humanMode);
+  elements.joinHuman.classList.toggle("is-visible", Boolean(state.humanMode && state.joinUrl));
+  if (state.joinUrl) elements.joinHuman.href = state.joinUrl;
 }
 
 async function refreshLog() {
@@ -254,7 +261,11 @@ if (elements) {
     elements.startButton.disabled = true;
     elements.startButton.textContent = "Starting...";
     try {
-      const response = await fetch("/api/run", { method: "POST" });
+      const response = await fetch("/api/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ humanMode: elements.humanMode.checked }),
+      });
       const state = await response.json();
       if (!response.ok) throw new Error(state.error ?? "Could not start the test");
       elements.announcer.textContent = "Agent test started";
