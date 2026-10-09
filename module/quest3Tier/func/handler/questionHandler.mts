@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import repository from "../sqlRepository/repository.mjs";
+import { getRepository } from "../repository/getRepository.mjs";
 
 import { GetQuestionById } from "./questionGetById.mjs";
 
@@ -53,6 +53,7 @@ import { GetQuestionById } from "./questionGetById.mjs";
  *                       example: 123
  */
 async function CreateQuestion(request, context) {
+  const repository = getRepository();
   const profileId = request.userData.profileId;
   const { title = null, option = null, questionText } = request.clientParams;
   const questionnaire = await repository.create(profileId, title, questionText, option);
@@ -115,6 +116,7 @@ async function CreateQuestion(request, context) {
  *                       example: 1
  */
 async function UpdateQuestionById(request, context) {
+  const repository = getRepository();
   const { id: questionId } = request.params;
   const { title = null, option = null, questionText } = request.clientParams;
   const question = await repository.updateById(questionId, title, questionText, option);
@@ -201,6 +203,7 @@ async function UpdateQuestionById(request, context) {
  *                             example: "2024-12-18T13:05:14.411Z"
  */
 async function GetQuestionListByUser(request, context) {
+  const repository = getRepository();
   const profileId = request.userData.profileId;
   const question = await repository.getCombinationListByUser(profileId);
   return { return: { list: question } };
@@ -262,6 +265,7 @@ async function GetQuestionListByUser(request, context) {
  *                       example: "b08992c2-7c89-43a6-a152-9d24a74349a7"
  */
 async function PatchQuestionById(request, context) {
+  const repository = getRepository();
   const profileId = request.userData.profileId;
   const { id: questionId } = request.params;
   const questionAction = await repository.patchById(questionId, request.clientParams, profileId);

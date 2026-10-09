@@ -1,9 +1,5 @@
-import repository from "../sqlRepository/repository.mjs"; //TODO: This should be calling the repository layer instead of directly accessing the model.
-import type { Question } from "../sqlRepository/interfaces.js";
-
-type Questionnaire = {
-  dataValues: Question;
-};
+import { getRepository } from "../repository/getRepository.mjs";
+import type { QuestionRecord } from "../repository/contracts.mjs";
 
 type RequestWithQuestionId = {
   params: {
@@ -13,12 +9,12 @@ type RequestWithQuestionId = {
 
 type HandlerResponse = {
   return: {
-    detail: Question | null;
+    detail: QuestionRecord | null;
   };
 };
 
 export async function GetQuestionById(request: RequestWithQuestionId, context: unknown): Promise<HandlerResponse> {
   const { id: questionId } = request.params;
-  const questionnaire: Question | null = await repository.getById(questionId);
+  const questionnaire: QuestionRecord | null = await getRepository().getById(questionId);
   return { return: { detail: questionnaire } };
 }

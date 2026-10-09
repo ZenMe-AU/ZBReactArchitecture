@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import repository from "../sqlRepository/repository.mjs";
+import { getRepository } from "../repository/getRepository.mjs";
 
 import { v4 as uuidv4 } from "uuid";
 import cmdName from "../enum/cmdName.mjs";
@@ -54,6 +54,7 @@ import cmdName from "../enum/cmdName.mjs";
  *                       example: 5
  */
 async function GetEventByCorrelationId(request, context) {
+  const repository = getRepository();
   const { name, correlationId } = request.params;
   const result = await repository.getEventByCorrelationId(name, correlationId);
   return { return: { qty: result.length } };
@@ -61,6 +62,7 @@ async function GetEventByCorrelationId(request, context) {
 
 // TODO: Add swagger definition
 async function SendFollowUpCmd(request, context) {
+  const repository = getRepository();
   const { correlationId, clientParams: body } = request;
   const profileId = request.userData.profileId;
   const cmd = await repository.insertFollowUpCmd(profileId, body, correlationId);
@@ -87,6 +89,7 @@ async function SendFollowUpCmd(request, context) {
  */
 async function getFollowUpReceiver(senderId, cmdData) {
   try {
+    const repository = getRepository();
     const filterReceiverIdAry = await Promise.all(
       cmdData.question.map(async function (filter) {
         const ansList = await repository.getAnswerListByQuestionId(filter.questionId);
@@ -111,6 +114,7 @@ async function getFollowUpReceiver(senderId, cmdData) {
 
 // TODO: Add swagger definition
 async function ShareQuestionCmd(request, context) {
+  const repository = getRepository();
   const { correlationId, clientParams: body } = request;
   const profileId = request.userData.profileId;
   const cmd = await repository.insertQuestionShareCmd(profileId, body, correlationId);
@@ -121,11 +125,13 @@ async function ShareQuestionCmd(request, context) {
 }
 
 async function ShareQuestionById(request, context) {
+  const repository = getRepository();
   await repository.shareQuestion(request.params.id, request.userData.profileId, request.clientParams.receiverIds ?? []);
   return { return: true };
 }
 
 async function GetSharedQuestionListByUser(request, context) {
+  const repository = getRepository();
   return { return: { list: await repository.getSharedQuestionListByProfileId(request.userData.profileId) } };
 }
 

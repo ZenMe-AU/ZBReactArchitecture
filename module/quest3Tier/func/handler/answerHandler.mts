@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import repository from "../sqlRepository/repository.mjs";
+import { getRepository } from "../repository/getRepository.mjs";
 
 /**
  * @swagger
@@ -52,6 +52,7 @@ import repository from "../sqlRepository/repository.mjs";
  *                       example: 456
  */
 async function AddAnswer(request, context) {
+  const repository = getRepository();
   const { id: questionId } = request.params;
   const profileId = request.userData.profileId;
   const { answer = null, option = null, duration } = request.clientParams;
@@ -98,6 +99,7 @@ async function AddAnswer(request, context) {
  *                       description: Details of the answer.
  */
 async function GetAnswerById(request, context) {
+  const repository = getRepository();
   const { id: questionId, answerId } = request.params;
   const answer = await repository.getAnswerById(questionId, answerId);
   return { return: { detail: answer } };
@@ -170,6 +172,7 @@ async function GetAnswerById(request, context) {
  *                             example: "2025-02-15T15:42:36.892Z"
  */
 async function GetAnswerListByQuestionId(request, context) {
+  const repository = getRepository();
   const { id: questionId } = request.params;
   const profileId = request.userData?.profileId;
   const answers = await repository.getAnswerListByQuestionId(questionId);

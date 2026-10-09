@@ -20,6 +20,7 @@ import questionShareCmdModel from "./models/QuestionShareCmd.mjs";
 import questionShareEventModel from "./models/QuestionShareEvent.mjs";
 import profileModel from "./models/Profile.mjs";
 import { Question } from "./interfaces.js";
+import type { QuestRepository } from "../repository/contracts.mjs";
 import cmdName from "../enum/cmdName.mjs";
 import { v4 as uuidv4 } from "uuid";
 import {  Op } from "@sequelize/core";
@@ -326,7 +327,7 @@ async function create(profileId, title = null, question = null, option = null) {
  */
 async function updateById(questionId, title = null, questionText = null, option = null) {
   try {
-    return await models.Question.update(
+    await models.Question.update(
       {
         title: title,
         questionText: questionText,
@@ -339,6 +340,7 @@ async function updateById(questionId, title = null, questionText = null, option 
         individualHooks: true,
       }
     );
+    return { id: questionId };
   } catch (err) {
     console.log(err);
     throw new Error(`Failed to update question for questionId: ${questionId}; ${err.message}`, { cause: err });
@@ -394,13 +396,14 @@ async function patchById(questionId, action, profileId) {
 }
 async function findProfileByExternalId(externalId) {
   try {
-    return await models.Profile.findOne({
+    const profile = await models.Profile.findOne({
       where: { external_id: externalId },
       order: [
         ["createdAt", "ASC"],
         ["internal_id", "ASC"],
       ],
     });
+    return profile ? { id: profile.internal_id, externalId: profile.external_id } : null;
   } catch (err) {
     console.log(err);
     throw new Error(`Function failed: ${err.message}`, { cause: err });
@@ -409,7 +412,8 @@ async function findProfileByExternalId(externalId) {
 
 async function createProfile(externalId) {
   try {
-    return await models.Profile.create({ external_id: externalId });
+    const profile = await models.Profile.create({ external_id: externalId });
+    return { id: profile.internal_id, externalId: profile.external_id };
   } catch (err) {
     console.log(err);
     throw new Error(`Function failed: ${err.message}`, { cause: err });
@@ -470,4 +474,4 @@ export default {
   shareQuestion,
   insertQuestionShareCmd,
   updateQuestionShareCmdStatus,
-};
+} satisfies QuestRepository;

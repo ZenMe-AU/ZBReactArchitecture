@@ -9,7 +9,7 @@
 import { fileURLToPath } from "url";
 import { resolve, dirname, sep } from "path";
 import { classRunMigration } from "./classRunMigrationLocal.mjs";
-import { createDatabaseInstance } from "../../repository/models/connection/index.mjs";
+import { createDatabaseInstance } from "../../sqlRepository/models/connection/index.mjs";
 import dbType from "../../enum/dbType.mjs";
 import { existsSync, readFileSync } from "fs";
 

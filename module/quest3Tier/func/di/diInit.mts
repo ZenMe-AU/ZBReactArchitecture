@@ -23,9 +23,11 @@ register("authProvider", async () => {
 register("db", async () => {
   const { initDbConnection } = await import("../sqlRepository/initDbConnection.mjs");
   const { sequelize, models } = await initDbConnection();
+  const { default: repository } = await import("../sqlRepository/repository.mjs");
 
   container.register("db", sequelize);
   container.register("models", models);
+  container.register("repository", repository);
   console.log("🥳DB initialized");
 });
 

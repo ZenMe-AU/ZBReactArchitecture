@@ -3,9 +3,10 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import Model from "../sqlRepository/repository.mjs";
+import { getRepository } from "../repository/getRepository.mjs";
 
 async function ensureProfile(externalId) {
+  const repository = getRepository();
   const _externalId = externalId.toString().trim().slice(0, 1024); // Ensure the externalId is a string and trim it to a reasonable length
   if (!_externalId) {
     const error = new Error("Authenticated profile ID is required");
@@ -13,13 +14,13 @@ async function ensureProfile(externalId) {
     throw error;
   }
 
-  const existingProfile = await Model.findProfileByExternalId(_externalId);
+  const existingProfile = await repository.findProfileByExternalId(_externalId);
 
   if (existingProfile) {
     return { profile: existingProfile, created: false };
   }
 
-  const profile = await Model.createProfile(_externalId);
+  const profile = await repository.createProfile(_externalId);
   return { profile, created: true };
 }
 
