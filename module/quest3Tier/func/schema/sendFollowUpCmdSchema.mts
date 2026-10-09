@@ -16,5 +16,6 @@ export const sendFollowUpCmdSchema = Joi.object({
       })
     )
     .required(),
-  isSave: Joi.boolean().required(),
+  // Follow-up filters are no longer stored; isSave is accepted from older clients and ignored.
+  isSave: Joi.boolean(),
 });
