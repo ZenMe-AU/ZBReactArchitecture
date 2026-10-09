@@ -27,12 +27,13 @@ export async function assertLlmReady() {
     stdout: error.stdout,
     error,
   }));
-  let status;
-  try {
-    status = JSON.parse(String(result.stdout));
-  } catch {
-    throw new Error(`Claude CLI check failed: ${result.error?.message ?? "no output"}`);
-  }
+  const status = (() => {
+    try {
+      return JSON.parse(String(result.stdout));
+    } catch {
+      throw new Error(`Claude CLI check failed: ${"error" in result ? result.error?.message : "no output"}`);
+    }
+  })();
   if (!status.loggedIn) throw new Error("Claude CLI is not logged in. Run `claude /login` in the VS Code terminal, then start the test again.");
 }
 
@@ -51,12 +52,13 @@ async function claude(systemPrompt, input, model, schema, sandbox, { effort, thi
   run.child.stdin.end(JSON.stringify(input));
   const { stdout } = await run.catch((error) => {
     if (error.killed) throw new Error("claude timed out");
-    let cause;
-    try {
-      cause = JSON.parse(error.stdout).result;
-    } catch {
-      cause = error.stderr?.trim() || "no output";
-    }
+    const cause = (() => {
+      try {
+        return JSON.parse(error.stdout).result;
+      } catch {
+        return error.stderr?.trim() || "no output";
+      }
+    })();
     throw new Error(`claude exited ${error.code}: ${clip(cause, 300)}`);
   });
   const out = JSON.parse(stdout);
@@ -81,12 +83,13 @@ async function openaiCompatible(systemPrompt, input, model, schema) {
   const body = await res.json().catch(() => null);
   if (!res.ok) throw new Error(`LLM API ${res.status}: ${clip(JSON.stringify(body?.error ?? body), 300)}`);
   const text = body?.choices?.[0]?.message?.content ?? "";
-  let out;
-  try {
-    out = JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1));
-  } catch {
-    throw new Error(`LLM reply is not JSON: ${clip(text, 200)}`);
-  }
+  const out = (() => {
+    try {
+      return JSON.parse(text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1));
+    } catch {
+      throw new Error(`LLM reply is not JSON: ${clip(text, 200)}`);
+    }
+  })();
   const missing = schema.required.filter((key) => !(key in out));
   if (missing.length) throw new Error(`LLM reply misses ${missing.join(", ")}`);
   return out;

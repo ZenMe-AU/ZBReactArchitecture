@@ -5,8 +5,14 @@
 
 const titleFrom = (text) => text.match(/^[^\"]*"([^"]+)"/)?.[1];
 
-function groupQuestions(events, reportQuestions) {
-  const questions = new Map(reportQuestions.map((question) => [question.title, { ...question, agents: new Set([question.owner]), isNew: false }]));
+type Question = { title: string; owner: string; text: string; answers: string[]; agents: Set<string>; isNew: boolean };
+type QuestionEvent = { agent: string; kind: string; text: string };
+type ReportQuestion = Omit<Question, "agents" | "isNew">;
+
+function groupQuestions(events: QuestionEvent[], reportQuestions: ReportQuestion[]) {
+  const questions = new Map<string, Question>(
+    reportQuestions.map((question) => [question.title, { ...question, agents: new Set([question.owner]), isNew: false }])
+  );
   for (const event of events.filter((item) => ["question", "edit", "share", "answer"].includes(item.kind))) {
     const title = titleFrom(event.text);
     if (!title) continue;

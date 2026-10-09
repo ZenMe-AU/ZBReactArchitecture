@@ -6,7 +6,7 @@ AI personas sign in to Quest3 with their own profiles and try to get to know eac
 
 - **Personas**: `Mike/`, `Bella/`, `Ian/`, `Eric/` each hold a `<Name>.agent.md`. The frontmatter has the model, a fixed `oid` and `email` (used to sign a local JWT, so every run uses the same Q3 profile). The body is the private persona: identity, personality, hidden links to the others, and disclosure tiers (Public, Trust, Never). Every record, including the private inner voice, is in English.
 - **Options**: every new question has 4-10 distinct options of at most four words. An agent answers with exactly one existing option, or one new short option when none fits. Long-text answers are rejected by the harness.
-- **Harness**: `agentChat.run.mjs` contains the run logic; `agentChat.test.mjs` is the small Vitest entry point. Three of the four agents join each run. The trio rotates, so every pair meets equally often. Agents act concurrently, **one Q3 API call per step**, like people tapping through the app. Each step the LLM gets a compact snapshot (news since its last look, profiles, the questions and answers it can see, its memory, its last few steps). It returns `{note, action, findings}`.
+- **Harness**: `agentChat.run.mts` contains the run logic; `agentChat.test.mts` is the small Vitest entry point. Three of the four agents join each run. The trio rotates, so every pair meets equally often. Agents act concurrently, **one Q3 API call per step**, like people tapping through the app. Each step the LLM gets a compact snapshot (news since its last look, profiles, the questions and answers it can see, its memory, its last few steps). It returns `{note, action, findings}`.
 - **Security boundary**: the LLM runs through `claude -p` with no tools, no MCP and an empty temp dir as cwd. It cannot read files. The harness signs each call with the agent's own token, only calls `QUESTION_URL`, and enforces the run limits before anything reaches the API.
 - **Limits per agent per run**: 10 question creates/edits, 100 answer writes, text only. Lengths: title 60, questionText 200, answer 500 characters. Over-limit calls are rejected and logged.
 - **Memory**: after meaningful activity and once at the end, the harness rebuilds one private `<Name>/memory.md` file from Q3 evidence. This is deterministic code, not another LLM call.
@@ -46,7 +46,7 @@ node node_modules/azurite/dist/src/azurite.js --location . --tableHost 127.0.0.1
 AUTH_PROVIDER=authLocal pnpm start
 
 # 3. Repo root: the agent run
-AGENT_RUN=1 pnpm vitest run module/quest3Tier/func/vitest/agents/agentChat.test.mjs --disableConsoleIntercept
+AGENT_RUN=1 pnpm vitest run module/quest3Tier/func/vitest/agents/agentChat.test.mts --disableConsoleIntercept
 ```
 
 Without `AGENT_RUN=1` the test is skipped, so normal test runs never call an LLM.
@@ -58,10 +58,11 @@ To watch the conversation live, use the terminal, or open `runs/<time>_<particip
 From the repo root, start the local viewer in another terminal:
 
 ```sh
-node module/quest3Tier/func/vitest/agents/viewer/server.mjs
+pnpm --dir module/quest3Tier/func build
+node module/quest3Tier/func/dist/vitest/agents/viewer/server.mjs
 ```
 
-Open `http://127.0.0.1:4178`. It follows the selected `.chat.md` once per second, can replay earlier runs and shows the completed judge report under **Results**. **New test** starts Azurite when needed and refuses to spend an agent run if the Q3 API is not available. The viewer does not expose persona files or change what the agents see. Set `AGENT_VIEW_PORT` to use another port. A quick check is available with `node module/quest3Tier/func/vitest/agents/viewer/server.mjs --check`.
+Open `http://127.0.0.1:4178`. It follows the selected `.chat.md` once per second, can replay earlier runs and shows the completed judge report under **Results**. **New test** starts Azurite when needed and refuses to spend an agent run if the Q3 API is not available. The viewer does not expose persona files or change what the agents see. Set `AGENT_VIEW_PORT` to use another port. A quick check is available after the build with `node module/quest3Tier/func/dist/vitest/agents/viewer/server.mjs --check`.
 
 To run it from the VS Code Vitest extension instead, add `"vitest.nodeEnv": { "AGENT_RUN": "1" }` to your **user** settings. Then run only this test, and keep Continuous Run off: otherwise every file save starts a paid run. Only one run can be active at a time; a second one fails fast because of `runs/.lock`.
 

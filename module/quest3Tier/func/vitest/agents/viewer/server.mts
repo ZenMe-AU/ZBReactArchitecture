@@ -5,6 +5,7 @@
 
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
+import type { ChildProcess } from "node:child_process";
 import { createServer } from "node:http";
 import { readFile, readdir, stat } from "node:fs/promises";
 import { connect } from "node:net";
@@ -13,9 +14,11 @@ import { setTimeout as delay } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
 
 const VIEWER_DIR = path.dirname(fileURLToPath(import.meta.url));
-const RUNS_DIR = path.join(VIEWER_DIR, "..", "runs");
-const REPO_DIR = path.resolve(VIEWER_DIR, "../../../../../..");
-const TEST_FILE = "module/quest3Tier/func/vitest/agents/agentChat.test.mjs";
+const FUNC_DIR = process.cwd();
+const SOURCE_VIEWER_DIR = path.join(FUNC_DIR, "vitest/agents/viewer");
+const RUNS_DIR = path.join(FUNC_DIR, "vitest/agents/runs");
+const REPO_DIR = path.resolve(FUNC_DIR, "../../..");
+const TEST_FILE = "module/quest3Tier/func/vitest/agents/agentChat.test.mts";
 const AZURITE_BIN = path.join(REPO_DIR, "node_modules/azurite/dist/src/azurite.js");
 const HOST = "127.0.0.1";
 const PORT = Number(process.env.AGENT_VIEW_PORT ?? 4178);
@@ -28,11 +31,9 @@ const STATIC_FILES = {
   "/viewer-data.mjs": ["viewer-data.mjs", "text/javascript; charset=utf-8"],
   "/viewer-results.mjs": ["viewer-results.mjs", "text/javascript; charset=utf-8"],
   "/viewer-questions.mjs": ["viewer-questions.mjs", "text/javascript; charset=utf-8"],
-};
-let runProcess;
-let azuriteProcess;
-let uiProcess;
-let runState = { status: "idle" };
+} as const;
+type RunState = { status: string; humanMode?: boolean; startedAt?: string; finishedAt?: string; joinUrl?: string; error?: string; exitCode?: number };
+const state: { runProcess?: ChildProcess; azuriteProcess?: ChildProcess; uiProcess?: ChildProcess; run: RunState } = { run: { status: "idle" } };
 
 const isRunName = (name) => typeof name === "string" && path.basename(name) === name && name.endsWith(".chat.md");
 
@@ -76,42 +77,48 @@ const portOpen = (port, host = HOST) =>
     });
   });
 
+const waitForPort = async (port, host, attempts) => {
+  for (const _attempt of Array.from({ length: attempts })) {
+    if (await portOpen(port, host)) return true;
+    await delay(100);
+  }
+  return false;
+};
+
 async function ensureServices(humanMode) {
   if (!(await portOpen(10002))) {
-    azuriteProcess = spawn(process.execPath, [AZURITE_BIN, "--location", REPO_DIR, "--tableHost", HOST, "--tablePort", "10002", "--silent"], {
+    state.azuriteProcess = spawn(process.execPath, [AZURITE_BIN, "--location", REPO_DIR, "--tableHost", HOST, "--tablePort", "10002", "--silent"], {
       cwd: REPO_DIR,
       env: CHILD_ENV,
       stdio: ["ignore", "pipe", "pipe"],
     });
-    azuriteProcess.stdout.pipe(process.stdout);
-    azuriteProcess.stderr.pipe(process.stderr);
-    for (let attempt = 0; attempt < 50 && !(await portOpen(10002)); attempt++) await delay(100);
-    if (!(await portOpen(10002))) throw new Error("Azurite Table did not start on port 10002");
+    state.azuriteProcess.stdout?.pipe(process.stdout);
+    state.azuriteProcess.stderr?.pipe(process.stderr);
+    if (!(await waitForPort(10002, HOST, 50))) throw new Error("Azurite Table did not start on port 10002");
   }
   if (!(await portOpen(7073))) throw new Error("Q3 API is not running on port 7073. Start the Agent Start debug configuration first.");
   if (humanMode && !(await portOpen(5183, "localhost"))) {
-    uiProcess = spawn("pnpm", ["run", "dev"], {
+    state.uiProcess = spawn("pnpm", ["run", "dev"], {
       cwd: path.join(REPO_DIR, "module/quest3Tier/ui"),
       env: CHILD_ENV,
       stdio: ["ignore", "pipe", "pipe"],
     });
-    uiProcess.stdout.pipe(process.stdout);
-    uiProcess.stderr.pipe(process.stderr);
-    for (let attempt = 0; attempt < 100 && !(await portOpen(5183, "localhost")); attempt++) await delay(100);
-    if (!(await portOpen(5183, "localhost"))) throw new Error("Q3 UI did not start on port 5183");
+    state.uiProcess.stdout?.pipe(process.stdout);
+    state.uiProcess.stderr?.pipe(process.stderr);
+    if (!(await waitForPort(5183, "localhost", 100))) throw new Error("Q3 UI did not start on port 5183");
   }
 }
 
 async function startRun(humanMode = false) {
-  runState = { status: "starting", humanMode, startedAt: new Date().toISOString() };
+  state.run = { status: "starting", humanMode, startedAt: new Date().toISOString() };
   await ensureServices(humanMode);
   const child = spawn("pnpm", ["vitest", "run", TEST_FILE, "--disableConsoleIntercept"], {
     cwd: REPO_DIR,
     env: { ...CHILD_ENV, AGENT_RUN: "1", ...(humanMode && { HUMAN_RUN: "1" }) },
     stdio: ["ignore", "pipe", "pipe"],
   });
-  runProcess = child;
-  runState = {
+  state.runProcess = child;
+  state.run = {
     status: "running",
     humanMode,
     startedAt: new Date().toISOString(),
@@ -120,9 +127,9 @@ async function startRun(humanMode = false) {
   child.stdout.pipe(process.stdout);
   child.stderr.pipe(process.stderr);
   const finish = (status, detail) => {
-    if (runProcess !== child) return;
-    runProcess = undefined;
-    runState = { ...runState, status, finishedAt: new Date().toISOString(), ...detail };
+    if (state.runProcess !== child) return;
+    state.runProcess = undefined;
+    state.run = { ...state.run, status, finishedAt: new Date().toISOString(), ...detail };
   };
   child.once("error", (error) => finish("failed", { error: error.message }));
   child.once("exit", (code) => finish(code === 0 ? "passed" : "failed", { exitCode: code }));
@@ -132,22 +139,22 @@ async function handle(request, response) {
   const url = new URL(request.url, `http://${HOST}:${PORT}`);
   if (request.method === "POST" && url.pathname === "/api/run") {
     if (!isSameOrigin(request)) return sendJson(response, 403, { error: "Same-origin request required" });
-    if (runProcess || runState.status === "starting") return sendJson(response, 409, runState);
+    if (state.runProcess || state.run.status === "starting") return sendJson(response, 409, state.run);
     try {
       const chunks = [];
       for await (const chunk of request) chunks.push(chunk);
       const body = chunks.length ? JSON.parse(Buffer.concat(chunks).toString("utf8")) : {};
       await startRun(body.humanMode === true);
-      return sendJson(response, 202, runState);
+      return sendJson(response, 202, state.run);
     } catch (error) {
-      runState = { ...runState, status: "failed", error: error.message, finishedAt: new Date().toISOString() };
-      return sendJson(response, 503, runState);
+      state.run = { ...state.run, status: "failed", error: error.message, finishedAt: new Date().toISOString() };
+      return sendJson(response, 503, state.run);
     }
   }
   if (request.method !== "GET") return sendJson(response, 405, { error: "Method not allowed" });
 
   if (url.pathname === "/favicon.ico") return send(response, 204, "image/x-icon", "");
-  if (url.pathname === "/api/run") return sendJson(response, 200, runState);
+  if (url.pathname === "/api/run") return sendJson(response, 200, state.run);
   if (url.pathname === "/api/runs") return sendJson(response, 200, { runs: await listRuns() });
   if (url.pathname === "/api/log") {
     const runs = await listRuns();
@@ -165,7 +172,8 @@ async function handle(request, response) {
 
   const staticFile = STATIC_FILES[url.pathname];
   if (!staticFile) return sendJson(response, 404, { error: "Not found" });
-  return send(response, 200, staticFile[1], await readFile(path.join(VIEWER_DIR, staticFile[0])));
+  const directory = staticFile[0] === "index.html" ? SOURCE_VIEWER_DIR : VIEWER_DIR;
+  return send(response, 200, staticFile[1], await readFile(path.join(directory, staticFile[0])));
 }
 
 async function selfCheck() {

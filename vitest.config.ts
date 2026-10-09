@@ -9,7 +9,7 @@ export default defineConfig({
       {
         test: {
           name: "quest3Tier/func",
-          include: ["module/quest3Tier/func/vitest/**/*.test.mjs"],
+          include: ["module/quest3Tier/func/vitest/**/*.test.mjs", "module/quest3Tier/func/vitest/agents/**/*.test.mts"],
           setupFiles: ["module/quest3Tier/func/vitest/vitest.setup.mjs"],
           globals: true,
           environment: "node",

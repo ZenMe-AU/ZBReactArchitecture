@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const element = (tag, className, text) => {
+const element = (tag, className, text?) => {
   const node = document.createElement(tag);
   node.className = className;
   if (text !== undefined) node.textContent = text;

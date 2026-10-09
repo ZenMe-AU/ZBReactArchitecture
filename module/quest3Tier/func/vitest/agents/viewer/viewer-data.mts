@@ -47,8 +47,8 @@ export function parseLine(line) {
   const message = body.slice(agent.length).trimStart();
   if (message.startsWith("FINDING:")) return { time, agent, kind: "finding", text: message.slice(8).trim() };
   if (message.startsWith(":")) {
-    let text = message.slice(1).trim();
-    if (text.startsWith('"') && text.endsWith('"')) text = text.slice(1, -1);
+    const raw = message.slice(1).trim();
+    const text = raw.startsWith('"') && raw.endsWith('"') ? raw.slice(1, -1) : raw;
     return { time, agent, kind: "note", text };
   }
   const kinds = { answered: "answer", edited: "edit", asked: "question", shared: "share" };

@@ -113,12 +113,18 @@ export async function loadAgent(name) {
     waiting: false,
     idle: 0,
     done: false,
+    profileId: "",
+    realNamesById: {},
+    labelsByName: {},
+    online: [],
+    seenOthers: 0,
   };
 }
 
 export function loadHuman() {
   return {
     name: HUMAN_NAME,
+    profileId: "",
     token: authLocal.generateToken({
       oid: HUMAN_OID,
       name: HUMAN_NAME,

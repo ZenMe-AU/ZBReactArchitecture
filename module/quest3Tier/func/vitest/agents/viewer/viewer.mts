@@ -7,39 +7,42 @@ import { AGENTS, classifyFinding, KINDS, parseLog, parseReport, VIEWS } from "./
 import { renderQuestions } from "./viewer-questions.mjs";
 import { renderResults as showResults } from "./viewer-results.mjs";
 
+const select = <T extends HTMLElement>(selector: string) => document.querySelector<T>(selector);
 const elements =
   typeof document === "undefined"
     ? null
     : {
-        announcer: document.querySelector("#announcer"),
-        eventActor: document.querySelector("#event-actor"),
-        eventKind: document.querySelector("#event-kind"),
-        eventText: document.querySelector("#event-text"),
-        eventTime: document.querySelector("#event-time"),
-        eventTitle: document.querySelector("#event-title"),
-        feed: document.querySelector("#event-feed"),
-        filterNote: document.querySelector("#filter-note"),
-        humanMode: document.querySelector("#human-mode"),
-        joinHuman: document.querySelector("#join-human"),
-        runList: document.querySelector("#run-list"),
-        runParticipants: document.querySelector("#run-participants"),
-        startButton: document.querySelector("#run-start"),
-        runStatus: document.querySelector("#run-status"),
-        runTitle: document.querySelector("#run-title"),
-        viewTabs: document.querySelector("#view-tabs"),
-        viewTitle: document.querySelector("#view-title"),
+        announcer: select<HTMLElement>("#announcer"),
+        eventActor: select<HTMLElement>("#event-actor"),
+        eventKind: select<HTMLElement>("#event-kind"),
+        eventText: select<HTMLElement>("#event-text"),
+        eventTime: select<HTMLElement>("#event-time"),
+        eventTitle: select<HTMLElement>("#event-title"),
+        feed: select<HTMLElement>("#event-feed"),
+        filterNote: select<HTMLElement>("#filter-note"),
+        humanMode: select<HTMLInputElement>("#human-mode"),
+        joinHuman: select<HTMLAnchorElement>("#join-human"),
+        runList: select<HTMLElement>("#run-list"),
+        runParticipants: select<HTMLElement>("#run-participants"),
+        startButton: select<HTMLButtonElement>("#run-start"),
+        runStatus: select<HTMLElement>("#run-status"),
+        runTitle: select<HTMLElement>("#run-title"),
+        viewTabs: select<HTMLElement>("#view-tabs"),
+        viewTitle: select<HTMLElement>("#view-title"),
       };
 
-let selectedRun = "";
-let latestRun = "";
-let renderedSignature = "";
-let announcedRun = "";
-let announcedCount = 0;
-let activeView = "results";
-let activeAgent = "";
-let currentEvents = [];
-let currentReport = parseReport("");
-let selectedEventId = null;
+const state = {
+  selectedRun: "",
+  latestRun: "",
+  renderedSignature: "",
+  announcedRun: "",
+  announcedCount: 0,
+  activeView: "results",
+  activeAgent: "",
+  currentEvents: [],
+  currentReport: parseReport(""),
+  selectedEventId: null,
+};
 
 const detailsForRun = (name) => {
   const match = name.match(/^(\d{4}-\d{2}-\d{2})T(\d{2})-(\d{2})-[^_]+_(.+)\.chat\.md$/);
@@ -58,9 +61,9 @@ function setCount(name, value) {
 const participantsFor = (events) => new Set(events.find((event) => event.kind === "start")?.participants ?? events.map((event) => event.agent).filter(Boolean));
 
 function visibleEvents() {
-  const view = VIEWS[activeView];
-  let events = currentEvents.filter((event) => (!view.kinds || view.kinds.includes(event.kind)) && (!activeAgent || event.agent === activeAgent));
-  if (view.reverse) events = [...events].reverse();
+  const view = VIEWS[state.activeView];
+  const filtered = state.currentEvents.filter((event) => (!view.kinds || view.kinds.includes(event.kind)) && (!state.activeAgent || event.agent === state.activeAgent));
+  const events = view.reverse ? [...filtered].reverse() : filtered;
   return events.slice(0, view.limit ?? 120);
 }
 
@@ -72,52 +75,52 @@ function renderInspector(event) {
   elements.eventText.textContent = event?.text ?? "Choose an event from the activity view.";
 }
 
-const renderResults = () => showResults({ activeAgent, elements, report: currentReport, renderInspector });
+const renderResults = () => showResults({ activeAgent: state.activeAgent, elements, report: state.currentReport, renderInspector });
 
 function renderAgentCards(participants) {
-  const latestAgent = [...currentEvents].reverse().find((event) => event.agent)?.agent;
+  const latestAgent = [...state.currentEvents].reverse().find((event) => event.agent)?.agent;
   for (const name of AGENTS) {
-    const card = document.querySelector(`[data-agent="${name}"]`);
-    const events = currentEvents.filter((event) => event.agent === name);
+    const card = document.querySelector<HTMLElement>(`[data-agent="${name}"]`);
+    const events = state.currentEvents.filter((event) => event.agent === name);
     const latest = events.at(-1);
     const questions = events.filter((event) => event.kind === "question" || event.kind === "edit").length;
     const answers = events.filter((event) => event.kind === "answer").length;
     card.classList.toggle("is-online", participants.has(name));
     card.classList.toggle("is-active", name === latestAgent);
-    card.classList.toggle("is-selected", name === activeAgent);
-    card.setAttribute("aria-pressed", String(name === activeAgent));
+    card.classList.toggle("is-selected", name === state.activeAgent);
+    card.setAttribute("aria-pressed", String(name === state.activeAgent));
     card.querySelector(".agent-state").textContent = participants.has(name) ? (latest ? KINDS[latest.kind][1] : "Ready") : "Offline";
     card.querySelector(".agent-budget").textContent = `Q ${questions}  A ${answers}`;
   }
 }
 
 function renderFeed() {
-  const view = VIEWS[activeView];
-  if (activeView === "results") return renderResults();
-  if (activeView === "questions")
-    return renderQuestions({ activeAgent, elements, events: currentEvents, questions: currentReport.questionList, renderInspector });
+  const view = VIEWS[state.activeView];
+  if (state.activeView === "results") return renderResults();
+  if (state.activeView === "questions")
+    return renderQuestions({ activeAgent: state.activeAgent, elements, events: state.currentEvents, questions: state.currentReport.questionList, renderInspector });
   const events = visibleEvents();
   elements.viewTitle.textContent = view.title;
-  elements.filterNote.textContent = activeAgent ? `${activeAgent} only` : "All agents";
+  elements.filterNote.textContent = state.activeAgent ? `${state.activeAgent} only` : "All agents";
 
   if (!events.length) {
     const empty = document.createElement("li");
     empty.className = "empty";
-    empty.textContent = activeAgent ? `No ${view.title.toLowerCase()} events from ${activeAgent}.` : `No ${view.title.toLowerCase()} events yet.`;
+    empty.textContent = state.activeAgent ? `No ${view.title.toLowerCase()} events from ${state.activeAgent}.` : `No ${view.title.toLowerCase()} events yet.`;
     elements.feed.replaceChildren(empty);
     renderInspector(null);
     return;
   }
 
-  if (!events.some((event) => event.id === selectedEventId)) selectedEventId = view.reverse ? events[0].id : events.at(-1).id;
+  if (!events.some((event) => event.id === state.selectedEventId)) state.selectedEventId = view.reverse ? events[0].id : events.at(-1).id;
   const items = events.map((event) => {
     const item = document.createElement("li");
     item.className = `feed-item kind-${event.kind}`;
     const button = document.createElement("button");
     button.type = "button";
     button.className = "feed-button";
-    button.classList.toggle("is-selected", event.id === selectedEventId);
-    button.setAttribute("aria-pressed", String(event.id === selectedEventId));
+    button.classList.toggle("is-selected", event.id === state.selectedEventId);
+    button.setAttribute("aria-pressed", String(event.id === state.selectedEventId));
 
     const meta = document.createElement("span");
     meta.className = "feed-meta";
@@ -141,43 +144,43 @@ function renderFeed() {
     text.textContent = event.text;
     button.append(meta, text);
     button.addEventListener("click", () => {
-      selectedEventId = event.id;
+      state.selectedEventId = event.id;
       renderFeed();
     });
     item.append(button);
     return item;
   });
   elements.feed.replaceChildren(...items);
-  renderInspector(currentEvents.find((event) => event.id === selectedEventId));
+  renderInspector(state.currentEvents.find((event) => event.id === state.selectedEventId));
 }
 
 function render(events, mtime) {
-  currentEvents = events.map((event, id) => ({ ...event, id }));
-  const participants = participantsFor(currentEvents);
-  const latest = currentEvents.at(-1);
-  const complete = currentEvents.some((event) => event.text.startsWith("Report saved:"));
-  const grading = currentEvents.some((event) => event.text === "Judge is grading...");
-  const reflecting = currentEvents.some((event) => event.text === "Everyone is done. Final memory update...");
+  state.currentEvents = events.map((event, id) => ({ ...event, id }));
+  const participants = participantsFor(state.currentEvents);
+  const latest = state.currentEvents.at(-1);
+  const complete = state.currentEvents.some((event) => event.text.startsWith("Report saved:"));
+  const grading = state.currentEvents.some((event) => event.text === "Judge is grading...");
+  const reflecting = state.currentEvents.some((event) => event.text === "Everyone is done. Final memory update...");
   const fresh = Date.now() - mtime < 15_000;
   elements.runStatus.textContent = complete ? "Complete" : grading ? "Grading" : reflecting ? "Reflecting" : fresh ? "Live" : "Replay";
   elements.runStatus.dataset.state = complete ? "complete" : fresh ? "live" : "idle";
-  const runDetails = detailsForRun(selectedRun);
+  const runDetails = detailsForRun(state.selectedRun);
   elements.runTitle.textContent = runDetails.title;
   elements.runParticipants.textContent = [...participants].join(", ");
 
   renderAgentCards(participants);
   renderFeed();
   setCount("participants", participants.size);
-  setCount("questions", currentEvents.filter((event) => event.kind === "question" || event.kind === "edit").length);
-  setCount("answers", currentEvents.filter((event) => event.kind === "answer").length);
-  setCount("shares", currentEvents.filter((event) => event.kind === "share").length);
-  setCount("findings", currentEvents.filter((event) => event.kind === "finding").length);
+  setCount("questions", state.currentEvents.filter((event) => event.kind === "question" || event.kind === "edit").length);
+  setCount("answers", state.currentEvents.filter((event) => event.kind === "answer").length);
+  setCount("shares", state.currentEvents.filter((event) => event.kind === "share").length);
+  setCount("findings", state.currentEvents.filter((event) => event.kind === "finding").length);
 
-  if (selectedRun === announcedRun && currentEvents.length > announcedCount && latest) {
+  if (state.selectedRun === state.announcedRun && state.currentEvents.length > state.announcedCount && latest) {
     elements.announcer.textContent = `${latest.agent ?? "System"}: ${latest.text}`;
   }
-  announcedRun = selectedRun;
-  announcedCount = currentEvents.length;
+  state.announcedRun = state.selectedRun;
+  state.announcedCount = state.currentEvents.length;
 }
 
 async function loadRuns() {
@@ -186,8 +189,8 @@ async function loadRuns() {
   const { runs } = await response.json();
   const names = runs.map((run) => run.name);
   const newestRun = names[0] ?? "";
-  if (!selectedRun || !names.includes(selectedRun) || selectedRun === latestRun) selectedRun = newestRun;
-  latestRun = newestRun;
+  if (!state.selectedRun || !names.includes(state.selectedRun) || state.selectedRun === state.latestRun) state.selectedRun = newestRun;
+  state.latestRun = newestRun;
   const signature = names.join("\n");
   if (elements.runList.dataset.signature !== signature) {
     elements.runList.dataset.signature = signature;
@@ -207,9 +210,9 @@ async function loadRuns() {
       })
     );
   }
-  for (const item of elements.runList.querySelectorAll("[data-run]")) {
-    item.classList.toggle("is-selected", item.dataset.run === selectedRun);
-    item.setAttribute("aria-current", item.dataset.run === selectedRun ? "true" : "false");
+  for (const item of elements.runList.querySelectorAll<HTMLElement>("[data-run]")) {
+    item.classList.toggle("is-selected", item.dataset.run === state.selectedRun);
+    item.setAttribute("aria-current", item.dataset.run === state.selectedRun ? "true" : "false");
   }
 }
 
@@ -229,18 +232,18 @@ async function loadRunState() {
 }
 
 async function refreshLog() {
-  if (!selectedRun) return render([], 0);
+  if (!state.selectedRun) return render([], 0);
   const [response, reportResponse] = await Promise.all([
-    fetch(`/api/log?run=${encodeURIComponent(selectedRun)}`, { cache: "no-store" }),
-    fetch(`/api/report?run=${encodeURIComponent(selectedRun)}`, { cache: "no-store" }),
+    fetch(`/api/log?run=${encodeURIComponent(state.selectedRun)}`, { cache: "no-store" }),
+    fetch(`/api/report?run=${encodeURIComponent(state.selectedRun)}`, { cache: "no-store" }),
   ]);
   if (!response.ok) throw new Error("Could not load the selected run");
   const data = await response.json();
   const report = reportResponse.ok ? await reportResponse.json() : { text: "" };
   const signature = `${data.run}:${data.mtime}:${data.text.length}:${report.text.length}`;
-  if (signature === renderedSignature) return;
-  renderedSignature = signature;
-  currentReport = parseReport(report.text);
+  if (signature === state.renderedSignature) return;
+  state.renderedSignature = signature;
+  state.currentReport = parseReport(report.text);
   render(parseLog(data.text), data.mtime);
 }
 
@@ -277,29 +280,29 @@ if (elements) {
     }
   });
   elements.runList.addEventListener("click", (event) => {
-    const item = event.target.closest("[data-run]");
+    const item = (event.target as Element).closest<HTMLElement>("[data-run]");
     if (!item) return;
-    selectedRun = item.dataset.run;
-    renderedSignature = "";
-    announcedRun = "";
-    announcedCount = 0;
-    selectedEventId = null;
+    state.selectedRun = item.dataset.run;
+    state.renderedSignature = "";
+    state.announcedRun = "";
+    state.announcedCount = 0;
+    state.selectedEventId = null;
     refreshLog();
     loadRuns();
   });
   elements.viewTabs.addEventListener("click", (event) => {
-    const tab = event.target.closest("[data-view]");
+    const tab = (event.target as Element).closest<HTMLElement>("[data-view]");
     if (!tab) return;
-    activeView = tab.dataset.view;
-    selectedEventId = null;
+    state.activeView = tab.dataset.view;
+    state.selectedEventId = null;
     for (const item of elements.viewTabs.querySelectorAll("[data-view]")) item.setAttribute("aria-selected", String(item === tab));
     renderFeed();
   });
-  for (const card of document.querySelectorAll("[data-agent]")) {
+  for (const card of document.querySelectorAll<HTMLElement>("[data-agent]")) {
     card.addEventListener("click", () => {
-      activeAgent = activeAgent === card.dataset.agent ? "" : card.dataset.agent;
-      selectedEventId = null;
-      renderAgentCards(participantsFor(currentEvents));
+      state.activeAgent = state.activeAgent === card.dataset.agent ? "" : card.dataset.agent;
+      state.selectedEventId = null;
+      renderAgentCards(participantsFor(state.currentEvents));
       renderFeed();
     });
   }

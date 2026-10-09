@@ -3,9 +3,9 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import { getTableClient } from "../../dist/repository/table/tableClient.mjs";
-import { QUESTION_DATA_TABLE } from "../../dist/repository/table/keys.mjs";
-import { PROFILE_DISCLOSURES_TABLE } from "../../dist/repository/table/profileRepository.mjs";
+import { getTableClient } from "../../repository/table/tableClient.mjs";
+import { QUESTION_DATA_TABLE } from "../../repository/table/keys.mjs";
+import { PROFILE_DISCLOSURES_TABLE } from "../../repository/table/profileRepository.mjs";
 
 export function belongsToExperiment(row, profileIds, questionIds) {
   return (

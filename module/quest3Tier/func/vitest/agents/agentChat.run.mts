@@ -12,7 +12,7 @@
 // like people tapping through the app. Verified answer facts are written to memory every few steps
 // and once more at the end; a judge then grades the memories against the personas.
 // Run from the repo root:
-//   AGENT_RUN=1 pnpm vitest run module/quest3Tier/func/vitest/agents/agentChat.test.mjs --disableConsoleIntercept
+//   AGENT_RUN=1 pnpm vitest run module/quest3Tier/func/vitest/agents/agentChat.test.mts --disableConsoleIntercept
 // Watch the conversation live in the terminal, or in runs/<time>_<participants>.chat.md.
 
 import assert from "node:assert/strict";
@@ -32,7 +32,7 @@ const RECENT_STEPS = 8;
 const POLL_MS = 5 * 1000;
 const IDLE_POLLS = Number(process.env.HUMAN_RUN === "1" ? 60 : 3);
 
-async function call(agent, method, url, body) {
+async function call(agent, method, url, body?) {
   // A JSON Content-Type with an empty body makes the handler wrapper 500, so only send it with a body.
   const hasBody = body !== undefined && method !== "GET";
   const res = await fetch(url, {
@@ -150,7 +150,7 @@ async function act(agent, { method, path: p, body }) {
   const url = URL.canParse(p, baseUrl) ? new URL(p, baseUrl) : null;
   const kind = url && writeKind(method, url.pathname);
   const reason = url?.origin !== baseUrl.origin ? "origin" : kind && agent.used[kind] >= LIMITS[kind] ? `limit:${kind}` : invalidAction(method, url?.pathname ?? "", body);
-  if (reason) return { method, path: p, body, status: "REJECTED", reason };
+  if (reason) return { method, path: p, body, status: "REJECTED", reason, response: undefined };
   if (kind) agent.used[kind]++;
   return { method, path: url.pathname, body, ...(await call(agent, method, url, body)) };
 }
@@ -268,7 +268,7 @@ export async function runAgentChat() {
     for (const agent of actors) {
       for (const p of await list(agent, "/profiles")) names[p.id] = p.name;
       const visible = await list(agent, "/questions");
-      if (agent.steps !== undefined) agent.seenOthers = visible.filter((q) => !q.isOwner).length;
+      if ("steps" in agent) agent.seenOthers = visible.filter((q) => !q.isOwner).length;
       for (const q of visible) questions.set(q.id, q);
     }
     Object.assign(names, realNamesById);
