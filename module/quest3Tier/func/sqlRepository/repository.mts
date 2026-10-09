@@ -122,7 +122,7 @@ async function getAnswerListByQuestionId(questionId) {
     //   order: [[Sequelize.fn("MAX", Sequelize.col("createdAt")), "DESC"]],
     //   raw: true,
     // });
-    return await models.QuestionAnswer.sequelize.query(
+    const answers = await models.QuestionAnswer.sequelize.query(
       `
           SELECT DISTINCT ON ("profileId")
             "id",
@@ -142,6 +142,7 @@ async function getAnswerListByQuestionId(questionId) {
         type: models.QuestionAnswer.sequelize.QueryTypes.SELECT,
       }
     );
+    return answers.map((answer) => ({ ...answer, answerCount: Number(answer.answerCount) }));
   } catch (err) {
     console.log(err);
     throw new Error(`Failed to retrieve answers for questionId: ${questionId}; ${err.message}`, { cause: err });
