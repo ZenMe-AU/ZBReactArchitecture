@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import Model from "../repository/repository.mjs";
+import Model from "../sqlRepository/repository.mjs";
 
 async function ensureProfile(externalId) {
   const _externalId = externalId.toString().trim().slice(0, 1024); // Ensure the externalId is a string and trim it to a reasonable length

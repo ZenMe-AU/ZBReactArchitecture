@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import repository from "../repository/repository.mjs";
+import repository from "../sqlRepository/repository.mjs";
 
 import { v4 as uuidv4 } from "uuid";
 import cmdName from "../enum/cmdName.mjs";

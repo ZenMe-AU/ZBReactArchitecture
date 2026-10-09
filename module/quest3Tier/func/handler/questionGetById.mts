@@ -1,5 +1,5 @@
-import repository from "../repository/repository.mjs"; //TODO: This should be calling the repository layer instead of directly accessing the model.
-import type { Question } from "../repository/interfaces.ts";
+import repository from "../sqlRepository/repository.mjs"; //TODO: This should be calling the repository layer instead of directly accessing the model.
+import type { Question } from "../sqlRepository/interfaces.js";
 
 type Questionnaire = {
   dataValues: Question;

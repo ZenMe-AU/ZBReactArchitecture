@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import repository from "../repository/repository.mjs";
+import repository from "../sqlRepository/repository.mjs";
 
 /**
  * @swagger
