@@ -389,7 +389,8 @@ async function getCombinationListByUser(profileId) {
  */
 async function patchById(questionId, action, profileId) {
   try {
-    return await models.QuestionAction.create({ questionId, profileId, action });
+    const questionAction = await models.QuestionAction.create({ questionId, profileId, action });
+    return { id: questionAction.id };
   } catch (err) {
     console.log(err);
     throw new Error(`Failed to patch question by ID: ${questionId}; ${err.message}`, { cause: err });

@@ -39,7 +39,7 @@ export interface QuestRepository {
   create(profileId: string, title?: string | null, question?: string | null, option?: string[] | null): Promise<QuestionRecord>;
   updateById(questionId: string, title?: string | null, questionText?: string | null, option?: string[] | null): Promise<{ id: string }>;
   getCombinationListByUser(profileId: string): Promise<QuestionRecord[]>;
-  patchById(questionId: string, action: string, profileId: string): Promise<{ id: string }>;
+  patchById(questionId: string, action: unknown, profileId: string): Promise<{ id: string }>;
   addAnswerByQuestionId(questionId: string, profileId: string, duration: number, answer?: string | null, option?: string | null): Promise<AnswerRecord>;
   getAnswerById(questionId: string, answerId: string): Promise<AnswerRecord | null>;
   getAnswerListByQuestionId(questionId: string): Promise<AnswerRecord[]>;

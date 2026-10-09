@@ -125,6 +125,21 @@ export async function getProfileByInternalId(internalId: string): Promise<Profil
   }
 }
 
+export async function findProfileByExternalId(externalId: string): Promise<ProfileRecord | null> {
+  const client = await getTableClient(PROFILE_BY_EXTERNAL_ID_TABLE);
+  try {
+    const entity = await client.getEntity<ProfileByExternalIdEntity>(externalId, PROFILE_ROW_KEY);
+    return toProfileRecord(entity);
+  } catch (err) {
+    if (isNotFoundError(err)) return null;
+    throw err;
+  }
+}
+
+export async function createProfile(externalId: string): Promise<ProfileRecord> {
+  return (await ensureProfile(externalId)).profile;
+}
+
 export async function assertProfileExists(internalId: string): Promise<void> {
   if (!(await getProfileByInternalId(internalId))) {
     throw new Error(`Profile not found for profileId: ${internalId}`);

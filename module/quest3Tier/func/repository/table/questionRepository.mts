@@ -118,7 +118,7 @@ export async function getSharedQuestionListByProfileId(profileId: string): Promi
   return questions.filter((entity): entity is QuestionEntity & { etag: string } => entity !== null).map(toQuestionListItem).sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 }
 
-export async function shareQuestion(questionId: string, senderProfileId: string, receiverProfileIds: string[]): Promise<void> {
+export async function shareQuestion(questionId: string, senderProfileId: string, receiverProfileIds: string[]): Promise<QuestionShareEntity[]> {
   // Postgres enforced these with foreign keys.
   await Promise.all([senderProfileId, ...receiverProfileIds].map(assertProfileExists));
   if (!(await getQuestionEntity(questionId))) {
@@ -148,6 +148,7 @@ export async function shareQuestion(questionId: string, senderProfileId: string,
     for (const share of shares.slice(i, i + 100)) transaction.createEntity(share);
     await client.submitTransaction(transaction.actions);
   }
+  return shares;
 }
 
 function toUpdatedEntity(existing: QuestionEntity, next: UpdateQuestionInput): QuestionEntity {
