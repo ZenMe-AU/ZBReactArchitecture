@@ -4,7 +4,14 @@
  */
 
 import { v4 as uuidv4 } from "uuid";
-const saferStringify = (value) => (typeof value === "string" ? value : JSON.stringify(value));
+import {
+  createTableEntity,
+  getTableEntity,
+  listTableEntities,
+  updateTableEntity,
+  deleteTableEntity,
+  serialiseJson,
+} from "./tableCrud.mjs";
 
 export default (tableClient) => {
   const FollowUpEvent = {
@@ -27,13 +34,12 @@ export default (tableClient) => {
         followUpId: data.followUpId,
         correlationId: data.correlationId ?? null,
         action: data.action,
-        actionData: saferStringify(data.actionData),
-        originalData: saferStringify(data.originalData),
+        actionData: serialiseJson(data.actionData),
+        originalData: serialiseJson(data.originalData),
         createdAt: data.createdAt || new Date(),
       };
 
-      await tableClient.createEntity(entity);
-      return entity;
+      return createTableEntity(tableClient, entity);
     },
 
     /**
@@ -44,7 +50,7 @@ export default (tableClient) => {
      */
     async findByCompositeKey(id, senderProfileId) {
       try {
-        return await tableClient.getEntity(senderProfileId, id);
+        return await getTableEntity(tableClient, senderProfileId, id);
       } catch (error) {
         console.error("Entity not found:", error);
         return null;
@@ -57,11 +63,7 @@ export default (tableClient) => {
      * @returns
      */
     async findAll(filter) {
-      const entities = [];
-      for await (const entity of tableClient.listEntities({ filter })) {
-        entities.push(entity);
-      }
-      return entities;
+      return listTableEntities(tableClient, filter);
     },
 
     /**
@@ -76,12 +78,11 @@ export default (tableClient) => {
         followUpId: data.followUpId,
         correlationId: data.correlationId ?? null,
         action: data.action,
-        actionData: typeof data.actionData == "string" ? data.actionData : JSON.stringify(data.actionData),
-        originalData: typeof data.actionData == "string" ? data.actionData : JSON.stringify(data.actionData),
+        actionData: serialiseJson(data.actionData),
+        originalData: serialiseJson(data.originalData),
         createdAt: data.createdAt,
       };
-      await tableClient.updateEntity(entity, "Merge");
-      return entity;
+      return updateTableEntity(tableClient, entity);
     },
 
     /**
@@ -90,57 +91,8 @@ export default (tableClient) => {
      * @param {*} senderProfileId
      */
     async delete(id, senderProfileId) {
-      await tableClient.deleteEntity(senderProfileId, id);
+      return deleteTableEntity(tableClient, senderProfileId, id);
     },
   };
   return FollowUpEvent;
 };
-
-/*
-export default (sequelize, DataTypes) => {
-  const FollowUpEvent = sequelize.define(
-    "FollowUpEvent",
-    {
-      id: {
-        allowNull: false,
-        primaryKey: true,
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
-      },
-      followUpId: {
-        allowNull: false,
-        type: DataTypes.UUID,
-      },
-      correlationId: {
-        allowNull: true,
-        type: DataTypes.UUID,
-      },
-      action: {
-        allowNull: false,
-        type: DataTypes.STRING,
-      },
-      senderProfileId: {
-        allowNull: false,
-        type: DataTypes.UUID,
-      },
-      originalData: {
-        allowNull: true,
-        type: DataTypes.JSON,
-      },
-      actionData: {
-        allowNull: false,
-        type: DataTypes.JSON,
-      },
-      createdAt: {
-        allowNull: false,
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
-      },
-    },
-    {
-      tableName: "followUpEvent",
-      updatedAt: false,
-    }
-  );
-  return FollowUpEvent;
-};*/

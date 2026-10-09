@@ -4,6 +4,14 @@
  */
 
 import { v4 as uuidv4 } from "uuid";
+import {
+  createTableEntity,
+  getTableEntity,
+  listTableEntities,
+  updateTableEntity,
+  deleteTableEntity,
+  escapeTableFilterValue,
+} from "./tableCrud.mjs";
 
 export default (tableClient) => ({
   /**
@@ -22,8 +30,7 @@ export default (tableClient) => ({
       createdAt: new Date(),
     };
 
-    await tableClient.createEntity(entity);
-    return entity;
+    return createTableEntity(tableClient, entity);
   },
 
   /**
@@ -32,27 +39,15 @@ export default (tableClient) => ({
    * @returns {Promise<Object|null>}
    */
   async findByCompositeKey(internalId) {
-    try {
-      return await tableClient.getEntity("Profile", internalId);
-    } catch (error) {
-      if (error.statusCode === 404) return null;
-      throw error;
-    }
+    return getTableEntity(tableClient, "Profile", internalId);
   },
 
   async findOne({ where } = {}) {
     const externalId = where?.external_id;
     if (!externalId) return null;
 
-    for await (const entity of tableClient.listEntities({
-      queryOptions: {
-        filter: `external_id eq '${externalId.replaceAll("'", "''")}'`,
-      },
-    })) {
-      return entity;
-    }
-
-    return null;
+    const entities = await listTableEntities(tableClient, `external_id eq '${escapeTableFilterValue(externalId)}'`);
+    return entities[0] ?? null;
   },
 
   /**
@@ -61,15 +56,7 @@ export default (tableClient) => ({
    * @returns {Promise<Object[]>}
    */
   async findAll(filter) {
-    const profiles = [];
-
-    for await (const entity of tableClient.listEntities({
-      queryOptions: filter ? { filter } : undefined,
-    })) {
-      profiles.push(entity);
-    }
-
-    return profiles;
+    return listTableEntities(tableClient, filter);
   },
 
   /**
@@ -85,8 +72,7 @@ export default (tableClient) => ({
       external_id: data.external_id,
     };
 
-    await tableClient.updateEntity(entity, "Merge");
-    return entity;
+    return updateTableEntity(tableClient, entity);
   },
 
   /**
@@ -95,7 +81,7 @@ export default (tableClient) => ({
    * @returns {Promise<void>}
    */
   async delete(internalId) {
-    await tableClient.deleteEntity("Profile", internalId);
+    return deleteTableEntity(tableClient, "Profile", internalId);
   },
 });
 

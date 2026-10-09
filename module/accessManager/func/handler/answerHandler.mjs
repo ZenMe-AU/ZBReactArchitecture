@@ -56,7 +56,7 @@ async function AddAnswer(request, context) {
   const profileId = request.userData.profileId;
   const { answer = null, option = null, duration } = request.clientParams;
   const questionnaire = await addAnswerByQuestionId(questionId, profileId, duration, answer, option);
-  return { return: { id: questionnaire.id } };
+  return { return: { id: questionnaire.rowKey } };
 }
 
 /**
@@ -144,7 +144,7 @@ async function getAnswerById(questionId, answerId) {
 
 /**
  * @swagger
- * /question/{id}/answer:
+ * /question/{id}/answers:
  *   get:
  *     tags:
  *       - Question

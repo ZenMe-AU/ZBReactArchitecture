@@ -5,6 +5,7 @@
 
 import fastJsonPatch from "fast-json-patch";
 import { v4 as uuidv4 } from "uuid";
+import { createTableEntity, getTableEntity, serialiseJson } from "./tableCrud.mjs";
 
 const parseAction = (action) => (typeof action === "string" ? JSON.parse(action) : action);
 
@@ -21,11 +22,11 @@ export default (tableClient, Question) => {
         rowKey: data.id || uuidv4(),
         profileId: data.profileId,
         questionId: data.questionId,
-        action: typeof data.action === "string" ? data.action : JSON.stringify(data.action),
+        action: serialiseJson(data.action),
         createdAt: new Date(),
       };
 
-      await tableClient.createEntity(entity);
+      await createTableEntity(tableClient, entity);
       await QuestionAction._afterSave(entity);
 
       return entity;
@@ -38,12 +39,7 @@ export default (tableClient, Question) => {
      * @returns {Promise<Object|null>}
      */
     async findByPk(profileId, id) {
-      try {
-        return await tableClient.getEntity(profileId, id);
-      } catch (error) {
-        if (error.statusCode === 404) return null;
-        throw error;
-      }
+      return getTableEntity(tableClient, profileId, id);
     },
 
     /**
@@ -76,63 +72,3 @@ export default (tableClient, Question) => {
 
   return QuestionAction;
 };
-
-/*
-export default (sequelize, DataTypes) => {
-  const QuestionAction = sequelize.define(
-    "QuestionAction",
-    {
-      id: {
-        type: DataTypes.UUID,
-        allowNull: false,
-        primaryKey: true,
-        defaultValue: DataTypes.UUIDV4,
-      },
-      profileId: {
-        type: DataTypes.UUID,
-        allowNull: false,
-      },
-      questionId: {
-        type: DataTypes.UUID,
-        allowNull: false,
-      },
-      action: {
-        type: DataTypes.JSON,
-        allowNull: false,
-      },
-    },
-    {
-      tableName: "questionAction",
-      updatedAt: false,
-    }
-  );
-
-  QuestionAction.addHook("afterSave", async (instance) => {
-    try {
-      const { questionId, action } = instance;
-      const { Question } = instance.sequelize.models;
-      if (!Question) {
-        console.error("Question model not found.");
-        return;
-      }
-
-      const question = await Question.findByPk(questionId);
-      if (!question) {
-        console.error(`Question with ID ${questionId} not found.`);
-        return;
-      }
-
-      const updatedData = fastJsonPatch.applyPatch(question.toJSON(), action).newDocument;
-      await question.update({
-        title: updatedData.title ?? null,
-        questionText: updatedData.questionText ?? null,
-        option: updatedData.option ?? null,
-      });
-      console.log(`Question with ID ${questionId} updated successfully.`);
-    } catch (error) {
-      console.error("Error processing afterSave hook:", error);
-    }
-  });
-
-  return QuestionAction;
-}; */

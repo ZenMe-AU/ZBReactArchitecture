@@ -171,7 +171,7 @@ export const getAnswerListByQuestionId = async (id: string) => {
   try {
     await loadConfig();
     const apiDomain = getConfig("ACCESSMANAGER_DOMAIN");
-    const response = await jwtFetch(`${apiDomain}/question/${id}/answer`, {
+    const response = await jwtFetch(`${apiDomain}/question/${id}/answers`, {
       method: "GET",
     });
 

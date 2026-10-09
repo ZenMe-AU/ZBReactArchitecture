@@ -4,6 +4,14 @@
  */
 
 import { v4 as uuidv4 } from "uuid"; //Replaces use of DataTypes.UUIDV4 to auto-generate id in original sequelise
+import {
+  createTableEntity,
+  getTableEntity,
+  listTableEntities,
+  updateTableEntity,
+  deleteTableEntity,
+  serialiseJson,
+} from "./tableCrud.mjs";
 
 export default (tableClient) => {
   const FollowUpCmd = {
@@ -23,13 +31,12 @@ export default (tableClient) => {
         rowKey: data.id || uuidv4(),
         correlationId: data.correlationId || "",
         action: data.action,
-        data: JSON.stringify(data.data),
+        data: serialiseJson(data.data),
         status: data.status || 0,
         timestamp: new Date(),
       };
 
-      await tableClient.createEntity(entity);
-      return entity;
+      return createTableEntity(tableClient, entity);
     },
 
     /**
@@ -40,7 +47,7 @@ export default (tableClient) => {
      */
     async findByCompositeKey(id, senderProfileId) {
       try {
-        return await tableClient.getEntity(senderProfileId, id);
+        return await getTableEntity(tableClient, senderProfileId, id);
       } catch (error) {
         console.error("Entity not found:", error);
         return null;
@@ -58,11 +65,11 @@ export default (tableClient) => {
         partitionKey: data.senderProfileId,
         rowKey: data.id,
         ...data,
-        data: typeof data.data === "string" ? data.data : JSON.stringify(data.data),
+        data: serialiseJson(data.data),
         timestamp: new Date(),
       };
 
-      await tableClient.updateEntity(entity, "Replace");
+      await updateTableEntity(tableClient, entity, "Replace");
 
       // Hook only runs when status transitions to 1
       if (data.previousStatus !== 1 && data.status === 1) {
@@ -78,7 +85,7 @@ export default (tableClient) => {
      * @param {*} senderProfileId Partition key
      */
     async delete(id, senderProfileId) {
-      await tableClient.deleteEntity(senderProfileId, id);
+      return deleteTableEntity(tableClient, senderProfileId, id);
     },
 
     /**
@@ -87,11 +94,7 @@ export default (tableClient) => {
      * @returns
      */
     async findAll(filter) {
-      const entities = [];
-      for await (const entity of tableClient.listEntities({ filter })) {
-        entities.push(entity);
-      }
-      return entities;
+      return listTableEntities(tableClient, filter);
     },
 
     /**
@@ -116,12 +119,12 @@ export default (tableClient) => {
           correlationId: instance.correlationId,
           action: "create",
           senderProfileId: instance.senderProfileId,
-          actionData: JSON.stringify(instance.data),
+          actionData: serialiseJson(instance.data),
           originalData: null,
           timestamp: new Date(),
         };
 
-        await FollowUpEventTableClient.createEntity(event);
+        await createTableEntity(FollowUpEventTableClient, event);
       } catch (error) {
         console.error("Error in afterUpdate hook:", error);
       }
@@ -130,73 +133,3 @@ export default (tableClient) => {
 
   return FollowUpCmd;
 };
-
-/*
-export default (sequelize, DataTypes) => {
-  const FollowUpCmd = sequelize.define(
-    "FollowUpCmd",
-    {
-      id: {
-        allowNull: false,
-        primaryKey: true,
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
-      },
-      correlationId: {
-        allowNull: true,
-        type: DataTypes.UUID,
-      },
-      senderProfileId: {
-        allowNull: false,
-        type: DataTypes.UUID,
-      },
-      action: {
-        allowNull: false,
-        type: DataTypes.STRING,
-      },
-      data: {
-        allowNull: false,
-        type: DataTypes.JSON,
-      },
-      status: {
-        allowNull: false,
-        type: DataTypes.SMALLINT,
-        defaultValue: 0,
-      },
-    },
-    {
-      tableName: "followUpCmd",
-      timestamps: true,
-    }
-  );
-
-  FollowUpCmd.addHook("afterUpdate", async (instance, options) => {
-    try {
-      if (instance.previousStatus !== 1 && instance.status === 1) {
-        const { FollowUpEvent } = instance.sequelize.models;
-        if (!FollowUpEvent) {
-          console.error("FollowUpEvent model not found.");
-          return;
-        }
-
-        await FollowUpEvent.create(
-          {
-            followUpId: instance.id,
-            correlationId: instance.correlationId,
-            action: "create",
-            senderProfileId: instance.senderProfileId,
-            actionData: instance.dataValues,
-            originalData: null,
-          },
-          {
-            transaction: options.transaction,
-          }
-        );
-      }
-    } catch (error) {
-      console.error("Error processing afterUpdate hook:", error);
-    }
-  });
-
-  return FollowUpCmd;
-}; */

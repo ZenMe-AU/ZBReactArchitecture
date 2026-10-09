@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import Model from "../repository/model/index.mjs";
+import { profileRepository } from "../repository/tableClient.mjs";
 
 async function ensureProfile(externalId) {
   const _externalId = externalId.toString().trim().slice(0, 1024); // Ensure the externalId is a string and trim it to a reasonable length
@@ -13,7 +13,7 @@ async function ensureProfile(externalId) {
     throw error;
   }
 
-  const existingProfile = await Model.Profile.findOne({
+  const existingProfile = await profileRepository.findOne({
     where: { external_id: _externalId },
     order: [
       ["createdAt", "ASC"],
@@ -25,7 +25,7 @@ async function ensureProfile(externalId) {
     return { profile: existingProfile, created: false };
   }
 
-  const profile = await Model.Profile.create({ external_id: _externalId });
+  const profile = await profileRepository.create({ external_id: _externalId });
   return { profile, created: true };
 }
 

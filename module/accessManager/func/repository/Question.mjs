@@ -4,10 +4,36 @@
  */
 
 import { v4 as uuidv4 } from "uuid";
-
-const saferStringify = (value) => (typeof value === "string" ? value : JSON.stringify(value));
+import {
+  createTableEntity,
+  findTableEntityByRowKey,
+  listTableEntities,
+  getTableEntity,
+  updateTableEntity,
+  deleteTableEntity,
+  escapeTableFilterValue,
+  serialiseJson,
+} from "./tableCrud.mjs";
 
 export default (tableClient) => {
+  const withId = (entity) => {
+    if (!entity) return entity;
+
+    let option = entity.option;
+    if (typeof option === "string") {
+      try {
+        option = JSON.parse(option);
+      } catch (error) {
+        throw new Error(`Question ${entity.rowKey} has invalid serialized options.`, { cause: error });
+      }
+    }
+    if (option != null && !Array.isArray(option)) {
+      throw new Error(`Question ${entity.rowKey} options must be an array or null.`);
+    }
+
+    return { ...entity, id: entity.rowKey, option: option ?? null };
+  };
+
   const Question = {
     async create(data) {
       const entity = {
@@ -16,50 +42,35 @@ export default (tableClient) => {
         profileId: data.profileId,
         title: data.title ?? null,
         questionText: data.questionText ?? null,
-        option: data.option == null ? null : saferStringify(data.option),
+        option: data.option == null ? null : serialiseJson(data.option),
         eventId: data.eventId ?? null,
         createdAt: data.createdAt || new Date(),
       };
 
-      await tableClient.createEntity(entity);
-      return entity;
+      return createTableEntity(tableClient, entity);
     },
 
     async findByPk(questionId) {
-      const entities = [];
-
-      for await (const entity of tableClient.listEntities({
-        queryOptions: {
-          filter: `RowKey eq '${questionId}'`,
-        },
-      })) {
-        entities.push(entity);
-      }
-
-      return entities[0] ?? null;
+      return withId(await findTableEntityByRowKey(tableClient, questionId));
     },
 
     async findAll(filter = {}) {
-      const queryOptions = {};
+      let filterString = "";
 
       if (typeof filter === "string") {
-        queryOptions.filter = filter;
+        filterString = filter;
       } else if (filter && filter.where) {
         const { profileId, id } = filter.where;
 
         if (profileId) {
-          queryOptions.filter = `PartitionKey eq '${profileId}'`;
+          filterString = `PartitionKey eq '${escapeTableFilterValue(profileId)}'`;
         } else if (id) {
-          queryOptions.filter = `RowKey eq '${id}'`;
+          filterString = `RowKey eq '${escapeTableFilterValue(id)}'`;
         }
       }
 
-      const entities = [];
-      for await (const entity of tableClient.listEntities({ queryOptions: Object.keys(queryOptions).length ? queryOptions : undefined })) {
-        entities.push(entity);
-      }
-
-      return entities;
+      const entities = await listTableEntities(tableClient, filterString);
+      return entities.map(withId);
     },
 
     async update(data, options = {}) {
@@ -68,7 +79,7 @@ export default (tableClient) => {
         throw new Error("Question update requires an id or rowKey value.");
       }
 
-      const existing = (await this.findByPk(questionId)) || (await tableClient.getEntity(data.profileId, questionId));
+      const existing = (await this.findByPk(questionId)) || (await getTableEntity(tableClient, data.profileId, questionId));
       if (!existing) {
         return null;
       }
@@ -79,14 +90,13 @@ export default (tableClient) => {
         profileId: data.profileId || existing.profileId,
         title: data.title ?? existing.title ?? null,
         questionText: data.questionText ?? existing.questionText ?? null,
-        option: data.option == null ? (existing.option ?? null) : saferStringify(data.option),
+        option: data.option == null ? (existing.option ?? null) : serialiseJson(data.option),
         eventId: data.eventId ?? existing.eventId ?? null,
         createdAt: existing.createdAt || new Date(),
         updatedAt: new Date(),
       };
 
-      await tableClient.updateEntity(entity, "Merge");
-      return entity;
+      return updateTableEntity(tableClient, entity);
     },
 
     async destroy(where) {
@@ -99,8 +109,9 @@ export default (tableClient) => {
       for (const id of ids) {
         const entity = await this.findByPk(id);
         if (!entity) continue;
-        await tableClient.deleteEntity(entity.partitionKey, id);
-        deleted += 1;
+        if (await deleteTableEntity(tableClient, entity.partitionKey, id)) {
+          deleted += 1;
+        }
       }
       return deleted;
     },

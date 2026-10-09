@@ -6,6 +6,7 @@
       "type": "shell",
       "command": "pnpm run dev",
       "isBackground": true,
+      "dependsOn": "Install Dependencies",
       "options": {"cwd": "${workspaceFolder}"},
        "problemMatcher": {
         "owner": "vite",
