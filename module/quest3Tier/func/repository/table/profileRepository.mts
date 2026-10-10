@@ -53,6 +53,7 @@ export interface ProfileListItem {
   isNameShared: boolean;
 }
 
+//TODO: Change this to a pariwise id.
 function anonymousName(internalId: string): string {
   const code = createHash("sha256").update(internalId).digest("hex").slice(0, 4).toUpperCase();
   return `Person ${code}`;
@@ -131,6 +132,19 @@ export async function getProfileByInternalId(internalId: string): Promise<Profil
   }
 }
 
+export async function findProfileByExternalId(externalId: string): Promise<ProfileRecord | null> {
+  const client = await getTableClient(PROFILE_BY_EXTERNAL_ID_TABLE);
+  try {
+    const entity = await client.getEntity<ProfileByExternalIdEntity>(externalId, PROFILE_ROW_KEY);
+    return toProfileRecord(entity);
+  } catch (err) {
+    if (isNotFoundError(err)) return null;
+    throw err;
+  }
+}
+export async function createProfile(externalId: string): Promise<ProfileRecord> {
+  return (await ensureProfile(externalId)).profile;
+}
 export async function assertProfileExists(internalId: string): Promise<void> {
   if (!(await getProfileByInternalId(internalId))) {
     throw new Error(`Profile not found for profileId: ${internalId}`);
@@ -152,6 +166,7 @@ export async function shareName(senderId: string, receiverId: string): Promise<v
   });
 }
 
+//TODO: Identity blind should not be configurable, security is controlled by person access, not parameters.
 export async function listProfiles(excludeInternalId: string, limit = 200, identityBlind = false): Promise<ProfileListItem[]> {
   const client = await getTableClient(PROFILES_TABLE);
   const disclosures = await getTableClient(PROFILE_DISCLOSURES_TABLE);
