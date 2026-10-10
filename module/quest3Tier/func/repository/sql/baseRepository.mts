@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import container from "../di/diContainer.mjs";
+import container from "../../di/diContainer.mjs";
 
 class BaseRepository {
   _modelMap: Record<string, string>;

@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import DB_TYPE from "../../../enum/dbType.mjs";
+import DB_TYPE from "../../../../enum/dbType.mjs";
 import { createPostgresInstance } from "./postgres.mjs";
 
 function createDatabaseInstance(type, config) {

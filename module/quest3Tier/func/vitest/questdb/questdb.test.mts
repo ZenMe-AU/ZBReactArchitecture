@@ -10,8 +10,7 @@ import { randomUUID } from "crypto";
 import { odata } from "@azure/data-tables";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import { initDbConnection } from "../../sqlRepository/initDbConnection.mjs";
-import sqlRepository from "../../sqlRepository/repository.mjs";
+import sqlRepository, { initRepository } from "../../repository/sql/repository.mjs";
 import tableRepository from "../../repository/table/repository.mjs";
 import { getTableClient } from "../../repository/table/tableClient.mjs";
 import { QUESTION_DATA_TABLE } from "../../repository/table/keys.mjs";
@@ -20,11 +19,6 @@ import cmdName from "../../enum/cmdName.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
-const backends: Array<{ name: string; kind: "sql" | "table"; repository: QuestRepository }> = [
-  { name: "SQL", kind: "sql", repository: sqlRepository },
-  { name: "Azure Table", kind: "table", repository: tableRepository },
-];
 
 function loadLocalSettingsIntoEnv() {
   const settingsPath = path.join(__dirname, "..", "..", "local.settings.json");
@@ -48,7 +42,7 @@ async function cleanupTableRows(profileIds: string[], externalIds: string[]) {
   for (const externalId of externalIds) await profileIndexes.deleteEntity(externalId, "profile");
 }
 
-describe.each(backends)("$name repository contract", ({ kind, repository }) => {
+function testRepositoryContract(kind: "sql" | "table", repository: QuestRepository) {
   let sequelize;
   let models;
   const profileIds: string[] = [];
@@ -59,7 +53,15 @@ describe.each(backends)("$name repository contract", ({ kind, repository }) => {
 
   beforeAll(async () => {
     loadLocalSettingsIntoEnv();
-    if (kind === "sql") ({ sequelize, models } = await initDbConnection());
+    if (kind === "sql") {
+      ({ sequelize, models } = await initRepository({
+        username: process.env.DB_USERNAME,
+        database: process.env.DB_DATABASE,
+        host: process.env.DB_HOST,
+        password: process.env.DB_PASSWORD,
+        ignoreMigrationState: process.env.DB_IGNORE_MIGRATION_STATE,
+      }));
+    }
   });
 
   afterAll(async () => {
@@ -67,23 +69,23 @@ describe.each(backends)("$name repository contract", ({ kind, repository }) => {
       if (kind === "table") {
         if (profileIds.length > 0) await cleanupTableRows(profileIds, externalIds);
       } else if (models) {
-        if (questionIds.length > 0) {
-          await models.QuestionAnswer.destroy({ where: { questionId: questionIds } });
-          await models.QuestionShare.destroy({ where: { newQuestionId: questionIds } });
-          await models.FollowUpFilter.destroy({ where: { newQuestionId: questionIds } });
-          await models.QuestionAction.destroy({ where: { questionId: questionIds } });
-          await models.QuestionLog.destroy({ where: { questionId: questionIds } });
-          await models.Question.destroy({ where: { id: questionIds } });
-        }
-        if (followUpCmdIds.length > 0) {
-          await models.FollowUpEvent.destroy({ where: { followUpId: followUpCmdIds } });
-          await models.FollowUpCmd.destroy({ where: { id: followUpCmdIds } });
-        }
-        if (questionShareCmdIds.length > 0) {
-          await models.QuestionShareEvent.destroy({ where: { questionShareId: questionShareCmdIds } });
-          await models.QuestionShareCmd.destroy({ where: { id: questionShareCmdIds } });
-        }
-        if (profileIds.length > 0) await models.Profile.destroy({ where: { internal_id: profileIds } });
+      //   if (questionIds.length > 0) {
+      //     await models.QuestionAnswer.destroy({ where: { questionId: questionIds } });
+      //     await models.QuestionShare.destroy({ where: { newQuestionId: questionIds } });
+      //     await models.FollowUpFilter.destroy({ where: { newQuestionId: questionIds } });
+      //     await models.QuestionAction.destroy({ where: { questionId: questionIds } });
+      //     await models.QuestionLog.destroy({ where: { questionId: questionIds } });
+      //     await models.Question.destroy({ where: { id: questionIds } });
+      //   }
+      //   if (followUpCmdIds.length > 0) {
+      //     await models.FollowUpEvent.destroy({ where: { followUpId: followUpCmdIds } });
+      //     await models.FollowUpCmd.destroy({ where: { id: followUpCmdIds } });
+      //   }
+      //   if (questionShareCmdIds.length > 0) {
+      //     await models.QuestionShareEvent.destroy({ where: { questionShareId: questionShareCmdIds } });
+      //     await models.QuestionShareCmd.destroy({ where: { id: questionShareCmdIds } });
+      //   }
+      //   if (profileIds.length > 0) await models.Profile.destroy({ where: { internal_id: profileIds } });
       }
     } finally {
       if (sequelize) await sequelize.close();
@@ -161,4 +163,12 @@ describe.each(backends)("$name repository contract", ({ kind, repository }) => {
       expect.arrayContaining([expect.objectContaining({ questionShareId: shareCommand.id, senderProfileId: owner.id })])
     );
   }, 30000);
+}
+
+describe("Test SQL repository", () => {
+  testRepositoryContract("sql", sqlRepository);
+});
+
+describe("Test Azure Table repository", () => {
+  testRepositoryContract("table", tableRepository);
 });

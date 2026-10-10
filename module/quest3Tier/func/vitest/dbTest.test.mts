@@ -9,8 +9,7 @@ import { fileURLToPath } from "url";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { v4 as uuidv4 } from "uuid";
 
-import { initDbConnection } from "../sqlRepository/initDbConnection.mjs";
-import sqlRepository from "../sqlRepository/repository.mjs";
+import sqlRepository, { initRepository } from "../repository/sql/repository.mjs";
 import type { QuestRepository } from "../repository/contracts.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -33,7 +32,13 @@ describe("SQL repository contract", () => {
 
   beforeAll(async () => {
     loadLocalSettingsIntoEnv();
-    ({ sequelize, models } = await initDbConnection());
+    ({ sequelize, models } = await initRepository({
+      username: process.env.DB_USERNAME,
+      database: process.env.DB_DATABASE,
+      host: process.env.DB_HOST,
+      password: process.env.DB_PASSWORD,
+      ignoreMigrationState: process.env.DB_IGNORE_MIGRATION_STATE,
+    }));
   });
 
   afterAll(async () => {

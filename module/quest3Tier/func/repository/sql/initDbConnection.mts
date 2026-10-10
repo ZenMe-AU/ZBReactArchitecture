@@ -5,20 +5,20 @@
 
 import path from "path";
 import { fileURLToPath } from "url";
-import { createMigrationInstance } from "../deploy/db/migration/tool/index.mjs";
+import { createMigrationInstance } from "../../deploy/db/migration/tool/index.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-async function assertNoPendingDbMigrations(sequelize) {
-  const ignoreMigrationState = (process.env.DB_IGNORE_MIGRATION_STATE ?? "false").toLowerCase() === "true";
+async function assertNoPendingDbMigrations(sequelize, config: DbConfig) {
+  const ignoreMigrationState = (config.ignoreMigrationState ?? "false").toLowerCase() === "true";
   if (ignoreMigrationState) {
     console.warn("DB migration-state check bypassed (DB_IGNORE_MIGRATION_STATE=true)");
     return;
   }
 
   //TODO: remove dependency on the deploy folder by generating a database migration state file that can be used to check that the database schema is up to date without needing to run the migration scripts.
-  const migrationDir = path.join(__dirname, "..", "deploy", "db", "migration");
+  const migrationDir = path.join(__dirname, "..", "..", "deploy", "db", "migration");
   const migration = createMigrationInstance({ db: sequelize, migrationDir });
   const pendingMigrations = await migration.pending();
   if (pendingMigrations.length === 0) {
@@ -26,7 +26,7 @@ async function assertNoPendingDbMigrations(sequelize) {
     return;
   }
 
-  const isAzurePostgres = Boolean(process.env.DB_HOST && process.env.DB_HOST.includes("postgres.database.azure.com"));
+  const isAzurePostgres = Boolean(config.host?.includes("postgres.database.azure.com"));
   const upgradeCommand = isAzurePostgres ? "node ./deploy/db/updateDbSchema.mjs" : "node ./deploy/db/updateDbSchemaLocal.mjs";
   const pendingMigrationNames = pendingMigrations.map((migrationItem) => migrationItem.name).join(", ");
 
@@ -40,28 +40,30 @@ async function assertNoPendingDbMigrations(sequelize) {
   );
 }
 
-export async function initDbConnection() {
+export type DbConfig = {
+  username?: string;
+  database?: string;
+  host?: string;
+  password?: string;
+  ignoreMigrationState?: string;
+};
+
+export async function initDbConnection({ ignoreMigrationState, ...settings }: DbConfig) {
   const { createDatabaseInstance } = await import("./models/connection/index.mjs");
-  const { initRepository } = await import("./repository.mjs");
-  const DB_TYPE = (await import("../enum/dbType.mjs")).default;
+  const DB_TYPE = (await import("../../enum/dbType.mjs")).default;
 
   const config: Record<string, any> = {
-    username: process.env.DB_USERNAME,
-    database: process.env.DB_DATABASE,
-    host: process.env.DB_HOST,
+    ...settings,
   };
 
   // If a password is provided, use it even if using Azure Postgres, if azure postgres and no password then use azure-ad auth mode
   config.authMode = "password";
-  if (process.env.DB_PASSWORD) {
-    config.password = process.env.DB_PASSWORD;
-  } else if (process.env.DB_HOST && process.env.DB_HOST.includes("postgres.database.azure.com")) {
+  if (!config.password && config.host?.includes("postgres.database.azure.com")) {
     config.authMode = "azure-ad";
   }
 
   const sequelize = await createDatabaseInstance(DB_TYPE.POSTGRES, config);
-  await assertNoPendingDbMigrations(sequelize);
-  const models = initRepository(sequelize);
+  await assertNoPendingDbMigrations(sequelize, { ...settings, ignoreMigrationState });
 
-  return { sequelize, models };
+  return sequelize;
 }

@@ -72,7 +72,20 @@ export async function getQuestionById(questionId: string): Promise<QuestionDetai
   const entity = await getQuestionEntity(questionId);
   return entity ? toQuestionDetail(entity) : null;
 }
-
+//TODO: Check if this is an appropriate way to implement record level access control.
+export async function canAccessQuestion(questionId: string, profileId: string): Promise<boolean> {
+  const question = await getQuestionEntity(questionId);
+  if (!question) return false;
+  if (question.profileId === profileId) return true;
+  const client = await getTableClient(QUESTION_DATA_TABLE);
+  const shares = client.listEntities<QuestionShareEntity>({
+    queryOptions: {
+      filter: odata`RowKey ge ${SHARE_ROW_KEY_RANGE_START} and RowKey lt ${SHARE_ROW_KEY_RANGE_END} and newQuestionId eq ${questionId} and receiverProfileId eq ${profileId}`,
+    },
+  });
+  for await (const _share of shares) return true;
+  return false;
+}
 async function getQuestionEntity(questionId: string): Promise<(QuestionEntity & { etag: string }) | null> {
   const client = await getTableClient(QUESTION_DATA_TABLE);
   const rows = client.listEntities<QuestionEntity>({

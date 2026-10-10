@@ -19,16 +19,26 @@ register("authProvider", async () => {
   console.log("🔐Auth provider initialized :", authProviders);
 });
 
-// register db
-register("db", async () => {
-  const { initDbConnection } = await import("../sqlRepository/initDbConnection.mjs");
-  const { sequelize, models } = await initDbConnection();
-  const { default: repository } = await import("../sqlRepository/repository.mjs");
+register("repository", async () => {
+  // Initialize SQL repository variable
+  const { initRepository: initSqlRepository } = await import("../repository/sql/repository.mjs");
+  const { repository: sqlRepository } = await initSqlRepository({
+    username: process.env.DB_USERNAME,
+    database: process.env.DB_DATABASE,
+    host: process.env.DB_HOST,
+    password: process.env.DB_PASSWORD,
+    ignoreMigrationState: process.env.DB_IGNORE_MIGRATION_STATE,
+  });
+  console.log("SQL repository initialized");
 
-  container.register("db", sequelize);
-  container.register("models", models);
-  container.register("repository", repository);
-  console.log("🥳DB initialized");
+  // Initialize table repository variable
+  const { default: tableRepository } = await import("../repository/table/repository.mjs");
+  console.log("Table repository initialized");
+
+  // Register only one of sql or table repository into the DI container. This is intentionally not made configurable to avoid confusion.
+  // TODO: Delete the repository that is not needed when you have confirmed your prefered data source choice.
+  container.register("repository", sqlRepository);
+  console.log("Repository registered with DI container");
 });
 
 (async () => {

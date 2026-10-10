@@ -10,12 +10,13 @@
 // denormalization Microsoft's table design guide recommends in place of a
 // secondary index. See: https://learn.microsoft.com/en-us/azure/storage/tables/table-storage-design-guidelines
 
-import { randomUUID } from "crypto";
+import { createHash, randomUUID } from "crypto";
 import { odata } from "@azure/data-tables";
 import { getTableClient, isNotFoundError } from "./tableClient.mjs";
 
 export const PROFILES_TABLE = "Profiles";
 export const PROFILE_BY_EXTERNAL_ID_TABLE = "ProfileByExternalId";
+export const PROFILE_DISCLOSURES_TABLE = "ProfileDisclosures";
 const PROFILE_ROW_KEY = "profile";
 
 export interface ProfileRecord {
@@ -49,7 +50,12 @@ export interface ProfileDetails {
 export interface ProfileListItem {
   id: string;
   name: string;
-  email: string | null;
+  isNameShared: boolean;
+}
+//TODO: Change this to a pariwise id.
+function anonymousName(internalId: string): string {
+  const code = createHash("sha256").update(internalId).digest("hex").slice(0, 4).toUpperCase();
+  return `Person ${code}`;
 }
 
 export interface EnsureProfileResult {
@@ -150,8 +156,24 @@ export async function assertProfileExists(internalId: string): Promise<void> {
  * Profiles a question can be shared with: those that have a name, excluding the caller, sorted by name.
  * Profiles only get a name from a signed-in user's token, so test and service identities never appear.
  */
-export async function listProfiles(excludeInternalId: string, limit = 200): Promise<ProfileListItem[]> {
+export async function shareName(senderId: string, receiverId: string): Promise<void> {
+  if (senderId === receiverId) throw new Error("A profile cannot share its name with itself");
+  await assertProfileExists(receiverId);
+  const client = await getTableClient(PROFILE_DISCLOSURES_TABLE);
+  await client.upsertEntity({
+    partitionKey: receiverId,
+    rowKey: senderId,
+    sharedAt: new Date().toISOString(),
+  });
+}
+//TODO: Identity blind should not be configurable, security is controlled by person access, not parameters.
+export async function listProfiles(excludeInternalId: string, limit = 200, identityBlind = false): Promise<ProfileListItem[]> {
   const client = await getTableClient(PROFILES_TABLE);
+  const disclosures = await getTableClient(PROFILE_DISCLOSURES_TABLE);
+  const sharedNames = new Set<string>();
+  for await (const row of disclosures.listEntities({ queryOptions: { filter: odata`PartitionKey eq ${excludeInternalId}` } })) {
+    sharedNames.add(row.rowKey);
+  }
   // ponytail: this scans every named profile (one partition each); add paging or search when the list outgrows `limit`.
   const rows = client.listEntities<ProfileEntity>({
     queryOptions: { filter: odata`name gt ''`, select: ["internal_id", "internalId", "name", "email"] },
@@ -160,7 +182,8 @@ export async function listProfiles(excludeInternalId: string, limit = 200): Prom
   for await (const row of rows) {
     const id = row.internal_id ?? row.internalId;
     if (!id || !row.name || id === excludeInternalId) continue;
-    profiles.push({ id, name: row.name, email: row.email ?? null });
+    const isNameShared = !identityBlind || sharedNames.has(id);
+    profiles.push({ id, name: isNameShared ? row.name : anonymousName(id), isNameShared });
   }
   // Sort before capping, so the cap keeps the first names alphabetically rather than an arbitrary id range.
   return profiles.sort((a, b) => a.name.localeCompare(b.name)).slice(0, limit);
