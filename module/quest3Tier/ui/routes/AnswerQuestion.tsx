@@ -34,6 +34,7 @@ function AnswerQuestion() {
   const { id } = useParams<{ id: string }>();
   const [question, setQuestion] = useState<Question | null>(null);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [customOption, setCustomOption] = useState("");
   const [textAnswer, setTextAnswer] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -156,6 +157,11 @@ function AnswerQuestion() {
     }
   }, [answerList]);
 
+  useEffect(() => {
+    const previousOption = prevAns?.optionId;
+    if (previousOption && question?.option && !question.option.includes(previousOption)) setCustomOption(previousOption);
+  }, [prevAns, question]);
+
   const handleBackClick = () => {
     const correlationId = setOperationId();
     console.log("Correlation ID:", correlationId);
@@ -180,8 +186,15 @@ function AnswerQuestion() {
     const endTime = performance.now();
     const answerDuration = Math.round(endTime - startTime);
 
+    const newOption = customOption.trim();
+    if (newOption && newOption.split(/\s+/).length > 4) {
+      alert("A new option must be 4 words or fewer.");
+      setSubmitting(false);
+      return;
+    }
+
     const answerPayload = {
-      option: question?.option && question.option.length > 0 ? selectedOption : null,
+      option: question?.option && question.option.length > 0 ? newOption || selectedOption : null,
       answerText: question?.option && question.option.length > 0 ? null : textAnswer,
       answerDuration,
     };
@@ -263,11 +276,31 @@ function AnswerQuestion() {
         {question.option && question.option.length > 0 ? (
           <FormControl component="fieldset" sx={{ mb: 2 }}>
             <FormLabel component="legend">choose your answer</FormLabel>
-            <RadioGroup name="answer" value={selectedOption} onChange={(e) => setSelectedOption(e.target.value)}>
+            <RadioGroup
+              name="answer"
+              value={question.option.includes(selectedOption ?? "") ? selectedOption : ""}
+              onChange={(e) => {
+                setSelectedOption(e.target.value);
+                setCustomOption("");
+              }}
+            >
               {question.option.map((option, index) => (
                 <FormControlLabel key={index} value={option} control={<Radio />} label={option} />
               ))}
             </RadioGroup>
+            <TextField
+              label="None fits? Add one short option"
+              value={customOption}
+              onChange={(e) => {
+                setCustomOption(e.target.value);
+                setSelectedOption(e.target.value.trim() || null);
+              }}
+              inputProps={{ maxLength: 40 }}
+              helperText="One option, up to 4 words"
+              size="small"
+              fullWidth
+              sx={{ mt: 1 }}
+            />
           </FormControl>
         ) : (
           <TextField

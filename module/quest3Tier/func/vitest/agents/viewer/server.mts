@@ -29,6 +29,7 @@ const STATIC_FILES = {
   "/": ["index.html", "text/html; charset=utf-8"],
   "/viewer.mjs": ["viewer.mjs", "text/javascript; charset=utf-8"],
   "/viewer-data.mjs": ["viewer-data.mjs", "text/javascript; charset=utf-8"],
+  "/viewer-elements.mjs": ["viewer-elements.mjs", "text/javascript; charset=utf-8"],
   "/viewer-results.mjs": ["viewer-results.mjs", "text/javascript; charset=utf-8"],
   "/viewer-questions.mjs": ["viewer-questions.mjs", "text/javascript; charset=utf-8"],
 } as const;
@@ -177,7 +178,8 @@ async function handle(request, response) {
 }
 
 async function selfCheck() {
-  const { classifyFinding, parseLine, parseLog, parseReport } = await import("./viewer-data.mjs");
+  const { classifyFinding, parseLine, parseLog, parseReport, questionTopic } = await import("./viewer-data.mjs");
+  const { groupQuestions } = await import("./viewer-questions.mjs");
   assert.equal(isRunName("../secret.chat.md"), false);
   assert.equal(isSameOrigin({ headers: { origin: `http://${HOST}:${PORT}` } }), true);
   assert.equal(isSameOrigin({ headers: { origin: "https://example.com" } }), false);
@@ -187,6 +189,13 @@ async function selfCheck() {
     kind: "answer",
     text: 'answered "A useful question": A useful answer',
   });
+  assert.deepEqual(parseLine('[03:44:11] Mike answered [q:q-1] "A useful question": A useful answer'), {
+    time: "03:44:11",
+    agent: "Mike",
+    kind: "answer",
+    text: 'answered "A useful question": A useful answer',
+    questionId: "q-1",
+  });
   assert.equal(
     parseLog('[03:44:11] Mike answered "A useful question": First paragraph\n\nSecond paragraph\n[03:44:12] Bella looked at /sharedQuestions\n')[0].text,
     'answered "A useful question": First paragraph\n\nSecond paragraph'
@@ -194,10 +203,27 @@ async function selfCheck() {
   assert.equal(parseLine('[03:44:13] Ian edited "A useful question"').kind, "edit");
   assert.equal(classifyFinding("permission allowed unauthorized access"), "Security");
   assert.equal(classifyFinding("answer profile was misattributed"), "Data");
+  assert.equal(questionTopic({ title: "Where do you live?", text: "Choose your city" }), "Location");
+  assert.equal(questionTopic({ title: "What do you do for fun?", text: "Choose one hobby" }), "Interests");
+  const grouped = groupQuestions(
+    [{ agent: "Bella", kind: "answer", questionId: "q-1", text: 'answered "Where do you live?": Melbourne' }],
+    [
+      { id: "q-1", title: "Where do you live?", owner: "Eric", text: "", answers: ["(edited) Brisbane"] },
+      { id: "q-2", title: "Where do you live?", owner: "Bella", text: "", answers: ["Taipei", "Seoul"] },
+    ]
+  );
+  assert.deepEqual(grouped.map(({ id, answers }) => ({ id, answers })), [
+    { id: "q-1", answers: ["(edited) Brisbane"] },
+    { id: "q-2", answers: ["Taipei", "Seoul"] },
+  ]);
   const result = parseReport(
     "## Metrics\n\n| Agent | Steps | New questions | Edits | Shares | Re-shares | Answered / others' seen |\n|---|---|---|---|---|---|---|\n| Mike | 2 | 1 | 0 | 1 | 1 | 1/2 |\n\n## Judge\n\n| Observer | Subject | Accuracy /10 | Hidden links found | Note |\n|---|---|---|---|---|\n| Mike | Bella | 8 | - | Accurate |\n\n### Leaks\n\n- none\n\n## Findings"
   );
-  assert.deepEqual({ average: result.average, questions: result.questions, reshares: result.reshares }, { average: 8, questions: 1, reshares: 1 });
+  assert.deepEqual({ average: result.average, questions: result.questions, reshares: result.reshares, details: result.pairs[0].detailsAvailable }, { average: 8, questions: 1, reshares: 1, details: false });
+  const details = parseReport(
+    '## Metrics\n\n| Agent | Steps | New questions | Edits | Shares | Re-shares | Answered / others\' seen |\n|---|---|---|---|---|---|---|\n\n## Judge\n\n| Observer | Subject | Accuracy /10 | Hidden links found | Correct facts | Incorrect facts | Missing facts | Stored memory | Note |\n|---|---|---|---|---|---|---|---|---|\n| Mike | Eric | 6 | Game | ["Taipei"] | ["Age 40"] | ["Work"] | "### Facts\\n- Taipei" | Mixed |\n\n### Leaks\n\n- none\n\n## Findings'
+  ).pairs[0];
+  assert.deepEqual({ available: details.detailsAvailable, correct: details.correctFacts, wrong: details.incorrectFacts, memory: details.memory }, { available: true, correct: ["Taipei"], wrong: ["Age 40"], memory: "### Facts\n- Taipei" });
   assert.equal(parseLine("not an event"), null);
   console.log("Agent viewer self-check passed.");
 }

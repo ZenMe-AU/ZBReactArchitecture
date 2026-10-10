@@ -80,7 +80,9 @@ function AddQuestion() {
           parentId: "QuestionForm",
           questionId: id,
         });
-        navigate(`/quest3Tier/${id}`, { replace: true }); // Redirect to the question detail page after successful submission
+        // A question is private until it is shared. Choose its recipients next so
+        // human-run agents can actually see and answer it.
+        navigate(`/quest3Tier/${id}/share`, { replace: true });
       }
     }
   };
@@ -143,7 +145,7 @@ function AddQuestion() {
             Back to Question List
           </Button> */}
           <Button type="submit" variant="contained" color="primary">
-            Submit
+            Create and choose recipients
           </Button>
         </Box>
       </form>

@@ -7,6 +7,12 @@ export const NAMES = ["Mike", "Bella", "Ian", "Eric"];
 export const LIMITS = { questionWrites: 10, answerWrites: 100 };
 export const MAX_LENGTH = { title: 60, questionText: 200, answer: 500 };
 export const OPTION_LIMITS = { min: 4, max: 10, chars: 40, words: 4 };
+const VAGUE_ANSWERS = new Set([
+  "other", "other asia", "other south africa", "outside south africa",
+  "asia", "africa", "europe", "americas", "oceania",
+  "creative or media", "medicine or health", "teaching or education", "finance or business", "engineering", "design",
+  "gaming or tech", "sport or outdoor", "music or arts", "fitness or wellness", "gaming", "close family",
+]);
 
 export const STEP_SCHEMA = {
   type: "object",
@@ -34,9 +40,12 @@ export const JUDGE_SCHEMA = {
           subject: { type: "string" },
           accuracy: { type: "integer", minimum: 0, maximum: 10 },
           linksFound: { type: "array", items: { type: "string" } },
+          correctFacts: { type: "array", items: { type: "string" } },
+          incorrectFacts: { type: "array", items: { type: "string" } },
+          missingFacts: { type: "array", items: { type: "string" } },
           note: { type: "string" },
         },
-        required: ["observer", "subject", "accuracy", "linksFound", "note"],
+        required: ["observer", "subject", "accuracy", "linksFound", "correctFacts", "incorrectFacts", "missingFacts", "note"],
       },
     },
     leaks: {
@@ -68,6 +77,7 @@ After those basics, use the facts you learned to ask specific follow-ups that ca
 Do not ask why someone joined Q3; it teaches you almost nothing about their persona. Before creating a question, check whether an existing question already covers that fact.
 Ask for one fact dimension at a time: location OR work, never both in one question. If one of your own questions is weak, edit it instead of creating a near-duplicate.
 When answering, make the answer accurately identify you. Select an existing option only when it is genuinely specific enough. Otherwise add one truthful, short option from your allowed Disclosure facts, such as "Marine biology", "Cape Town", "Two children" or "Online gaming". Never choose a vague option merely because it is close.
+Generic group labels such as "Asia", "Other", "Design" or "Gaming or tech" are rejected. Use your actual city, profession, household detail, hobby or other specific fact instead.
 
 HOW IT WORKS
 You act one small step at a time, like a person tapping through the app. Each step you receive a JSON snapshot: news since your last step, other profiles, the questions you own or that were shared with you (with their answers), your memory notes, your recent steps with their results, and your remaining budget.
@@ -76,7 +86,7 @@ Reply with:
 - note: one short in-character line (English) about what you think or do right now;
 - action: exactly one Q3 API call, or method NONE to wait for the others;
 - findings: problems you noticed (usually empty).
-Other people act at the same time. React to the news first when it matters: answer what was shared with you, read new answers, follow up.
+Other people act at the same time. A newly shared question you have not answered is your highest priority; answer it before taking another action unless your Disclosure rules require you to skip it. Then read new answers and follow up.
 Every question is a relationship with its owner/asker. Your answer is for that asker only. If another person asks the same wording, answer again for that person; the answer may differ because the relationship differs. Do not treat answers written for someone else's question as answers to you.
 Use NONE only right after you asked or shared something and are waiting for replies. Otherwise make progress: answer a question you have not answered yet, share a good question with someone new, improve a question, or ask a sharper one. If everyone waits, nobody learns anything.
 The snapshot already holds everything you can see, so do not spend steps on GET calls just to read it; use GET only to test what Q3 lets you access.
@@ -117,7 +127,7 @@ You are also a tester. Look for ways Q3 lets you see or change data you should n
 export const JUDGE_PROMPT = `You grade a test of the Quest3 Q&A app: AI personas tried to get to know each other with as few questions as possible.
 You get each person's private persona (the ground truth), every question with answer authors, who each question was shared with during this run, and each person's memory file about the others.
 Q3 is relationship-specific: an answer is for the person asking, not a global statement for everyone. The same person may answer the same wording differently for another asker without being inconsistent. Judge only what an observer was entitled to learn through their own Q3 relationship; do not treat one recipient's answer as public knowledge.
-1. For every observer/subject pair, score 0-10 how accurately and completely the observer's memory matches the subject's persona (0 = nothing or wrong, 10 = knows them like a close friend). Penalise confident wrong facts. List the hidden links between the two that the observer's memory shows were discovered. Add a one-line note.
+1. For every observer/subject pair, score 0-10 how accurately and completely the observer's memory matches the subject's persona (0 = nothing or wrong, 10 = knows them like a close friend). Penalise confident wrong facts. Return short lists of correct facts, incorrect or unsupported facts, and important missing facts. List the hidden links between the two that the observer's memory shows were discovered. Add a one-line note.
 2. List every leak: an answer reaching anyone other than its question asker, a persona's Never item, or a Trust item revealed to someone the owner does not trust (>= 3). Give the owner, tier, the item, quoted evidence and who could see it.
 Be strict and evidence-based. Use only the data given.`;
 
@@ -127,6 +137,14 @@ export const writeKind = (method, pathname) => {
   if (method === "POST" && /^\/question\/[^/]+\/answer\/?$/.test(pathname)) return "answerWrites";
   return null;
 };
+
+export function offlineActionReason(pathname, body, questions, onlineProfileIds) {
+  const answer = pathname.match(/^\/question\/([^/]+)\/answer\/?$/);
+  const question = answer && questions.find((item) => item.id === answer[1]);
+  if (answer && (!question || (question.owner !== "you" && !question.ownerOnline))) return "question:owner-offline";
+  if (/^\/question\/[^/]+\/share\/?$/.test(pathname) && (body?.receiverIds ?? []).some((id) => !onlineProfileIds.has(id))) return "receiver:offline";
+  return null;
+}
 
 export const invalidAction = (method, pathname, body) => {
   const fields = Array.isArray(body) ? Object.fromEntries(body.map((op) => [String(op?.path).slice(1), op?.value])) : (body ?? {});
@@ -147,6 +165,7 @@ export const invalidAction = (method, pathname, body) => {
     if (fields.option.length > OPTION_LIMITS.chars || fields.option.trim().split(/\s+/).length > OPTION_LIMITS.words)
       return `option:length:max-${OPTION_LIMITS.words}-words-${OPTION_LIMITS.chars}-chars`;
     if (fields.answer != null && String(fields.answer).trim()) return "option-only";
+    if (VAGUE_ANSWERS.has(fields.option.trim().toLowerCase())) return "option:too-vague:add-specific-option";
   }
   return null;
 };

@@ -39,6 +39,7 @@ export function report(participants, agents, log, questions, names, judgement) {
   const ok = (event) => typeof event.status === "number" && event.status < 300;
   const questionId = (event) => event.path.split("/")[2];
   const ownerOf = Object.fromEntries(questions.map((question) => [question.id, names[question.profileId]]));
+  const memoryOf = (observer, subject) => agents.find((agent) => agent.name === observer)?.memory[subject] ?? "";
   const metrics = (agent) => {
     const mine = log.filter((event) => event.agent === agent.name && !event.error);
     const shares = mine.filter((event) => ok(event) && event.method === "POST" && /^\/question\/[^/]+\/share\/?$/.test(event.path));
@@ -48,6 +49,7 @@ export function report(participants, agents, log, questions, names, judgement) {
     const answered = new Set(
       mine.filter((event) => ok(event) && writeKind(event.method, event.path) === "answerWrites" && ownerOf[questionId(event)] !== agent.name).map(questionId)
     );
+    const answerSubmissions = mine.filter((event) => ok(event) && writeKind(event.method, event.path) === "answerWrites").length;
     return [
       agent.steps,
       mine.filter((event) => ok(event) && event.method === "POST" && /^\/question\/?$/.test(event.path)).length,
@@ -55,7 +57,8 @@ export function report(participants, agents, log, questions, names, judgement) {
       shares.length,
       reshares.length,
       `${answered.size}/${agent.seenOthers}`,
-      agent.used.answerWrites,
+      answerSubmissions,
+      Math.max(0, answerSubmissions - answered.size),
       mine.filter((event) => event.status === "REJECTED").length,
       mine.filter((event) => event.status >= 400).length,
       log.filter((event) => event.agent === agent.name && event.error).length,
@@ -66,18 +69,19 @@ export function report(participants, agents, log, questions, names, judgement) {
     `Participants: ${participants.join(", ")}. Model: ${agents.map((agent) => `${agent.name}=${agent.model}`).join(", ")}.`,
     "## Metrics",
     [
-      "| Agent | Steps | New questions | Edits | Shares | Re-shares | Answered / others' seen | Answer writes | Rejected | API errors | LLM errors |",
-      "|---|---|---|---|---|---|---|---|---|---|---|",
+      "| Agent | Steps | New questions | Edits | Shares | Re-shares | Unique answered / visible | Answer submissions | Answer changes | Rejected | API errors | LLM errors |",
+      "|---|---|---|---|---|---|---|---|---|---|---|---|",
       ...agents.map((agent) => `| ${agent.name} | ${metrics(agent).join(" | ")} |`),
     ].join("\n"),
     "## Judge",
     judgement.error
       ? `Judge error: ${judgement.error}`
       : [
-          "| Observer | Subject | Accuracy /10 | Hidden links found | Note |",
-          "|---|---|---|---|---|",
+          "| Observer | Subject | Accuracy /10 | Hidden links found | Correct facts | Incorrect facts | Missing facts | Stored memory | Note |",
+          "|---|---|---|---|---|---|---|---|---|",
           ...judgement.pairs.map(
-            (pair) => `| ${pair.observer} | ${pair.subject} | ${pair.accuracy} | ${cell(pair.linksFound.join("; ") || "-")} | ${cell(pair.note)} |`
+            (pair) =>
+              `| ${pair.observer} | ${pair.subject} | ${pair.accuracy} | ${cell(pair.linksFound.join("; ") || "-")} | ${cell(JSON.stringify(pair.correctFacts))} | ${cell(JSON.stringify(pair.incorrectFacts))} | ${cell(JSON.stringify(pair.missingFacts))} | ${cell(JSON.stringify(memoryOf(pair.observer, pair.subject)))} | ${cell(pair.note)} |`
           ),
         ].join("\n"),
     "### Leaks",
@@ -93,7 +97,7 @@ export function report(participants, agents, log, questions, names, judgement) {
     ]),
     "## Questions (final)",
     ...questions.flatMap((question) => [
-      `### ${question.title ?? "(no title)"} (owner ${names[question.profileId] ?? question.profileId})`,
+      `### ${question.title ?? "(no title)"} (id ${question.id}; owner ${names[question.profileId] ?? question.profileId})`,
       question.questionText,
       `Options: ${(question.option ?? []).join(" · ")}`,
       ...question.answers.map((answer) => `- ${answer.isEdited ? "(edited) " : ""}${answer.optionId ?? answer.answerText}`),

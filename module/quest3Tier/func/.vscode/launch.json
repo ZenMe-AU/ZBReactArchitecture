@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Agent Start",
+      "name": "Start Agent UI",
       "type": "node",
       "request": "launch",
       "autoAttachChildProcesses": false,
@@ -13,7 +13,7 @@
       "internalConsoleOptions": "neverOpen"
     },
     {
-      "name": "Agent Test",
+      "name": "Start Agent Vitest",
       "type": "node",
       "request": "launch",
       "autoAttachChildProcesses": false,

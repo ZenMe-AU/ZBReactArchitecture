@@ -54,6 +54,7 @@ AzuriteConfig
 
 # Q3 Agent Lab runtime output and local review documents
 module/quest3Tier/func/vitest/agents/*/memory.md
+module/quest3Tier/func/vitest/agents/*/memory/
 module/quest3Tier/func/vitest/agents/runs/
 module/quest3Tier/func/vitest/agents/CODE_REVIEW_REPORT.ko.md
 module/quest3Tier/func/vitest/agents/FILE_GUIDE.ko.md

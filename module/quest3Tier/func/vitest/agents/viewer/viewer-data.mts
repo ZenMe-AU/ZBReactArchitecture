@@ -19,19 +19,23 @@ export const KINDS = {
 };
 
 export const VIEWS = {
-  results: { title: "Results", kinds: [] },
+  overview: { title: "Run overview", kinds: [] },
+  relationships: { title: "Relationship accuracy", kinds: [] },
   questions: { title: "Questions", kinds: [] },
-  overview: {
-    title: "Recent activity",
-    kinds: ["question", "edit", "share", "answer", "finding", "error", "memory", "start", "system"],
-    reverse: true,
-    limit: 12,
-  },
-  conversation: { title: "Conversation", kinds: ["question", "edit", "share", "answer"] },
   findings: { title: "Findings", kinds: ["finding", "error"] },
-  memories: { title: "Memories", kinds: ["memory"] },
-  diagnostics: { title: "Diagnostics", kinds: null, reverse: true },
+  activity: { title: "Activity", kinds: null, reverse: true },
 };
+
+export function questionTopic(question) {
+  const text = `${question.title} ${question.text}`.toLowerCase();
+  if (/where|city|region|based|live/.test(text) && /work|field|job|career/.test(text)) return "Work and place";
+  if (/where|city|region|based|location/.test(text)) return "Location";
+  if (/work|field|job|career|build|creative/.test(text)) return "Work";
+  if (/live with|household|family|parent|partner|children/.test(text)) return "Home and family";
+  if (/hobb|fun|free time|weekend|game|sport|outdoor/.test(text)) return "Interests";
+  if (/proud|fear|change|learn|matter|lose|future|turning point/.test(text)) return "Values and change";
+  return "Other";
+}
 
 export function parseLine(line) {
   const match = line.match(/^\[(\d{2}:\d{2}:\d{2})\]\s+([\s\S]+)$/);
@@ -53,7 +57,10 @@ export function parseLine(line) {
   }
   const kinds = { answered: "answer", edited: "edit", asked: "question", shared: "share" };
   const verb = Object.keys(kinds).find((key) => message.startsWith(`${key} `));
-  if (verb) return { time, agent, kind: kinds[verb], text: message };
+  if (verb) {
+    const questionId = message.match(/\[q:([^\]]+)\]/)?.[1];
+    return { time, agent, kind: kinds[verb], text: message.replace(/\s*\[q:[^\]]+\]\s*/, " "), ...(questionId && { questionId }) };
+  }
   if (message.startsWith("looked at ")) return { time, agent, kind: "read", text: message };
   if (message.startsWith("updated memory:")) return { time, agent, kind: "memory", text: message };
   if (message.startsWith("tried ") || message.includes(" failed") || message.includes(" error") || message.includes("stops after")) {
@@ -90,15 +97,32 @@ const tableRows = (text, heading, nextHeading) => {
 
 export function parseReport(text) {
   const metrics = tableRows(text, "## Metrics", "## Judge");
-  const pairs = tableRows(text, "## Judge", "### Leaks").map(([observer, subject, accuracy, links, note]) => ({
-    observer,
-    subject,
-    accuracy: Number(accuracy),
-    links,
-    note,
-  }));
+  const json = (value, fallback) => {
+    try {
+      return value ? JSON.parse(value) : fallback;
+    } catch {
+      return fallback;
+    }
+  };
+  const pairs = tableRows(text, "## Judge", "### Leaks").map((row) => {
+    const [observer, subject, accuracy, links] = row;
+    const detailed = row.length >= 9;
+    return {
+      observer,
+      subject,
+      accuracy: Number(accuracy),
+      links,
+      detailsAvailable: detailed,
+      correctFacts: detailed ? json(row[4], []) : [],
+      incorrectFacts: detailed ? json(row[5], []) : [],
+      missingFacts: detailed ? json(row[6], []) : [],
+      memory: detailed ? json(row[7], "") : "",
+      note: detailed ? row[8] : row[4],
+    };
+  });
   const leaks = (text.match(/### Leaks\n\n([\s\S]*?)(?=\n\n## )/)?.[1] ?? "").split("\n\n").filter((line) => line.startsWith("- ") && line !== "- none");
   const total = (index) => metrics.reduce((sum, row) => sum + (Number(row[index]) || 0), 0);
+  const detailedMetrics = (metrics[0]?.length ?? 0) >= 12;
   const answered = metrics.reduce((sum, row) => sum + (Number(row[6]?.split("/")[0]) || 0), 0);
   const seen = metrics.reduce((sum, row) => sum + (Number(row[6]?.split("/")[1]) || 0), 0);
   const questionSection = text.match(/## Questions \(final\)\n\n([\s\S]*?)(?=\n\n## Call log)/)?.[1] ?? "";
@@ -108,12 +132,14 @@ export function parseReport(text) {
       const separator = block.indexOf("\n\n");
       const heading = separator < 0 ? block : block.slice(0, separator);
       const body = separator < 0 ? "" : block.slice(separator + 2);
-      const match = heading.match(/^### (.+) \(owner (.+)\)$/);
-      if (!match) return null;
+      const current = heading.match(/^### (.+) \(id ([^;]+); owner (.+)\)$/);
+      const legacy = heading.match(/^### (.+) \(owner (.+)\)$/);
+      if (!current && !legacy) return null;
       const lines = body.split("\n").filter(Boolean);
       return {
-        title: match[1],
-        owner: match[2],
+        ...(current && { id: current[2] }),
+        title: current?.[1] ?? legacy[1],
+        owner: current?.[3] ?? legacy[2],
         text: lines.find((line) => !line.startsWith("- ")) ?? "",
         answers: lines.filter((line) => line.startsWith("- ")).map((line) => line.slice(2)),
       };
@@ -128,9 +154,11 @@ export function parseReport(text) {
     reshares: total(5),
     answered,
     seen,
-    rejected: total(8),
-    apiErrors: total(9),
-    llmErrors: total(10),
+    answerSubmissions: total(7),
+    answerChanges: detailedMetrics ? total(8) : Math.max(0, total(7) - answered),
+    rejected: total(detailedMetrics ? 9 : 8),
+    apiErrors: total(detailedMetrics ? 10 : 9),
+    llmErrors: total(detailedMetrics ? 11 : 10),
     questionList: questions,
   };
 }

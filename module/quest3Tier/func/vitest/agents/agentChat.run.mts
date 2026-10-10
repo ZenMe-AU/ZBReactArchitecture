@@ -20,7 +20,7 @@ import { appendFile, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { setTimeout as sleep } from "node:timers/promises";
 import os from "node:os";
 import path from "node:path";
-import { invalidAction, LIMITS, rules, STEP_SCHEMA, writeKind } from "./agentChat.config.mjs";
+import { invalidAction, LIMITS, offlineActionReason, rules, STEP_SCHEMA, writeKind } from "./agentChat.config.mjs";
 import { assertLlmReady, llm } from "./agentChat.llm.mjs";
 import { factMemory } from "./agentChat.memory.mjs";
 import { judge, report } from "./agentChat.report.mjs";
@@ -31,7 +31,6 @@ const MAX_STEPS = Number(process.env.AGENT_STEPS ?? 20);
 const RECENT_STEPS = 8;
 const POLL_MS = 5 * 1000;
 const IDLE_POLLS = Number(process.env.HUMAN_RUN === "1" ? 60 : 3);
-
 async function call(agent, method, url, body?) {
   // A JSON Content-Type with an empty body makes the handler wrapper 500, so only send it with a body.
   const hasBody = body !== undefined && method !== "GET";
@@ -47,7 +46,6 @@ async function call(agent, method, url, body?) {
     return { status: res.status, response: text };
   }
 }
-
 const list = async (agent, p) => (await call(agent, "GET", new URL(p, process.env.QUESTION_URL))).response?.return?.list ?? [];
 const clip = (s, n = 200) => (String(s).length > n ? `${String(s).slice(0, n)}...` : String(s));
 
@@ -90,7 +88,8 @@ const view = (questions, names, digested = new Set()) =>
 const digest = (agent, questions) => questions.forEach((q) => q.answers.forEach((a) => agent.digested.add(a.id)));
 
 async function observe(agent) {
-  const { questions, profiles } = await snapshot(agent);
+  const { questions: visibleQuestions, profiles } = await snapshot(agent);
+  const questions = visibleQuestions.filter((question) => question.isOwner || agent.realNamesById?.[question.profileId]);
   const names = Object.fromEntries(profiles.map((p) => [p.id, p.name]));
 
   // News = what appeared since this agent last looked, so it can react like a person reading notifications.
@@ -140,16 +139,21 @@ async function reflect(agent, others, say) {
   const { questions } = await snapshot(agent);
   agent.memory = factMemory(agent.name, others, questions);
   others.forEach((name) => agent.updated.add(name));
-  await writeMemory(agent.memoryFile, agent.name, agent.memory);
+  await writeMemory(agent.memoryDirectory, agent.name, agent.memory);
   digest(agent, questions);
   await say(`${agent.name} updated memory with verified facts: ${others.join(", ")}`);
 }
 
-async function act(agent, { method, path: p, body }) {
+async function act(agent, { method, path: p, body }, state) {
   const baseUrl = new URL(process.env.QUESTION_URL);
   const url = URL.canParse(p, baseUrl) ? new URL(p, baseUrl) : null;
   const kind = url && writeKind(method, url.pathname);
-  const reason = url?.origin !== baseUrl.origin ? "origin" : kind && agent.used[kind] >= LIMITS[kind] ? `limit:${kind}` : invalidAction(method, url?.pathname ?? "", body);
+  const questions = state.questions.map((question) => ({ ...question, ownerOnline: question.owner === "you" || agent.online.includes(question.owner) }));
+  const reason = url?.origin !== baseUrl.origin
+    ? "origin"
+    : kind && agent.used[kind] >= LIMITS[kind]
+      ? `limit:${kind}`
+      : offlineActionReason(url?.pathname ?? "", body, questions, new Set(Object.keys(agent.realNamesById))) ?? invalidAction(method, url?.pathname ?? "", body);
   if (reason) return { method, path: p, body, status: "REJECTED", reason, response: undefined };
   if (kind) agent.used[kind]++;
   return { method, path: url.pathname, body, ...(await call(agent, method, url, body)) };
@@ -162,10 +166,10 @@ function narrate(r, titles, names) {
   if (r.status === "REJECTED") return `tried ${r.method} ${r.path}, rejected (${r.reason})`;
   if (r.status >= 400) return `${r.method} ${r.path} failed (${r.status})`;
   if (r.method === "GET") return `looked at ${r.path}`;
-  if (root === "question" && !id) return `asked "${clip(r.body?.title, 80)}": ${clip(r.body?.questionText)} [${(r.body?.option ?? []).join(", ")}]`;
-  if (root === "question" && sub === "share") return `shared ${q} with ${(r.body?.receiverIds ?? []).map((pid) => names[pid] ?? pid).join(", ")}`;
-  if (root === "question" && sub === "answer") return `answered ${q}: ${clip(r.body?.option)}`;
-  if (root === "question" && !sub) return `edited ${q}: ${clip(JSON.stringify(r.body))}`;
+  if (root === "question" && !id) return `asked ${r.response?.return?.id ? `[q:${r.response.return.id}] ` : ""}"${clip(r.body?.title, 80)}": ${clip(r.body?.questionText)} [${(r.body?.option ?? []).join(", ")}]`;
+  if (root === "question" && sub === "share") return `shared [q:${id}] ${q} with ${(r.body?.receiverIds ?? []).map((pid) => names[pid] ?? pid).join(", ")}`;
+  if (root === "question" && sub === "answer") return `answered [q:${id}] ${q}: ${clip(r.body?.option)}`;
+  if (root === "question" && !sub) return `edited [q:${id}] ${q}: ${clip(JSON.stringify(r.body))}`;
   return `${r.method} ${r.path} ${clip(JSON.stringify(r.body))}`;
 }
 
@@ -184,7 +188,7 @@ async function runAgent(agent, agents, others, sandbox, log, say) {
     agent.idle = 0;
     const out = await think(agent, state, sandbox);
     const step = ++agent.steps;
-    const result = out.action.method === "NONE" ? null : await act(agent, out.action);
+    const result = out.action.method === "NONE" ? null : await act(agent, out.action, state);
     agent.waiting = !result;
     agent.findings.push(...out.findings.map((text) => ({ turn: step, text })));
     agent.recent.push({
@@ -268,8 +272,9 @@ export async function runAgentChat() {
     for (const agent of actors) {
       for (const p of await list(agent, "/profiles")) names[p.id] = p.name;
       const visible = await list(agent, "/questions");
-      if ("steps" in agent) agent.seenOthers = visible.filter((q) => !q.isOwner).length;
-      for (const q of visible) questions.set(q.id, q);
+      const current = visible.filter((question) => question.isOwner || realNamesById[question.profileId]);
+      if ("steps" in agent) agent.seenOthers = current.filter((question) => !question.isOwner).length;
+      for (const q of current) questions.set(q.id, q);
     }
     Object.assign(names, realNamesById);
     for (const q of questions.values()) {

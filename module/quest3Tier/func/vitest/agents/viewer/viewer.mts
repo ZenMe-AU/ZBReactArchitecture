@@ -4,32 +4,9 @@
  */
 
 import { AGENTS, classifyFinding, KINDS, parseLog, parseReport, VIEWS } from "./viewer-data.mjs";
+import { elements } from "./viewer-elements.mjs";
 import { renderQuestions } from "./viewer-questions.mjs";
-import { renderResults as showResults } from "./viewer-results.mjs";
-
-const select = <T extends HTMLElement>(selector: string) => document.querySelector<T>(selector);
-const elements =
-  typeof document === "undefined"
-    ? null
-    : {
-        announcer: select<HTMLElement>("#announcer"),
-        eventActor: select<HTMLElement>("#event-actor"),
-        eventKind: select<HTMLElement>("#event-kind"),
-        eventText: select<HTMLElement>("#event-text"),
-        eventTime: select<HTMLElement>("#event-time"),
-        eventTitle: select<HTMLElement>("#event-title"),
-        feed: select<HTMLElement>("#event-feed"),
-        filterNote: select<HTMLElement>("#filter-note"),
-        humanMode: select<HTMLInputElement>("#human-mode"),
-        joinHuman: select<HTMLAnchorElement>("#join-human"),
-        runList: select<HTMLElement>("#run-list"),
-        runParticipants: select<HTMLElement>("#run-participants"),
-        startButton: select<HTMLButtonElement>("#run-start"),
-        runStatus: select<HTMLElement>("#run-status"),
-        runTitle: select<HTMLElement>("#run-title"),
-        viewTabs: select<HTMLElement>("#view-tabs"),
-        viewTitle: select<HTMLElement>("#view-title"),
-      };
+import { renderOverview, renderRelationships } from "./viewer-results.mjs";
 
 const state = {
   selectedRun: "",
@@ -37,7 +14,7 @@ const state = {
   renderedSignature: "",
   announcedRun: "",
   announcedCount: 0,
-  activeView: "results",
+  activeView: "overview",
   activeAgent: "",
   currentEvents: [],
   currentReport: parseReport(""),
@@ -62,20 +39,25 @@ const participantsFor = (events) => new Set(events.find((event) => event.kind ==
 
 function visibleEvents() {
   const view = VIEWS[state.activeView];
-  const filtered = state.currentEvents.filter((event) => (!view.kinds || view.kinds.includes(event.kind)) && (!state.activeAgent || event.agent === state.activeAgent));
+  const judgeLeaks = state.activeView === "findings" && !state.activeAgent
+    ? state.currentReport.leaks.map((text, index) => ({ id: `leak-${index}`, agent: "Judge", kind: "finding", time: "Complete", text: text.slice(2) }))
+    : [];
+  const filtered = [...state.currentEvents, ...judgeLeaks].filter(
+    (event) => (!view.kinds || view.kinds.includes(event.kind)) && (!state.activeAgent || event.agent === state.activeAgent)
+  );
   const events = view.reverse ? [...filtered].reverse() : filtered;
   return events.slice(0, view.limit ?? 120);
 }
 
 function renderInspector(event) {
-  elements.eventTitle.textContent = event ? KINDS[event.kind][0] : "No event selected";
-  elements.eventActor.textContent = event?.agent ?? "Q3 system";
+  elements.eventTitle.textContent = event?.title ?? (event ? KINDS[event.kind][0] : "No event selected");
+  elements.eventActor.textContent = event?.actorLabel ?? event?.agent ?? "Q3 system";
   elements.eventTime.textContent = event?.time ?? "--:--:--";
-  elements.eventKind.textContent = event?.kind === "finding" ? classifyFinding(event.text) : event ? KINDS[event.kind][1] : "System";
+  elements.eventKind.textContent = event?.kindLabel ?? (event?.kind === "finding" ? classifyFinding(event.text) : event ? KINDS[event.kind][1] : "System");
   elements.eventText.textContent = event?.text ?? "Choose an event from the activity view.";
 }
 
-const renderResults = () => showResults({ activeAgent: state.activeAgent, elements, report: state.currentReport, renderInspector });
+const resultContext = () => ({ activeAgent: state.activeAgent, elements, report: state.currentReport, renderInspector });
 
 function renderAgentCards(participants) {
   const latestAgent = [...state.currentEvents].reverse().find((event) => event.agent)?.agent;
@@ -96,7 +78,8 @@ function renderAgentCards(participants) {
 
 function renderFeed() {
   const view = VIEWS[state.activeView];
-  if (state.activeView === "results") return renderResults();
+  if (state.activeView === "overview") return renderOverview(resultContext());
+  if (state.activeView === "relationships") return renderRelationships(resultContext());
   if (state.activeView === "questions")
     return renderQuestions({ activeAgent: state.activeAgent, elements, events: state.currentEvents, questions: state.currentReport.questionList, renderInspector });
   const events = visibleEvents();
@@ -151,7 +134,7 @@ function renderFeed() {
     return item;
   });
   elements.feed.replaceChildren(...items);
-  renderInspector(state.currentEvents.find((event) => event.id === state.selectedEventId));
+  renderInspector(events.find((event) => event.id === state.selectedEventId));
 }
 
 function render(events, mtime) {
@@ -295,7 +278,7 @@ if (elements) {
     if (!tab) return;
     state.activeView = tab.dataset.view;
     state.selectedEventId = null;
-    for (const item of elements.viewTabs.querySelectorAll("[data-view]")) item.setAttribute("aria-selected", String(item === tab));
+    for (const item of elements.viewTabs.querySelectorAll("[data-view]")) item.setAttribute("aria-pressed", String(item === tab));
     renderFeed();
   });
   for (const card of document.querySelectorAll<HTMLElement>("[data-agent]")) {

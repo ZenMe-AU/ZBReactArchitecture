@@ -18,43 +18,54 @@ const MEMORY_END = "<!-- /Q3_MEMORY -->";
 const PARTICIPANT_NAMES = [...NAMES, HUMAN_NAME];
 
 const memoryStart = (name) => `<!-- Q3_MEMORY:${name} -->`;
+const memoryTitle = (owner, subject) => `# ${owner}'s memory of ${subject}`;
+const memorySubjects = (owner) => PARTICIPANT_NAMES.filter((name) => name !== owner);
 
 function parseMemory(text, owner) {
   return Object.fromEntries(
     PARTICIPANT_NAMES.filter((name) => name !== owner).map((name) => {
       const start = text.indexOf(memoryStart(name));
       const end = start < 0 ? -1 : text.indexOf(MEMORY_END, start);
-      return [name, start < 0 || end < 0 ? "" : text.slice(start + memoryStart(name).length, end).trim()];
+      const section = start < 0 || end < 0 ? "" : text.slice(start + memoryStart(name).length, end).trim();
+      return [name, section.startsWith(`## ${name}`) ? section.slice(name.length + 3).trim() : section];
     })
   );
 }
 
-export async function writeMemory(file, owner, memory) {
-  const sections = PARTICIPANT_NAMES.filter((name) => name !== owner).map(
-    (name) => `${memoryStart(name)}\n## ${name}\n\n${memory[name] ?? ""}\n${MEMORY_END}`
+const readMemoryFile = async (file, subject) => {
+  const text = await readFile(file, "utf8").catch(() => "");
+  const separator = text.indexOf("\n\n");
+  const body = text.startsWith("# ") && separator >= 0 ? text.slice(separator + 2).trim() : text.trim();
+  return body.startsWith(`## ${subject}`) ? body.slice(subject.length + 3).trim() : body;
+};
+
+export async function writeMemory(directory, owner, memory) {
+  await mkdir(directory, { recursive: true });
+  await Promise.all(
+    memorySubjects(owner).map((subject) =>
+      writeFile(path.join(directory, `${subject}.md`), `${memoryTitle(owner, subject)}\n\n${memory[subject] ?? ""}\n`)
+    )
   );
-  await writeFile(file, `# ${owner}'s memory\n\n${sections.join("\n\n")}\n`);
 }
 
 async function loadMemory(name) {
-  const file = path.join(AGENTS_DIR, name, "memory.md");
-  const combined = await readFile(file, "utf8").catch(() => "");
-  if (combined) return { file, memory: parseMemory(combined, name) };
-
-  const legacyDir = path.join(AGENTS_DIR, name, "memory");
+  const directory = path.join(AGENTS_DIR, name, "memory");
+  const combinedFile = path.join(AGENTS_DIR, name, "memory.md");
+  const combined = await readFile(combinedFile, "utf8").catch(() => "");
+  const combinedMemory = combined ? parseMemory(combined, name) : {};
   const memory = Object.fromEntries(
     await Promise.all(
-      PARTICIPANT_NAMES.filter((other) => other !== name).map(async (other) => [
-        other,
-        await readFile(path.join(legacyDir, `${other}.md`), "utf8").catch(() => ""),
+      memorySubjects(name).map(async (subject) => [
+        subject,
+        (await readMemoryFile(path.join(directory, `${subject}.md`), subject)) || combinedMemory[subject] || "",
       ])
     )
   );
-  if (Object.values(memory).some(Boolean)) {
-    await writeMemory(file, name, memory);
-    await rm(legacyDir, { recursive: true, force: true });
+  if (combined) {
+    await writeMemory(directory, name, memory);
+    await rm(combinedFile);
   }
-  return { file, memory };
+  return { directory, memory };
 }
 
 const isAlive = (pid) => {
@@ -89,7 +100,7 @@ export async function loadAgent(name) {
   const meta = Object.fromEntries(
     frontmatter.split("\n").map((line) => [line.slice(0, line.indexOf(":")).trim(), line.slice(line.indexOf(":") + 1).trim()])
   );
-  const { file: memoryFile, memory } = await loadMemory(name);
+  const { directory: memoryDirectory, memory } = await loadMemory(name);
   return {
     name,
     persona,
@@ -100,7 +111,7 @@ export async function loadAgent(name) {
       preferred_username: meta.email,
       ...(process.env.HUMAN_RUN === "1" && { experiment: "human" }),
     }),
-    memoryFile,
+    memoryDirectory,
     memory,
     updated: new Set(),
     used: { questionWrites: 0, answerWrites: 0 },

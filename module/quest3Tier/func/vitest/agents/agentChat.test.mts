@@ -4,10 +4,13 @@
  */
 
 import { describe, expect, test } from "vitest";
-import { invalidAction, rules } from "./agentChat.config.mjs";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import { invalidAction, offlineActionReason, rules } from "./agentChat.config.mjs";
 import { factMemory } from "./agentChat.memory.mjs";
 import { runAgentChat } from "./agentChat.run.mjs";
-import { HUMAN_NAME, HUMAN_OID, loadHuman } from "./agentChat.setup.mjs";
+import { HUMAN_NAME, HUMAN_OID, loadHuman, writeMemory } from "./agentChat.setup.mjs";
 import * as authLocal from "../../service/authLocal.mjs";
 import { belongsToExperiment } from "./agentChat.reset.mjs";
 
@@ -33,9 +36,28 @@ describe("agent option rules", () => {
     expect(invalidAction("POST", "/question/id/answer", { option: "Hybrid", answer: "Long explanation", duration: 3 })).toBe("option-only");
     expect(invalidAction("POST", "/question/id/answer", { option: "This is much too long", duration: 3 })).toBe("option:length:max-4-words-40-chars");
   });
+
+  test("rejects vague group answers and accepts specific facts", () => {
+    expect(invalidAction("POST", "/question/id/answer", { option: "Asia", duration: 3 })).toBe("option:too-vague:add-specific-option");
+    expect(invalidAction("POST", "/question/id/answer", { option: "Other", duration: 3 })).toBe("option:too-vague:add-specific-option");
+    expect(invalidAction("POST", "/question/id/answer", { option: "Creative or media", duration: 3 })).toBe("option:too-vague:add-specific-option");
+    expect(invalidAction("POST", "/question/id/answer", { option: "Taipei", duration: 3 })).toBeNull();
+    expect(invalidAction("POST", "/question/id/answer", { option: "UX design", duration: 3 })).toBeNull();
+  });
 });
 
 describe("fact-only memory", () => {
+  test("stores one memory file per subject", async () => {
+    const directory = await mkdtemp(path.join(os.tmpdir(), "q3-memory-"));
+    try {
+      await writeMemory(directory, "Mike", { Bella: "### Facts\n- Marine biology", Ian: "### Facts\n- Civil engineering" });
+      expect(await readFile(path.join(directory, "Bella.md"), "utf8")).toContain("Mike's memory of Bella");
+      expect(await readFile(path.join(directory, "Ian.md"), "utf8")).toContain("Civil engineering");
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
+  });
+
   test("stores attributed answers and rejects anonymous answers", () => {
     const memory = factMemory("Bella", ["Mike", "Ian"], [
       {
@@ -57,6 +79,16 @@ describe("fact-only memory", () => {
       { id: "q1", questionText: "Preferred work style?", answers: [{ author: "Mike", optionId: "Hybrid" }] },
     ]);
     expect(memory.Mike).toBe("### Facts\n- None verified.");
+  });
+});
+
+describe("online participant boundary", () => {
+  test("rejects answers for offline owners and shares to offline profiles", () => {
+    const questions = [{ id: "online", owner: "Bella", ownerOnline: true }, { id: "offline", owner: "Ian", ownerOnline: false }];
+    const onlineIds = new Set(["bella-id", "mike-id"]);
+    expect(offlineActionReason("/question/online/answer", {}, questions, onlineIds)).toBeNull();
+    expect(offlineActionReason("/question/offline/answer", {}, questions, onlineIds)).toBe("question:owner-offline");
+    expect(offlineActionReason("/question/online/share", { receiverIds: ["ian-id"] }, questions, onlineIds)).toBe("receiver:offline");
   });
 });
 
