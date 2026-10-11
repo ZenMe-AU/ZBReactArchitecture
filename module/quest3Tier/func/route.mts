@@ -5,7 +5,11 @@
 
 import { app } from "@azure/functions";
 import { requestHandler } from "./handler/handlerWrapper.mjs";
-import questionHandler from "./handler/questionHandler.mjs";
+import { CreateQuestion } from "./handler/question/create.mjs";
+import { GetQuestionById } from "./handler/question/getById.mjs";
+import { GetQuestionListByUser } from "./handler/question/getListByUser.mjs";
+import { PatchQuestionById } from "./handler/question/patchById.mjs";
+import { UpdateQuestionById } from "./handler/question/updateById.mjs";
 import answerHandler from "./handler/answerHandler.mjs";
 import followupHandler from "./handler/followupHandler.mjs";
 import { sendFollowUpCmdSchema } from "./schema/sendFollowUpCmdSchema.mjs";
@@ -17,28 +21,28 @@ app.http("CreateQuestion", {
   route: "question",
   methods: ["POST"],
   authLevel: "anonymous",
-  handler: requestHandler(questionHandler.CreateQuestion),
+  handler: requestHandler(CreateQuestion),
 });
 
 app.http("GetQuestionById", {
   route: "question/{id}",
   methods: ["GET"],
   authLevel: "anonymous",
-  handler: requestHandler(questionHandler.GetQuestionById),
+  handler: requestHandler(GetQuestionById),
 });
 
 app.http("UpdateQuestionById", {
   route: "question/{id}",
   methods: ["PUT"],
   authLevel: "anonymous",
-  handler: requestHandler(questionHandler.UpdateQuestionById),
+  handler: requestHandler(UpdateQuestionById),
 });
 
 app.http("PatchQuestionById", {
   route: "question/{id}",
   methods: ["PATCH"],
   authLevel: "anonymous",
-  handler: requestHandler(questionHandler.PatchQuestionById),
+  handler: requestHandler(PatchQuestionById),
 });
 
 app.http("AddAnswer", {
@@ -59,7 +63,7 @@ app.http("GetQuestionListByUser", {
   route: "questions",
   methods: ["GET"],
   authLevel: "anonymous",
-  handler: requestHandler(questionHandler.GetQuestionListByUser),
+  handler: requestHandler(GetQuestionListByUser),
 });
 
 app.http("GetAnswerListByQuestionId", {
