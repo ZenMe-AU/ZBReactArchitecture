@@ -3,26 +3,14 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { v4 as uuidv4 } from "uuid";
 
-import sqlRepository, { initRepository } from "../repository/sql/repository.mjs";
+import sqlRepository from "../repository/sql/repository.mjs";
+import { initSqlRepository } from "./util/repositoriesInit.mjs";
 import type { QuestRepository } from "../repository/contracts.mjs";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 const repository: QuestRepository = sqlRepository;
-
-function loadLocalSettingsIntoEnv() {
-  const settingsPath = path.join(__dirname, "..", "local.settings.json");
-  if (!fs.existsSync(settingsPath)) return;
-
-  const settings = JSON.parse(fs.readFileSync(settingsPath, "utf8"));
-  if (settings?.Values) Object.assign(process.env, settings.Values);
-}
 
 describe("SQL repository contract", () => {
   let sequelize;
@@ -31,14 +19,7 @@ describe("SQL repository contract", () => {
   let questionId;
 
   beforeAll(async () => {
-    loadLocalSettingsIntoEnv();
-    ({ sequelize, models } = await initRepository({
-      username: process.env.DB_USERNAME,
-      database: process.env.DB_DATABASE,
-      host: process.env.DB_HOST,
-      password: process.env.DB_PASSWORD,
-      ignoreMigrationState: process.env.DB_IGNORE_MIGRATION_STATE,
-    }));
+    ({ sequelize, models } = await initSqlRepository());
   });
 
   afterAll(async () => {

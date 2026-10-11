@@ -3,30 +3,17 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
 import { randomUUID } from "crypto";
 import { odata } from "@azure/data-tables";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import sqlRepository, { initRepository } from "../../repository/sql/repository.mjs";
+import sqlRepository from "../../repository/sql/repository.mjs";
+import { initSqlRepository, initTableRepository } from "../util/repositoriesInit.mjs";
 import tableRepository from "../../repository/table/repository.mjs";
 import { getTableClient } from "../../repository/table/tableClient.mjs";
 import { QUESTION_DATA_TABLE } from "../../repository/table/keys.mjs";
 import type { QuestRepository } from "../../repository/contracts.mjs";
 import cmdName from "../../enum/cmdName.mjs";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-function loadLocalSettingsIntoEnv() {
-  const settingsPath = path.join(__dirname, "..", "..", "local.settings.json");
-  if (!fs.existsSync(settingsPath)) return;
-
-  const settings = JSON.parse(fs.readFileSync(settingsPath, "utf8"));
-  if (settings?.Values) Object.assign(process.env, settings.Values);
-}
 
 async function cleanupTableRows(profileIds: string[], externalIds: string[]) {
   const questionData = await getTableClient(QUESTION_DATA_TABLE);
@@ -42,62 +29,45 @@ async function cleanupTableRows(profileIds: string[], externalIds: string[]) {
   for (const externalId of externalIds) await profileIndexes.deleteEntity(externalId, "profile");
 }
 
-function testRepositoryContract(kind: "sql" | "table", repository: QuestRepository) {
-  let sequelize;
-  let models;
-  const profileIds: string[] = [];
-  const externalIds: string[] = [];
-  const questionIds: string[] = [];
-  const followUpCmdIds: string[] = [];
-  const questionShareCmdIds: string[] = [];
+interface RepositoryTestIds {
+  profileIds: string[];
+  externalIds: string[];
+  questionIds: string[];
+  followUpCmdIds: string[];
+  questionShareCmdIds: string[];
+}
 
-  beforeAll(async () => {
-    loadLocalSettingsIntoEnv();
-    if (kind === "sql") {
-      ({ sequelize, models } = await initRepository({
-        username: process.env.DB_USERNAME,
-        database: process.env.DB_DATABASE,
-        host: process.env.DB_HOST,
-        password: process.env.DB_PASSWORD,
-        ignoreMigrationState: process.env.DB_IGNORE_MIGRATION_STATE,
-      }));
-    }
-  });
+function createRepositoryTestIds(): RepositoryTestIds {
+  return { profileIds: [], externalIds: [], questionIds: [], followUpCmdIds: [], questionShareCmdIds: [] };
+}
 
-  afterAll(async () => {
-    try {
-      if (kind === "table") {
-        if (profileIds.length > 0) await cleanupTableRows(profileIds, externalIds);
-      } else if (models) {
-      //   if (questionIds.length > 0) {
-      //     await models.QuestionAnswer.destroy({ where: { questionId: questionIds } });
-      //     await models.QuestionShare.destroy({ where: { newQuestionId: questionIds } });
-      //     await models.FollowUpFilter.destroy({ where: { newQuestionId: questionIds } });
-      //     await models.QuestionAction.destroy({ where: { questionId: questionIds } });
-      //     await models.QuestionLog.destroy({ where: { questionId: questionIds } });
-      //     await models.Question.destroy({ where: { id: questionIds } });
-      //   }
-      //   if (followUpCmdIds.length > 0) {
-      //     await models.FollowUpEvent.destroy({ where: { followUpId: followUpCmdIds } });
-      //     await models.FollowUpCmd.destroy({ where: { id: followUpCmdIds } });
-      //   }
-      //   if (questionShareCmdIds.length > 0) {
-      //     await models.QuestionShareEvent.destroy({ where: { questionShareId: questionShareCmdIds } });
-      //     await models.QuestionShareCmd.destroy({ where: { id: questionShareCmdIds } });
-      //   }
-      //   if (profileIds.length > 0) await models.Profile.destroy({ where: { internal_id: profileIds } });
-      }
-    } finally {
-      if (sequelize) await sequelize.close();
-    }
-  });
+async function cleanupSqlRows(models: Awaited<ReturnType<typeof initSqlRepository>>["models"], ids: RepositoryTestIds) {
+  if (ids.questionIds.length > 0) {
+    await models.QuestionAnswer.destroy({ where: { questionId: ids.questionIds } });
+    await models.QuestionShare.destroy({ where: { newQuestionId: ids.questionIds } });
+    await models.FollowUpFilter.destroy({ where: { newQuestionId: ids.questionIds } });
+    await models.QuestionAction.destroy({ where: { questionId: ids.questionIds } });
+    await models.QuestionLog.destroy({ where: { questionId: ids.questionIds } });
+    await models.Question.destroy({ where: { id: ids.questionIds } });
+  }
+  if (ids.followUpCmdIds.length > 0) {
+    await models.FollowUpEvent.destroy({ where: { followUpId: ids.followUpCmdIds } });
+    await models.FollowUpCmd.destroy({ where: { id: ids.followUpCmdIds } });
+  }
+  if (ids.questionShareCmdIds.length > 0) {
+    await models.QuestionShareEvent.destroy({ where: { questionShareId: ids.questionShareCmdIds } });
+    await models.QuestionShareCmd.destroy({ where: { id: ids.questionShareCmdIds } });
+  }
+  if (ids.profileIds.length > 0) await models.Profile.destroy({ where: { internal_id: ids.profileIds } });
+}
 
-  it("runs question, answer, share, and follow-up operations through the contract", async () => {
+function testRepositoryContract(repository: QuestRepository, ids: RepositoryTestIds) {
+  it("testRepositoryContract: question, answer, share, and follow-up", async () => {
     async function createTestProfile(label: string) {
       const externalId = `questdb-${label}-${randomUUID()}`;
-      externalIds.push(externalId);
+      ids.externalIds.push(externalId);
       const profile = await repository.createProfile(externalId);
-      profileIds.push(profile.id);
+      ids.profileIds.push(profile.id);
       await expect(repository.findProfileByExternalId(externalId)).resolves.toEqual(profile);
       return profile;
     }
@@ -107,7 +77,7 @@ function testRepositoryContract(kind: "sql" | "table", repository: QuestReposito
     const receiver = await createTestProfile("receiver");
 
     const question = await repository.create(owner.id, "Quest DB", "Which option?", ["yes", "no"]);
-    questionIds.push(question.id);
+    ids.questionIds.push(question.id);
     await expect(repository.getById(question.id)).resolves.toMatchObject({
       id: question.id,
       profileId: owner.id,
@@ -148,7 +118,7 @@ function testRepositoryContract(kind: "sql" | "table", repository: QuestReposito
       question: [{ questionId: question.id, option: ["yes"] }],
     };
     const followUp = await repository.insertFollowUpCmd(owner.id, followUpData, correlationId);
-    followUpCmdIds.push(followUp.id);
+    ids.followUpCmdIds.push(followUp.id);
     await expect(repository.insertFollowUpFilter(owner.id, followUpData)).resolves.toHaveLength(1);
     await repository.updateFollowUpCmdStatus(followUp.id);
     await expect(repository.getEventByCorrelationId(cmdName.FollowUpCmd, correlationId)).resolves.toEqual(
@@ -157,7 +127,7 @@ function testRepositoryContract(kind: "sql" | "table", repository: QuestReposito
 
     const shareCorrelationId = randomUUID();
     const shareCommand = await repository.insertQuestionShareCmd(owner.id, { newQuestionId: question.id, receiverIds: [receiver.id] }, shareCorrelationId);
-    questionShareCmdIds.push(shareCommand.id);
+    ids.questionShareCmdIds.push(shareCommand.id);
     await repository.updateQuestionShareCmdStatus(shareCommand.id);
     await expect(repository.getEventByCorrelationId(cmdName.QuestionShareCmd, shareCorrelationId)).resolves.toEqual(
       expect.arrayContaining([expect.objectContaining({ questionShareId: shareCommand.id, senderProfileId: owner.id })])
@@ -166,9 +136,34 @@ function testRepositoryContract(kind: "sql" | "table", repository: QuestReposito
 }
 
 describe("Test SQL repository", () => {
-  testRepositoryContract("sql", sqlRepository);
+  let sequelize: Awaited<ReturnType<typeof initSqlRepository>>["sequelize"] | undefined;
+  let models: Awaited<ReturnType<typeof initSqlRepository>>["models"];
+  const ids = createRepositoryTestIds();
+
+  beforeAll(async () => {
+    ({ sequelize, models } = await initSqlRepository());
+  });
+
+  afterAll(async () => {
+    try {
+      if (models) await cleanupSqlRows(models, ids);
+    } finally {
+      if (sequelize) await sequelize.close();
+    }
+  });
+
+  testRepositoryContract(sqlRepository, ids);
 });
 
 describe("Test Azure Table repository", () => {
-  testRepositoryContract("table", tableRepository);
+  const ids = createRepositoryTestIds();
+
+  beforeAll(() => {
+    initTableRepository();
+  });
+  afterAll(async () => {
+    if (ids.profileIds.length > 0) await cleanupTableRows(ids.profileIds, ids.externalIds);
+  });
+
+  testRepositoryContract(tableRepository, ids);
 });

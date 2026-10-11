@@ -26,6 +26,7 @@ register("repository", async () => {
     username: process.env.DB_USERNAME,
     database: process.env.DB_DATABASE,
     host: process.env.DB_HOST,
+    authMode: process.env.DB_AUTH_MODE?? "azure-ad", // azure-ad is preferred for security.
     password: process.env.DB_PASSWORD,
     ignoreMigrationState: process.env.DB_IGNORE_MIGRATION_STATE,
   });
