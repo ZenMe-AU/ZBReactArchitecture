@@ -3,46 +3,10 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import path from "path";
-import { fileURLToPath } from "url";
 import { register, startup } from "./diRegistry.mjs";
 import container from "./diContainer.mjs";
 import * as authEntraID from "../service/authEntraID.mjs";
 import * as authLocal from "../service/authLocal.mjs";
-import { createMigrationInstance } from "../deploy/db/migration/tool/index.mjs";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-async function assertNoPendingDbMigrations(sequelize) {
-  const ignoreMigrationState = (process.env.DB_IGNORE_MIGRATION_STATE ?? "false").toLowerCase() === "true";
-  if (ignoreMigrationState) {
-    console.warn("DB migration-state check bypassed (DB_IGNORE_MIGRATION_STATE=true)");
-    return;
-  }
-
-  //TODO: remove dependency on the deploy folder by generating a database migration state file that can be used to check that the database schema is up to date without needing to run the migration scripts.
-  const migrationDir = path.join(__dirname, "..", "deploy", "db", "migration");
-  const migration = createMigrationInstance({ db: sequelize, migrationDir });
-  const pendingMigrations = await migration.pending();
-  if (pendingMigrations.length === 0) {
-    console.log("DB schema is up to date");
-    return;
-  }
-
-  const isAzurePostgres = Boolean(process.env.DB_HOST && process.env.DB_HOST.includes("postgres.database.azure.com"));
-  const upgradeCommand = isAzurePostgres ? "node ./deploy/db/updateDbSchema.mjs" : "node ./deploy/db/updateDbSchemaLocal.mjs";
-  const pendingMigrationNames = pendingMigrations.map((migrationItem) => migrationItem.name).join(", ");
-
-  throw new Error(
-    [
-      "Database schema is outdated. Startup is blocked until the DB is upgraded.",
-      `Pending migrations: ${pendingMigrationNames}`,
-      `Run this command with a schema-admin account: ${upgradeCommand}`,
-      "Then restart the Function App.",
-    ].join("\n")
-  );
-}
 
 register("authProvider", async () => {
   const authProviders = {
@@ -55,37 +19,29 @@ register("authProvider", async () => {
   console.log("🔐Auth provider initialized :", authProviders);
 });
 
-// register db
-register("db", async () => {
-  const { createDatabaseInstance } = await import("../repository/models/connection/index.mjs");
-  const { initRepository } = await import("../repository/repository.mjs");
-  const DB_TYPE = (await import("../enum/dbType.mjs")).default;
-
-  const modelDir = path.join(__dirname, "..", "repository", "model");
-  const config: Record<string, any> = {
+register("repository", async () => {
+  // Initialize SQL repository variable
+  const { initRepository: initSqlRepository } = await import("../repository/sql/repository.mjs");
+  const { repository: sqlRepository } = await initSqlRepository({
     username: process.env.DB_USERNAME,
     database: process.env.DB_DATABASE,
     host: process.env.DB_HOST,
-  };
+    authMode: process.env.DB_AUTH_MODE?? "azure-ad", // azure-ad is preferred for security.
+    password: process.env.DB_PASSWORD,
+    ignoreMigrationState: process.env.DB_IGNORE_MIGRATION_STATE,
+  });
+  console.log("SQL repository initialized");
 
-  // If a password is provided, use it even if using Azure Postgres, if azure postgres and no password then use azure-ad auth mode
-  config.authMode = "password";
-  if (process.env.DB_PASSWORD) {
-    config.password = process.env.DB_PASSWORD;
-  } else if (process.env.DB_HOST && process.env.DB_HOST.includes("postgres.database.azure.com")) {
-    config.authMode = "azure-ad";
-  }
+  // Initialize table repository variable
+  const { default: tableRepository } = await import("../repository/table/repository.mjs");
+  console.log("Table repository initialized");
 
-  const sequelize = await createDatabaseInstance(DB_TYPE.POSTGRES, config);
-  await assertNoPendingDbMigrations(sequelize);
-  const models = initRepository(sequelize);
-
-  container.register("db", sequelize);
-  container.register("models", models);
-  console.log("🥳DB initialized");
+  // Register only one of sql or table repository into the DI container. This is intentionally not made configurable to avoid confusion.
+  // TODO: Delete the repository that is not needed when you have confirmed your prefered data source choice.
+  container.register("repository", sqlRepository);
+  console.log("Repository registered with DI container");
 });
 
-// register something else...(e.g. telemetry etc)
 (async () => {
   await startup();
 })();

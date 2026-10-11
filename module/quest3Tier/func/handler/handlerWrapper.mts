@@ -52,7 +52,7 @@ const requestHandler =
         const decoded = await provider.decode(token);
         const externalId = decoded.oid;
         const { profile, created: profileCreated } = await ensureProfile(externalId);
-        const profileId = profile.internal_id;
+        const profileId = profile.id;
         user = { profileId, externalId, profile, profileCreated };
         tracerSpan.setAttribute("app.profile_id", profileId);
       }

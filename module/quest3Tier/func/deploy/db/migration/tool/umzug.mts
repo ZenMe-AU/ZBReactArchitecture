@@ -13,7 +13,7 @@ function createUmzugInstance(sequelize, migrationDir) {
     migrations: {
       glob: join(migrationDir, "*.{mts,cts,ts,mjs,cjs,js}").replace(/\\/g, "/"),
       resolve: ({ name, path, context }) => {
-        const migrationName = name ?? basename(path);
+        const migrationName = (name ?? basename(path)).replace(/\.mts$/, ".mjs");
         const migrationModule = import(pathToFileURL(path).href);
         return {
           name: migrationName,

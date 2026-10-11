@@ -1,7 +1,7 @@
 {
   "IsEncrypted": false,
   "Values": {
-    "AUTH_PROVIDER": "authEntraID",
+    "AUTH_PROVIDER": "authLocal",
     "AUTH_PROVIDER_LOCAL": "authLocal",
     "AUTH_PROVIDER_ENTRA": "authEntraID",
     "AUTH_LOCAL_SECRET": "bb64c67554381aff324d26669540f591e02e3e993ce85c2d1ed2962e22411634",
@@ -14,10 +14,11 @@
     "DB_DATABASE": "quest3Tier",
     "DB_HOST": "127.0.0.1",
     "DB_IGNORE_MIGRATION_STATE": "false",
-    "CLIENT_ID": "87aa3687-66a4-4fab-bf59-70de6bf768fa",
-    "TENANT_ID": "15fb0613-7977-4551-801b-6aadac824241",
+    "DB_AUTH_MODE": "password",
     "DB_PASSWORD": "vscode",
-    "QUESTION_URL": "http://localhost:7073"
+    "QUESTION_URL": "http://localhost:7073",
+    "CLIENT_ID": "87aa3687-66a4-4fab-bf59-70de6bf768fa",
+    "TENANT_ID": "15fb0613-7977-4551-801b-6aadac824241"
   },
   "Host": {
     "LocalHttpPort": 7073,

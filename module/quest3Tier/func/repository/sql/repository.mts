@@ -4,10 +4,10 @@
  */
 
 // This is the repository layer for managing question-related models and their interactions with the database.
-// TODO: Rename this file to repository.ts and move it to the repository layer folder.
 
 import { DataTypes } from "@sequelize/core";
-import container from "../di/diContainer.mjs";
+import { initDbConnection, type DbConfig } from "./initDbConnection.mjs";
+import container from "../../di/diContainer.mjs";
 import questionModel from "./models/Question.mjs";
 import questionAnswerModel from "./models/QuestionAnswer.mjs";
 import questionShareModel from "./models/QuestionShare.mjs";
@@ -20,14 +20,16 @@ import questionShareCmdModel from "./models/QuestionShareCmd.mjs";
 import questionShareEventModel from "./models/QuestionShareEvent.mjs";
 import profileModel from "./models/Profile.mjs";
 import { Question } from "./interfaces.js";
-import cmdName from "../enum/cmdName.mjs";
+import type { QuestRepository } from "../contracts.mjs";
+import cmdName from "../../enum/cmdName.mjs";
 import { v4 as uuidv4 } from "uuid";
 import {  Op } from "@sequelize/core";
 
 let models: Record<string, any> | null = null;
 
-export function initRepository(sequelize) {
-  if (models) return models;
+export async function initRepository(config: DbConfig) {
+  if (models) return { sequelize: models.Question.sequelize, models, repository };
+  const sequelize = await initDbConnection(config);
   const Question = questionModel(sequelize, DataTypes);
   const QuestionAnswer = questionAnswerModel(sequelize, DataTypes);
   const QuestionShare = questionShareModel(sequelize, DataTypes);
@@ -58,7 +60,8 @@ export function initRepository(sequelize) {
     model.associate?.(models);
   });
 
-  return models;
+  container.register("models", models);
+  return { sequelize, models, repository };
 }
 
 /**
@@ -121,7 +124,7 @@ async function getAnswerListByQuestionId(questionId) {
     //   order: [[Sequelize.fn("MAX", Sequelize.col("createdAt")), "DESC"]],
     //   raw: true,
     // });
-    return await models.QuestionAnswer.sequelize.query(
+    const answers = await models.QuestionAnswer.sequelize.query(
       `
           SELECT DISTINCT ON ("profileId")
             "id",
@@ -141,6 +144,7 @@ async function getAnswerListByQuestionId(questionId) {
         type: models.QuestionAnswer.sequelize.QueryTypes.SELECT,
       }
     );
+    return answers.map((answer) => ({ ...answer, answerCount: Number(answer.answerCount) }));
   } catch (err) {
     console.log(err);
     throw new Error(`Failed to retrieve answers for questionId: ${questionId}; ${err.message}`, { cause: err });
@@ -326,7 +330,7 @@ async function create(profileId, title = null, question = null, option = null) {
  */
 async function updateById(questionId, title = null, questionText = null, option = null) {
   try {
-    return await models.Question.update(
+    await models.Question.update(
       {
         title: title,
         questionText: questionText,
@@ -339,6 +343,7 @@ async function updateById(questionId, title = null, questionText = null, option 
         individualHooks: true,
       }
     );
+    return { id: questionId };
   } catch (err) {
     console.log(err);
     throw new Error(`Failed to update question for questionId: ${questionId}; ${err.message}`, { cause: err });
@@ -386,7 +391,8 @@ async function getCombinationListByUser(profileId) {
  */
 async function patchById(questionId, action, profileId) {
   try {
-    return await models.QuestionAction.create({ questionId, profileId, action });
+    const questionAction = await models.QuestionAction.create({ questionId, profileId, action });
+    return { id: questionAction.id };
   } catch (err) {
     console.log(err);
     throw new Error(`Failed to patch question by ID: ${questionId}; ${err.message}`, { cause: err });
@@ -394,13 +400,14 @@ async function patchById(questionId, action, profileId) {
 }
 async function findProfileByExternalId(externalId) {
   try {
-    return await models.Profile.findOne({
+    const profile = await models.Profile.findOne({
       where: { external_id: externalId },
       order: [
         ["createdAt", "ASC"],
         ["internal_id", "ASC"],
       ],
     });
+    return profile ? { id: profile.internal_id, externalId: profile.external_id } : null;
   } catch (err) {
     console.log(err);
     throw new Error(`Function failed: ${err.message}`, { cause: err });
@@ -409,7 +416,8 @@ async function findProfileByExternalId(externalId) {
 
 async function createProfile(externalId) {
   try {
-    return await models.Profile.create({ external_id: externalId });
+    const profile = await models.Profile.create({ external_id: externalId });
+    return { id: profile.internal_id, externalId: profile.external_id };
   } catch (err) {
     console.log(err);
     throw new Error(`Function failed: ${err.message}`, { cause: err });
@@ -451,7 +459,7 @@ export async function getById(questionId) {
     }
 }
 
-export default {
+const repository = {
   getSharedQuestionListByProfileId,
   findProfileByExternalId,
   createProfile,
@@ -470,4 +478,6 @@ export default {
   shareQuestion,
   insertQuestionShareCmd,
   updateQuestionShareCmdStatus,
-};
+} satisfies QuestRepository;
+
+export default repository;
