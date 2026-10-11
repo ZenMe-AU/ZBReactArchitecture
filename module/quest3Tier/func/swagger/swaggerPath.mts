@@ -6,12 +6,13 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import swaggerUi from "swagger-ui-dist";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default async function (request, context) {
-  const filePath = path.join(__dirname, "../node_modules/swagger-ui-dist", request.params.path || "index.html");
+  const filePath = path.join(swaggerUi.getAbsoluteFSPath(), path.basename(request.params.path || "index.html"));
   console.log(filePath);
   if (fs.existsSync(filePath)) {
     let content: string | Buffer = fs.readFileSync(filePath);
