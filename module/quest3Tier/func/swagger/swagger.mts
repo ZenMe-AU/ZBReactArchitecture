@@ -3,8 +3,11 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const swaggerJsDoc = require("swagger-jsdoc");
-const path = require("path");
+import path from "path";
+import { fileURLToPath } from "url";
+import swaggerJsDoc from "swagger-jsdoc";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const swaggerOptions = {
   swaggerDefinition: {
@@ -37,5 +40,4 @@ const swaggerOptions = {
   apis: [path.join(__dirname, "../handler/*.mjs")], // Point to your function files
 };
 
-const swaggerDocs = swaggerJsDoc(swaggerOptions);
-export default swaggerDocs;
+export default swaggerJsDoc(swaggerOptions);
