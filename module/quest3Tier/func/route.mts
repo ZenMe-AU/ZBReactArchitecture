@@ -83,6 +83,12 @@ app.http("GetSharedQuestionList", {
   handler: requestHandler(followupHandler.GetSharedQuestionListByUser),
 });
 
+app.http("GetMyProfile", {
+  route: "profile/me",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: requestHandler(profileHandler.GetMyProfile),
+});
 app.http("SendFollowUpCmd", {
   route: "sendFollowUpCmd",
   methods: ["POST"],
