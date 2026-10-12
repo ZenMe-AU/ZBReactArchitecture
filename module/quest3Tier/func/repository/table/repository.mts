@@ -8,7 +8,7 @@ import { odata } from "@azure/data-tables";
 import { createQuestion, getQuestionById, getQuestionListByProfileId, getSharedQuestionListByProfileId, patchQuestionById, shareQuestion, updateQuestionById } from "./questionRepository.mjs";
 import { addAnswer, getAnswerById, getAnswerListByQuestionId } from "./answerRepository.mjs";
 import { createProfile, findProfileByExternalId } from "./profileRepository.mjs";
-import { getTableClient } from "./init.mjs";
+import { configureTableStorage, getTableClient, type TableStorageSettings } from "./init.mjs";
 import { QUESTION_DATA_TABLE } from "./keys.mjs";
 import type { QuestRepository } from "../contracts.mjs";
 import cmdName from "../../enum/cmdName.mjs";
@@ -230,5 +230,10 @@ const repository = {
     return getSharedQuestionListByProfileId(profileId);
   },
 } satisfies QuestRepository;
+
+export function initializeTableRepository(settings: TableStorageSettings) {
+  configureTableStorage(settings);
+  return repository;
+}
 
 export default repository;

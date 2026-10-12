@@ -9,13 +9,26 @@
 import { TableClient } from "@azure/data-tables";
 import { DefaultAzureCredential } from "@azure/identity";
 
+export interface TableStorageSettings {
+  AzureWebJobsStorage?: string;
+  AzureWebJobsStorage__tableServiceUri?: string;
+  AzureWebJobsStorage__clientId?: string;
+}
+
 const clients = new Map<string, TableClient>();
 const ensuredTables = new Set<string>();
+let settings: TableStorageSettings | undefined;
+
+export function configureTableStorage(tableStorageSettings: TableStorageSettings): void {
+  settings = tableStorageSettings;
+  clients.clear();
+  ensuredTables.clear();
+}
 
 function buildClient(tableName: string): TableClient {
   // Local dev / Azurite: AzureWebJobsStorage is already the connection
   // string used by the Functions host itself (see local.settings.json).
-  const connectionString = process.env.AzureWebJobsStorage;
+  const connectionString = settings?.AzureWebJobsStorage;
   if (connectionString) {
     return TableClient.fromConnectionString(connectionString, tableName, {
       allowInsecureConnection: true,
@@ -24,11 +37,11 @@ function buildClient(tableName: string): TableClient {
 
   // Azure: the Function App is already configured with a table endpoint and
   // a user-assigned identity (see deploy/env/functionApps/functionApps.tf).
-  const tableServiceUri = process.env.AzureWebJobsStorage__tableServiceUri;
+  const tableServiceUri = settings?.AzureWebJobsStorage__tableServiceUri;
   if (!tableServiceUri) {
     throw new Error("Table storage is not configured: set AzureWebJobsStorage (local) or AzureWebJobsStorage__tableServiceUri (Azure).");
   }
-  const managedIdentityClientId = process.env.AzureWebJobsStorage__clientId;
+  const managedIdentityClientId = settings?.AzureWebJobsStorage__clientId;
   const credential = new DefaultAzureCredential(managedIdentityClientId ? { managedIdentityClientId } : undefined);
   return new TableClient(tableServiceUri, tableName, credential);
 }
