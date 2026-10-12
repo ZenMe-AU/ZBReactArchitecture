@@ -231,7 +231,7 @@ const repository = {
   },
 } satisfies QuestRepository;
 
-export function initializeTableRepository(settings: TableStorageSettings) {
+export function initRepository(settings: TableStorageSettings) {
   configureTableStorage(settings);
   return repository;
 }
