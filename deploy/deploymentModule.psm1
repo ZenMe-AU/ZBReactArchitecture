@@ -98,8 +98,10 @@ function Install-DevAiTools {
     Install-Yq
     Install-GitHubCli
     Install-GitHubCopilotCli
+    Install-ClaudeCode
     Install-Packer
     #Install-DockerCli
+    
     Install-Ollama
     Install-OllamaModels
 }
@@ -659,6 +661,33 @@ function Install-GitHubCopilotCli {
     }
 }
 
+function Install-ClaudeCode {
+    if (Get-Command claude -ErrorAction SilentlyContinue) {
+        Write-Output "Claude Code is already installed."
+        return
+    }
+    if (-not $script:IsWindows) {
+        Write-Warning "Automatic Claude Code installation using winget is only supported on Windows."
+        return 1
+    }
+    if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+        Write-Error "winget is not installed. Please install App Installer before installing Claude Code."
+        return 1
+    }
+    Write-Output "Claude Code not found. Installing Claude Code using winget..."
+    winget install --id Anthropic.ClaudeCode -e --source winget --silent --accept-source-agreements --accept-package-agreements
+    if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne -1978335189) {
+        Write-Error "Claude Code installation failed with exit code $LASTEXITCODE."
+        return 1
+    }
+    Update-ProcessPathFromEnvironment
+    if (-not (Get-Command claude -ErrorAction SilentlyContinue)) {
+        Write-Error "Claude Code was not found after installation. Please restart your terminal or install it manually."
+        return 1
+    }
+    Write-Output "Claude Code is installed."
+}
+
 function Install-Ollama {
     if (Get-Command ollama -ErrorAction SilentlyContinue) {
         Write-Output "Ollama is already installed."
@@ -826,4 +855,4 @@ function Update-ProcessPathFromEnvironment {
     }
 }
 
-Export-ModuleMember -Function Initialize-PlatformState,Install-Pnpm,Install-NodeJsAndNpm,Install-Terraform,Install-Packer,Install-DockerCli,Install-PostgreSql,Install-AwsCli,Install-AzureCli,Install-AzureStorageExplorer,Install-Ripgrep,Install-Fd,Install-Jq,Install-Yq,Install-GitHubCli,Install-GitHubCopilotCli,Install-Ollama,Set-TerraformEnvironmentType,Set-ProjectRootFolder,Install-ProjectDependencies,Initialize-ResourceGroupBootstrap,Publish-MainEnvironment,Publish-ModuleDeployments,Publish-UserInterface,Test-InitializationEnvironment,Install-DevTools,Install-DevAiTools
+Export-ModuleMember -Function Initialize-PlatformState,Install-Pnpm,Install-NodeJsAndNpm,Install-Terraform,Install-Packer,Install-DockerCli,Install-PostgreSql,Install-AwsCli,Install-AzureCli,Install-AzureStorageExplorer,Install-Ripgrep,Install-Fd,Install-Jq,Install-Yq,Install-GitHubCli,Install-GitHubCopilotCli,Install-ClaudeCode,Install-Ollama,Set-TerraformEnvironmentType,Set-ProjectRootFolder,Install-ProjectDependencies,Initialize-ResourceGroupBootstrap,Publish-MainEnvironment,Publish-ModuleDeployments,Publish-UserInterface,Test-InitializationEnvironment,Install-DevTools,Install-DevAiTools
