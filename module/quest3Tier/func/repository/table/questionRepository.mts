@@ -10,7 +10,7 @@ import { randomUUID } from "crypto";
 import fastJsonPatch from "fast-json-patch";
 import { odata, TableTransaction } from "@azure/data-tables";
 import type { UpdateMode } from "@azure/data-tables";
-import { getTableClient, isNotFoundError } from "./tableClient.mjs";
+import { getTableClient, isNotFoundError } from "./init.mjs";
 import { assertProfileExists } from "./profileRepository.mjs";
 import {
   QUESTION_DATA_TABLE,

@@ -6,7 +6,6 @@
 import { randomUUID } from "crypto";
 import { odata } from "@azure/data-tables";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-
 import sqlRepository from "../../repository/sql/repository.mjs";
 import { initSqlRepository, initTableRepository } from "../util/repositoriesInit.mjs";
 import tableRepository from "../../repository/table/repository.mjs";
@@ -14,20 +13,6 @@ import { getTableClient } from "../../repository/table/tableClient.mjs";
 import { QUESTION_DATA_TABLE } from "../../repository/table/keys.mjs";
 import type { QuestRepository } from "../../repository/contracts.mjs";
 import cmdName from "../../enum/cmdName.mjs";
-
-async function cleanupTableRows(profileIds: string[], externalIds: string[]) {
-  const questionData = await getTableClient(QUESTION_DATA_TABLE);
-  for (const profileId of profileIds) {
-    const rows = questionData.listEntities({ queryOptions: { filter: odata`PartitionKey eq ${profileId}` } });
-    for await (const row of rows) await questionData.deleteEntity(row.partitionKey, row.rowKey);
-  }
-
-  const profiles = await getTableClient("Profiles");
-  for (const profileId of profileIds) await profiles.deleteEntity(profileId, "profile");
-
-  const profileIndexes = await getTableClient("ProfileByExternalId");
-  for (const externalId of externalIds) await profileIndexes.deleteEntity(externalId, "profile");
-}
 
 interface RepositoryTestIds {
   profileIds: string[];
@@ -37,29 +22,33 @@ interface RepositoryTestIds {
   questionShareCmdIds: string[];
 }
 
-function createRepositoryTestIds(): RepositoryTestIds {
-  return { profileIds: [], externalIds: [], questionIds: [], followUpCmdIds: [], questionShareCmdIds: [] };
-}
 
-async function cleanupSqlRows(models: Awaited<ReturnType<typeof initSqlRepository>>["models"], ids: RepositoryTestIds) {
-  if (ids.questionIds.length > 0) {
-    await models.QuestionAnswer.destroy({ where: { questionId: ids.questionIds } });
-    await models.QuestionShare.destroy({ where: { newQuestionId: ids.questionIds } });
-    await models.FollowUpFilter.destroy({ where: { newQuestionId: ids.questionIds } });
-    await models.QuestionAction.destroy({ where: { questionId: ids.questionIds } });
-    await models.QuestionLog.destroy({ where: { questionId: ids.questionIds } });
-    await models.Question.destroy({ where: { id: ids.questionIds } });
-  }
-  if (ids.followUpCmdIds.length > 0) {
-    await models.FollowUpEvent.destroy({ where: { followUpId: ids.followUpCmdIds } });
-    await models.FollowUpCmd.destroy({ where: { id: ids.followUpCmdIds } });
-  }
-  if (ids.questionShareCmdIds.length > 0) {
-    await models.QuestionShareEvent.destroy({ where: { questionShareId: ids.questionShareCmdIds } });
-    await models.QuestionShareCmd.destroy({ where: { id: ids.questionShareCmdIds } });
-  }
-  if (ids.profileIds.length > 0) await models.Profile.destroy({ where: { internal_id: ids.profileIds } });
-}
+describe("Test SQL repository", () => {
+  let sequelize: Awaited<ReturnType<typeof initSqlRepository>>["sequelize"] | undefined;
+  let models: Awaited<ReturnType<typeof initSqlRepository>>["models"];
+  const ids = createRepositoryTestIds();
+  beforeAll(async () => {
+    ({ sequelize, models } = await initSqlRepository());
+  });
+  afterAll(async () => {
+    try {
+      if (models) await cleanupSqlRows(models, ids);
+    } finally {
+      if (sequelize) await sequelize.close();
+    }
+  });
+  testRepositoryContract(sqlRepository, ids);
+});
+
+describe("Test Azure Table repository", () => {
+  const ids = createRepositoryTestIds();
+  beforeAll(() => {initTableRepository();});
+  afterAll(async () => {
+    if (ids.profileIds.length > 0) await cleanupTableRows(ids.profileIds, ids.externalIds);
+  });
+  testRepositoryContract(tableRepository, ids);
+});
+
 
 function testRepositoryContract(repository: QuestRepository, ids: RepositoryTestIds) {
   it("testRepositoryContract: question, answer, share, and follow-up", async () => {
@@ -135,35 +124,45 @@ function testRepositoryContract(repository: QuestRepository, ids: RepositoryTest
   }, 30000);
 }
 
-describe("Test SQL repository", () => {
-  let sequelize: Awaited<ReturnType<typeof initSqlRepository>>["sequelize"] | undefined;
-  let models: Awaited<ReturnType<typeof initSqlRepository>>["models"];
-  const ids = createRepositoryTestIds();
 
-  beforeAll(async () => {
-    ({ sequelize, models } = await initSqlRepository());
-  });
 
-  afterAll(async () => {
-    try {
-      if (models) await cleanupSqlRows(models, ids);
-    } finally {
-      if (sequelize) await sequelize.close();
-    }
-  });
+function createRepositoryTestIds(): RepositoryTestIds {
+  return { profileIds: [], externalIds: [], questionIds: [], followUpCmdIds: [], questionShareCmdIds: [] };
+}
 
-  testRepositoryContract(sqlRepository, ids);
-});
 
-describe("Test Azure Table repository", () => {
-  const ids = createRepositoryTestIds();
+async function cleanupTableRows(profileIds: string[], externalIds: string[]) {
+  const questionData = await getTableClient(QUESTION_DATA_TABLE);
+  for (const profileId of profileIds) {
+    const rows = questionData.listEntities({ queryOptions: { filter: odata`PartitionKey eq ${profileId}` } });
+    for await (const row of rows) await questionData.deleteEntity(row.partitionKey, row.rowKey);
+  }
 
-  beforeAll(() => {
-    initTableRepository();
-  });
-  afterAll(async () => {
-    if (ids.profileIds.length > 0) await cleanupTableRows(ids.profileIds, ids.externalIds);
-  });
+  const profiles = await getTableClient("Profiles");
+  for (const profileId of profileIds) await profiles.deleteEntity(profileId, "profile");
 
-  testRepositoryContract(tableRepository, ids);
-});
+  const profileIndexes = await getTableClient("ProfileByExternalId");
+  for (const externalId of externalIds) await profileIndexes.deleteEntity(externalId, "profile");
+}
+
+
+
+async function cleanupSqlRows(models: Awaited<ReturnType<typeof initSqlRepository>>["models"], ids: RepositoryTestIds) {
+  if (ids.questionIds.length > 0) {
+    await models.QuestionAnswer.destroy({ where: { questionId: ids.questionIds } });
+    await models.QuestionShare.destroy({ where: { newQuestionId: ids.questionIds } });
+    await models.FollowUpFilter.destroy({ where: { newQuestionId: ids.questionIds } });
+    await models.QuestionAction.destroy({ where: { questionId: ids.questionIds } });
+    await models.QuestionLog.destroy({ where: { questionId: ids.questionIds } });
+    await models.Question.destroy({ where: { id: ids.questionIds } });
+  }
+  if (ids.followUpCmdIds.length > 0) {
+    await models.FollowUpEvent.destroy({ where: { followUpId: ids.followUpCmdIds } });
+    await models.FollowUpCmd.destroy({ where: { id: ids.followUpCmdIds } });
+  }
+  if (ids.questionShareCmdIds.length > 0) {
+    await models.QuestionShareEvent.destroy({ where: { questionShareId: ids.questionShareCmdIds } });
+    await models.QuestionShareCmd.destroy({ where: { id: ids.questionShareCmdIds } });
+  }
+  if (ids.profileIds.length > 0) await models.Profile.destroy({ where: { internal_id: ids.profileIds } });
+}

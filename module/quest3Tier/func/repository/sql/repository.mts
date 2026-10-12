@@ -6,7 +6,7 @@
 // This is the repository layer for managing question-related models and their interactions with the database.
 
 import { DataTypes } from "@sequelize/core";
-import { initDbConnection, type DbConfig } from "./initDbConnection.mjs";
+import { initDbConnection, type DbConfig } from "./init.mjs";
 import container from "../../di/diContainer.mjs";
 import questionModel from "./models/Question.mjs";
 import questionAnswerModel from "./models/QuestionAnswer.mjs";

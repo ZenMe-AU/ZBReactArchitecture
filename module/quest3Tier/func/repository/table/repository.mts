@@ -8,7 +8,7 @@ import { odata } from "@azure/data-tables";
 import { createQuestion, getQuestionById, getQuestionListByProfileId, getSharedQuestionListByProfileId, patchQuestionById, shareQuestion, updateQuestionById } from "./questionRepository.mjs";
 import { addAnswer, getAnswerById, getAnswerListByQuestionId } from "./answerRepository.mjs";
 import { createProfile, findProfileByExternalId } from "./profileRepository.mjs";
-import { getTableClient } from "./tableClient.mjs";
+import { getTableClient } from "./init.mjs";
 import { QUESTION_DATA_TABLE } from "./keys.mjs";
 import type { QuestRepository } from "../contracts.mjs";
 import cmdName from "../../enum/cmdName.mjs";

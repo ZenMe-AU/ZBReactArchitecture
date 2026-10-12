@@ -12,7 +12,7 @@
 
 import { createHash, randomUUID } from "crypto";
 import { odata } from "@azure/data-tables";
-import { getTableClient, isNotFoundError } from "./tableClient.mjs";
+import { getTableClient, isNotFoundError } from "./init.mjs";
 
 export const PROFILES_TABLE = "Profiles";
 export const PROFILE_BY_EXTERNAL_ID_TABLE = "ProfileByExternalId";
