@@ -9,7 +9,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import sqlRepository from "../../repository/sql/repository.mjs";
 import { initSqlRepository, initTableRepository } from "../util/repositoriesInit.mjs";
 import tableRepository from "../../repository/table/repository.mjs";
-import { getTableClient } from "../../repository/table/tableClient.mjs";
+import { getTableClient } from "../../repository/table/init.mjs";
 import { QUESTION_DATA_TABLE } from "../../repository/table/keys.mjs";
 import type { QuestRepository } from "../../repository/contracts.mjs";
 import cmdName from "../../enum/cmdName.mjs";

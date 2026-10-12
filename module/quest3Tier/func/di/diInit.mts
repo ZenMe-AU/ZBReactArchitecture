@@ -33,7 +33,12 @@ register("repository", async () => {
   console.log("SQL repository initialized");
 
   // Initialize table repository variable
-  const { default: tableRepository } = await import("../repository/table/repository.mjs");
+  const { initializeTableRepository } = await import("../repository/table/repository.mjs");
+  const tableRepository = initializeTableRepository({
+    AzureWebJobsStorage: process.env.AzureWebJobsStorage,
+    AzureWebJobsStorage__tableServiceUri: process.env.AzureWebJobsStorage__tableServiceUri,
+    AzureWebJobsStorage__clientId: process.env.AzureWebJobsStorage__clientId,
+  });
   console.log("Table repository initialized");
 
   // Register only one of sql or table repository into the DI container. This is intentionally not made configurable to avoid confusion.
