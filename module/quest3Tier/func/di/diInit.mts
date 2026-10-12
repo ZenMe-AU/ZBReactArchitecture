@@ -21,16 +21,16 @@ register("authProvider", async () => {
 
 register("repository", async () => {
   // Initialize SQL repository variable
-  const { initRepository: initSqlRepository } = await import("../repository/sql/repository.mjs");
-  const { repository: sqlRepository } = await initSqlRepository({
-    username: process.env.DB_USERNAME,
-    database: process.env.DB_DATABASE,
-    host: process.env.DB_HOST,
-    authMode: process.env.DB_AUTH_MODE?? "azure-ad", // azure-ad is preferred for security.
-    password: process.env.DB_PASSWORD,
-    ignoreMigrationState: process.env.DB_IGNORE_MIGRATION_STATE,
-  });
-  console.log("SQL repository initialized");
+  // const { initRepository: initSqlRepository } = await import("../repository/sql/repository.mjs");
+  // const { repository: sqlRepository } = await initSqlRepository({
+  //   username: process.env.DB_USERNAME,
+  //   database: process.env.DB_DATABASE,
+  //   host: process.env.DB_HOST,
+  //   authMode: process.env.DB_AUTH_MODE?? "azure-ad", // azure-ad is preferred for security.
+  //   password: process.env.DB_PASSWORD,
+  //   ignoreMigrationState: process.env.DB_IGNORE_MIGRATION_STATE,
+  // });
+  // console.log("SQL repository initialized");
 
   // Initialize table repository variable
   const { default: tableRepository } = await import("../repository/table/repository.mjs");

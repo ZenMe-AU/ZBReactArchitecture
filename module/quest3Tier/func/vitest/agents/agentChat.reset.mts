@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import { getTableClient } from "../../repository/table/tableClient.mjs";
+import { getTableClient } from "../../repository/table/init.mjs";
 import { QUESTION_DATA_TABLE } from "../../repository/table/keys.mjs";
 import { PROFILE_DISCLOSURES_TABLE } from "../../repository/table/profileRepository.mjs";
 

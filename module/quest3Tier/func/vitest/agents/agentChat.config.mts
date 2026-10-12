@@ -128,8 +128,6 @@ The snapshot already holds everything you can see, so do not spend steps on GET 
 You have used Q3 before: questions and answers from earlier sessions, including your own, are still there, and your memory notes are what you remember from them.
 
 Q3 API (give paths only; your own auth token is added for you)
-- GET /profiles -> other users {id, name, isNameShared}; in identity-blind runs name starts as an anonymous Person code
-- POST /profile/share-name {receiverId} -> reveal your name only to that person
 - GET /questions -> questions you own or that were shared with you
 - GET /sharedQuestions -> questions shared with you
 - GET /question/{id}
