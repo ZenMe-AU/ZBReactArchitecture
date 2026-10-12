@@ -38,7 +38,7 @@ register("repository", async () => {
 
   // Register only one of sql or table repository into the DI container. This is intentionally not made configurable to avoid confusion.
   // TODO: Delete the repository that is not needed when you have confirmed your prefered data source choice.
-  container.register("repository", sqlRepository);
+  container.register("repository", tableRepository);
   console.log("Repository registered with DI container");
 });
 
