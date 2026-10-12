@@ -3,19 +3,21 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import Joi from "joi";
+import { z } from "zod";
 import { uuidSchema } from "./commonSchema.mjs";
 
-export const sendFollowUpCmdSchema = Joi.object({
-  newQuestionId: uuidSchema.required(),
-  question: Joi.array()
-    .items(
-      Joi.object({
-        questionId: uuidSchema.required(),
-        option: Joi.array().items(Joi.string().required()).required(),
-      })
-    )
-    .required(),
-  // Follow-up filters are no longer stored; isSave is accepted from older clients and ignored.
-  isSave: Joi.boolean(),
-});
+export const sendFollowUpCmdSchema = z
+  .strictObject({
+    newQuestionId: uuidSchema,
+    question: z
+      .array(
+        z.strictObject({
+          questionId: uuidSchema,
+          option: z.array(z.string().min(1)).min(1),
+        })
+      )
+      .min(1),
+    // Follow-up filters are no longer stored; isSave is accepted from older clients and ignored.
+    isSave: z.boolean().optional(),
+  })
+  .meta({ id: "SendFollowUpCmd" });

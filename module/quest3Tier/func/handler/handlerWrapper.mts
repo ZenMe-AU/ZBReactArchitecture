@@ -61,7 +61,11 @@ const requestHandler =
       if (!request.clientParams) {
         const contentType = request.headers.get("content-type");
         if (contentType && contentType.includes("application/json")) {
-          request.clientParams = await request.json();
+          request.clientParams = await request.json().catch(() => {
+            const err = new Error("Validation failed: body: Invalid JSON");
+            err.status = 400;
+            throw err;
+          });
         } else {
           request.clientParams = {};
         }
@@ -129,11 +133,14 @@ const requestHandler =
 
 const validate = async (request, schemas) => {
   for (const schema of schemas) {
-    const { error, value } = schema.validate(request.clientParams);
-    if (error) {
-      throw new Error("Validation failed: " + error.details[0].message);
+    const result = schema.safeParse(request.clientParams);
+    if (!result.success) {
+      const issue = result.error.issues[0];
+      const err = new Error(`Validation failed: ${issue.path.join(".") || "body"}: ${issue.message}`);
+      err.status = 400;
+      throw err;
     }
-    return value;
+    request.clientParams = result.data;
   }
 };
 

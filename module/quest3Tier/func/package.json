@@ -18,6 +18,7 @@
     "test:profile-db": "vitest --root ../../.. run module/quest3Tier/func/vitest/profile.test.mts module/quest3Tier/func/vitest/dbTest.test.mts --pool=forks --no-file-parallelism"
   },
   "dependencies": {
+    "@apvee/azure-functions-openapi": "2.0.0",
     "@azure/data-tables": "^13.3.2",
     "@azure/functions": "^4.0.0",
     "@azure/identity": "^4.4.1",
@@ -31,21 +32,19 @@
     "@opentelemetry/sdk-node": "^0.200.0",
     "@opentelemetry/sdk-trace-base": "^2.0.0",
     "@opentelemetry/semantic-conventions": "^1.32.0",
+    "@sequelize/core": "^7.0.0-alpha.47",
+    "@sequelize/postgres": "^7.0.0-alpha.47",
     "applicationinsights": "^3.6.0",
     "archiver": "^7.0.1",
     "fast-json-patch": "^3.1.1",
-    "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.2.2",
     "pg": "^8.12.0",
     "pg-hstore": "^2.3.4",
     "postgrejs": "^2.15.4",
-    "@sequelize/core": "^7.0.0-alpha.47",
-    "@sequelize/postgres": "^7.0.0-alpha.47",
-    "swagger-jsdoc": "^6.2.8",
     "swagger-ui-dist": "^5.17.14",
-    "swagger-ui-express": "^5.0.1",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "azure-functions-core-tools": "^4.x",

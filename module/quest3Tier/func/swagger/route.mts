@@ -5,7 +5,6 @@
 
 import { app } from "@azure/functions";
 import swaggerUI from "./swaggerUI.mjs";
-import swaggerJSON from "./swaggerJSON.mjs";
 import swaggerPath from "./swaggerPath.mjs";
 
 app.http("swagger", {
@@ -13,13 +12,6 @@ app.http("swagger", {
   methods: ["GET"],
   authLevel: "anonymous",
   handler: swaggerUI,
-});
-
-app.http("swaggerJson", {
-  route: "swagger.json",
-  methods: ["GET"],
-  authLevel: "anonymous",
-  handler: swaggerJSON,
 });
 
 app.http("swaggerPath", {

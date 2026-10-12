@@ -3,8 +3,12 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import Joi from "joi";
+import { z } from "zod";
 
-const uuidSchema = Joi.string().guid({ version: ["uuidv4", "uuidv5"] });
+const uuidSchema = z.uuid().refine((value) => value[14] === "4" || value[14] === "5", "Invalid UUID version");
 
-export { uuidSchema };
+const successResponse = (returnSchema: z.ZodType) => z.object({ success: z.literal(true), return: returnSchema });
+
+const errorResponseSchema = z.object({ success: z.literal(false), message: z.string() }).meta({ id: "ErrorResponse" });
+
+export { uuidSchema, successResponse, errorResponseSchema };

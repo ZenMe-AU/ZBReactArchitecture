@@ -20,7 +20,9 @@ const decode = (token) => {
     return jwt.verify(token, jwtSecret);
   } catch (error) {
     console.log("JWT verification failed:", error.message);
-    throw new Error("Invalid or expired token");
+    const err = new Error("Invalid or expired token");
+    err.status = 401;
+    throw err;
   }
 };
 

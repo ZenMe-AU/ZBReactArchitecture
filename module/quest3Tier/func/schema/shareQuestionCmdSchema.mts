@@ -3,11 +3,12 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import Joi from "joi";
+import { z } from "zod";
 import { uuidSchema } from "./commonSchema.mjs";
 
-export const shareQuestionCmdSchema = Joi.object({
-  newQuestionId: uuidSchema.required(),
-  profileId: uuidSchema.optional(),
-  receiverIds: Joi.array().items(uuidSchema.required()).min(1).required(),
-});
+export const shareQuestionCmdSchema = z
+  .strictObject({
+    newQuestionId: uuidSchema,
+    receiverIds: z.array(uuidSchema).min(1),
+  })
+  .meta({ id: "ShareQuestionCmd" });

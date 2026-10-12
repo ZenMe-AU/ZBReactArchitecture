@@ -16,7 +16,6 @@ export default async function swaggerUI(context, req) {
 
   let swaggerHtml = fs.readFileSync(swaggerFilePath, "utf-8");
 
-  swaggerHtml = swaggerHtml.replace("https://petstore.swagger.io/v2/swagger.json", "/swagger.json");
   swaggerHtml = swaggerHtml.replace('href="./swagger-ui.css"', 'href="/swagger/swagger-ui.css"');
   swaggerHtml = swaggerHtml.replace('href="index.css"', 'href="/swagger/index.css"');
   swaggerHtml = swaggerHtml.replace('href="./favicon-32x32.png"', 'href="/swagger/favicon-32x32.png"');
