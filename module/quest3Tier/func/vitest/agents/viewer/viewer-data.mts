@@ -37,13 +37,13 @@ export function questionTopic(question) {
   return "Other";
 }
 
-export function parseLine(line) {
+export function parseLine(line, people = AGENTS) {
   const match = line.match(/^\[(\d{2}:\d{2}:\d{2})\]\s+([\s\S]+)$/);
   if (!match) return null;
   const [, time, body] = match;
   const start = body.match(/^Run starts\. Online: (.+)\.$/);
   if (start) return { time, agent: null, kind: "start", text: body, participants: start[1].split(", ") };
-  const agent = AGENTS.find((name) => body.startsWith(`${name} `) || body.startsWith(`${name}:`));
+  const agent = people.find((name) => body.startsWith(`${name} `) || body.startsWith(`${name}:`));
   if (!agent) {
     const text = body.startsWith("Report:") ? `Report saved: ${body.split(/[\\/]/).at(-1)}` : body;
     return { time, agent: null, kind: "system", text };
@@ -69,11 +69,14 @@ export function parseLine(line) {
   return { time, agent, kind: "system", text: message };
 }
 
-export const parseLog = (text) =>
-  text
+export const parseLog = (text) => {
+  const participants = text.match(/Run starts\. Online: (.+)\./)?.[1].split(", ") ?? [];
+  const people = [...new Set([...AGENTS, ...participants])];
+  return text
     .split(/(?=^\[\d{2}:\d{2}:\d{2}\]\s)/m)
-    .map((event) => parseLine(event.replace(/\r?\n$/, "")))
+    .map((event) => parseLine(event.trimEnd(), people))
     .filter(Boolean);
+};
 
 export function classifyFinding(text) {
   if (/security|privacy|permission|unauthori[sz]ed|access|expos|leak|boundary/i.test(text)) return "Security";
@@ -136,12 +139,17 @@ export function parseReport(text) {
       const legacy = heading.match(/^### (.+) \(owner (.+)\)$/);
       if (!current && !legacy) return null;
       const lines = body.split("\n").filter(Boolean);
+      const answers = lines.filter((line) => line.startsWith("- ")).map((line) => {
+        const value = line.slice(2);
+        const match = value.match(/^(\(edited\) )?([^:]+):\s(.+)$/);
+        return match ? { author: match[2], text: `${match[1] ?? ""}${match[3]}` } : { author: "Unknown", text: value };
+      });
       return {
         ...(current && { id: current[2] }),
         title: current?.[1] ?? legacy[1],
         owner: current?.[3] ?? legacy[2],
         text: lines.find((line) => !line.startsWith("- ")) ?? "",
-        answers: lines.filter((line) => line.startsWith("- ")).map((line) => line.slice(2)),
+        answers,
       };
     })
     .filter(Boolean);

@@ -30,6 +30,7 @@ const STATIC_FILES = {
   "/viewer.mjs": ["viewer.mjs", "text/javascript; charset=utf-8"],
   "/viewer-data.mjs": ["viewer-data.mjs", "text/javascript; charset=utf-8"],
   "/viewer-elements.mjs": ["viewer-elements.mjs", "text/javascript; charset=utf-8"],
+  "/viewer-profiles.mjs": ["viewer-profiles.mjs", "text/javascript; charset=utf-8"],
   "/viewer-results.mjs": ["viewer-results.mjs", "text/javascript; charset=utf-8"],
   "/viewer-questions.mjs": ["viewer-questions.mjs", "text/javascript; charset=utf-8"],
 } as const;
@@ -179,6 +180,7 @@ async function handle(request, response) {
 
 async function selfCheck() {
   const { classifyFinding, parseLine, parseLog, parseReport, questionTopic } = await import("./viewer-data.mjs");
+  const { profileKind } = await import("./viewer-profiles.mjs");
   const { groupQuestions } = await import("./viewer-questions.mjs");
   assert.equal(isRunName("../secret.chat.md"), false);
   assert.equal(isSameOrigin({ headers: { origin: `http://${HOST}:${PORT}` } }), true);
@@ -201,6 +203,8 @@ async function selfCheck() {
     'answered "A useful question": First paragraph\n\nSecond paragraph'
   );
   assert.equal(parseLine('[03:44:13] Ian edited "A useful question"').kind, "edit");
+  assert.equal(parseLog('[03:44:10] Run starts. Online: Mike, Josh.\n\n[03:44:13] Josh answered "A useful question": Yes')[1].agent, "Josh");
+  assert.equal(profileKind("Josh"), "Human");
   assert.equal(classifyFinding("permission allowed unauthorized access"), "Security");
   assert.equal(classifyFinding("answer profile was misattributed"), "Data");
   assert.equal(questionTopic({ title: "Where do you live?", text: "Choose your city" }), "Location");
@@ -208,13 +212,13 @@ async function selfCheck() {
   const grouped = groupQuestions(
     [{ agent: "Bella", kind: "answer", questionId: "q-1", text: 'answered "Where do you live?": Melbourne' }],
     [
-      { id: "q-1", title: "Where do you live?", owner: "Eric", text: "", answers: ["(edited) Brisbane"] },
-      { id: "q-2", title: "Where do you live?", owner: "Bella", text: "", answers: ["Taipei", "Seoul"] },
+      { id: "q-1", title: "Where do you live?", owner: "Eric", text: "", answers: [{ author: "Unknown", text: "Melbourne" }] },
+      { id: "q-2", title: "Where do you live?", owner: "Bella", text: "", answers: [{ author: "Eric", text: "Taipei" }, { author: "Mike", text: "Seoul" }] },
     ]
   );
   assert.deepEqual(grouped.map(({ id, answers }) => ({ id, answers })), [
-    { id: "q-1", answers: ["(edited) Brisbane"] },
-    { id: "q-2", answers: ["Taipei", "Seoul"] },
+    { id: "q-1", answers: [{ author: "Bella", text: "Melbourne" }] },
+    { id: "q-2", answers: [{ author: "Eric", text: "Taipei" }, { author: "Mike", text: "Seoul" }] },
   ]);
   const result = parseReport(
     "## Metrics\n\n| Agent | Steps | New questions | Edits | Shares | Re-shares | Answered / others' seen |\n|---|---|---|---|---|---|---|\n| Mike | 2 | 1 | 0 | 1 | 1 | 1/2 |\n\n## Judge\n\n| Observer | Subject | Accuracy /10 | Hidden links found | Note |\n|---|---|---|---|---|\n| Mike | Bella | 8 | - | Accurate |\n\n### Leaks\n\n- none\n\n## Findings"
@@ -224,6 +228,8 @@ async function selfCheck() {
     '## Metrics\n\n| Agent | Steps | New questions | Edits | Shares | Re-shares | Answered / others\' seen |\n|---|---|---|---|---|---|---|\n\n## Judge\n\n| Observer | Subject | Accuracy /10 | Hidden links found | Correct facts | Incorrect facts | Missing facts | Stored memory | Note |\n|---|---|---|---|---|---|---|---|---|\n| Mike | Eric | 6 | Game | ["Taipei"] | ["Age 40"] | ["Work"] | "### Facts\\n- Taipei" | Mixed |\n\n### Leaks\n\n- none\n\n## Findings'
   ).pairs[0];
   assert.deepEqual({ available: details.detailsAvailable, correct: details.correctFacts, wrong: details.incorrectFacts, memory: details.memory }, { available: true, correct: ["Taipei"], wrong: ["Age 40"], memory: "### Facts\n- Taipei" });
+  const answer = parseReport("## Questions (final)\n\n### Where? (id q-1; owner Mike)\n\nWhere do you live?\nOptions: Brisbane\n- Bella: Brisbane\n\n## Call log").questionList[0].answers[0];
+  assert.deepEqual(answer, { author: "Bella", text: "Brisbane" });
   assert.equal(parseLine("not an event"), null);
   console.log("Agent viewer self-check passed.");
 }

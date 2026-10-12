@@ -7,9 +7,10 @@ import { describe, expect, test } from "vitest";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { invalidAction, offlineActionReason, rules } from "./agentChat.config.mjs";
+import { invalidAction, learningCoverage, offlineActionReason, rules } from "./agentChat.config.mjs";
 import { factMemory } from "./agentChat.memory.mjs";
 import { runAgentChat } from "./agentChat.run.mjs";
+import { report } from "./agentChat.report.mjs";
 import { HUMAN_NAME, HUMAN_OID, loadHuman, writeMemory } from "./agentChat.setup.mjs";
 import * as authLocal from "../../service/authLocal.mjs";
 import { belongsToExperiment } from "./agentChat.reset.mjs";
@@ -20,6 +21,7 @@ describe("agent option rules", () => {
     expect(prompt).toContain("Maximise verified facts learned per question");
     expect(prompt).toContain("location, work field, household or family");
     expect(prompt).toContain("Re-use each strong question");
+    expect(prompt).toContain("Creating a question does not publish it");
     expect(prompt).toContain("one fact dimension at a time");
     expect(prompt).toContain("online list is the complete set");
     expect(prompt).toContain("Never choose a vague option");
@@ -84,15 +86,44 @@ describe("fact-only memory", () => {
 
 describe("online participant boundary", () => {
   test("rejects answers for offline owners and shares to offline profiles", () => {
-    const questions = [{ id: "online", owner: "Bella", ownerOnline: true }, { id: "offline", owner: "Ian", ownerOnline: false }];
+    const questions = [{ id: "online", owner: "Bella", ownerOnline: true }, { id: "offline", owner: "Ian", ownerOnline: false }, { id: "mine", owner: "you", ownerOnline: true }];
     const onlineIds = new Set(["bella-id", "mike-id"]);
     expect(offlineActionReason("/question/online/answer", {}, questions, onlineIds)).toBeNull();
     expect(offlineActionReason("/question/offline/answer", {}, questions, onlineIds)).toBe("question:owner-offline");
-    expect(offlineActionReason("/question/online/share", { receiverIds: ["ian-id"] }, questions, onlineIds)).toBe("receiver:offline");
+    expect(offlineActionReason("/question/mine/share", { receiverIds: ["ian-id"] }, questions, onlineIds)).toBe("receiver:offline");
+    expect(offlineActionReason("/question/offline/share", { receiverIds: ["mike-id"] }, questions, onlineIds)).toBe("question:not-owner");
+  });
+});
+
+describe("learning coverage", () => {
+  test("shows known basics and the next missing topics per person", () => {
+    const agent = {
+      name: "Mike",
+      labelsByName: { Mike: "you", Eric: "Person E123" },
+      memory: { Eric: "- Where do you live? — Taipei (question: q1; answer: a1)" },
+    };
+    const questions = [{
+      isOwner: true,
+      title: "What exact work do you do?",
+      questionText: "What is your profession?",
+      answers: [{ memoryAuthor: "Eric", optionId: "UX design" }],
+    }];
+    expect(learningCoverage(agent, questions)["Person E123"]).toEqual({
+      known: ["location", "work"],
+      missing: ["household", "hobby", "formative experience"],
+      phase: "basics",
+    });
   });
 });
 
 describe("human participant", () => {
+  test("keeps each answer author in the lab report", () => {
+    const agent = { name: "Mike", model: "haiku", steps: 0, seenOthers: 0, findings: [], memory: {} };
+    const question = { id: "q1", profileId: "mike-id", title: "Where?", questionText: "Where do you live?", option: ["Brisbane"], answers: [{ profileId: "josh-id", optionId: "Brisbane", isEdited: false }] };
+    const output = report(["Mike", "Josh"], [agent], [], [question], { "mike-id": "Mike", "josh-id": "Josh" }, { pairs: [], leaks: [] });
+    expect(output).toContain("- Josh: Brisbane");
+  });
+
   test("uses a fixed local identity with an identity-blind token", () => {
     const human = loadHuman();
     const claims = authLocal.decode(human.token);

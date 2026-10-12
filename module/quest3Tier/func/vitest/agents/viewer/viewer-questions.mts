@@ -7,13 +7,17 @@ import { questionTopic } from "./viewer-data.mjs";
 
 const titleFrom = (text) => text.match(/^[^\"]*"([^"]+)"/)?.[1];
 
-type Question = { id?: string; title: string; owner: string; text: string; answers: string[]; agents: Set<string>; isNew: boolean };
+type Answer = { author: string; text: string };
+type Question = { id?: string; title: string; owner: string; text: string; answers: Answer[]; agents: Set<string>; isNew: boolean };
 type QuestionEvent = { agent: string; kind: string; text: string; questionId?: string };
 type ReportQuestion = Omit<Question, "agents" | "isNew">;
 
 export function groupQuestions(events: QuestionEvent[], reportQuestions: ReportQuestion[]) {
   const questions = new Map<string, Question>(
-    reportQuestions.map((question, index) => [question.id ?? `report:${index}`, { ...question, agents: new Set([question.owner]), isNew: false }])
+    reportQuestions.map((question, index) => [
+      question.id ?? `report:${index}`,
+      { ...question, agents: new Set([question.owner, ...question.answers.map((answer) => answer.author)]), isNew: false },
+    ])
   );
   const hasFinalReport = reportQuestions.length > 0;
   for (const event of events.filter((item) => ["question", "edit", "share", "answer"].includes(item.kind))) {
@@ -29,9 +33,13 @@ export function groupQuestions(events: QuestionEvent[], reportQuestions: ReportQ
       question.isNew = true;
       question.text ||= event.text.split(/":\s*/, 2)[1] ?? "";
     }
-    if (event.kind === "answer" && !hasFinalReport) {
+    if (event.kind === "answer") {
       const answer = event.text.split(/":\s*/, 2)[1] ?? "Answer recorded";
-      if (!question.answers.includes(answer)) question.answers.push(answer);
+      const unknown = question.answers.find((item) => item.author === "Unknown" && item.text === answer);
+      if (unknown) unknown.author = event.agent;
+      else if (!hasFinalReport && !question.answers.some((item) => item.author === event.agent && item.text === answer)) {
+        question.answers.push({ author: event.agent, text: answer });
+      }
     }
     questions.set(key, question);
   }
@@ -62,7 +70,7 @@ export function renderQuestions({ activeAgent, elements, events, questions: repo
       agent: question.owner,
       kind: "question",
       time: question.isNew ? "This run" : "Earlier run",
-      text: [question.text, ...question.answers.map((answer) => `Answer: ${answer}`)].filter(Boolean).join("\n\n"),
+      text: [question.text, ...question.answers.map((answer) => `${answer.author} — ${answer.text}`)].filter(Boolean).join("\n\n"),
     });
   const items = questions.map((question, index) => {
     const item = document.createElement("li");

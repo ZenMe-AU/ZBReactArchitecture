@@ -20,14 +20,14 @@ import { appendFile, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { setTimeout as sleep } from "node:timers/promises";
 import os from "node:os";
 import path from "node:path";
-import { invalidAction, LIMITS, offlineActionReason, rules, STEP_SCHEMA, writeKind } from "./agentChat.config.mjs";
+import { invalidAction, learningCoverage, LIMITS, offlineActionReason, rules, STEP_SCHEMA, writeKind } from "./agentChat.config.mjs";
 import { assertLlmReady, llm } from "./agentChat.llm.mjs";
 import { factMemory } from "./agentChat.memory.mjs";
 import { judge, report } from "./agentChat.report.mjs";
 import { resetHumanExperiment } from "./agentChat.reset.mjs";
 import { HUMAN_NAME, loadAgent, loadHuman, LOCK_PATH, pickParticipants, RUNS_DIR, takeLock, writeMemory } from "./agentChat.setup.mjs";
 
-const MAX_STEPS = Number(process.env.AGENT_STEPS ?? 20);
+const MAX_STEPS = Number(process.env.AGENT_STEPS ?? 30);
 const RECENT_STEPS = 8;
 const POLL_MS = 5 * 1000;
 const IDLE_POLLS = Number(process.env.HUMAN_RUN === "1" ? 60 : 3);
@@ -69,7 +69,6 @@ const knownMemory = (agent) => Object.fromEntries(Object.entries(agent.memory).f
 
 // What the LLM sees of a question: only what a person reads in the app, which keeps every step's prompt small.
 // The API returns only relationship-authorized answers; its profileId becomes the evidence author.
-// Answers already digested into memory (and your own) shrink to a preview; new ones get the full value.
 const view = (questions, names, digested = new Set()) =>
   questions.map((q) => ({
     id: q.id,
@@ -118,6 +117,7 @@ async function observe(agent) {
     news: news.slice(-15),
     profiles,
     questions: view(questions, names, agent.digested),
+    coverage: learningCoverage(agent, questions),
     memory: Object.fromEntries(
       Object.entries(knownMemory(agent)).map(([name, value]) => [agent.labelsByName?.[name] ?? name, value])
     ),

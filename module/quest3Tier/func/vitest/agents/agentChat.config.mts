@@ -7,12 +7,44 @@ export const NAMES = ["Mike", "Bella", "Ian", "Eric"];
 export const LIMITS = { questionWrites: 10, answerWrites: 100 };
 export const MAX_LENGTH = { title: 60, questionText: 200, answer: 500 };
 export const OPTION_LIMITS = { min: 4, max: 10, chars: 40, words: 4 };
+export const BASIC_TOPICS = ["location", "work", "household", "hobby", "formative experience"];
 const VAGUE_ANSWERS = new Set([
   "other", "other asia", "other south africa", "outside south africa",
   "asia", "africa", "europe", "americas", "oceania",
   "creative or media", "medicine or health", "teaching or education", "finance or business", "engineering", "design",
   "gaming or tech", "sport or outdoor", "music or arts", "fitness or wellness", "gaming", "close family",
 ]);
+
+export function learningTopic(question) {
+  const text = `${question.title ?? ""} ${question.questionText ?? ""}`.toLowerCase();
+  if (/where|city|region|based|location|home base/.test(text)) return "location";
+  if (/work|field|job|career|profession|build|creative/.test(text)) return "work";
+  if (/live with|household|family|parent|partner|spouse|children/.test(text)) return "household";
+  if (/hobb|passion|fun|free time|weekend|game|sport|outdoor/.test(text)) return "hobby";
+  if (/past|experience|turning point|changed you|learned|proud|hardest|formative/.test(text)) return "formative experience";
+  return null;
+}
+
+export function learningCoverage(agent, questions) {
+  const names = Object.keys(agent.labelsByName ?? {}).filter((name) => name !== agent.name);
+  const learned = Object.fromEntries(names.map((name) => [name, new Set()]));
+  for (const [name, memory] of Object.entries(agent.memory ?? {})) {
+    for (const line of String(memory).split("\n")) {
+      const topic = learningTopic({ questionText: line });
+      if (topic && learned[name]) learned[name].add(topic);
+    }
+  }
+  for (const question of questions.filter((item) => item.isOwner)) {
+    const topic = learningTopic(question);
+    if (!topic) continue;
+    for (const answer of question.answers ?? []) if (learned[answer.memoryAuthor]) learned[answer.memoryAuthor].add(topic);
+  }
+  return Object.fromEntries(names.map((name) => {
+    const known = BASIC_TOPICS.filter((topic) => learned[name].has(topic));
+    const missing = BASIC_TOPICS.filter((topic) => !learned[name].has(topic));
+    return [agent.labelsByName[name] ?? name, { known, missing, phase: missing.length ? "basics" : "connections" }];
+  }));
+}
 
 export const STEP_SCHEMA = {
   type: "object",
@@ -76,6 +108,9 @@ Maximise verified facts learned per question. Early questions should establish, 
 After those basics, use the facts you learned to ask specific follow-ups that can reveal shared places, employers, projects, games, studies, people or other hidden links. Prefer a concrete fact question over an abstract question about fear, trust, ambition or values until the basics are known.
 Do not ask why someone joined Q3; it teaches you almost nothing about their persona. Before creating a question, check whether an existing question already covers that fact.
 Ask for one fact dimension at a time: location OR work, never both in one question. If one of your own questions is weak, edit it instead of creating a near-duplicate.
+The snapshot includes coverage for each person. Never ask or share a basic topic marked known for that person. Target a missing topic instead. When a person's phase becomes connections, ask a concrete follow-up that combines facts already learned to test for a shared place, employer, project, game, study or person.
+Only share questions you own. Re-use your own strong question with multiple people; sharing someone else's question does not make their answers belong to you.
+Creating a question does not publish it. After creating one, explicitly share it with the intended online people in a later step; never assume creation made it visible.
 When answering, make the answer accurately identify you. Select an existing option only when it is genuinely specific enough. Otherwise add one truthful, short option from your allowed Disclosure facts, such as "Marine biology", "Cape Town", "Two children" or "Online gaming". Never choose a vague option merely because it is close.
 Generic group labels such as "Asia", "Other", "Design" or "Gaming or tech" are rejected. Use your actual city, profession, household detail, hobby or other specific fact instead.
 
@@ -142,7 +177,10 @@ export function offlineActionReason(pathname, body, questions, onlineProfileIds)
   const answer = pathname.match(/^\/question\/([^/]+)\/answer\/?$/);
   const question = answer && questions.find((item) => item.id === answer[1]);
   if (answer && (!question || (question.owner !== "you" && !question.ownerOnline))) return "question:owner-offline";
-  if (/^\/question\/[^/]+\/share\/?$/.test(pathname) && (body?.receiverIds ?? []).some((id) => !onlineProfileIds.has(id))) return "receiver:offline";
+  const share = pathname.match(/^\/question\/([^/]+)\/share\/?$/);
+  const sharedQuestion = share && questions.find((item) => item.id === share[1]);
+  if (share && sharedQuestion?.owner !== "you") return "question:not-owner";
+  if (share && (body?.receiverIds ?? []).some((id) => !onlineProfileIds.has(id))) return "receiver:offline";
   return null;
 }
 

@@ -5,6 +5,7 @@
 
 import { AGENTS, classifyFinding, KINDS, parseLog, parseReport, VIEWS } from "./viewer-data.mjs";
 import { elements } from "./viewer-elements.mjs";
+import { renderProfileCards } from "./viewer-profiles.mjs";
 import { renderQuestions } from "./viewer-questions.mjs";
 import { renderOverview, renderRelationships } from "./viewer-results.mjs";
 
@@ -59,21 +60,20 @@ function renderInspector(event) {
 
 const resultContext = () => ({ activeAgent: state.activeAgent, elements, report: state.currentReport, renderInspector });
 
-function renderAgentCards(participants) {
-  const latestAgent = [...state.currentEvents].reverse().find((event) => event.agent)?.agent;
-  for (const name of AGENTS) {
-    const card = document.querySelector<HTMLElement>(`[data-agent="${name}"]`);
-    const events = state.currentEvents.filter((event) => event.agent === name);
-    const latest = events.at(-1);
-    const questions = events.filter((event) => event.kind === "question" || event.kind === "edit").length;
-    const answers = events.filter((event) => event.kind === "answer").length;
-    card.classList.toggle("is-online", participants.has(name));
-    card.classList.toggle("is-active", name === latestAgent);
-    card.classList.toggle("is-selected", name === state.activeAgent);
-    card.setAttribute("aria-pressed", String(name === state.activeAgent));
-    card.querySelector(".agent-state").textContent = participants.has(name) ? (latest ? KINDS[latest.kind][1] : "Ready") : "Offline";
-    card.querySelector(".agent-budget").textContent = `Q ${questions}  A ${answers}`;
-  }
+function renderProfiles(participants) {
+  renderProfileCards({
+    activeProfile: state.activeAgent,
+    container: elements.profileCards,
+    events: state.currentEvents,
+    participants,
+    questions: state.currentReport.questionList,
+    onSelect: (name) => {
+      state.activeAgent = state.activeAgent === name ? "" : name;
+      state.selectedEventId = null;
+      renderProfiles(participants);
+      renderFeed();
+    },
+  });
 }
 
 function renderFeed() {
@@ -140,6 +140,7 @@ function renderFeed() {
 function render(events, mtime) {
   state.currentEvents = events.map((event, id) => ({ ...event, id }));
   const participants = participantsFor(state.currentEvents);
+  if (state.activeAgent && !AGENTS.includes(state.activeAgent) && !participants.has(state.activeAgent)) state.activeAgent = "";
   const latest = state.currentEvents.at(-1);
   const complete = state.currentEvents.some((event) => event.text.startsWith("Report saved:"));
   const grading = state.currentEvents.some((event) => event.text === "Judge is grading...");
@@ -151,7 +152,7 @@ function render(events, mtime) {
   elements.runTitle.textContent = runDetails.title;
   elements.runParticipants.textContent = [...participants].join(", ");
 
-  renderAgentCards(participants);
+  renderProfiles(participants);
   renderFeed();
   setCount("participants", participants.size);
   setCount("questions", state.currentEvents.filter((event) => event.kind === "question" || event.kind === "edit").length);
@@ -281,14 +282,6 @@ if (elements) {
     for (const item of elements.viewTabs.querySelectorAll("[data-view]")) item.setAttribute("aria-pressed", String(item === tab));
     renderFeed();
   });
-  for (const card of document.querySelectorAll<HTMLElement>("[data-agent]")) {
-    card.addEventListener("click", () => {
-      state.activeAgent = state.activeAgent === card.dataset.agent ? "" : card.dataset.agent;
-      state.selectedEventId = null;
-      renderAgentCards(participantsFor(state.currentEvents));
-      renderFeed();
-    });
-  }
   await update();
   // ponytail: whole-file polling is enough for short test logs; switch to byte ranges only if runs become large.
   setInterval(update, 1_000);

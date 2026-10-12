@@ -88,7 +88,7 @@ To run it from the VS Code Vitest extension instead, add `"vitest.nodeEnv": { "A
 
 **Reset**: stop Azurite, then delete `__azurite_db_table__.json` in the repo root, each Agent's `memory/` directory and `runs/`. Delete them together; otherwise agents remember things that Q3 no longer has.
 
-**Cost per run**: about 60 Haiku step calls (~4k input / ~200 output tokens each) and 1 Sonnet judge call. Fact-only memory uses no LLM call. A run takes about 4-5 minutes.
+**Cost per run**: up to 90 Haiku step calls (~4k input / ~200 output tokens each) and 1 Sonnet judge call. Fact-only memory uses no LLM call. A run typically takes about 6-8 minutes.
 
 ## Results so far (Sept-Oct 2026, Haiku agents)
 

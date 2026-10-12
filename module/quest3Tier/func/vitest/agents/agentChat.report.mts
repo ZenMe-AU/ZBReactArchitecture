@@ -100,7 +100,9 @@ export function report(participants, agents, log, questions, names, judgement) {
       `### ${question.title ?? "(no title)"} (id ${question.id}; owner ${names[question.profileId] ?? question.profileId})`,
       question.questionText,
       `Options: ${(question.option ?? []).join(" · ")}`,
-      ...question.answers.map((answer) => `- ${answer.isEdited ? "(edited) " : ""}${answer.optionId ?? answer.answerText}`),
+      ...question.answers.map(
+        (answer) => `- ${answer.isEdited ? "(edited) " : ""}${names[answer.profileId] ?? answer.profileId}: ${answer.optionId ?? answer.answerText}`
+      ),
     ]),
     "## Call log",
     [

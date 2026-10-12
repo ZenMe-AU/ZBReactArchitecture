@@ -16,6 +16,7 @@ export const elements = typeof document === "undefined" ? null : {
   filterNote: select<HTMLElement>("#filter-note"),
   humanMode: select<HTMLInputElement>("#human-mode"),
   joinHuman: select<HTMLAnchorElement>("#join-human"),
+  profileCards: select<HTMLElement>("#profile-cards"),
   runList: select<HTMLElement>("#run-list"),
   runParticipants: select<HTMLElement>("#run-participants"),
   startButton: select<HTMLButtonElement>("#run-start"),
