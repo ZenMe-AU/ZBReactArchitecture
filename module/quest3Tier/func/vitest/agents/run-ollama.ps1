@@ -1,8 +1,9 @@
 [CmdletBinding()]
 param(
-    [string]$Model = 'llama3.2:1b',
+    [string]$Model = 'qwen2.5:3b',
     [string]$OllamaUrl = 'http://localhost:11434',
-    [switch]$SmokeOnly
+    [switch]$SmokeOnly,
+    [switch]$ViewerOnly
 )
 
 $ErrorActionPreference = 'Stop'
@@ -52,10 +53,33 @@ try {
     $env:JUDGE_MODEL = $Model
     $env:AGENT_RUN = '1'
     Remove-Item Env:LLM_API_KEY -ErrorAction SilentlyContinue
-    Write-Host 'Running the Q3 agent test. Azurite and the Q3 API must already be running.'
-    & pnpm exec vitest run module/quest3Tier/func/vitest/agents/agentChat.test.mts --disableConsoleIntercept
+    Write-Host 'Building Q3 and the agent viewer...'
+    & pnpm --dir module/quest3Tier/func run build
     if ($LASTEXITCODE -ne 0) {
-        throw "Agent test failed with exit code $LASTEXITCODE."
+        throw "Q3 build failed with exit code $LASTEXITCODE."
+    }
+    & pnpm exec tsc --project module/quest3Tier/func/vitest/agents/tsconfig.json
+    if ($LASTEXITCODE -ne 0) {
+        throw "Viewer build failed with exit code $LASTEXITCODE."
+    }
+    $viewerPort = if ($env:AGENT_VIEW_PORT) { [int]$env:AGENT_VIEW_PORT } else { 4178 }
+    $viewerUrl = "http://127.0.0.1:$viewerPort"
+    $viewerRunning = $false
+    try {
+        $viewerState = Invoke-RestMethod -Uri "$viewerUrl/api/run" -TimeoutSec 3
+        $viewerRunning = $null -ne $viewerState.status
+    }
+    catch {
+        $viewerRunning = $false
+    }
+    if ($viewerRunning) {
+        throw "A viewer is already running at $viewerUrl. Close its Node window first, then rerun this script to see its output here."
+    }
+    Write-Host "Start the test from the viewer UI at $viewerUrl. The Q3 API must already be running."
+    Write-Host 'Viewer and test output will appear here. Press Ctrl+C to stop the viewer.'
+    & node module/quest3Tier/func/dist/vitest/agents/viewer/server.mjs
+    if ($LASTEXITCODE -ne 0) {
+        throw "Viewer exited with code $LASTEXITCODE."
     }
 }
 finally {
