@@ -6,15 +6,9 @@
 export const NAMES = ["Mike", "Bella", "Ian", "Eric"];
 export const LIMITS = { questionWrites: 10, answerWrites: 100 };
 export const MAX_LENGTH = { title: 60, questionText: 200, answer: 500 };
-export const OPTION_LIMITS = { min: 4, max: 10, chars: 40, words: 4 };
+export const OPTION_LIMITS = { minOptionCount: 4, maxOptionCount: 10, maxCharsPerOption: 40, maxWordsPerOption: 4 };
 export const BASIC_TOPICS = ["location", "work", "household", "hobby", "formative experience"];
 export const participantFriends = (friends, participantIds) => friends.filter((friend) => participantIds.has(friend.id));
-const VAGUE_ANSWERS = new Set([
-  "other", "other asia", "other south africa", "outside south africa",
-  "asia", "africa", "europe", "americas", "oceania",
-  "creative or media", "medicine or health", "teaching or education", "finance or business", "engineering", "design",
-  "gaming or tech", "sport or outdoor", "music or arts", "fitness or wellness", "gaming", "close family",
-]);
 
 export function learningTopic(question) {
   const text = `${question.title ?? ""} ${question.questionText ?? ""}`.toLowerCase();
@@ -145,7 +139,7 @@ Q3 API (give paths only; your own auth token is added for you)
 LIMITS PER RUN
 - Create or edit at most ${LIMITS.questionWrites} questions in total (POST, PUT or PATCH on /question). Re-using, sharing and improving existing questions beats creating new ones.
 - Answer or change answers at most ${LIMITS.answerWrites} times.
-- Every new question must provide ${OPTION_LIMITS.min}-${OPTION_LIMITS.max} distinct options. Each option must be one word or a short phrase, at most ${OPTION_LIMITS.words} words and ${OPTION_LIMITS.chars} characters.
+- Every new question must provide ${OPTION_LIMITS.minOptionCount}-${OPTION_LIMITS.maxOptionCount} distinct options. Each option must be one word or a short phrase, at most ${OPTION_LIMITS.maxWordsPerOption} words and ${OPTION_LIMITS.maxCharsPerOption} characters.
 - Answer with exactly one option and no long-text answer. Select one of the question's options when relevant. If none fits, submit one new short option in the same option field.
 - Count the words before submitting. Good options: "Remote", "Close family", "Career change", "Start my own studio". Never put a sentence or explanation in an option.
 - Write title <= 45 chars and questionText <= 150 chars. Hard limits are title <= ${MAX_LENGTH.title} and questionText <= ${MAX_LENGTH.questionText}.
@@ -186,43 +180,45 @@ export function offlineActionReason(pathname, body, questions, onlineProfileIds)
 }
 
 export const invalidAction = (method, pathname, body) => {
-  const fields = Array.isArray(body) ? Object.fromEntries(body.map((op) => [String(op?.path).slice(1), op?.value])) : (body ?? {});
-  const over = Object.entries(MAX_LENGTH).find(([field, max]) => typeof fields[field] === "string" && fields[field].length > max);
-  if (over) return `🚫 length:${over[0]} exceeds max ${MAX_LENGTH[over[0]]} chars (got ${fields[over[0]].length})`;
+  try {
+    const fields = Array.isArray(body) ? Object.fromEntries(body.map((op) => [String(op?.path).slice(1), op?.value])) : (body ?? {});
+    const over = Object.entries(MAX_LENGTH).find(([field, max]) => typeof fields[field] === "string" && fields[field].length > max);
+    if (over) throw new Error(`length:${over[0]} exceeds max ${MAX_LENGTH[over[0]]} chars (got ${fields[over[0]].length})`);
 
-  const isQuestion = /^\/question\/?$/.test(pathname) || /^\/question\/[^/]+\/?$/.test(pathname);
-  const isCreate = method === "POST" && /^\/question\/?$/.test(pathname);
-  const isAnswer = method === "POST" && /^\/question\/[^/]+\/answer\/?$/.test(pathname);
+    const isQuestion = /^\/question\/?$/.test(pathname) || /^\/question\/[^/]+\/?$/.test(pathname);
+    const isCreate = method === "POST" && /^\/question\/?$/.test(pathname);
+    const isAnswer = method === "POST" && /^\/question\/[^/]+\/answer\/?$/.test(pathname);
 
-  if (isQuestion && (isCreate || fields.option !== undefined)) {
-    if (!Array.isArray(fields.option)) return `🚫 options:must-be-array (expected ${OPTION_LIMITS.min}-${OPTION_LIMITS.max} options)`;
-    if (fields.option.length < OPTION_LIMITS.min || fields.option.length > OPTION_LIMITS.max) {
-      return `🚫 options:count:${fields.option.length} (must have ${OPTION_LIMITS.min}-${OPTION_LIMITS.max} options)`;
+    if (isQuestion && (isCreate || fields.option !== undefined)) {
+      if (!Array.isArray(fields.option)) throw new Error(`options:must-be-array (expected ${OPTION_LIMITS.minOptionCount}-${OPTION_LIMITS.maxOptionCount} options)`);
+      if (fields.option.length < OPTION_LIMITS.minOptionCount || fields.option.length > OPTION_LIMITS.maxOptionCount) {
+        throw new Error(`options:count:${fields.option.length} (must have ${OPTION_LIMITS.minOptionCount}-${OPTION_LIMITS.maxOptionCount} options)`);
+      }
+      const emptyIndex = fields.option.findIndex((option) => typeof option !== "string" || !option.trim());
+      if (emptyIndex >= 0) throw new Error(`options:empty-at-index-${emptyIndex + 1}`);
+      if (new Set(fields.option.map((option) => option.trim().toLowerCase())).size !== fields.option.length) {
+        throw new Error(`options:duplicate-values-detected`);
+      }
+      const longIndex = fields.option.findIndex((option) => option.length > OPTION_LIMITS.maxCharsPerOption || option.trim().split(/\s+/).length > OPTION_LIMITS.maxWordsPerOption);
+      if (longIndex >= 0) {
+        const opt = fields.option[longIndex];
+        const wordCount = opt.trim().split(/\s+/).length;
+        throw new Error(`options:length:option-${longIndex + 1}-too-long (got ${wordCount} words, ${opt.length} chars; max ${OPTION_LIMITS.maxWordsPerOption} words, ${OPTION_LIMITS.maxCharsPerOption} chars)`);
+      }
     }
-    const emptyIndex = fields.option.findIndex((option) => typeof option !== "string" || !option.trim());
-    if (emptyIndex >= 0) return `🚫 options:empty-at-index-${emptyIndex + 1}`;
-    if (new Set(fields.option.map((option) => option.trim().toLowerCase())).size !== fields.option.length) {
-      return `🚫 options:duplicate-values-detected`;
+
+    if (isAnswer) {
+      if (typeof fields.option !== "string" || !fields.option.trim()) throw new Error(`option:required (answer option text must not be empty)`);
+      const wordCount = fields.option.trim().split(/\s+/).length;
+      if (fields.option.length > OPTION_LIMITS.maxCharsPerOption || wordCount > OPTION_LIMITS.maxWordsPerOption) {
+        throw new Error(`option:too-long (got ${wordCount} words, ${fields.option.length} chars; max ${OPTION_LIMITS.maxWordsPerOption} words, ${OPTION_LIMITS.maxCharsPerOption} chars)`);
+      }
+      if (fields.answer != null && String(fields.answer).trim()) throw new Error(`option-only (long-text answer field is disallowed; use option only)`);
     }
-    const longIndex = fields.option.findIndex((option) => option.length > OPTION_LIMITS.chars || option.trim().split(/\s+/).length > OPTION_LIMITS.words);
-    if (longIndex >= 0) {
-      const opt = fields.option[longIndex];
-      const wordCount = opt.trim().split(/\s+/).length;
-      return `🚫 options:length:option-${longIndex + 1}-too-long (got ${wordCount} words, ${opt.length} chars; max ${OPTION_LIMITS.words} words, ${OPTION_LIMITS.chars} chars)`;
-    }
+
+    return null;
+  } catch (err: any) {
+    console.error(`[ERROR] Invalid action: ${err.message}`, { method, pathname, body });
+    return err.message;
   }
-
-  if (isAnswer) {
-    if (typeof fields.option !== "string" || !fields.option.trim()) return `🚫 option:required (answer option text must not be empty)`;
-    const wordCount = fields.option.trim().split(/\s+/).length;
-    if (fields.option.length > OPTION_LIMITS.chars || wordCount > OPTION_LIMITS.words) {
-      return `🚫 option:too-long (got ${wordCount} words, ${fields.option.length} chars; max ${OPTION_LIMITS.words} words, ${OPTION_LIMITS.chars} chars)`;
-    }
-    if (fields.answer != null && String(fields.answer).trim()) return `🚫 option-only (long-text answer field is disallowed; use option only)`;
-    if (VAGUE_ANSWERS.has(fields.option.trim().toLowerCase())) {
-      return `🚫 option:too-vague:"${fields.option.trim()}" (must provide a specific truthful fact instead of generic label)`;
-    }
-  }
-
-  return null;
 };

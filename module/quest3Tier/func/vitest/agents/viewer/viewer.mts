@@ -208,13 +208,11 @@ async function loadRunState() {
   if (!response.ok) throw new Error("Could not read the test runner state");
   const state = await response.json();
   const running = state.status === "starting" || state.status === "running";
-  for (const button of [elements.agentStartButton, elements.humanStartButton]) {
+  for (const button of [elements.agentStartButton]) {
     button.disabled = running;
     button.textContent = state.status === "starting" ? "Starting services..." : running ? "Test running..." : button.dataset.idleLabel;
     button.title = state.error ?? (state.status === "failed" ? `Test exited with code ${state.exitCode ?? "unknown"}` : "");
   }
-  elements.joinHuman.classList.toggle("is-visible", Boolean(state.humanMode && state.joinUrl));
-  if (state.joinUrl) elements.joinHuman.href = state.joinUrl;
 }
 
 async function refreshLog() {
@@ -249,19 +247,19 @@ async function update() {
 }
 
 if (elements) {
-  const startTest = async (humanMode: boolean) => {
-    const button = humanMode ? elements.humanStartButton : elements.agentStartButton;
+  const startTest = async () => {
+    const button = elements.agentStartButton;
     button.disabled = true;
     button.textContent = "Starting...";
     try {
       const response = await fetch("/api/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ humanMode }),
+        body: JSON.stringify({  }),
       });
       const state = await response.json();
       if (!response.ok) throw new Error(state.error ?? "Could not start the test");
-      elements.announcer.textContent = humanMode ? "Human test started" : "Agent test started";
+      elements.announcer.textContent = "Agent test started";
       await loadRunState();
     } catch (error) {
       button.disabled = false;
@@ -269,8 +267,7 @@ if (elements) {
       elements.announcer.textContent = error instanceof Error ? error.message : String(error);
     }
   };
-  elements.agentStartButton.addEventListener("click", () => startTest(false));
-  elements.humanStartButton.addEventListener("click", () => startTest(true));
+  elements.agentStartButton.addEventListener("click", () => startTest());
   elements.runList.addEventListener("click", (event) => {
     const item = (event.target as Element).closest<HTMLElement>("[data-run]");
     if (!item) return;

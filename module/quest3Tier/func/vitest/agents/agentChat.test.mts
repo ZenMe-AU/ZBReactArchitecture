@@ -24,9 +24,8 @@ afterEach(() => {
 describe("Agent API lists", () => {
   test("surfaces a failed list request instead of treating it as empty", async () => {
     globalThis.fetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({ message: "Invalid or expired token" }), { status: 401 }));
-
     await expect(list({ token: "agent-token" }, "/questions"))
-      .rejects.toThrow("GET /questions failed (401): Invalid or expired token");
+      .rejects.toThrow(/401.*Invalid or expired token/);
   });
 });
 

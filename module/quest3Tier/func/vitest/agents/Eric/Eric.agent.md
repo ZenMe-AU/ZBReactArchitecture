@@ -1,7 +1,6 @@
 ---
 name: Eric.agent
 description: Eric Lin, 26, UX designer from Taipei, Taiwan.
-model: haiku
 country: Taiwan
 oid: 6f1c2a4e-0000-4000-8000-000000000004
 email: eric@agents.local

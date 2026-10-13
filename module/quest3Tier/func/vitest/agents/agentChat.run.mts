@@ -47,26 +47,48 @@ async function call(agent, method, url, body?) {
     return { status: res.status, response: text };
   }
 }
+
 export async function list(agent, p) {
   const result = await call(agent, "GET", new URL(p, QUESTION_URL));
   if (result.status >= 400) {
     const detail = typeof result.response === "string"
       ? result.response
       : result.response?.message ?? JSON.stringify(result.response);
-    throw new Error(`GET ${p} failed (${result.status}): ${detail}`);
+    const errorMessage = `[ERROR] Status: ${result.status} on GET ${p} : ${detail}`;
+    console.error(errorMessage);
+    throw new Error(errorMessage);
   }
   return result.response?.return?.list ?? [];
 }
+
 const clip = (s, n = 200) => (String(s).length > n ? `${String(s).slice(0, n)}...` : String(s));
 
 async function snapshot(agent) {
-  const profiles = participantFriends(await list(agent, "/profile/me/friends"), agent.shareableIds)
+  let rawFriends = [];
+  try {
+    rawFriends = await list(agent, "/profile/me/friends");
+  } catch (err: any) {
+    console.error(`[ERROR] ${agent.name} failed to fetch friends: ${err.message}`);
+  }
+  const profiles = participantFriends(rawFriends, agent.shareableIds)
     .map((profile) => ({ ...profile, name: agent.labelsById?.[profile.id] ?? "unknown" }));
   const names = Object.fromEntries(profiles.map((p) => [p.id, p.name]));
-  const questions = await list(agent, "/questions");
+
+  let questions = [];
+  try {
+    questions = await list(agent, "/questions");
+  } catch (err: any) {
+    console.error(`[ERROR] ${agent.name} failed to fetch questions: ${err.message}`);
+  }
+
   for (const q of questions) {
     q.isOwner = q.profileId === agent.profileId;
-    q.answers = await list(agent, `/question/${q.id}/answers`);
+    try {
+      q.answers = await list(agent, `/question/${q.id}/answers`);
+    } catch (err: any) {
+      console.error(`[ERROR] ${agent.name} failed to fetch answers for [q:${q.id}]: ${err.message}`);
+      q.answers = [];
+    }
     for (const ans of q.answers) {
       if (!ans.profileId) continue;
       ans.author = names[ans.profileId] ?? agent.name;
@@ -270,7 +292,14 @@ export async function runAgentChat() {
 
     const participantIds = new Set(Object.keys(realNamesById));
     for (const agent of agents) {
-      const contacts = participantFriends(await list(agent, "/profile/me/friends"), participantIds)
+      let rawContacts = [];
+      try {
+        rawContacts = await list(agent, "/profile/me/friends");
+      } catch (err: any) {
+        console.error(`[ERROR] ${agent.name} failed to reach friends list: ${err.message}`);
+        throw err;
+      }
+      const contacts = participantFriends(rawContacts, participantIds)
         .filter((contact) => contact.id !== agent.profileId);
       if (contacts.length !== actors.length - 1) throw new Error(`${agent.name} cannot reach every current participant through /profile/me/friends`);
       agent.realNamesById = realNamesById;
@@ -292,7 +321,13 @@ export async function runAgentChat() {
     const questions = new Map();
     const names = {};
     for (const agent of actors) {
-      const visible = await list(agent, "/questions");
+      let visible = [];
+      try {
+        visible = await list(agent, "/questions");
+      } catch (err: any) {
+        console.error(`[ERROR] Failed to list questions for ${agent.name}: ${err.message}`);
+        await say(`[ERROR] Failed to list questions for ${agent.name}: ${err.message}`);
+      }
       const current = visible.filter((question) => question.isOwner || realNamesById[question.profileId]);
       if ("steps" in agent) agent.seenOthers = current.filter((question) => !question.isOwner).length;
       for (const q of current) questions.set(q.id, q);
@@ -300,7 +335,13 @@ export async function runAgentChat() {
     Object.assign(names, realNamesById);
     for (const q of questions.values()) {
       const owner = actors.find((actor) => actor.name === names[q.profileId]) ?? agents[0];
-      q.answers = await list(owner, `/question/${q.id}/answers`);
+      try {
+        q.answers = await list(owner, `/question/${q.id}/answers`);
+      } catch (err: any) {
+        console.error(`[ERROR] Failed to list answers for [q:${q.id}] (${owner.name}): ${err.message}`);
+        await say(`[ERROR] Failed to list answers for [q:${q.id}] (${owner.name}): ${err.message}`);
+        q.answers = [];
+      }
     }
     const judgement = await judge(agents, [...questions.values()], names, log, sandbox).catch((err) => ({ error: err.message }));
 

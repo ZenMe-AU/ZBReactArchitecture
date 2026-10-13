@@ -34,14 +34,14 @@
         "background": {
           "activeOnStart": true,
           "beginsPattern": "^Building Q3 and the agent viewer",
-          "endsPattern": "^Q3 Agent Town: http://"
+          "endsPattern": "^Q3 Agent Lab: http://"
         }
       },
       "presentation": {
         "reveal": "always",
-        "panel": "dedicated"
-      },
-      "dependsOn": ["Start"]
+        "panel": "dedicated",
+        "close": false
+      }
     },
     {
       "label": "Install Dependencies",
