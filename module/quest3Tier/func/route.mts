@@ -11,6 +11,7 @@ import followupHandler from "./handler/followupHandler.mjs";
 import profileHandler from "./handler/profileHandler.mjs";
 import { sendFollowUpCmdSchema } from "./schema/sendFollowUpCmdSchema.mjs";
 import { shareQuestionCmdSchema } from "./schema/shareQuestionCmdSchema.mjs";
+import { updateMyProfileSchema } from "./schema/updateMyProfileSchema.mjs";
 
 //TODO: Review schema usage and ensure all endpoints have a correct schema assigned which is also in sync with the relevant function and relevant swagger doc.
 
@@ -89,6 +90,15 @@ app.http("GetMyProfile", {
   methods: ["GET"],
   authLevel: "anonymous",
   handler: requestHandler(profileHandler.GetMyProfile),
+});
+
+app.http("UpdateMyProfile", {
+  route: "profile/me",
+  methods: ["PUT"],
+  authLevel: "anonymous",
+  handler: requestHandler(profileHandler.UpdateMyProfile, {
+    schemas: [updateMyProfileSchema],
+  }),
 });
 app.http("SendFollowUpCmd", {
   route: "sendFollowUpCmd",

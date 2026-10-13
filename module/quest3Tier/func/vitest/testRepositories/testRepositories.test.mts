@@ -47,6 +47,57 @@ describe("Test Azure Table repository", () => {
     if (ids.profileIds.length > 0) await cleanupTableRows(ids.profileIds, ids.externalIds);
   });
   testRepositoryContract(tableRepository, ids);
+
+  it("stores the signed-in name on the canonical profile", async () => {
+    const externalId = `named-profile-${randomUUID()}`;
+    const profiles = await getTableClient("Profiles");
+    const internalIndex = await getTableClient("ProfileByInternalId");
+    const result = await tableRepository.ensureProfile(externalId, { name: "Josh Kim" });
+    try {
+      await expect(profiles.getEntity(externalId, "profile")).resolves.toMatchObject({ name: "Josh Kim", preferred_name: "" });
+      await tableRepository.ensureProfile(externalId, { name: "Joshua Kim" });
+      await expect(profiles.getEntity(externalId, "profile")).resolves.toMatchObject({ name: "Joshua Kim" });
+    } finally {
+      await profiles.deleteEntity(externalId, "profile");
+      await internalIndex.deleteEntity(result.profile.id, "profile");
+    }
+  });
+
+  it("stores a preferred name without replacing the signed-in name", async () => {
+    const externalId = `preferred-name-${randomUUID()}`;
+    const profiles = await getTableClient("Profiles");
+    const internalIndex = await getTableClient("ProfileByInternalId");
+    const result = await tableRepository.ensureProfile(externalId, { name: "Joshua Kim" });
+    try {
+      await tableRepository.updatePreferredName(externalId, "Josh");
+      await expect(profiles.getEntity(externalId, "profile")).resolves.toMatchObject({ name: "Joshua Kim", preferred_name: "Josh" });
+    } finally {
+      await profiles.deleteEntity(externalId, "profile");
+      await internalIndex.deleteEntity(result.profile.id, "profile");
+    }
+  });
+
+  it("uses external id for the profile partition and preserves legacy internal ids", async () => {
+    const externalId = `legacy-profile-${randomUUID()}`;
+    const internalId = randomUUID();
+    const profiles = await getTableClient("Profiles");
+    const legacyIndex = await getTableClient("ProfileByExternalId");
+    const internalIndex = await getTableClient("ProfileByInternalId");
+    const createdAt = new Date().toISOString();
+
+    await profiles.createEntity({ partitionKey: internalId, rowKey: "profile", internal_id: internalId, external_id: externalId, createdAt });
+    await legacyIndex.createEntity({ partitionKey: externalId, rowKey: "profile", internal_id: internalId, external_id: externalId, createdAt });
+    try {
+      await expect(tableRepository.findProfileByExternalId(externalId)).resolves.toEqual({ id: internalId, externalId });
+      await expect(profiles.getEntity(externalId, "profile")).resolves.toMatchObject({ internal_id: internalId, external_id: externalId });
+      await expect(internalIndex.getEntity(internalId, "profile")).resolves.toMatchObject({ external_id: externalId });
+    } finally {
+      await profiles.deleteEntity(externalId, "profile");
+      await profiles.deleteEntity(internalId, "profile");
+      await internalIndex.deleteEntity(internalId, "profile");
+      await legacyIndex.deleteEntity(externalId, "profile");
+    }
+  });
 });
 
 
