@@ -16,8 +16,12 @@ const generateToken = (payload) => {
 };
 
 const decode = (token) => {
+  // Azure sets WEBSITE_SITE_NAME automatically on every Function App
+  if (process.env.WEBSITE_SITE_NAME) {
+    throw new Error("authLocal is for local development only and is disabled on Azure");
+  }
   try {
-    return jwt.verify(token, jwtSecret);
+    return jwt.verify(token, jwtSecret, { algorithms: [jwtSignOptions.algorithm] });
   } catch (error) {
     console.log("JWT verification failed:", error.message);
     const err = new Error("Invalid or expired token");
