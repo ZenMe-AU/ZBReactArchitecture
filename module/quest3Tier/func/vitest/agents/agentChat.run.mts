@@ -20,7 +20,7 @@ import { appendFile, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { setTimeout as sleep } from "node:timers/promises";
 import os from "node:os";
 import path from "node:path";
-import { invalidAction, learningCoverage, LIMITS, offlineActionReason, rules, STEP_SCHEMA, writeKind } from "./agentChat.config.mjs";
+import { invalidAction, learningCoverage, LIMITS, offlineActionReason, participantFriends, rules, STEP_SCHEMA, writeKind } from "./agentChat.config.mjs";
 import { assertLlmReady, llm } from "./agentChat.llm.mjs";
 import { factMemory } from "./agentChat.memory.mjs";
 import { judge, report } from "./agentChat.report.mjs";
@@ -50,10 +50,12 @@ const list = async (agent, p) => (await call(agent, "GET", new URL(p, process.en
 const clip = (s, n = 200) => (String(s).length > n ? `${String(s).slice(0, n)}...` : String(s));
 
 async function snapshot(agent) {
-  const profiles = await list(agent, "/profiles");
+  const profiles = participantFriends(await list(agent, "/profile/me/friends"), agent.shareableIds)
+    .map((profile) => ({ ...profile, name: agent.labelsById?.[profile.id] ?? "unknown" }));
   const names = Object.fromEntries(profiles.map((p) => [p.id, p.name]));
   const questions = await list(agent, "/questions");
   for (const q of questions) {
+    q.isOwner = q.profileId === agent.profileId;
     q.answers = await list(agent, `/question/${q.id}/answers`);
     for (const ans of q.answers) {
       if (!ans.profileId) continue;
@@ -153,7 +155,7 @@ async function act(agent, { method, path: p, body }, state) {
     ? "origin"
     : kind && agent.used[kind] >= LIMITS[kind]
       ? `limit:${kind}`
-      : offlineActionReason(url?.pathname ?? "", body, questions, new Set(Object.keys(agent.realNamesById))) ?? invalidAction(method, url?.pathname ?? "", body);
+      : offlineActionReason(url?.pathname ?? "", body, questions, agent.shareableIds) ?? invalidAction(method, url?.pathname ?? "", body);
   if (reason) return { method, path: p, body, status: "REJECTED", reason, response: undefined };
   if (kind) agent.used[kind]++;
   return { method, path: url.pathname, body, ...(await call(agent, method, url, body)) };
@@ -250,12 +252,22 @@ export async function runAgentChat() {
       const removed = await resetHumanExperiment(actors.map((actor) => actor.profileId));
       await say(`Fresh human session. Cleared ${removed.records} Q3 records and ${removed.disclosures} name disclosures.`);
     }
+    await Promise.all(actors.flatMap((actor, index) => actors.slice(index + 1).map(async (friend) => {
+      const result = await call(actor, "PUT", new URL(`/profile/me/friends/${friend.profileId}`, process.env.QUESTION_URL));
+      if (result.status >= 400) throw new Error(`Could not connect ${actor.name} and ${friend.name} (${result.status})`);
+    })));
+    await say(`Participant friend network ready: ${actors.map((actor) => actor.name).join(", ")}.`);
+
+    const participantIds = new Set(Object.keys(realNamesById));
     for (const agent of agents) {
-      const profiles = await list(agent, "/profiles");
-      const labelsById = Object.fromEntries(profiles.map((profile) => [profile.id, profile.name]));
+      const contacts = participantFriends(await list(agent, "/profile/me/friends"), participantIds)
+        .filter((contact) => contact.id !== agent.profileId);
+      if (contacts.length !== actors.length - 1) throw new Error(`${agent.name} cannot reach every current participant through /profile/me/friends`);
       agent.realNamesById = realNamesById;
-      agent.labelsByName = Object.fromEntries(actors.map((actor) => [actor.name, actor === agent ? "you" : labelsById[actor.profileId] ?? "unknown"]));
-      agent.online = actors.map((actor) => agent.labelsByName[actor.name]);
+      agent.shareableIds = new Set(contacts.map((contact) => contact.id));
+      agent.labelsById = Object.fromEntries(actors.filter((actor) => actor !== agent).map((actor, index) => [actor.profileId, `Person ${index + 1}`]));
+      agent.labelsByName = Object.fromEntries(actors.map((actor) => [actor.name, actor === agent ? "you" : agent.labelsById[actor.profileId]]));
+      agent.online = actors.filter((actor) => actor !== agent).map((actor) => agent.labelsById[actor.profileId]);
     }
     const sandbox = await mkdtemp(path.join(os.tmpdir(), "q3-agent-"));
     const log = [];
@@ -270,7 +282,6 @@ export async function runAgentChat() {
     const questions = new Map();
     const names = {};
     for (const agent of actors) {
-      for (const p of await list(agent, "/profiles")) names[p.id] = p.name;
       const visible = await list(agent, "/questions");
       const current = visible.filter((question) => question.isOwner || realNamesById[question.profileId]);
       if ("steps" in agent) agent.seenOthers = current.filter((question) => !question.isOwner).length;

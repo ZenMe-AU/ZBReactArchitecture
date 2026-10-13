@@ -8,6 +8,7 @@ export const LIMITS = { questionWrites: 10, answerWrites: 100 };
 export const MAX_LENGTH = { title: 60, questionText: 200, answer: 500 };
 export const OPTION_LIMITS = { min: 4, max: 10, chars: 40, words: 4 };
 export const BASIC_TOPICS = ["location", "work", "household", "hobby", "formative experience"];
+export const participantFriends = (friends, participantIds) => friends.filter((friend) => participantIds.has(friend.id));
 const VAGUE_ANSWERS = new Set([
   "other", "other asia", "other south africa", "outside south africa",
   "asia", "africa", "europe", "americas", "oceania",
@@ -115,8 +116,8 @@ When answering, make the answer accurately identify you. Select an existing opti
 Generic group labels such as "Asia", "Other", "Design" or "Gaming or tech" are rejected. Use your actual city, profession, household detail, hobby or other specific fact instead.
 
 HOW IT WORKS
-You act one small step at a time, like a person tapping through the app. Each step you receive a JSON snapshot: news since your last step, other profiles, the questions you own or that were shared with you (with their answers), your memory notes, your recent steps with their results, and your remaining budget.
-The snapshot's online list is the complete set of people participating in this run. Profiles may also contain people from earlier runs. Ask, share and answer for online people only; do not wait for or spend steps on offline profiles.
+You act one small step at a time, like a person tapping through the app. Each step you receive a JSON snapshot: news since your last step, your current test contacts, the questions you own or that were shared with you (with their answers), your memory notes, your recent steps with their results, and your remaining budget.
+The snapshot's online list is the complete set of people participating in this run. Your contacts are only current test participants reached through Q3's friend API. Ask, share and answer for online people only; do not wait for or spend steps on offline profiles.
 Reply with:
 - note: one short in-character line (English) about what you think or do right now;
 - action: exactly one Q3 API call, or method NONE to wait for the others;
@@ -128,6 +129,8 @@ The snapshot already holds everything you can see, so do not spend steps on GET 
 You have used Q3 before: questions and answers from earlier sessions, including your own, are still there, and your memory notes are what you remember from them.
 
 Q3 API (give paths only; your own auth token is added for you)
+- GET /profile/me -> your Q3 profile ID
+- GET /profile/me/friends -> people you can share with; use only these profile IDs
 - GET /questions -> questions you own or that were shared with you
 - GET /sharedQuestions -> questions shared with you
 - GET /question/{id}

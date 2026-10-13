@@ -7,7 +7,7 @@ import { describe, expect, test } from "vitest";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { invalidAction, learningCoverage, offlineActionReason, rules } from "./agentChat.config.mjs";
+import { invalidAction, learningCoverage, offlineActionReason, participantFriends, rules } from "./agentChat.config.mjs";
 import { factMemory } from "./agentChat.memory.mjs";
 import { runAgentChat } from "./agentChat.run.mjs";
 import { report } from "./agentChat.report.mjs";
@@ -85,6 +85,11 @@ describe("fact-only memory", () => {
 });
 
 describe("online participant boundary", () => {
+  test("keeps only current participants from the Q3 friend response", () => {
+    const friends = [{ id: "bella", name: "Bella" }, { id: "past-contact", name: "Past contact" }];
+    expect(participantFriends(friends, new Set(["bella", "ian"]))).toEqual([{ id: "bella", name: "Bella" }]);
+  });
+
   test("rejects answers for offline owners and shares to offline profiles", () => {
     const questions = [{ id: "online", owner: "Bella", ownerOnline: true }, { id: "offline", owner: "Ian", ownerOnline: false }, { id: "mine", owner: "you", ownerOnline: true }];
     const onlineIds = new Set(["bella-id", "mike-id"]);

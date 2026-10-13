@@ -128,7 +128,9 @@ const [, frontmatter, persona] = match;
     done: false,
     profileId: "",
     realNamesById: {},
+    labelsById: {},
     labelsByName: {},
+    shareableIds: new Set(),
     online: [],
     seenOthers: 0,
   };
