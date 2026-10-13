@@ -208,12 +208,11 @@ async function loadRunState() {
   if (!response.ok) throw new Error("Could not read the test runner state");
   const state = await response.json();
   const running = state.status === "starting" || state.status === "running";
-  elements.startButton.disabled = running;
-  elements.startButton.textContent = state.status === "starting" ? "Starting services..." : running ? "Running..." : "New test";
-  elements.startButton.title = state.error ?? (state.status === "failed" ? `Test exited with code ${state.exitCode ?? "unknown"}` : "");
-  elements.humanMode.disabled = running;
-  // Preserve the user's pending choice while idle. Only an active run owns this control's value.
-  if (running) elements.humanMode.checked = Boolean(state.humanMode);
+  for (const button of [elements.agentStartButton, elements.humanStartButton]) {
+    button.disabled = running;
+    button.textContent = state.status === "starting" ? "Starting services..." : running ? "Test running..." : button.dataset.idleLabel;
+    button.title = state.error ?? (state.status === "failed" ? `Test exited with code ${state.exitCode ?? "unknown"}` : "");
+  }
   elements.joinHuman.classList.toggle("is-visible", Boolean(state.humanMode && state.joinUrl));
   if (state.joinUrl) elements.joinHuman.href = state.joinUrl;
 }
@@ -250,25 +249,28 @@ async function update() {
 }
 
 if (elements) {
-  elements.startButton.addEventListener("click", async () => {
-    elements.startButton.disabled = true;
-    elements.startButton.textContent = "Starting...";
+  const startTest = async (humanMode: boolean) => {
+    const button = humanMode ? elements.humanStartButton : elements.agentStartButton;
+    button.disabled = true;
+    button.textContent = "Starting...";
     try {
       const response = await fetch("/api/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ humanMode: elements.humanMode.checked }),
+        body: JSON.stringify({ humanMode }),
       });
       const state = await response.json();
       if (!response.ok) throw new Error(state.error ?? "Could not start the test");
-      elements.announcer.textContent = "Agent test started";
+      elements.announcer.textContent = humanMode ? "Human test started" : "Agent test started";
       await loadRunState();
     } catch (error) {
-      elements.startButton.disabled = false;
-      elements.startButton.textContent = "Retry test";
+      button.disabled = false;
+      button.textContent = "Retry test";
       elements.announcer.textContent = error instanceof Error ? error.message : String(error);
     }
-  });
+  };
+  elements.agentStartButton.addEventListener("click", () => startTest(false));
+  elements.humanStartButton.addEventListener("click", () => startTest(true));
   elements.runList.addEventListener("click", (event) => {
     const item = (event.target as Element).closest<HTMLElement>("[data-run]");
     if (!item) return;

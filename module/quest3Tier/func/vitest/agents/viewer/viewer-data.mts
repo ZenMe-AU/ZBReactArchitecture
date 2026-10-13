@@ -19,7 +19,7 @@ export const KINDS = {
 };
 
 export const VIEWS = {
-  network: { title: "Friend network", kinds: [] },
+  network: { title: "People & friends", kinds: [] },
   overview: { title: "Run overview", kinds: [] },
   relationships: { title: "Relationship accuracy", kinds: [] },
   questions: { title: "Questions", kinds: [] },

@@ -96,38 +96,43 @@ export function renderRelationships({ activeAgent, elements, report, renderInspe
   inspectPair(pairs[0], renderInspector);
 }
 
-export function renderNetwork({ activeAgent, elements, network, report, renderInspector }) {
-  const names = Object.keys(network);
-  const selected = activeAgent && network[activeAgent] ? activeAgent : names[0];
-  elements.viewTitle.textContent = "Friend network";
-  elements.filterNote.textContent = selected ? `${selected}'s repository record` : "No participant profiles recorded";
-  if (!selected) return emptyResults(elements, renderInspector);
+type NetworkFriend = { degree: number; id: string; name: string; path: string[] };
 
-  const friends = network[selected] ?? [];
-  const namesById = new Map([[report.profileIds[selected], selected]]);
-  for (const list of Object.values(network)) {
-    for (const friend of list as any[]) namesById.set(friend.id, friend.name);
+export function renderNetwork({ elements, network, report, renderInspector }) {
+  const people = Object.keys(network);
+  elements.viewTitle.textContent = "People & friends";
+  elements.filterNote.textContent = people.length ? "Current names from the Profile repository" : "No participant profiles recorded";
+  if (!people.length) return emptyResults(elements, renderInspector);
+
+  const namesById = new Map(Object.entries(report.profileIds).map(([name, id]) => [id, name]));
+  for (const friends of Object.values(network) as NetworkFriend[][]) {
+    for (const friend of friends) namesById.set(friend.id, friend.name);
   }
-  const groups = [["Direct friends", friends.filter((friend) => friend.degree === 1)], ["Extended network", friends.filter((friend) => friend.degree > 1)]];
-  const rows = groups.flatMap(([title, group]) => {
-    if (!(group as any[]).length) return [];
-    const heading = element("li", "network-heading", title as string);
-    return [heading, ...(group as any[]).map((friend) => {
-      const path = friend.path.map((id) => namesById.get(id) ?? "Unknown").join(" → ");
-      const row = element("li", "network-row");
-      row.append(element("strong", "", friend.name), element("span", "", `${friend.degree} hop${friend.degree === 1 ? "" : "s"} · ${path}`));
-      return row;
-    })];
+  const rows = people.flatMap((person) => {
+    const friends = (network[person] ?? []) as NetworkFriend[];
+    const sections = [["Direct friends", friends.filter((friend) => friend.degree === 1)], ["Through friends", friends.filter((friend) => friend.degree > 1)]] as const;
+    const personRows = [element("li", "network-person", person)];
+    for (const [title, group] of sections) {
+      if (!group.length) continue;
+      personRows.push(element("li", "network-heading", title));
+      personRows.push(...group.map((friend) => {
+        const path = friend.path.map((id) => namesById.get(id) ?? "Unknown").join(" → ");
+        const row = element("li", "network-row");
+        row.append(element("strong", "", friend.name), element("span", "", `${friend.degree} hop${friend.degree === 1 ? "" : "s"} · ${path}`));
+        return row;
+      }));
+    }
+    if (!friends.length) personRows.push(element("li", "network-empty", "No recorded friends within four degrees."));
+    return personRows;
   });
-  if (!rows.length) rows.push(element("li", "empty", "No recorded friends within four degrees."));
   elements.feed.replaceChildren(...rows);
   renderInspector({
     kind: "system",
     agent: "Repository",
     time: "Current",
-    title: `${selected}'s network`,
+    title: "People & friends",
     kindLabel: "Friend rows",
-    text: friends.length ? `${friends.length} people found within four degrees. Names are read from their current Profile records.` : "No friend rows found for this profile.",
+    text: "Each group is read from the participant's friend rows. Names come from the current Profile record, not the saved friend-name snapshot.",
   });
 }
 

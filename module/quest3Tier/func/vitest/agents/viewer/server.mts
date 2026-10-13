@@ -74,8 +74,9 @@ async function getTableRepository() {
 
 async function getRunNetwork(run: string) {
   const { parseReport } = await import("./viewer-data.mjs");
-  const text = await readFile(path.join(RUNS_DIR, run.replace(/\.chat\.md$/, ".md")), "utf8");
+  const text = await readFile(path.join(RUNS_DIR, run.replace(/\.chat\.md$/, ".md")), "utf8").catch(() => "");
   const profileIds = parseReport(text).profileIds;
+  if (!Object.keys(profileIds).length) return {};
   const repository = await getTableRepository();
   const networks = await Promise.all(Object.entries(profileIds).map(async ([name, profileId]) => [name, await repository.listFriends(profileId)]));
   return Object.fromEntries(networks);
@@ -206,7 +207,6 @@ async function handle(request, response) {
     if (!isRunName(run) || !runs.some((item) => item.name === run)) return sendJson(response, 404, { error: "Run not found" });
     return sendJson(response, 200, { networks: await getRunNetwork(run) });
   }
-
   const staticFile = STATIC_FILES[url.pathname];
   if (!staticFile) return sendJson(response, 404, { error: "Not found" });
   const directory = staticFile[0] === "index.html" ? SOURCE_VIEWER_DIR : VIEWER_DIR;
@@ -289,7 +289,7 @@ if (process.argv.includes("--check")) {
     })
   );
   server.listen(PORT, HOST, () => {
-    console.log(`Q3 Agent Town: http://${HOST}:${PORT}`);
+    console.log(`Q3 Agent Lab: http://${HOST}:${PORT}`);
     console.log("Waiting for New test in the viewer. Test output will stream to this terminal.");
   });
 }
