@@ -424,6 +424,20 @@ async function createProfile(externalId) {
   }
 }
 
+async function ensureProfile(externalId, _details = {}) {
+  const existing = await findProfileByExternalId(externalId);
+  if (existing) return { profile: existing, created: false };
+  return { profile: await createProfile(externalId), created: true };
+}
+
+async function updatePreferredName(externalId, preferredName) {
+  const [updated] = await models.Profile.update({ preferred_name: preferredName }, { where: { external_id: externalId } });
+  if (updated === 0) throw new Error("Profile not found");
+  const profile = await findProfileByExternalId(externalId);
+  if (!profile) throw new Error("Profile not found");
+  return profile;
+}
+
 async function getSharedQuestionListByProfileId(profileId) {
   try {
     return await models.Question.findAll({
@@ -463,6 +477,8 @@ const repository = {
   getSharedQuestionListByProfileId,
   findProfileByExternalId,
   createProfile,
+  ensureProfile,
+  updatePreferredName,
   getById,  
   patchById,
   getCombinationListByUser,
