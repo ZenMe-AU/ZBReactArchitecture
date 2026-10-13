@@ -11,7 +11,7 @@ import container from "../di/diContainer.mjs";
 import { ensureProfile } from "../service/profile.mjs";
 
 const requestHandler =
-  (fn, { schemas = [], customParams = {}, requireAuth = true } = {}) =>
+  (fn, { params = null, schemas = [], customParams = {}, requireAuth = true } = {}) =>
   async (request, context) => {
     // await startup();
     const tracer = trace.getTracer("httpRequestTracer");
@@ -70,8 +70,8 @@ const requestHandler =
           request.clientParams = {};
         }
       }
-      // todo: exit if equal 0
-      if (schemas.length > 0) await validate(request, schemas);
+      if (params) validate(request.params, params, "params");
+      for (const schema of schemas) request.clientParams = validate(request.clientParams, schema, "body");
       request.customParams = customParams;
       console.log("✨✨correlationId:", request.correlationId);
       console.log("💁functionName:", functionName);
@@ -131,17 +131,15 @@ const requestHandler =
     }
   };
 
-const validate = async (request, schemas) => {
-  for (const schema of schemas) {
-    const result = schema.safeParse(request.clientParams);
-    if (!result.success) {
-      const issue = result.error.issues[0];
-      const err = new Error(`Validation failed: ${issue.path.join(".") || "body"}: ${issue.message}`);
-      err.status = 400;
-      throw err;
-    }
-    request.clientParams = result.data;
+const validate = (value, schema, location) => {
+  const result = schema.safeParse(value);
+  if (!result.success) {
+    const issue = result.error.issues[0];
+    const err = new Error(`Validation failed: ${[location, ...issue.path].join(".")}: ${issue.message}`);
+    err.status = 400;
+    throw err;
   }
+  return result.data;
 };
 
 const buildSpanContext = (traceId) => {

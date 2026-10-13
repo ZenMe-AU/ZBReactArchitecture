@@ -5,45 +5,36 @@
 
 import "./swagger/openapi.mjs";
 import { app } from "@azure/functions";
-import { z } from "zod";
 import { requestHandler } from "./handler/handlerWrapper.mjs";
 import questionHandler from "./handler/questionHandler.mjs";
 import answerHandler from "./handler/answerHandler.mjs";
 import followupHandler from "./handler/followupHandler.mjs";
-import { errorResponseSchema, successResponse } from "./schema/commonSchema.mjs";
-import { sendFollowUpCmdSchema } from "./schema/sendFollowUpCmdSchema.mjs";
-import { shareQuestionCmdSchema } from "./schema/shareQuestionCmdSchema.mjs";
-import {
-  answerBodySchema,
-  answerIdParams,
-  answerListItemSchema,
-  answerRecordSchema,
-  eventParams,
-  questionBodySchema,
-  questionIdParams,
-  questionPatchSchema,
-  questionRecordSchema,
-  shareQuestionBodySchema,
-} from "./schema/questionSchema.mjs";
+import * as CreateQuestion from "./schema/CreateQuestion.mjs";
+import * as GetQuestionById from "./schema/GetQuestionById.mjs";
+import * as UpdateQuestionById from "./schema/UpdateQuestionById.mjs";
+import * as PatchQuestionById from "./schema/PatchQuestionById.mjs";
+import * as AddAnswer from "./schema/AddAnswer.mjs";
+import * as GetAnswerById from "./schema/GetAnswerById.mjs";
+import * as GetQuestionListByUser from "./schema/GetQuestionListByUser.mjs";
+import * as GetAnswerListByQuestionId from "./schema/GetAnswerListByQuestionId.mjs";
+import * as ShareQuestion from "./schema/ShareQuestion.mjs";
+import * as GetSharedQuestionList from "./schema/GetSharedQuestionList.mjs";
+import * as SendFollowUpCmd from "./schema/SendFollowUpCmd.mjs";
+import * as ShareQuestionCmd from "./schema/ShareQuestionCmd.mjs";
+import * as getEventByCorrelationId from "./schema/getEventByCorrelationId.mjs";
 
 //TODO: Review schema usage and ensure all endpoints have a correct schema assigned which is also in sync with the relevant function and relevant swagger doc.
-
-const errors = [401, 500].map((httpCode) => ({ httpCode, schema: errorResponseSchema }));
-const bodyErrors = [{ httpCode: 400, schema: errorResponseSchema }, ...errors];
-const idResponse = successResponse(z.object({ id: z.uuid() }));
-const trueResponse = successResponse(z.literal(true));
-const correlationHeader = z.object({
-  "X-Correlation-Id": z.string().optional().meta({ description: "Look up the command result with GET /getEventByCorrelationId" }),
-});
 
 app.openAPIPath("CreateQuestion", "Create a question", {
   route: "question",
   methods: ["POST"],
   authLevel: "anonymous",
   tags: ["Question"],
-  body: questionBodySchema,
-  responses: [{ httpCode: 200, schema: idResponse }, ...bodyErrors],
-  handler: requestHandler(questionHandler.CreateQuestion),
+  body: CreateQuestion.body,
+  responses: CreateQuestion.responses,
+  handler: requestHandler(questionHandler.CreateQuestion, {
+    schemas: [CreateQuestion.body],
+  }),
 });
 
 app.openAPIPath("GetQuestionById", "Get a question by ID", {
@@ -51,9 +42,11 @@ app.openAPIPath("GetQuestionById", "Get a question by ID", {
   methods: ["GET"],
   authLevel: "anonymous",
   tags: ["Question"],
-  params: questionIdParams,
-  responses: [{ httpCode: 200, schema: successResponse(z.object({ detail: questionRecordSchema.nullable() })) }, ...errors],
-  handler: requestHandler(questionHandler.GetQuestionById),
+  params: GetQuestionById.params,
+  responses: GetQuestionById.responses,
+  handler: requestHandler(questionHandler.GetQuestionById, {
+    params: GetQuestionById.params,
+  }),
 });
 
 app.openAPIPath("UpdateQuestionById", "Update a question", {
@@ -61,10 +54,13 @@ app.openAPIPath("UpdateQuestionById", "Update a question", {
   methods: ["PUT"],
   authLevel: "anonymous",
   tags: ["Question"],
-  params: questionIdParams,
-  body: questionBodySchema,
-  responses: [{ httpCode: 200, schema: idResponse }, ...bodyErrors],
-  handler: requestHandler(questionHandler.UpdateQuestionById),
+  params: UpdateQuestionById.params,
+  body: UpdateQuestionById.body,
+  responses: UpdateQuestionById.responses,
+  handler: requestHandler(questionHandler.UpdateQuestionById, {
+    params: UpdateQuestionById.params,
+    schemas: [UpdateQuestionById.body],
+  }),
 });
 
 app.openAPIPath("PatchQuestionById", "Update a question using JSON Patch", {
@@ -73,11 +69,14 @@ app.openAPIPath("PatchQuestionById", "Update a question using JSON Patch", {
   authLevel: "anonymous",
   tags: ["Question"],
   request: {
-    params: questionIdParams,
-    body: { content: { "application/json-patch+json": { schema: questionPatchSchema } } },
+    params: PatchQuestionById.params,
+    body: { content: { "application/json-patch+json": { schema: PatchQuestionById.body } } },
   },
-  responses: [{ httpCode: 200, schema: idResponse }, ...bodyErrors],
-  handler: requestHandler(questionHandler.PatchQuestionById),
+  responses: PatchQuestionById.responses,
+  handler: requestHandler(questionHandler.PatchQuestionById, {
+    params: PatchQuestionById.params,
+    schemas: [PatchQuestionById.body],
+  }),
 });
 
 app.openAPIPath("AddAnswer", "Answer a question", {
@@ -85,10 +84,13 @@ app.openAPIPath("AddAnswer", "Answer a question", {
   methods: ["POST"],
   authLevel: "anonymous",
   tags: ["Answer"],
-  params: questionIdParams,
-  body: answerBodySchema,
-  responses: [{ httpCode: 200, schema: idResponse }, ...bodyErrors],
-  handler: requestHandler(answerHandler.AddAnswer),
+  params: AddAnswer.params,
+  body: AddAnswer.body,
+  responses: AddAnswer.responses,
+  handler: requestHandler(answerHandler.AddAnswer, {
+    params: AddAnswer.params,
+    schemas: [AddAnswer.body],
+  }),
 });
 
 app.openAPIPath("GetAnswerById", "Get an answer by ID", {
@@ -96,9 +98,11 @@ app.openAPIPath("GetAnswerById", "Get an answer by ID", {
   methods: ["GET"],
   authLevel: "anonymous",
   tags: ["Answer"],
-  params: answerIdParams,
-  responses: [{ httpCode: 200, schema: successResponse(z.object({ detail: answerRecordSchema.nullable() })) }, ...errors],
-  handler: requestHandler(answerHandler.GetAnswerById),
+  params: GetAnswerById.params,
+  responses: GetAnswerById.responses,
+  handler: requestHandler(answerHandler.GetAnswerById, {
+    params: GetAnswerById.params,
+  }),
 });
 
 app.openAPIPath("GetQuestionListByUser", "List questions created by or shared with the caller", {
@@ -106,7 +110,7 @@ app.openAPIPath("GetQuestionListByUser", "List questions created by or shared wi
   methods: ["GET"],
   authLevel: "anonymous",
   tags: ["Question"],
-  responses: [{ httpCode: 200, schema: successResponse(z.object({ list: z.array(questionRecordSchema) })) }, ...errors],
+  responses: GetQuestionListByUser.responses,
   handler: requestHandler(questionHandler.GetQuestionListByUser),
 });
 
@@ -115,9 +119,11 @@ app.openAPIPath("GetAnswerListByQuestionId", "List answers to a question", {
   methods: ["GET"],
   authLevel: "anonymous",
   tags: ["Answer"],
-  params: questionIdParams,
-  responses: [{ httpCode: 200, schema: successResponse(z.object({ list: z.array(answerListItemSchema) })) }, ...errors],
-  handler: requestHandler(answerHandler.GetAnswerListByQuestionId),
+  params: GetAnswerListByQuestionId.params,
+  responses: GetAnswerListByQuestionId.responses,
+  handler: requestHandler(answerHandler.GetAnswerListByQuestionId, {
+    params: GetAnswerListByQuestionId.params,
+  }),
 });
 
 app.openAPIPath("ShareQuestion", "Share a question", {
@@ -125,10 +131,13 @@ app.openAPIPath("ShareQuestion", "Share a question", {
   methods: ["POST"],
   authLevel: "anonymous",
   tags: ["Share"],
-  params: questionIdParams,
-  body: shareQuestionBodySchema,
-  responses: [{ httpCode: 200, schema: trueResponse }, ...bodyErrors],
-  handler: requestHandler(followupHandler.ShareQuestionById),
+  params: ShareQuestion.params,
+  body: ShareQuestion.body,
+  responses: ShareQuestion.responses,
+  handler: requestHandler(followupHandler.ShareQuestionById, {
+    params: ShareQuestion.params,
+    schemas: [ShareQuestion.body],
+  }),
 });
 
 app.openAPIPath("GetSharedQuestionList", "List questions shared with the caller", {
@@ -136,7 +145,7 @@ app.openAPIPath("GetSharedQuestionList", "List questions shared with the caller"
   methods: ["GET"],
   authLevel: "anonymous",
   tags: ["Share"],
-  responses: [{ httpCode: 200, schema: successResponse(z.object({ list: z.array(questionRecordSchema) })) }, ...errors],
+  responses: GetSharedQuestionList.responses,
   handler: requestHandler(followupHandler.GetSharedQuestionListByUser),
 });
 
@@ -145,11 +154,11 @@ app.openAPIPath("SendFollowUpCmd", "Send a follow-up question to matching respon
   methods: ["POST"],
   authLevel: "anonymous",
   tags: ["Command"],
-  headers: correlationHeader,
-  body: sendFollowUpCmdSchema,
-  responses: [{ httpCode: 200, schema: trueResponse }, ...bodyErrors],
+  headers: SendFollowUpCmd.headers,
+  body: SendFollowUpCmd.body,
+  responses: SendFollowUpCmd.responses,
   handler: requestHandler(followupHandler.SendFollowUpCmd, {
-    schemas: [sendFollowUpCmdSchema],
+    schemas: [SendFollowUpCmd.body],
   }),
 });
 
@@ -158,11 +167,11 @@ app.openAPIPath("ShareQuestionCmd", "Share a question with profiles", {
   methods: ["POST"],
   authLevel: "anonymous",
   tags: ["Command"],
-  headers: correlationHeader,
-  body: shareQuestionCmdSchema,
-  responses: [{ httpCode: 200, schema: trueResponse }, ...bodyErrors],
+  headers: ShareQuestionCmd.headers,
+  body: ShareQuestionCmd.body,
+  responses: ShareQuestionCmd.responses,
   handler: requestHandler(followupHandler.ShareQuestionCmd, {
-    schemas: [shareQuestionCmdSchema],
+    schemas: [ShareQuestionCmd.body],
   }),
 });
 
@@ -171,7 +180,9 @@ app.openAPIPath("getEventByCorrelationId", "Count events recorded for a command"
   methods: ["GET"],
   authLevel: "anonymous",
   tags: ["Command"],
-  params: eventParams,
-  responses: [{ httpCode: 200, schema: successResponse(z.object({ qty: z.int() })) }, ...errors],
-  handler: requestHandler(followupHandler.GetEventByCorrelationId),
+  params: getEventByCorrelationId.params,
+  responses: getEventByCorrelationId.responses,
+  handler: requestHandler(followupHandler.GetEventByCorrelationId, {
+    params: getEventByCorrelationId.params,
+  }),
 });

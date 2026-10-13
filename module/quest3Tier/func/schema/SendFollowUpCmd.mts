@@ -4,15 +4,21 @@
  */
 
 import { z } from "zod";
-import { uuidSchema } from "./commonSchema.mjs";
+import { apiResponses } from "./commonSchema.mjs";
 
-export const sendFollowUpCmdSchema = z
+const uuid = z.uuid().refine((value) => value[14] === "4" || value[14] === "5", "Invalid UUID version");
+
+export const headers = z.object({
+  "X-Correlation-Id": z.string().optional().meta({ description: "Look up the command result with GET /getEventByCorrelationId" }),
+});
+
+export const body = z
   .strictObject({
-    newQuestionId: uuidSchema,
+    newQuestionId: uuid,
     question: z
       .array(
         z.strictObject({
-          questionId: uuidSchema,
+          questionId: uuid,
           option: z.array(z.string().min(1)).min(1),
         })
       )
@@ -21,3 +27,5 @@ export const sendFollowUpCmdSchema = z
     isSave: z.boolean().optional(),
   })
   .meta({ id: "SendFollowUpCmd" });
+
+export const responses = apiResponses([200, 400, 401, 500], z.literal(true));

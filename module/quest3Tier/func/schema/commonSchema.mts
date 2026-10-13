@@ -5,10 +5,10 @@
 
 import { z } from "zod";
 
-const uuidSchema = z.uuid().refine((value) => value[14] === "4" || value[14] === "5", "Invalid UUID version");
+const errorResponse = z.object({ success: z.literal(false), message: z.string() }).meta({ id: "ErrorResponse" });
 
-const successResponse = (returnSchema: z.ZodType) => z.object({ success: z.literal(true), return: returnSchema });
-
-const errorResponseSchema = z.object({ success: z.literal(false), message: z.string() }).meta({ id: "ErrorResponse" });
-
-export { uuidSchema, successResponse, errorResponseSchema };
+export const apiResponses = (httpCodes: number[], returnSchema: z.ZodType) =>
+  httpCodes.map((httpCode) => ({
+    httpCode,
+    schema: httpCode < 400 ? z.object({ success: z.literal(true), return: returnSchema }) : errorResponse,
+  }));
