@@ -6,7 +6,7 @@
 import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import * as authLocal from "../../service/authLocal.mjs";
+import * as authDev from "../../service/authDev.mjs";
 import { NAMES } from "./agentChat.config.mjs";
 
 export const AGENTS_DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -107,7 +107,7 @@ const [, frontmatter, persona] = match;
     name,
     persona,
     model: process.env.AGENT_MODEL ?? meta.model,
-    token: authLocal.generateToken({
+    token: authDev.generateToken({
       oid: meta.oid,
       name,
       preferred_username: meta.email,
@@ -140,7 +140,7 @@ export function loadHuman() {
   return {
     name: HUMAN_NAME,
     profileId: "",
-    token: authLocal.generateToken({
+    token: authDev.generateToken({
       oid: HUMAN_OID,
       name: HUMAN_NAME,
       preferred_username: "josh@q3.local",

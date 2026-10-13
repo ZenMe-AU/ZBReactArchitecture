@@ -156,7 +156,7 @@ async function act(agent, { method, path: p, body }, state) {
     : kind && agent.used[kind] >= LIMITS[kind]
       ? `limit:${kind}`
       : offlineActionReason(url?.pathname ?? "", body, questions, agent.shareableIds) ?? invalidAction(method, url?.pathname ?? "", body);
-  if (reason) return { method, path: p, body, status: "REJECTED", reason, response: undefined };
+  if (reason) return { method, path: p, body, status: "INVALID", reason, response: undefined };
   if (kind) agent.used[kind]++;
   return { method, path: url.pathname, body, ...(await call(agent, method, url, body)) };
 }
@@ -165,7 +165,7 @@ async function act(agent, { method, path: p, body }, state) {
 function narrate(r, titles, names) {
   const [, root, id, sub] = r.path.split("/");
   const q = `"${clip(titles[id] ?? id, 80)}"`;
-  if (r.status === "REJECTED") return `tried ${r.method} ${r.path}, rejected (${r.reason})`;
+  if (r.status === "INVALID") return `tried ${r.method} ${r.path}, invalid (${r.reason})`;
   if (r.status >= 400) return `${r.method} ${r.path} failed (${r.status})`;
   if (r.method === "GET") return `looked at ${r.path}`;
   if (root === "question" && !id) return `asked ${r.response?.return?.id ? `[q:${r.response.return.id}] ` : ""}"${clip(r.body?.title, 80)}": ${clip(r.body?.questionText)} [${(r.body?.option ?? []).join(", ")}]`;

@@ -12,7 +12,7 @@ import { factMemory } from "./agentChat.memory.mjs";
 import { runAgentChat } from "./agentChat.run.mjs";
 import { report } from "./agentChat.report.mjs";
 import { HUMAN_NAME, HUMAN_OID, loadHuman, writeMemory } from "./agentChat.setup.mjs";
-import * as authLocal from "../../service/authLocal.mjs";
+import * as authDev from "../../service/authDev.mjs";
 import { belongsToExperiment } from "./agentChat.reset.mjs";
 
 describe("agent option rules", () => {
@@ -129,9 +129,9 @@ describe("human participant", () => {
     expect(output).toContain("- Josh: Brisbane");
   });
 
-  test("uses a fixed local identity with an identity-blind token", () => {
+  test("uses a fixed local identity with an identity-blind token", async () => {
     const human = loadHuman();
-    const claims = authLocal.decode(human.token);
+    const claims = await authDev.decode(human.token);
     expect(human.name).toBe(HUMAN_NAME);
     expect(claims).toMatchObject({ oid: HUMAN_OID, name: HUMAN_NAME, experiment: "human" });
   });

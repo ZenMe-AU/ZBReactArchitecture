@@ -52,7 +52,7 @@ export function renderOverview({ activeAgent, elements, report, renderInspector 
   const health = element("li", "score-row");
   health.append(
     element("div", "score-top", "Run health"),
-    element("p", "", `${report.answerSubmissions} answer submissions covered ${report.answered} unique agent-question pairs; ${report.answerChanges} were changes. ${report.rejected} rejected requests, ${report.apiErrors} API errors, ${report.llmErrors} LLM errors. ${report.reshares} questions were reused or re-shared.`)
+    element("p", "", `${report.answerSubmissions} answer submissions covered ${report.answered} unique agent-question pairs; ${report.answerChanges} were changes. ${report.invalid} invalid requests, ${report.apiErrors} API errors, ${report.llmErrors} LLM errors. ${report.reshares} questions were reused or re-shared.`)
   );
   const gap = element(
     "li",

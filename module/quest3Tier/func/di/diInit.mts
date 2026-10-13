@@ -6,17 +6,20 @@
 import { register, startup } from "./diRegistry.mjs";
 import container from "./diContainer.mjs";
 import * as authEntraID from "../service/authEntraID.mjs";
-import * as authLocal from "../service/authLocal.mjs";
+import * as authDev from "../service/authDev.mjs";
 
 register("authProvider", async () => {
   const authProviders = {
-    authEntraID,
-    authLocal,
+    Dev: authDev,
+    Prod: authEntraID,
   };
-  const authProviderName = process.env.AUTH_PROVIDER ?? "authEntraID";
+  const authProviderName = process.env.AUTH_PROVIDER ?? "Prod";
   const authProviderModule = authProviders[authProviderName];
+  if (!authProviderModule) {
+    throw new Error(`Invalid AUTH_PROVIDER: ${authProviderName}. Expected Dev or Prod.`);
+  }
   container.register("authProvider", authProviderModule);
-  console.log("🔐Auth provider initialized :", authProviders);
+  console.log("Auth provider initialized:", authProviderName);
 });
 
   // Register only one of sql or table repository into the DI container. This is intentionally not made configurable to avoid confusion.

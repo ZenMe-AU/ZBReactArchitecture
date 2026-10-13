@@ -167,7 +167,7 @@ export function parseReport(text) {
     seen,
     answerSubmissions: total(7),
     answerChanges: detailedMetrics ? total(8) : Math.max(0, total(7) - answered),
-    rejected: total(detailedMetrics ? 9 : 8),
+    invalid: total(detailedMetrics ? 9 : 8),
     apiErrors: total(detailedMetrics ? 10 : 9),
     llmErrors: total(detailedMetrics ? 11 : 10),
     questionList: questions,

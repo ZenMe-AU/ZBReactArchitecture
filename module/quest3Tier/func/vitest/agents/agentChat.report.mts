@@ -59,7 +59,7 @@ export function report(participants, agents, log, questions, names, judgement, p
       `${answered.size}/${agent.seenOthers}`,
       answerSubmissions,
       Math.max(0, answerSubmissions - answered.size),
-      mine.filter((event) => event.status === "REJECTED").length,
+      mine.filter((event) => event.status === "INVALID").length,
       mine.filter((event) => event.status >= 400).length,
       log.filter((event) => event.agent === agent.name && event.error).length,
     ];
@@ -75,7 +75,7 @@ export function report(participants, agents, log, questions, names, judgement, p
     ].join("\n"),
     "## Metrics",
     [
-      "| Agent | Steps | New questions | Edits | Shares | Re-shares | Unique answered / visible | Answer submissions | Answer changes | Rejected | API errors | LLM errors |",
+      "| Agent | Steps | New questions | Edits | Shares | Re-shares | Unique answered / visible | Answer submissions | Answer changes | Invalid | API errors | LLM errors |",
       "|---|---|---|---|---|---|---|---|---|---|---|---|",
       ...agents.map((agent) => `| ${agent.name} | ${metrics(agent).join(" | ")} |`),
     ].join("\n"),

@@ -5,14 +5,14 @@
 
 import { randomUUID } from "crypto";
 import * as authEntraID from "../../service/authEntraID.mjs";
-import * as authLocal from "../../service/authLocal.mjs";
+import * as authDev from "../../service/authDev.mjs";
 
 const authProviders = {
-  authEntraID,
-  authLocal,
+  Dev: authDev,
+  Prod: authEntraID,
 };
 
-const loadAuthProvider = authProviders[process.env.AUTH_PROVIDER ?? "authEntraID"];
+const loadAuthProvider = authProviders[process.env.AUTH_PROVIDER ?? "Prod"];
 
 const authProviderModule = loadAuthProvider;
 
