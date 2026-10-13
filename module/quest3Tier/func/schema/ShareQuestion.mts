@@ -10,4 +10,4 @@ export const params = z.object({ id: z.uuid() });
 
 export const body = z.object({ receiverIds: z.array(z.uuid()).optional() }).meta({ id: "ShareQuestionBody" });
 
-export const responses = apiResponses([200, 400, 401, 500], z.literal(true));
+export const responses = apiResponses([200, 400, 401, 403, 500], z.literal(true));

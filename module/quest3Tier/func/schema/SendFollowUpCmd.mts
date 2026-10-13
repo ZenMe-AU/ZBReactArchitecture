@@ -28,4 +28,4 @@ export const body = z
   })
   .meta({ id: "SendFollowUpCmd" });
 
-export const responses = apiResponses([200, 400, 401, 500], z.literal(true));
+export const responses = apiResponses([200, 400, 401, 403, 500], z.literal(true));

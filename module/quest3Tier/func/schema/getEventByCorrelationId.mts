@@ -9,4 +9,4 @@ import { apiResponses } from "./commonSchema.mjs";
 
 export const params = z.object({ name: z.enum(cmdName), correlationId: z.string() });
 
-export const responses = apiResponses([200, 401, 500], z.object({ qty: z.int() }));
+export const responses = apiResponses([200, 401, 403, 500], z.object({ qty: z.int() }));

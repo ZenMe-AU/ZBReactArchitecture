@@ -20,4 +20,4 @@ const answer = z
 
 export const params = z.object({ id: z.uuid(), answerId: z.uuid() });
 
-export const responses = apiResponses([200, 401, 500], z.object({ detail: answer.nullable() }));
+export const responses = apiResponses([200, 401, 403, 500], z.object({ detail: answer.nullable() }));

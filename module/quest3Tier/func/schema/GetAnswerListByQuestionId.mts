@@ -21,4 +21,4 @@ const answer = z
 
 export const params = z.object({ id: z.uuid() });
 
-export const responses = apiResponses([200, 401, 500], z.object({ list: z.array(answer) }));
+export const responses = apiResponses([200, 401, 403, 500], z.object({ list: z.array(answer) }));

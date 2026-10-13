@@ -17,4 +17,4 @@ const question = z
   })
   .meta({ id: "Question" });
 
-export const responses = apiResponses([200, 401, 500], z.object({ list: z.array(question) }));
+export const responses = apiResponses([200, 401, 403, 500], z.object({ list: z.array(question) }));

@@ -19,4 +19,4 @@ const question = z
 
 export const params = z.object({ id: z.uuid() });
 
-export const responses = apiResponses([200, 401, 500], z.object({ detail: question.nullable() }));
+export const responses = apiResponses([200, 401, 403, 500], z.object({ detail: question.nullable() }));
