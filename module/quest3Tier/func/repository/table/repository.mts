@@ -149,12 +149,12 @@ const repository = {
 
   async addFriend(profileId: string, friendId: string) {
     const friend = await addTableFriend(profileId, friendId);
-    return { id: friend.internalId, name: friend.name, degree: friend.degree };
+    return { id: friend.internalId, name: friend.name, degree: friend.degree, path: friend.path };
   },
 
   async listFriends(profileId: string) {
     const friends = await listTableFriends(profileId);
-    return friends.map((friend) => ({ id: friend.internalId, name: friend.name, degree: friend.degree }));
+    return friends.map((friend) => ({ id: friend.internalId, name: friend.name, degree: friend.degree, path: friend.path }));
   },
 
   async getById(questionId: string) {

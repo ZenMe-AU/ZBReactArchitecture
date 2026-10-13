@@ -83,7 +83,9 @@ describe("Test Azure Table repository", () => {
     const josh = await tableRepository.ensureProfile(`friend-josh-${randomUUID()}`, { name: "Josh Kim" });
     const bella = await tableRepository.ensureProfile(`friend-bella-${randomUUID()}`, { name: "Bella Jones" });
     try {
-      await expect(tableRepository.addFriend(josh.profile.id, bella.profile.id)).resolves.toEqual({ id: bella.profile.id, name: "Bella Jones", degree: 1 });
+      await expect(tableRepository.addFriend(josh.profile.id, bella.profile.id)).resolves.toEqual({ id: bella.profile.id, name: "Bella Jones", degree: 1, path: [josh.profile.id, bella.profile.id] });
+      await tableRepository.updatePreferredName(bella.profile.externalId, "B");
+      await expect(tableRepository.listFriends(josh.profile.id)).resolves.toEqual([{ id: bella.profile.id, name: "B", degree: 1, path: [josh.profile.id, bella.profile.id] }]);
       await expect(profiles.getEntity(josh.profile.id, `friend:${bella.profile.id}`)).resolves.toMatchObject({
         friend_internal_id: bella.profile.id,
         friend_name: "Bella Jones",
@@ -112,7 +114,12 @@ describe("Test Azure Table repository", () => {
         await tableRepository.addFriend(people[index].profile.id, people[index + 1].profile.id);
       }
       await expect(tableRepository.listFriends(people[0].profile.id)).resolves.toEqual(
-        people.slice(1).map((person, index) => ({ id: person.profile.id, name: ["Bella", "Eric", "Ian", "Mike"][index], degree: index + 1 }))
+        people.slice(1).map((person, index) => ({
+          id: person.profile.id,
+          name: ["Bella", "Eric", "Ian", "Mike"][index],
+          degree: index + 1,
+          path: people.slice(0, index + 2).map((item) => item.profile.id),
+        }))
       );
     } finally {
       for (const owner of people) {

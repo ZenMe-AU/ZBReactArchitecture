@@ -33,7 +33,7 @@ export async function judge(agents, questions, names, log, sandbox) {
   return llm(JUDGE_PROMPT, input, model, JUDGE_SCHEMA, sandbox, { effort: "medium", thinking: true });
 }
 
-export function report(participants, agents, log, questions, names, judgement) {
+export function report(participants, agents, log, questions, names, judgement, profileIds = {}) {
   const cell = (value) => String(value).replaceAll("|", "\\|").replaceAll("\n", " ");
   const short = (value) => (value === undefined ? "" : cell(JSON.stringify(value).slice(0, 200)));
   const ok = (event) => typeof event.status === "number" && event.status < 300;
@@ -67,6 +67,12 @@ export function report(participants, agents, log, questions, names, judgement) {
   return [
     `# Agent chat run ${new Date().toISOString()}`,
     `Participants: ${participants.join(", ")}. Model: ${agents.map((agent) => `${agent.name}=${agent.model}`).join(", ")}.`,
+    "## Participant profiles",
+    [
+      "| Participant | Profile ID |",
+      "|---|---|",
+      ...participants.map((name) => `| ${name} | ${profileIds[name] ?? ""} |`),
+    ].join("\n"),
     "## Metrics",
     [
       "| Agent | Steps | New questions | Edits | Shares | Re-shares | Unique answered / visible | Answer submissions | Answer changes | Rejected | API errors | LLM errors |",

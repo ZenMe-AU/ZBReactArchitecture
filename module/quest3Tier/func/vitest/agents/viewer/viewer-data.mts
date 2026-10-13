@@ -19,6 +19,7 @@ export const KINDS = {
 };
 
 export const VIEWS = {
+  network: { title: "Friend network", kinds: [] },
   overview: { title: "Run overview", kinds: [] },
   relationships: { title: "Relationship accuracy", kinds: [] },
   questions: { title: "Questions", kinds: [] },
@@ -99,6 +100,7 @@ const tableRows = (text, heading, nextHeading) => {
 };
 
 export function parseReport(text) {
+  const profileIds = Object.fromEntries(tableRows(text, "## Participant profiles", "## Metrics").filter(([name, id]) => name !== "Participant" && id).map(([name, id]) => [name, id]));
   const metrics = tableRows(text, "## Metrics", "## Judge");
   const json = (value, fallback) => {
     try {
@@ -154,6 +156,7 @@ export function parseReport(text) {
     })
     .filter(Boolean);
   return {
+    profileIds,
     pairs,
     leaks,
     average: pairs.length ? pairs.reduce((sum, pair) => sum + pair.accuracy, 0) / pairs.length : null,

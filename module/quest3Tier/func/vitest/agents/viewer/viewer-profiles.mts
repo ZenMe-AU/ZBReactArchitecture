@@ -9,7 +9,7 @@ const DETAILS: Record<string, string> = { Mike: "Korea", Bella: "Australia", Ian
 
 export const profileKind = (name: string) => (AGENTS.includes(name) ? "Agent" : "Human");
 
-export function renderProfileCards({ activeProfile, container, events, onSelect, participants, questions: reportQuestions }) {
+export function renderProfileCards({ activeProfile, container, events, network, onSelect, participants, questions: reportQuestions }) {
   const names = [...new Set([...AGENTS, ...participants])];
   const latestProfile = [...events].reverse().find((event) => event.agent)?.agent;
   const cards = names.map((name) => {
@@ -22,6 +22,7 @@ export function renderProfileCards({ activeProfile, container, events, onSelect,
     const answers = isHuman
       ? reportQuestions.flatMap((question) => question.answers).filter((answer) => answer.author === name).length
       : profileEvents.filter((event) => event.kind === "answer").length;
+    const directFriends = (network[name] ?? []).filter((friend) => friend.degree === 1).length;
     const card = document.createElement("button");
     card.type = "button";
     card.className = `agent-card ${isHuman ? "slot-human" : `slot-${name.toLowerCase()}`}`;
@@ -35,7 +36,7 @@ export function renderProfileCards({ activeProfile, container, events, onSelect,
     card.querySelector("strong").textContent = name;
     card.querySelector(".agent-title span").textContent = `${DETAILS[name] ? `${DETAILS[name]} · ` : ""}${profileKind(name)}`;
     card.querySelector(".agent-state").textContent = participants.has(name) ? (latest ? KINDS[latest.kind][1] : "Ready") : "Offline";
-    card.querySelector(".agent-budget").textContent = `Q ${questions}  A ${answers}`;
+    card.querySelector(".agent-budget").textContent = `Q ${questions}  A ${answers}  F ${directFriends}`;
     card.addEventListener("click", () => onSelect(name));
     return card;
   });

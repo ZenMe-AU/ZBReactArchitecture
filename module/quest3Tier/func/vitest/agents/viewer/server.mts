@@ -37,6 +37,7 @@ const STATIC_FILES = {
 } as const;
 type RunState = { status: string; humanMode?: boolean; startedAt?: string; finishedAt?: string; joinUrl?: string; error?: string; exitCode?: number };
 const state: { runProcess?: ChildProcess; azuriteProcess?: ChildProcess; uiProcess?: ChildProcess; run: RunState } = { run: { status: "idle" } };
+const tableRepositoryState: { value?: Promise<{ listFriends(profileId: string): Promise<unknown[]> }> } = {};
 
 const spawnPnpm = (args: string[], cwd: string, env = CHILD_ENV) => spawn(
   process.platform === "win32" ? process.env.ComSpec ?? "cmd.exe" : "pnpm",
@@ -54,6 +55,30 @@ async function listRuns() {
       .map(async (entry) => ({ name: entry.name, mtime: (await stat(path.join(RUNS_DIR, entry.name))).mtimeMs }))
   );
   return runs.sort((a, b) => b.mtime - a.mtime);
+}
+
+async function getTableRepository() {
+  if (!tableRepositoryState.value) {
+    tableRepositoryState.value = (async () => {
+      const settings = JSON.parse(await readFile(path.join(FUNC_DIR, "local.settings.json"), "utf8")).Values ?? {};
+      const { initRepository } = await import("../../../repository/table/repository.mjs");
+      return initRepository({
+        AzureWebJobsStorage: process.env.AzureWebJobsStorage ?? settings.AzureWebJobsStorage,
+        AzureWebJobsStorage__tableServiceUri: process.env.AzureWebJobsStorage__tableServiceUri ?? settings.AzureWebJobsStorage__tableServiceUri,
+        AzureWebJobsStorage__clientId: process.env.AzureWebJobsStorage__clientId ?? settings.AzureWebJobsStorage__clientId,
+      });
+    })();
+  }
+  return tableRepositoryState.value;
+}
+
+async function getRunNetwork(run: string) {
+  const { parseReport } = await import("./viewer-data.mjs");
+  const text = await readFile(path.join(RUNS_DIR, run.replace(/\.chat\.md$/, ".md")), "utf8");
+  const profileIds = parseReport(text).profileIds;
+  const repository = await getTableRepository();
+  const networks = await Promise.all(Object.entries(profileIds).map(async ([name, profileId]) => [name, await repository.listFriends(profileId)]));
+  return Object.fromEntries(networks);
 }
 
 function send(response, status, contentType, body) {
@@ -175,6 +200,12 @@ async function handle(request, response) {
     const text = await readFile(path.join(RUNS_DIR, run.replace(/\.chat\.md$/, ".md")), "utf8").catch(() => "");
     return sendJson(response, 200, { text });
   }
+  if (url.pathname === "/api/network") {
+    const run = url.searchParams.get("run");
+    const runs = await listRuns();
+    if (!isRunName(run) || !runs.some((item) => item.name === run)) return sendJson(response, 404, { error: "Run not found" });
+    return sendJson(response, 200, { networks: await getRunNetwork(run) });
+  }
 
   const staticFile = STATIC_FILES[url.pathname];
   if (!staticFile) return sendJson(response, 404, { error: "Not found" });
@@ -240,6 +271,7 @@ async function selfCheck() {
     '## Metrics\n\n| Agent | Steps | New questions | Edits | Shares | Re-shares | Answered / others\' seen |\n|---|---|---|---|---|---|---|\n\n## Judge\n\n| Observer | Subject | Accuracy /10 | Hidden links found | Correct facts | Incorrect facts | Missing facts | Stored memory | Note |\n|---|---|---|---|---|---|---|---|---|\n| Mike | Eric | 6 | Game | ["Taipei"] | ["Age 40"] | ["Work"] | "### Facts\\n- Taipei" | Mixed |\n\n### Leaks\n\n- none\n\n## Findings'
   ).pairs[0];
   assert.deepEqual({ available: details.detailsAvailable, correct: details.correctFacts, wrong: details.incorrectFacts, memory: details.memory }, { available: true, correct: ["Taipei"], wrong: ["Age 40"], memory: "### Facts\n- Taipei" });
+  assert.deepEqual(parseReport("## Participant profiles\n\n| Participant | Profile ID |\n|---|---|\n| Mike | mike-id |\n\n## Metrics\n\n| Agent | Steps | New questions | Edits | Shares | Re-shares | Answered / others' seen |\n|---|---|---|---|---|---|---|\n\n## Judge\n\n### Leaks\n\n- none").profileIds, { Mike: "mike-id" });
   const answer = parseReport("## Questions (final)\n\n### Where? (id q-1; owner Mike)\n\nWhere do you live?\nOptions: Brisbane\n- Bella: Brisbane\n\n## Call log").questionList[0].answers[0];
   assert.deepEqual(answer, { author: "Bella", text: "Brisbane" });
   assert.equal(parseLine("not an event"), null);

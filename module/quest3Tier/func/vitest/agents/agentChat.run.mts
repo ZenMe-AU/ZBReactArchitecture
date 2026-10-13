@@ -284,7 +284,10 @@ export async function runAgentChat() {
     const judgement = await judge(agents, [...questions.values()], names, log, sandbox).catch((err) => ({ error: err.message }));
 
     const reportPath = path.join(RUNS_DIR, `${runName}.md`);
-    await writeFile(reportPath, report(participants, agents, log, [...questions.values()], names, judgement));
+    await writeFile(
+      reportPath,
+      report(participants, agents, log, [...questions.values()], names, judgement, Object.fromEntries(actors.map((actor) => [actor.name, actor.profileId])))
+    );
     await say(`Report: ${reportPath}`);
 
     for (const agent of agents) {

@@ -22,6 +22,7 @@ export interface FriendRecord {
   id: string;
   name: string;
   degree: number;
+  path: string[];
 }
 
 export interface QuestionRecord {

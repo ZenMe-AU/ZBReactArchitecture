@@ -96,6 +96,41 @@ export function renderRelationships({ activeAgent, elements, report, renderInspe
   inspectPair(pairs[0], renderInspector);
 }
 
+export function renderNetwork({ activeAgent, elements, network, report, renderInspector }) {
+  const names = Object.keys(network);
+  const selected = activeAgent && network[activeAgent] ? activeAgent : names[0];
+  elements.viewTitle.textContent = "Friend network";
+  elements.filterNote.textContent = selected ? `${selected}'s repository record` : "No participant profiles recorded";
+  if (!selected) return emptyResults(elements, renderInspector);
+
+  const friends = network[selected] ?? [];
+  const namesById = new Map([[report.profileIds[selected], selected]]);
+  for (const list of Object.values(network)) {
+    for (const friend of list as any[]) namesById.set(friend.id, friend.name);
+  }
+  const groups = [["Direct friends", friends.filter((friend) => friend.degree === 1)], ["Extended network", friends.filter((friend) => friend.degree > 1)]];
+  const rows = groups.flatMap(([title, group]) => {
+    if (!(group as any[]).length) return [];
+    const heading = element("li", "network-heading", title as string);
+    return [heading, ...(group as any[]).map((friend) => {
+      const path = friend.path.map((id) => namesById.get(id) ?? "Unknown").join(" → ");
+      const row = element("li", "network-row");
+      row.append(element("strong", "", friend.name), element("span", "", `${friend.degree} hop${friend.degree === 1 ? "" : "s"} · ${path}`));
+      return row;
+    })];
+  });
+  if (!rows.length) rows.push(element("li", "empty", "No recorded friends within four degrees."));
+  elements.feed.replaceChildren(...rows);
+  renderInspector({
+    kind: "system",
+    agent: "Repository",
+    time: "Current",
+    title: `${selected}'s network`,
+    kindLabel: "Friend rows",
+    text: friends.length ? `${friends.length} people found within four degrees. Names are read from their current Profile records.` : "No friend rows found for this profile.",
+  });
+}
+
 function inspectPair(pair, renderInspector) {
   const facts = (items) => items.length ? items.map((item) => `- ${item}`).join("\n") : "- None recorded";
   const factCheck = pair.detailsAvailable

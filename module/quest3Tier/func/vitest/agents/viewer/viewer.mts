@@ -7,7 +7,7 @@ import { AGENTS, classifyFinding, KINDS, parseLog, parseReport, VIEWS } from "./
 import { elements } from "./viewer-elements.mjs";
 import { renderProfileCards } from "./viewer-profiles.mjs";
 import { renderQuestions } from "./viewer-questions.mjs";
-import { renderOverview, renderRelationships } from "./viewer-results.mjs";
+import { renderNetwork, renderOverview, renderRelationships } from "./viewer-results.mjs";
 
 const state = {
   selectedRun: "",
@@ -19,6 +19,7 @@ const state = {
   activeAgent: "",
   currentEvents: [],
   currentReport: parseReport(""),
+  network: {},
   selectedEventId: null,
 };
 
@@ -58,13 +59,14 @@ function renderInspector(event) {
   elements.eventText.textContent = event?.text ?? "Choose an event from the activity view.";
 }
 
-const resultContext = () => ({ activeAgent: state.activeAgent, elements, report: state.currentReport, renderInspector });
+const resultContext = () => ({ activeAgent: state.activeAgent, elements, network: state.network, report: state.currentReport, renderInspector });
 
 function renderProfiles(participants) {
   renderProfileCards({
     activeProfile: state.activeAgent,
     container: elements.profileCards,
     events: state.currentEvents,
+    network: state.network,
     participants,
     questions: state.currentReport.questionList,
     onSelect: (name) => {
@@ -78,6 +80,7 @@ function renderProfiles(participants) {
 
 function renderFeed() {
   const view = VIEWS[state.activeView];
+  if (state.activeView === "network") return renderNetwork(resultContext());
   if (state.activeView === "overview") return renderOverview(resultContext());
   if (state.activeView === "relationships") return renderRelationships(resultContext());
   if (state.activeView === "questions")
@@ -217,17 +220,20 @@ async function loadRunState() {
 
 async function refreshLog() {
   if (!state.selectedRun) return render([], 0);
-  const [response, reportResponse] = await Promise.all([
+  const [response, reportResponse, networkResponse] = await Promise.all([
     fetch(`/api/log?run=${encodeURIComponent(state.selectedRun)}`, { cache: "no-store" }),
     fetch(`/api/report?run=${encodeURIComponent(state.selectedRun)}`, { cache: "no-store" }),
+    fetch(`/api/network?run=${encodeURIComponent(state.selectedRun)}`, { cache: "no-store" }),
   ]);
   if (!response.ok) throw new Error("Could not load the selected run");
   const data = await response.json();
   const report = reportResponse.ok ? await reportResponse.json() : { text: "" };
-  const signature = `${data.run}:${data.mtime}:${data.text.length}:${report.text.length}`;
+  const network = networkResponse.ok ? await networkResponse.json() : { networks: {} };
+  const signature = `${data.run}:${data.mtime}:${data.text.length}:${report.text.length}:${JSON.stringify(network.networks)}`;
   if (signature === state.renderedSignature) return;
   state.renderedSignature = signature;
   state.currentReport = parseReport(report.text);
+  state.network = network.networks;
   render(parseLog(data.text), data.mtime);
 }
 

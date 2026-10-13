@@ -28,6 +28,7 @@
     @media(max-width:900px){.app{grid-template-columns:1fr}.runs{padding:10px 12px;border-right:0;border-bottom:1px solid var(--line)}.runs h2{display:none}.run-list{flex-direction:row;overflow-x:auto}.run-item{min-width:170px}.workspace{grid-template-columns:1fr}.workbench{border-right:0;border-bottom:1px solid var(--line)}.inspector{min-height:220px}}
     @media(max-width:650px){.topbar{height:auto;min-height:64px;padding:8px 14px;flex-wrap:wrap}.brand{display:none}.top-actions{min-width:0;flex-wrap:wrap;justify-content:flex-end;gap:6px}.human-toggle{font-size:11px}.new-test,.join-human{padding:0 10px}.main{padding:16px 14px 28px}.run-status{display:none}.metrics,.result-grid,.relationship-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.metric{border-bottom:1px solid var(--line)}.metric:nth-child(2n){border-right:0}.metric:last-child{grid-column:1/-1;border-bottom:0}.agents{grid-template-columns:repeat(2,minmax(0,1fr))}.tabs{padding-left:8px}.feed-head{align-items:flex-start;flex-direction:column;gap:5px}.relationship-choice{align-items:flex-start;flex-direction:column;gap:7px}}
     @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}}
+    .network-heading{margin-top:5px;padding:7px 2px 2px;color:var(--muted);font-size:10px;font-weight:750;letter-spacing:.07em;text-transform:uppercase}.network-row{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:12px;border:1px solid var(--line);border-radius:7px;background:var(--soft)}.network-row strong{font-size:13px}.network-row span{max-width:68%;color:var(--muted);font:500 10px/1.45 ui-monospace,monospace;text-align:right}
   </style>
 </head>
 <body>
@@ -62,6 +63,7 @@
         <div class="workbench">
           <div id="view-tabs" class="tabs" role="group" aria-label="Run views">
             <button class="tab" type="button" data-view="overview" aria-pressed="true">Overview</button>
+            <button class="tab" type="button" data-view="network" aria-pressed="false">Network</button>
             <button class="tab" type="button" data-view="relationships" aria-pressed="false">Relationships</button>
             <button class="tab" type="button" data-view="questions" aria-pressed="false">Questions</button>
             <button class="tab" type="button" data-view="findings" aria-pressed="false">Findings</button>

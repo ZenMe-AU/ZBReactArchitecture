@@ -61,6 +61,7 @@ export interface FriendRecord {
   internalId: string;
   name: string;
   degree: number;
+  path: string[];
 }
 
 interface FriendEntity {
@@ -272,7 +273,7 @@ export async function addFriend(profileId: string, friendId: string): Promise<Fr
   const friendName = friendEntity.preferred_name || friendEntity.name || "";
   // shortcut: Azure Table cannot atomically write two partitions; retrying this idempotent call repairs a partial pair.
   await Promise.all([upsertFriend(profile, friend, friendName), upsertFriend(friend, profile, profileName)]);
-  return { internalId: friend.internalId, name: friendName, degree: 1 };
+  return { internalId: friend.internalId, name: friendName, degree: 1, path: [profileId, friend.internalId] };
 }
 
 async function listDirectFriends(profileId: string): Promise<FriendEntity[]> {
@@ -289,20 +290,27 @@ async function listDirectFriends(profileId: string): Promise<FriendEntity[]> {
 
 export async function listFriends(profileId: string): Promise<FriendRecord[]> {
   const visited = new Set([profileId]);
-  let frontier = [profileId];
   const friends: FriendRecord[] = [];
 
-  for (let degree = 1; degree <= 4 && frontier.length > 0; degree += 1) {
-    const rows = await Promise.all(frontier.map(listDirectFriends));
-    const next: string[] = [];
-    for (const friend of rows.flat()) {
-      if (visited.has(friend.friend_internal_id)) continue;
-      visited.add(friend.friend_internal_id);
-      next.push(friend.friend_internal_id);
-      friends.push({ internalId: friend.friend_internal_id, name: friend.friend_name, degree });
+  const visit = async (frontier: { internalId: string; path: string[] }[], degree: number): Promise<void> => {
+    if (degree > 4 || !frontier.length) return;
+    const rows = await Promise.all(frontier.map(async (item) => ({ item, friends: await listDirectFriends(item.internalId) })));
+    const next: { internalId: string; path: string[] }[] = [];
+    for (const { item, friends: directFriends } of rows) {
+      for (const friend of directFriends) {
+        if (visited.has(friend.friend_internal_id)) continue;
+        visited.add(friend.friend_internal_id);
+        const path = [...item.path, friend.friend_internal_id];
+        const current = await getProfileEntityByInternalId(friend.friend_internal_id);
+        const name = current?.preferred_name || current?.name || friend.friend_name || anonymousName(friend.friend_internal_id);
+        next.push({ internalId: friend.friend_internal_id, path });
+        friends.push({ internalId: friend.friend_internal_id, name, degree, path });
+      }
     }
-    frontier = next;
-  }
+    await visit(next, degree + 1);
+  };
+
+  await visit([{ internalId: profileId, path: [profileId] }], 1);
   return friends;
 }
 
