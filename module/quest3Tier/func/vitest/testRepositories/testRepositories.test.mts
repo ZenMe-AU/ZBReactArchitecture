@@ -83,7 +83,7 @@ describe("Test Azure Table repository", () => {
     const josh = await tableRepository.ensureProfile(`friend-josh-${randomUUID()}`, { name: "Josh Kim" });
     const bella = await tableRepository.ensureProfile(`friend-bella-${randomUUID()}`, { name: "Bella Jones" });
     try {
-      await expect(tableRepository.addFriend(josh.profile.id, bella.profile.id)).resolves.toEqual({ id: bella.profile.id, name: "Bella Jones" });
+      await expect(tableRepository.addFriend(josh.profile.id, bella.profile.id)).resolves.toEqual({ id: bella.profile.id, name: "Bella Jones", degree: 1 });
       await expect(profiles.getEntity(josh.profile.id, `friend:${bella.profile.id}`)).resolves.toMatchObject({
         friend_internal_id: bella.profile.id,
         friend_name: "Bella Jones",
@@ -100,6 +100,28 @@ describe("Test Azure Table repository", () => {
       await profiles.deleteEntity(bella.profile.externalId, "profile");
       await internalIndex.deleteEntity(josh.profile.id, "profile");
       await internalIndex.deleteEntity(bella.profile.id, "profile");
+    }
+  });
+
+  it("finds unique friends through four relationship levels", async () => {
+    const profiles = await getTableClient("Profiles");
+    const internalIndex = await getTableClient("ProfileByInternalId");
+    const people = await Promise.all(["Josh", "Bella", "Eric", "Ian", "Mike"].map((name) => tableRepository.ensureProfile(`network-${name}-${randomUUID()}`, { name })));
+    try {
+      for (let index = 0; index < people.length - 1; index += 1) {
+        await tableRepository.addFriend(people[index].profile.id, people[index + 1].profile.id);
+      }
+      await expect(tableRepository.listFriends(people[0].profile.id)).resolves.toEqual(
+        people.slice(1).map((person, index) => ({ id: person.profile.id, name: ["Bella", "Eric", "Ian", "Mike"][index], degree: index + 1 }))
+      );
+    } finally {
+      for (const owner of people) {
+        for (const friend of people) {
+          if (owner !== friend) await profiles.deleteEntity(owner.profile.id, `friend:${friend.profile.id}`).catch(() => undefined);
+        }
+        await profiles.deleteEntity(owner.profile.externalId, "profile");
+        await internalIndex.deleteEntity(owner.profile.id, "profile");
+      }
     }
   });
 

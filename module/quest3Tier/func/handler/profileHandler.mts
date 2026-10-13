@@ -21,8 +21,13 @@ async function AddMyFriend(request, context) {
   return { return: friend };
 }
 
+async function GetMyFriends(request, context) {
+  return { return: { list: await getRepository().listFriends(request.userData.profileId) } };
+}
+
 export default {
   GetMyProfile,
   UpdateMyProfile,
   AddMyFriend,
+  GetMyFriends,
 };

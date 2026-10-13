@@ -7,26 +7,26 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { Helmet } from "react-helmet";
 import { shareQuestion } from "../api/question";
-import { getProfileList } from "@zenmechat/shared-ui/api/profile";
-import type { Profile } from "../types/interfaces";
+import { getShareFriends, type ShareFriend } from "../api/profile";
 import { Container, Typography, Box, Button, IconButton, Alert, TextField } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Autocomplete from "@mui/material/Autocomplete";
 import { logEvent, setOperationId } from "@zenmechat/shared-ui/monitor/telemetry";
 
+const relationshipLabels = ["", "Friend", "Friend's friend", "3rd-degree connection", "4th-degree connection"];
+
 function ShareQuestion() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [friends, setFriends] = useState<Profile[]>([]);
-  const [selectedReceivers, setSelectedReceivers] = useState<Profile[]>([]);
+  const [friends, setFriends] = useState<ShareFriend[]>([]);
+  const [selectedReceivers, setSelectedReceivers] = useState<ShareFriend[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchFriends = async () => {
       try {
-        const profiles = await getProfileList(); // Fetch profiles using API
-        setFriends(profiles);
+        setFriends(await getShareFriends());
         if (!id) throw new Error("Question ID is undefined");
       } catch (err) {
         console.error("Error fetching profile list:", err);
@@ -107,7 +107,7 @@ function ShareQuestion() {
             multiple
             id="share-receivers"
             options={friends}
-            getOptionLabel={(option) => `${option.id} - ${option.name}`}
+            getOptionLabel={(option) => `${option.name} · ${relationshipLabels[option.degree]}`}
             onChange={(_, newValue) => {
               setSelectedReceivers(newValue);
             }}

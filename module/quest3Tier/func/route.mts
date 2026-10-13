@@ -107,6 +107,13 @@ app.http("AddMyFriend", {
   authLevel: "anonymous",
   handler: requestHandler(profileHandler.AddMyFriend),
 });
+
+app.http("GetMyFriends", {
+  route: "profile/me/friends",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: requestHandler(profileHandler.GetMyFriends),
+});
 app.http("SendFollowUpCmd", {
   route: "sendFollowUpCmd",
   methods: ["POST"],

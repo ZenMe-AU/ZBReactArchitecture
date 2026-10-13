@@ -7,7 +7,7 @@ import { randomUUID } from "crypto";
 import { odata } from "@azure/data-tables";
 import { createQuestion, getQuestionById, getQuestionListByProfileId, getSharedQuestionListByProfileId, patchQuestionById, shareQuestion, updateQuestionById } from "./questionRepository.mjs";
 import { addAnswer, getAnswerById, getAnswerListByQuestionId } from "./answerRepository.mjs";
-import { addFriend as addTableFriend, createProfile, ensureProfile as ensureTableProfile, findProfileByExternalId, updatePreferredName as updateTablePreferredName } from "./profileRepository.mjs";
+import { addFriend as addTableFriend, createProfile, ensureProfile as ensureTableProfile, findProfileByExternalId, listFriends as listTableFriends, updatePreferredName as updateTablePreferredName } from "./profileRepository.mjs";
 import { configureTableStorage, getTableClient, type TableStorageSettings } from "./init.mjs";
 import { QUESTION_DATA_TABLE } from "./keys.mjs";
 import type { QuestRepository } from "../contracts.mjs";
@@ -149,7 +149,12 @@ const repository = {
 
   async addFriend(profileId: string, friendId: string) {
     const friend = await addTableFriend(profileId, friendId);
-    return { id: friend.internalId, name: friend.name };
+    return { id: friend.internalId, name: friend.name, degree: friend.degree };
+  },
+
+  async listFriends(profileId: string) {
+    const friends = await listTableFriends(profileId);
+    return friends.map((friend) => ({ id: friend.internalId, name: friend.name, degree: friend.degree }));
   },
 
   async getById(questionId: string) {
