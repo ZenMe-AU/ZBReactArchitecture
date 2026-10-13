@@ -3,17 +3,32 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import { describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { invalidAction, learningCoverage, offlineActionReason, participantFriends, rules } from "./agentChat.config.mjs";
 import { factMemory } from "./agentChat.memory.mjs";
-import { runAgentChat } from "./agentChat.run.mjs";
+import { list, runAgentChat } from "./agentChat.run.mjs";
 import { report } from "./agentChat.report.mjs";
 import { HUMAN_NAME, HUMAN_OID, loadHuman, writeMemory } from "./agentChat.setup.mjs";
 import * as authDev from "../../service/authDev.mjs";
 import { belongsToExperiment } from "./agentChat.reset.mjs";
+
+const originalFetch = globalThis.fetch;
+
+afterEach(() => {
+  globalThis.fetch = originalFetch;
+});
+
+describe("Agent API lists", () => {
+  test("surfaces a failed list request instead of treating it as empty", async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({ message: "Invalid or expired token" }), { status: 401 }));
+
+    await expect(list({ token: "agent-token" }, "/questions"))
+      .rejects.toThrow("GET /questions failed (401): Invalid or expired token");
+  });
+});
 
 describe("agent option rules", () => {
   test("prioritises reusable factual questions", () => {

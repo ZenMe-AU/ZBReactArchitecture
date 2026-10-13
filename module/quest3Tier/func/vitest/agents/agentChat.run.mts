@@ -31,6 +31,7 @@ const MAX_STEPS = Number(process.env.AGENT_STEPS ?? 30);
 const RECENT_STEPS = 8;
 const POLL_MS = 5 * 1000;
 const IDLE_POLLS = Number(process.env.HUMAN_RUN === "1" ? 60 : 3);
+const QUESTION_URL = process.env.QUESTION_URL ?? "http://127.0.0.1:7073";
 async function call(agent, method, url, body?) {
   // A JSON Content-Type with an empty body makes the handler wrapper 500, so only send it with a body.
   const hasBody = body !== undefined && method !== "GET";
@@ -46,7 +47,16 @@ async function call(agent, method, url, body?) {
     return { status: res.status, response: text };
   }
 }
-const list = async (agent, p) => (await call(agent, "GET", new URL(p, process.env.QUESTION_URL))).response?.return?.list ?? [];
+export async function list(agent, p) {
+  const result = await call(agent, "GET", new URL(p, QUESTION_URL));
+  if (result.status >= 400) {
+    const detail = typeof result.response === "string"
+      ? result.response
+      : result.response?.message ?? JSON.stringify(result.response);
+    throw new Error(`GET ${p} failed (${result.status}): ${detail}`);
+  }
+  return result.response?.return?.list ?? [];
+}
 const clip = (s, n = 200) => (String(s).length > n ? `${String(s).slice(0, n)}...` : String(s));
 
 async function snapshot(agent) {
@@ -147,7 +157,7 @@ async function reflect(agent, others, say) {
 }
 
 async function act(agent, { method, path: p, body }, state) {
-  const baseUrl = new URL(process.env.QUESTION_URL);
+  const baseUrl = new URL(QUESTION_URL);
   const url = URL.canParse(p, baseUrl) ? new URL(p, baseUrl) : null;
   const kind = url && writeKind(method, url.pathname);
   const questions = state.questions.map((question) => ({ ...question, ownerOnline: question.owner === "you" || agent.online.includes(question.owner) }));
@@ -243,7 +253,7 @@ export async function runAgentChat() {
     const human = humanMode ? loadHuman() : null;
     const actors = human ? [...agents, human] : agents;
     for (const actor of actors) {
-      const me = await call(actor, "GET", new URL("/profile/me", process.env.QUESTION_URL));
+      const me = await call(actor, "GET", new URL("/profile/me", QUESTION_URL));
       if (me.status >= 400) throw new Error(`Could not register ${actor.name} (${me.status})`);
       actor.profileId = me.response.return.id;
     }
@@ -253,7 +263,7 @@ export async function runAgentChat() {
       await say(`Fresh human session. Cleared ${removed.records} Q3 records and ${removed.disclosures} name disclosures.`);
     }
     await Promise.all(actors.flatMap((actor, index) => actors.slice(index + 1).map(async (friend) => {
-      const result = await call(actor, "PUT", new URL(`/profile/me/friends/${friend.profileId}`, process.env.QUESTION_URL));
+      const result = await call(actor, "PUT", new URL(`/profile/me/friends/${friend.profileId}`, QUESTION_URL));
       if (result.status >= 400) throw new Error(`Could not connect ${actor.name} and ${friend.name} (${result.status})`);
     })));
     await say(`Participant friend network ready: ${actors.map((actor) => actor.name).join(", ")}.`);
