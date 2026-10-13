@@ -17,9 +17,12 @@ export function belongsToExperiment(row, profileIds, questionIds) {
   );
 }
 
-export async function resetHumanExperiment(profileIds) {
-  if (process.env.HUMAN_RUN !== "1" || !String(process.env.AzureWebJobsStorage).includes("UseDevelopmentStorage=true")) {
-    throw new Error("Human experiment reset is allowed only for local Azurite runs");
+export const isLocalAzurite = (connectionString = process.env.AzureWebJobsStorage) =>
+  String(connectionString).includes("UseDevelopmentStorage=true");
+
+export async function resetExperiment(profileIds) {
+  if (!isLocalAzurite()) {
+    throw new Error("Experiment reset is allowed only for local Azurite runs");
   }
 
   const ids = new Set(profileIds);
