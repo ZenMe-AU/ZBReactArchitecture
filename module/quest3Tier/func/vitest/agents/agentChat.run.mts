@@ -24,7 +24,7 @@ import { invalidAction, learningCoverage, LIMITS, offlineActionReason, participa
 import { assertLlmReady, llm } from "./agentChat.llm.mjs";
 import { factMemory } from "./agentChat.memory.mjs";
 import { judge, report } from "./agentChat.report.mjs";
-import { resetHumanExperiment } from "./agentChat.reset.mjs";
+import { resetExperiment } from "./agentChat.reset.mjs";
 import { HUMAN_NAME, loadAgent, loadHuman, LOCK_PATH, pickParticipants, RUNS_DIR, takeLock, writeMemory } from "./agentChat.setup.mjs";
 
 const MAX_STEPS = Number(process.env.AGENT_STEPS ?? 30);
@@ -258,10 +258,8 @@ export async function runAgentChat() {
       actor.profileId = me.response.return.id;
     }
     const realNamesById = Object.fromEntries(actors.map((actor) => [actor.profileId, actor.name]));
-    if (humanMode) {
-      const removed = await resetHumanExperiment(actors.map((actor) => actor.profileId));
-      await say(`Fresh human session. Cleared ${removed.records} Q3 records and ${removed.disclosures} name disclosures.`);
-    }
+    const removed = await resetExperiment(actors.map((actor) => actor.profileId));
+    await say(`Fresh test. Cleared ${removed.records} Q3 records and ${removed.disclosures} name disclosures.`);
     await Promise.all(actors.flatMap((actor, index) => actors.slice(index + 1).map(async (friend) => {
       const result = await call(actor, "PUT", new URL(`/profile/me/friends/${friend.profileId}`, QUESTION_URL));
       if (result.status >= 400) throw new Error(`Could not connect ${actor.name} and ${friend.name} (${result.status})`);

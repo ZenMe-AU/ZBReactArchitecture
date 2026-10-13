@@ -13,7 +13,7 @@ import { list, runAgentChat } from "./agentChat.run.mjs";
 import { report } from "./agentChat.report.mjs";
 import { HUMAN_NAME, HUMAN_OID, loadHuman, writeMemory } from "./agentChat.setup.mjs";
 import * as authDev from "../../service/authDev.mjs";
-import { belongsToExperiment } from "./agentChat.reset.mjs";
+import { belongsToExperiment, isLocalAzurite } from "./agentChat.reset.mjs";
 
 const originalFetch = globalThis.fetch;
 
@@ -169,6 +169,11 @@ describe("human participant", () => {
     expect(belongsToExperiment({ profileId: "other", questionId: "q-current" }, profiles, questions)).toBe(true);
     expect(belongsToExperiment({ senderProfileId: "other", receiverProfileId: "josh" }, profiles, questions)).toBe(true);
     expect(belongsToExperiment({ profileId: "other", questionId: "q-old" }, profiles, questions)).toBe(false);
+  });
+
+  test("permits reset only against local Azurite", () => {
+    expect(isLocalAzurite("UseDevelopmentStorage=true")).toBe(true);
+    expect(isLocalAzurite("DefaultEndpointsProtocol=https;AccountName=production")).toBe(false);
   });
 });
 
