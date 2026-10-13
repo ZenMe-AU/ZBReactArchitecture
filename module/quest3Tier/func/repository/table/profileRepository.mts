@@ -3,18 +3,16 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-// Explicit Profile repository functions backed by Azure Table Storage,
-// replacing repository/model/Profile.mjs. Azure Table only indexes
-// PartitionKey+RowKey, so external-id lookup needs its own index table
-// (ProfileByExternalId) alongside the canonical Profiles table -- the
-// denormalization Microsoft's table design guide recommends in place of a
-// secondary index. See: https://learn.microsoft.com/en-us/azure/storage/tables/table-storage-design-guidelines
+// The authenticated external id is the canonical Profile partition key. Q3
+// relations use internal ids, so a compact internal-id index keeps them stable.
 
 import { createHash, randomUUID } from "crypto";
 import { odata } from "@azure/data-tables";
 import { getTableClient, isNotFoundError } from "./init.mjs";
 
 export const PROFILES_TABLE = "Profiles";
+export const PROFILE_BY_INTERNAL_ID_TABLE = "ProfileByInternalId";
+// Legacy read-only index. Keep it while existing profiles migrate on sign-in.
 export const PROFILE_BY_EXTERNAL_ID_TABLE = "ProfileByExternalId";
 export const PROFILE_DISCLOSURES_TABLE = "ProfileDisclosures";
 const PROFILE_ROW_KEY = "profile";
@@ -25,25 +23,26 @@ export interface ProfileRecord {
   createdAt: string;
 }
 
-interface ProfileByExternalIdEntity {
+interface ProfileIndexEntity {
   partitionKey: string;
   rowKey: string;
   internal_id?: string;
   external_id?: string;
-  // Read compatibility for entities created earlier on this branch.
+  // Read compatibility for entities created before the TypeScript migration.
   internalId?: string;
   externalId?: string;
   createdAt: string;
 }
 
-// Profiles rows also carry the display name and email from the sign-in token, for the share list.
-interface ProfileEntity extends ProfileByExternalIdEntity {
+interface ProfileEntity extends ProfileIndexEntity {
   name?: string;
+  preferred_name?: string;
   email?: string;
 }
 
 export interface ProfileDetails {
   name?: string;
+  preferredName?: string;
   email?: string;
 }
 
@@ -52,98 +51,164 @@ export interface ProfileListItem {
   name: string;
   isNameShared: boolean;
 }
-//TODO: Change this to a pariwise id.
-function anonymousName(internalId: string): string {
-  const code = createHash("sha256").update(internalId).digest("hex").slice(0, 4).toUpperCase();
-  return `Person ${code}`;
-}
 
 export interface EnsureProfileResult {
   profile: ProfileRecord;
   created: boolean;
 }
 
+function anonymousName(internalId: string): string {
+  const code = createHash("sha256").update(internalId).digest("hex").slice(0, 4).toUpperCase();
+  return `Person ${code}`;
+}
+
 function isConflictError(err: unknown): boolean {
   return typeof err === "object" && err !== null && (err as { statusCode?: number }).statusCode === 409;
 }
 
-function toProfileRecord(entity: ProfileByExternalIdEntity): ProfileRecord {
+function toProfileRecord(entity: ProfileIndexEntity): ProfileRecord {
   const internalId = entity.internal_id ?? entity.internalId;
   const externalId = entity.external_id ?? entity.externalId;
   if (!internalId || !externalId) throw new Error("Invalid profile entity");
   return { internalId, externalId, createdAt: entity.createdAt };
 }
 
-// Merge upsert: creates the Profiles row if it is missing and refreshes the name/email from the token.
-// It replaces an insert that failed with 409 on every request for existing users, so the call count is unchanged.
-// A missing claim is left out of the write, so it never clears a stored value.
-async function upsertProfile(profile: ProfileRecord, details: ProfileDetails): Promise<void> {
-  const profilesClient = await getTableClient(PROFILES_TABLE);
-  const entity: ProfileEntity = {
-    partitionKey: profile.internalId,
+function toProfileEntity(profile: ProfileRecord, details: ProfileDetails): ProfileEntity {
+  return {
+    partitionKey: profile.externalId,
     rowKey: PROFILE_ROW_KEY,
     internal_id: profile.internalId,
     external_id: profile.externalId,
     createdAt: profile.createdAt,
+    ...(details.name && { name: details.name }),
+    preferred_name: details.preferredName ?? "",
+    ...(details.email && { email: details.email }),
   };
-  if (details.name) entity.name = details.name;
-  if (details.email) entity.email = details.email;
-  await profilesClient.upsertEntity(entity, "Merge");
+}
+
+function detailsFrom(entity: ProfileEntity | null): ProfileDetails {
+  return {
+    ...(entity?.name && { name: entity.name }),
+    preferredName: entity?.preferred_name ?? "",
+    ...(entity?.email && { email: entity.email }),
+  };
+}
+
+async function getProfileEntity(partitionKey: string): Promise<ProfileEntity | null> {
+  const client = await getTableClient(PROFILES_TABLE);
+  try {
+    return await client.getEntity<ProfileEntity>(partitionKey, PROFILE_ROW_KEY);
+  } catch (err) {
+    if (isNotFoundError(err)) return null;
+    throw err;
+  }
+}
+
+// Merge leaves a missing token claim untouched instead of clearing it.
+async function upsertProfile(profile: ProfileRecord, details: ProfileDetails): Promise<void> {
+  const client = await getTableClient(PROFILES_TABLE);
+  await client.upsertEntity(toProfileEntity(profile, details), "Merge");
+}
+
+async function upsertInternalIdIndex(profile: ProfileRecord): Promise<void> {
+  const client = await getTableClient(PROFILE_BY_INTERNAL_ID_TABLE);
+  await client.upsertEntity<ProfileIndexEntity>(
+    {
+      partitionKey: profile.internalId,
+      rowKey: PROFILE_ROW_KEY,
+      internal_id: profile.internalId,
+      external_id: profile.externalId,
+      createdAt: profile.createdAt,
+    },
+    "Merge"
+  );
+}
+
+async function findLegacyProfileByExternalId(externalId: string): Promise<ProfileRecord | null> {
+  const client = await getTableClient(PROFILE_BY_EXTERNAL_ID_TABLE);
+  try {
+    return toProfileRecord(await client.getEntity<ProfileIndexEntity>(externalId, PROFILE_ROW_KEY));
+  } catch (err) {
+    if (isNotFoundError(err)) return null;
+    throw err;
+  }
+}
+
+async function migrateLegacyProfile(profile: ProfileRecord): Promise<ProfileRecord> {
+  const legacy = await getProfileEntity(profile.internalId);
+  await upsertProfile(profile, detailsFrom(legacy));
+  await upsertInternalIdIndex(profile);
+  return profile;
 }
 
 export async function ensureProfile(externalId: string, details: ProfileDetails = {}): Promise<EnsureProfileResult> {
-  const byExternalIdClient = await getTableClient(PROFILE_BY_EXTERNAL_ID_TABLE);
-
-  const candidate: ProfileByExternalIdEntity = {
-    partitionKey: externalId,
-    rowKey: PROFILE_ROW_KEY,
-    internal_id: randomUUID(),
-    external_id: externalId,
-    createdAt: new Date().toISOString(),
-  };
-
-  try {
-    // createEntity is insert-only: it fails if the row already exists, so
-    // this is also the concurrency-safe "claim externalId" step -- the
-    // first caller to land here wins the internalId for this profile.
-    await byExternalIdClient.createEntity(candidate);
-  } catch (err) {
-    if (!isConflictError(err)) throw err;
-    const existing = await byExternalIdClient.getEntity<ProfileByExternalIdEntity>(externalId, PROFILE_ROW_KEY);
+  const existing = await getProfileEntity(externalId);
+  if (existing) {
     const profile = toProfileRecord(existing);
-    await upsertProfile(profile, details);
+    await upsertProfile(profile, { ...detailsFrom(existing), ...details });
+    await upsertInternalIdIndex(profile);
     return { profile, created: false };
   }
 
-  const profile = toProfileRecord(candidate);
-  await upsertProfile(profile, details);
+  const legacy = await findLegacyProfileByExternalId(externalId);
+  if (legacy) {
+    await migrateLegacyProfile(legacy);
+    await upsertProfile(legacy, details);
+    return { profile: legacy, created: false };
+  }
+
+  const profile: ProfileRecord = {
+    internalId: randomUUID(),
+    externalId,
+    createdAt: new Date().toISOString(),
+  };
+  const client = await getTableClient(PROFILES_TABLE);
+  try {
+    // Insert-only creation makes concurrent first sign-ins share one id.
+    await client.createEntity(toProfileEntity(profile, details));
+  } catch (err) {
+    if (!isConflictError(err)) throw err;
+    const concurrent = await getProfileEntity(externalId);
+    if (!concurrent) throw err;
+    const existingProfile = toProfileRecord(concurrent);
+    await upsertProfile(existingProfile, { ...detailsFrom(concurrent), ...details });
+    await upsertInternalIdIndex(existingProfile);
+    return { profile: existingProfile, created: false };
+  }
+
+  await upsertInternalIdIndex(profile);
   return { profile, created: true };
 }
 
 export async function getProfileByInternalId(internalId: string): Promise<ProfileRecord | null> {
-  const client = await getTableClient(PROFILES_TABLE);
+  const index = await getTableClient(PROFILE_BY_INTERNAL_ID_TABLE);
   try {
-    const entity = await client.getEntity<ProfileByExternalIdEntity>(internalId, PROFILE_ROW_KEY);
-    return toProfileRecord(entity);
+    const indexed = toProfileRecord(await index.getEntity<ProfileIndexEntity>(internalId, PROFILE_ROW_KEY));
+    const profile = await getProfileEntity(indexed.externalId);
+    return profile ? toProfileRecord(profile) : null;
   } catch (err) {
-    if (isNotFoundError(err)) return null;
-    throw err;
+    if (!isNotFoundError(err)) throw err;
   }
+
+  const legacy = await getProfileEntity(internalId);
+  return legacy ? migrateLegacyProfile(toProfileRecord(legacy)) : null;
 }
 
 export async function findProfileByExternalId(externalId: string): Promise<ProfileRecord | null> {
-  const client = await getTableClient(PROFILE_BY_EXTERNAL_ID_TABLE);
-  try {
-    const entity = await client.getEntity<ProfileByExternalIdEntity>(externalId, PROFILE_ROW_KEY);
-    return toProfileRecord(entity);
-  } catch (err) {
-    if (isNotFoundError(err)) return null;
-    throw err;
-  }
+  const profile = await getProfileEntity(externalId);
+  if (profile) return toProfileRecord(profile);
+  const legacy = await findLegacyProfileByExternalId(externalId);
+  return legacy ? migrateLegacyProfile(legacy) : null;
 }
 
 export async function createProfile(externalId: string): Promise<ProfileRecord> {
   return (await ensureProfile(externalId)).profile;
+}
+
+export async function updatePreferredName(externalId: string, preferredName: string): Promise<ProfileRecord> {
+  const { profile } = await ensureProfile(externalId);
+  await upsertProfile(profile, { preferredName });
+  return profile;
 }
 
 export async function assertProfileExists(internalId: string): Promise<void> {
@@ -152,10 +217,6 @@ export async function assertProfileExists(internalId: string): Promise<void> {
   }
 }
 
-/**
- * Profiles a question can be shared with: those that have a name, excluding the caller, sorted by name.
- * Profiles only get a name from a signed-in user's token, so test and service identities never appear.
- */
 export async function shareName(senderId: string, receiverId: string): Promise<void> {
   if (senderId === receiverId) throw new Error("A profile cannot share its name with itself");
   await assertProfileExists(receiverId);
@@ -166,7 +227,7 @@ export async function shareName(senderId: string, receiverId: string): Promise<v
     sharedAt: new Date().toISOString(),
   });
 }
-//TODO: Identity blind should not be configurable, security is controlled by person access, not parameters.
+
 export async function listProfiles(excludeInternalId: string, limit = 200, identityBlind = false): Promise<ProfileListItem[]> {
   const client = await getTableClient(PROFILES_TABLE);
   const disclosures = await getTableClient(PROFILE_DISCLOSURES_TABLE);
@@ -174,17 +235,17 @@ export async function listProfiles(excludeInternalId: string, limit = 200, ident
   for await (const row of disclosures.listEntities({ queryOptions: { filter: odata`PartitionKey eq ${excludeInternalId}` } })) {
     sharedNames.add(row.rowKey);
   }
-  // ponytail: this scans every named profile (one partition each); add paging or search when the list outgrows `limit`.
   const rows = client.listEntities<ProfileEntity>({
-    queryOptions: { filter: odata`name gt ''`, select: ["internal_id", "internalId", "name", "email"] },
+    queryOptions: { select: ["internal_id", "internalId", "external_id", "externalId", "name", "preferred_name", "email"] },
   });
   const profiles: ProfileListItem[] = [];
   for await (const row of rows) {
     const id = row.internal_id ?? row.internalId;
-    if (!id || !row.name || id === excludeInternalId) continue;
+    const externalId = row.external_id ?? row.externalId;
+    const displayName = row.preferred_name || row.name;
+    if (!id || !externalId || row.partitionKey !== externalId || !displayName || id === excludeInternalId) continue;
     const isNameShared = !identityBlind || sharedNames.has(id);
-    profiles.push({ id, name: isNameShared ? row.name : anonymousName(id), isNameShared });
+    profiles.push({ id, name: isNameShared ? displayName : anonymousName(id), isNameShared });
   }
-  // Sort before capping, so the cap keeps the first names alphabetically rather than an arbitrary id range.
   return profiles.sort((a, b) => a.name.localeCompare(b.name)).slice(0, limit);
 }

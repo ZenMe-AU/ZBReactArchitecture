@@ -139,10 +139,10 @@ async function cleanupTableRows(profileIds: string[], externalIds: string[]) {
   }
 
   const profiles = await getTableClient("Profiles");
-  for (const profileId of profileIds) await profiles.deleteEntity(profileId, "profile");
+  for (const externalId of externalIds) await profiles.deleteEntity(externalId, "profile");
 
-  const profileIndexes = await getTableClient("ProfileByExternalId");
-  for (const externalId of externalIds) await profileIndexes.deleteEntity(externalId, "profile");
+  const profileIndexes = await getTableClient("ProfileByInternalId");
+  for (const profileId of profileIds) await profileIndexes.deleteEntity(profileId, "profile");
 }
 
 

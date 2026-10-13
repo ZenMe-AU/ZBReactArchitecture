@@ -7,7 +7,7 @@ import { randomUUID } from "crypto";
 import { odata } from "@azure/data-tables";
 import { createQuestion, getQuestionById, getQuestionListByProfileId, getSharedQuestionListByProfileId, patchQuestionById, shareQuestion, updateQuestionById } from "./questionRepository.mjs";
 import { addAnswer, getAnswerById, getAnswerListByQuestionId } from "./answerRepository.mjs";
-import { createProfile, findProfileByExternalId } from "./profileRepository.mjs";
+import { createProfile, ensureProfile as ensureTableProfile, findProfileByExternalId, updatePreferredName as updateTablePreferredName } from "./profileRepository.mjs";
 import { configureTableStorage, getTableClient, type TableStorageSettings } from "./init.mjs";
 import { QUESTION_DATA_TABLE } from "./keys.mjs";
 import type { QuestRepository } from "../contracts.mjs";
@@ -134,6 +134,16 @@ const repository = {
 
   async createProfile(externalId: string) {
     const profile = await createProfile(externalId);
+    return { id: profile.internalId, externalId: profile.externalId };
+  },
+
+  async ensureProfile(externalId: string, details = {}) {
+    const result = await ensureTableProfile(externalId, details);
+    return { profile: { id: result.profile.internalId, externalId: result.profile.externalId }, created: result.created };
+  },
+
+  async updatePreferredName(externalId: string, preferredName: string) {
+    const profile = await updateTablePreferredName(externalId, preferredName);
     return { id: profile.internalId, externalId: profile.externalId };
   },
 
