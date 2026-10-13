@@ -101,7 +101,6 @@ function Install-DevAiTools {
     Install-ClaudeCode
     Install-Packer
     #Install-DockerCli
-    
     Install-Ollama
     Install-OllamaModels
 }
@@ -721,10 +720,10 @@ function Install-OllamaModels {
         return 1
     }
     try {
-        ollama pull llama3.2:1b
-        if ($LASTEXITCODE -ne 0) { throw "Failed to download llama3.2:1b (exit code $LASTEXITCODE)." }
         ollama pull qwen2.5:3b
         if ($LASTEXITCODE -ne 0) { throw "Failed to download qwen2.5:3b (exit code $LASTEXITCODE)." }
+        ollama pull qwen2.5:7b
+        if ($LASTEXITCODE -ne 0) { throw "Failed to download qwen2.5:7b (exit code $LASTEXITCODE)." }
     } catch {
         Write-Error "$_ Ensure Ollama is running and retry."
         return 1

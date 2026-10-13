@@ -77,6 +77,16 @@ async function openaiCompatible(systemPrompt, input, model, schema) {
         { role: "system", content: `${systemPrompt}\n\nReply with only one JSON object that matches this JSON Schema, no other text:\n${JSON.stringify(schema)}` },
         { role: "user", content: JSON.stringify(input) },
       ],
+      ...(schema && {
+        response_format: {
+          type: "json_schema",
+          json_schema: {
+            name: "output",
+            strict: true,
+            schema,
+          },
+        },
+      }),
     }),
     signal: AbortSignal.timeout(3 * 60 * 1000),
   });

@@ -185,23 +185,41 @@ export function offlineActionReason(pathname, body, questions, onlineProfileIds)
 export const invalidAction = (method, pathname, body) => {
   const fields = Array.isArray(body) ? Object.fromEntries(body.map((op) => [String(op?.path).slice(1), op?.value])) : (body ?? {});
   const over = Object.entries(MAX_LENGTH).find(([field, max]) => typeof fields[field] === "string" && fields[field].length > max);
-  if (over) return `length:${over[0]}`;
+  if (over) return `🚫 length:${over[0]} exceeds max ${MAX_LENGTH[over[0]]} chars (got ${fields[over[0]].length})`;
+
   const isQuestion = /^\/question\/?$/.test(pathname) || /^\/question\/[^/]+\/?$/.test(pathname);
   const isCreate = method === "POST" && /^\/question\/?$/.test(pathname);
   const isAnswer = method === "POST" && /^\/question\/[^/]+\/answer\/?$/.test(pathname);
+
   if (isQuestion && (isCreate || fields.option !== undefined)) {
-    if (!Array.isArray(fields.option) || fields.option.length < OPTION_LIMITS.min || fields.option.length > OPTION_LIMITS.max) return "options:count";
-    if (fields.option.some((option) => typeof option !== "string" || !option.trim())) return "options:empty";
-    if (new Set(fields.option.map((option) => option.trim().toLowerCase())).size !== fields.option.length) return "options:duplicate";
+    if (!Array.isArray(fields.option)) return `🚫 options:must-be-array (expected ${OPTION_LIMITS.min}-${OPTION_LIMITS.max} options)`;
+    if (fields.option.length < OPTION_LIMITS.min || fields.option.length > OPTION_LIMITS.max) {
+      return `🚫 options:count:${fields.option.length} (must have ${OPTION_LIMITS.min}-${OPTION_LIMITS.max} options)`;
+    }
+    const emptyIndex = fields.option.findIndex((option) => typeof option !== "string" || !option.trim());
+    if (emptyIndex >= 0) return `🚫 options:empty-at-index-${emptyIndex + 1}`;
+    if (new Set(fields.option.map((option) => option.trim().toLowerCase())).size !== fields.option.length) {
+      return `🚫 options:duplicate-values-detected`;
+    }
     const longIndex = fields.option.findIndex((option) => option.length > OPTION_LIMITS.chars || option.trim().split(/\s+/).length > OPTION_LIMITS.words);
-    if (longIndex >= 0) return `options:length:${longIndex + 1}:max-${OPTION_LIMITS.words}-words-${OPTION_LIMITS.chars}-chars`;
+    if (longIndex >= 0) {
+      const opt = fields.option[longIndex];
+      const wordCount = opt.trim().split(/\s+/).length;
+      return `🚫 options:length:option-${longIndex + 1}-too-long (got ${wordCount} words, ${opt.length} chars; max ${OPTION_LIMITS.words} words, ${OPTION_LIMITS.chars} chars)`;
+    }
   }
+
   if (isAnswer) {
-    if (typeof fields.option !== "string" || !fields.option.trim()) return "option:required";
-    if (fields.option.length > OPTION_LIMITS.chars || fields.option.trim().split(/\s+/).length > OPTION_LIMITS.words)
-      return `option:length:max-${OPTION_LIMITS.words}-words-${OPTION_LIMITS.chars}-chars`;
-    if (fields.answer != null && String(fields.answer).trim()) return "option-only";
-    if (VAGUE_ANSWERS.has(fields.option.trim().toLowerCase())) return "option:too-vague:add-specific-option";
+    if (typeof fields.option !== "string" || !fields.option.trim()) return `🚫 option:required (answer option text must not be empty)`;
+    const wordCount = fields.option.trim().split(/\s+/).length;
+    if (fields.option.length > OPTION_LIMITS.chars || wordCount > OPTION_LIMITS.words) {
+      return `🚫 option:too-long (got ${wordCount} words, ${fields.option.length} chars; max ${OPTION_LIMITS.words} words, ${OPTION_LIMITS.chars} chars)`;
+    }
+    if (fields.answer != null && String(fields.answer).trim()) return `🚫 option-only (long-text answer field is disallowed; use option only)`;
+    if (VAGUE_ANSWERS.has(fields.option.trim().toLowerCase())) {
+      return `🚫 option:too-vague:"${fields.option.trim()}" (must provide a specific truthful fact instead of generic label)`;
+    }
   }
+
   return null;
 };

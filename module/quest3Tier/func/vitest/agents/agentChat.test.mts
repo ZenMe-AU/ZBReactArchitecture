@@ -29,20 +29,20 @@ describe("agent option rules", () => {
 
   test("requires 4-10 short options on new questions", () => {
     expect(invalidAction("POST", "/question", { title: "Work", questionText: "Best work style?", option: ["Remote", "Office", "Hybrid", "Flexible"] })).toBeNull();
-    expect(invalidAction("POST", "/question", { title: "Work", questionText: "Best work style?", option: ["Remote"] })).toBe("options:count");
+    expect(invalidAction("POST", "/question", { title: "Work", questionText: "Best work style?", option: ["Remote"] })).toContain("options:count");
   });
 
   test("accepts one short option and rejects long-text answers", () => {
     expect(invalidAction("POST", "/question/id/answer", { option: "Hybrid", duration: 3 })).toBeNull();
-    expect(invalidAction("POST", "/question/id/answer", { answer: "I prefer hybrid work.", duration: 3 })).toBe("option:required");
-    expect(invalidAction("POST", "/question/id/answer", { option: "Hybrid", answer: "Long explanation", duration: 3 })).toBe("option-only");
-    expect(invalidAction("POST", "/question/id/answer", { option: "This is much too long", duration: 3 })).toBe("option:length:max-4-words-40-chars");
+    expect(invalidAction("POST", "/question/id/answer", { answer: "I prefer hybrid work.", duration: 3 })).toContain("option:required");
+    expect(invalidAction("POST", "/question/id/answer", { option: "Hybrid", answer: "Long explanation", duration: 3 })).toContain("option-only");
+    expect(invalidAction("POST", "/question/id/answer", { option: "This is much too long", duration: 3 })).toContain("option:too-long");
   });
 
   test("rejects vague group answers and accepts specific facts", () => {
-    expect(invalidAction("POST", "/question/id/answer", { option: "Asia", duration: 3 })).toBe("option:too-vague:add-specific-option");
-    expect(invalidAction("POST", "/question/id/answer", { option: "Other", duration: 3 })).toBe("option:too-vague:add-specific-option");
-    expect(invalidAction("POST", "/question/id/answer", { option: "Creative or media", duration: 3 })).toBe("option:too-vague:add-specific-option");
+    expect(invalidAction("POST", "/question/id/answer", { option: "Asia", duration: 3 })).toContain("option:too-vague");
+    expect(invalidAction("POST", "/question/id/answer", { option: "Other", duration: 3 })).toContain("option:too-vague");
+    expect(invalidAction("POST", "/question/id/answer", { option: "Creative or media", duration: 3 })).toContain("option:too-vague");
     expect(invalidAction("POST", "/question/id/answer", { option: "Taipei", duration: 3 })).toBeNull();
     expect(invalidAction("POST", "/question/id/answer", { option: "UX design", duration: 3 })).toBeNull();
   });

@@ -40,7 +40,8 @@
       "presentation": {
         "reveal": "always",
         "panel": "dedicated"
-      }
+      },
+      "dependsOn": ["Start"]
     },
     {
       "label": "Install Dependencies",
