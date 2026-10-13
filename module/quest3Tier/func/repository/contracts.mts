@@ -18,6 +18,11 @@ export interface EnsureProfileResult {
   created: boolean;
 }
 
+export interface FriendRecord {
+  id: string;
+  name: string;
+}
+
 export interface QuestionRecord {
   id: string;
   title: string | null;
@@ -47,6 +52,7 @@ export interface QuestRepository {
   createProfile(externalId: string): Promise<ProfileRecord>;
   ensureProfile(externalId: string, details?: ProfileDetails): Promise<EnsureProfileResult>;
   updatePreferredName(externalId: string, preferredName: string): Promise<ProfileRecord>;
+  addFriend(profileId: string, friendId: string): Promise<FriendRecord>;
   getById(questionId: string): Promise<QuestionRecord | null>;
   create(profileId: string, title?: string | null, question?: string | null, option?: string[] | null): Promise<QuestionRecord>;
   updateById(questionId: string, title?: string | null, questionText?: string | null, option?: string[] | null): Promise<{ id: string }>;

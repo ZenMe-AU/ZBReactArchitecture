@@ -57,6 +57,23 @@ export interface EnsureProfileResult {
   created: boolean;
 }
 
+export interface FriendRecord {
+  internalId: string;
+  name: string;
+}
+
+interface FriendEntity {
+  partitionKey: string;
+  rowKey: string;
+  friend_internal_id: string;
+  friend_name: string;
+  createdAt: string;
+}
+
+function friendRowKey(friendInternalId: string): string {
+  return `friend:${friendInternalId}`;
+}
+
 function anonymousName(internalId: string): string {
   const code = createHash("sha256").update(internalId).digest("hex").slice(0, 4).toUpperCase();
   return `Person ${code}`;
@@ -102,6 +119,21 @@ async function getProfileEntity(partitionKey: string): Promise<ProfileEntity | n
     if (isNotFoundError(err)) return null;
     throw err;
   }
+}
+
+async function getProfileEntityByInternalId(internalId: string): Promise<ProfileEntity | null> {
+  const index = await getTableClient(PROFILE_BY_INTERNAL_ID_TABLE);
+  try {
+    const indexed = toProfileRecord(await index.getEntity<ProfileIndexEntity>(internalId, PROFILE_ROW_KEY));
+    return getProfileEntity(indexed.externalId);
+  } catch (err) {
+    if (!isNotFoundError(err)) throw err;
+  }
+
+  const legacy = await getProfileEntity(internalId);
+  if (!legacy) return null;
+  const profile = await migrateLegacyProfile(toProfileRecord(legacy));
+  return getProfileEntity(profile.externalId);
 }
 
 // Merge leaves a missing token claim untouched instead of clearing it.
@@ -181,17 +213,8 @@ export async function ensureProfile(externalId: string, details: ProfileDetails 
 }
 
 export async function getProfileByInternalId(internalId: string): Promise<ProfileRecord | null> {
-  const index = await getTableClient(PROFILE_BY_INTERNAL_ID_TABLE);
-  try {
-    const indexed = toProfileRecord(await index.getEntity<ProfileIndexEntity>(internalId, PROFILE_ROW_KEY));
-    const profile = await getProfileEntity(indexed.externalId);
-    return profile ? toProfileRecord(profile) : null;
-  } catch (err) {
-    if (!isNotFoundError(err)) throw err;
-  }
-
-  const legacy = await getProfileEntity(internalId);
-  return legacy ? migrateLegacyProfile(toProfileRecord(legacy)) : null;
+  const profile = await getProfileEntityByInternalId(internalId);
+  return profile ? toProfileRecord(profile) : null;
 }
 
 export async function findProfileByExternalId(externalId: string): Promise<ProfileRecord | null> {
@@ -209,6 +232,43 @@ export async function updatePreferredName(externalId: string, preferredName: str
   const { profile } = await ensureProfile(externalId);
   await upsertProfile(profile, { preferredName });
   return profile;
+}
+
+async function upsertFriend(owner: ProfileRecord, friend: ProfileRecord, friendName: string): Promise<void> {
+  const client = await getTableClient(PROFILES_TABLE);
+  await client.upsertEntity<FriendEntity>(
+    {
+      partitionKey: owner.internalId,
+      rowKey: friendRowKey(friend.internalId),
+      friend_internal_id: friend.internalId,
+      friend_name: friendName,
+      createdAt: new Date().toISOString(),
+    },
+    "Merge"
+  );
+}
+
+export async function addFriend(profileId: string, friendId: string): Promise<FriendRecord> {
+  if (!friendId || profileId === friendId) {
+    const error = new Error("A profile cannot add itself as a friend");
+    (error as Error & { status?: number }).status = 400;
+    throw error;
+  }
+
+  const [profileEntity, friendEntity] = await Promise.all([getProfileEntityByInternalId(profileId), getProfileEntityByInternalId(friendId)]);
+  if (!profileEntity || !friendEntity) {
+    const error = new Error("Friend profile not found");
+    (error as Error & { status?: number }).status = 404;
+    throw error;
+  }
+
+  const profile = toProfileRecord(profileEntity);
+  const friend = toProfileRecord(friendEntity);
+  const profileName = profileEntity.preferred_name || profileEntity.name || "";
+  const friendName = friendEntity.preferred_name || friendEntity.name || "";
+  // shortcut: Azure Table cannot atomically write two partitions; retrying this idempotent call repairs a partial pair.
+  await Promise.all([upsertFriend(profile, friend, friendName), upsertFriend(friend, profile, profileName)]);
+  return { internalId: friend.internalId, name: friendName };
 }
 
 export async function assertProfileExists(internalId: string): Promise<void> {

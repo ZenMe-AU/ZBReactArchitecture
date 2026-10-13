@@ -7,7 +7,7 @@ import { randomUUID } from "crypto";
 import { odata } from "@azure/data-tables";
 import { createQuestion, getQuestionById, getQuestionListByProfileId, getSharedQuestionListByProfileId, patchQuestionById, shareQuestion, updateQuestionById } from "./questionRepository.mjs";
 import { addAnswer, getAnswerById, getAnswerListByQuestionId } from "./answerRepository.mjs";
-import { createProfile, ensureProfile as ensureTableProfile, findProfileByExternalId, updatePreferredName as updateTablePreferredName } from "./profileRepository.mjs";
+import { addFriend as addTableFriend, createProfile, ensureProfile as ensureTableProfile, findProfileByExternalId, updatePreferredName as updateTablePreferredName } from "./profileRepository.mjs";
 import { configureTableStorage, getTableClient, type TableStorageSettings } from "./init.mjs";
 import { QUESTION_DATA_TABLE } from "./keys.mjs";
 import type { QuestRepository } from "../contracts.mjs";
@@ -145,6 +145,11 @@ const repository = {
   async updatePreferredName(externalId: string, preferredName: string) {
     const profile = await updateTablePreferredName(externalId, preferredName);
     return { id: profile.internalId, externalId: profile.externalId };
+  },
+
+  async addFriend(profileId: string, friendId: string) {
+    const friend = await addTableFriend(profileId, friendId);
+    return { id: friend.internalId, name: friend.name };
   },
 
   async getById(questionId: string) {

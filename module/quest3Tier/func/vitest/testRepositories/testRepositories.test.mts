@@ -77,6 +77,32 @@ describe("Test Azure Table repository", () => {
     }
   });
 
+  it("creates both directions of a friend relationship", async () => {
+    const profiles = await getTableClient("Profiles");
+    const internalIndex = await getTableClient("ProfileByInternalId");
+    const josh = await tableRepository.ensureProfile(`friend-josh-${randomUUID()}`, { name: "Josh Kim" });
+    const bella = await tableRepository.ensureProfile(`friend-bella-${randomUUID()}`, { name: "Bella Jones" });
+    try {
+      await expect(tableRepository.addFriend(josh.profile.id, bella.profile.id)).resolves.toEqual({ id: bella.profile.id, name: "Bella Jones" });
+      await expect(profiles.getEntity(josh.profile.id, `friend:${bella.profile.id}`)).resolves.toMatchObject({
+        friend_internal_id: bella.profile.id,
+        friend_name: "Bella Jones",
+      });
+      await expect(profiles.getEntity(bella.profile.id, `friend:${josh.profile.id}`)).resolves.toMatchObject({
+        friend_internal_id: josh.profile.id,
+        friend_name: "Josh Kim",
+      });
+      await expect(tableRepository.addFriend(josh.profile.id, josh.profile.id)).rejects.toMatchObject({ status: 400 });
+    } finally {
+      await profiles.deleteEntity(josh.profile.id, `friend:${bella.profile.id}`);
+      await profiles.deleteEntity(bella.profile.id, `friend:${josh.profile.id}`);
+      await profiles.deleteEntity(josh.profile.externalId, "profile");
+      await profiles.deleteEntity(bella.profile.externalId, "profile");
+      await internalIndex.deleteEntity(josh.profile.id, "profile");
+      await internalIndex.deleteEntity(bella.profile.id, "profile");
+    }
+  });
+
   it("uses external id for the profile partition and preserves legacy internal ids", async () => {
     const externalId = `legacy-profile-${randomUUID()}`;
     const internalId = randomUUID();

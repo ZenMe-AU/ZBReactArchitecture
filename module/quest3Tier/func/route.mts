@@ -100,6 +100,13 @@ app.http("UpdateMyProfile", {
     schemas: [updateMyProfileSchema],
   }),
 });
+
+app.http("AddMyFriend", {
+  route: "profile/me/friends/{id}",
+  methods: ["PUT"],
+  authLevel: "anonymous",
+  handler: requestHandler(profileHandler.AddMyFriend),
+});
 app.http("SendFollowUpCmd", {
   route: "sendFollowUpCmd",
   methods: ["POST"],

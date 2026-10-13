@@ -438,6 +438,12 @@ async function updatePreferredName(externalId, preferredName) {
   return profile;
 }
 
+async function addFriend(_profileId: string, _friendId: string): Promise<never> {
+  const error = new Error("Friend relationships require the Azure Table repository");
+  error.status = 501;
+  throw error;
+}
+
 async function getSharedQuestionListByProfileId(profileId) {
   try {
     return await models.Question.findAll({
@@ -479,6 +485,7 @@ const repository = {
   createProfile,
   ensureProfile,
   updatePreferredName,
+  addFriend,
   getById,  
   patchById,
   getCombinationListByUser,
