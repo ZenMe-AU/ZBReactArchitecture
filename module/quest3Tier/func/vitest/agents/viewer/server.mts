@@ -38,6 +38,12 @@ const STATIC_FILES = {
 type RunState = { status: string; humanMode?: boolean; startedAt?: string; finishedAt?: string; joinUrl?: string; error?: string; exitCode?: number };
 const state: { runProcess?: ChildProcess; azuriteProcess?: ChildProcess; uiProcess?: ChildProcess; run: RunState } = { run: { status: "idle" } };
 
+const spawnPnpm = (args: string[], cwd: string, env = CHILD_ENV) => spawn(
+  process.platform === "win32" ? process.env.ComSpec ?? "cmd.exe" : "pnpm",
+  process.platform === "win32" ? ["/d", "/s", "/c", "pnpm", ...args] : args,
+  { cwd, env, stdio: ["ignore", "pipe", "pipe"] }
+);
+
 const isRunName = (name) => typeof name === "string" && path.basename(name) === name && name.endsWith(".chat.md");
 
 async function listRuns() {
@@ -101,11 +107,7 @@ async function ensureServices(humanMode) {
   }
   if (!(await portOpen(7073))) throw new Error("Q3 API is not running on port 7073. Start the Agent Start debug configuration first.");
   if (humanMode && !(await portOpen(5183, "localhost"))) {
-    state.uiProcess = spawn("pnpm", ["run", "dev"], {
-      cwd: path.join(REPO_DIR, "module/quest3Tier/ui"),
-      env: CHILD_ENV,
-      stdio: ["ignore", "pipe", "pipe"],
-    });
+    state.uiProcess = spawnPnpm(["run", "dev"], path.join(REPO_DIR, "module/quest3Tier/ui"));
     state.uiProcess.stdout?.pipe(process.stdout);
     state.uiProcess.stderr?.pipe(process.stderr);
     if (!(await waitForPort(5183, "localhost", 100))) throw new Error("Q3 UI did not start on port 5183");
@@ -114,12 +116,10 @@ async function ensureServices(humanMode) {
 
 async function startRun(humanMode = false) {
   state.run = { status: "starting", humanMode, startedAt: new Date().toISOString() };
+  console.log(`Starting agent test${humanMode ? " with a human participant" : ""}...`);
   await ensureServices(humanMode);
-  const child = spawn("pnpm", ["vitest", "run", TEST_FILE, "--disableConsoleIntercept"], {
-    cwd: REPO_DIR,
-    env: { ...CHILD_ENV, AGENT_RUN: "1", ...(humanMode && { HUMAN_RUN: "1" }) },
-    stdio: ["ignore", "pipe", "pipe"],
-  });
+  const child = spawnPnpm(["vitest", "run", TEST_FILE, "--disableConsoleIntercept"], REPO_DIR,
+    { ...CHILD_ENV, AGENT_RUN: "1", ...(humanMode && { HUMAN_RUN: "1" }) });
   state.runProcess = child;
   state.run = {
     status: "running",
@@ -133,6 +133,8 @@ async function startRun(humanMode = false) {
     if (state.runProcess !== child) return;
     state.runProcess = undefined;
     state.run = { ...state.run, status, finishedAt: new Date().toISOString(), ...detail };
+    if (status === "failed") console.error("Agent test failed:", detail.error ?? `exit code ${detail.exitCode}`);
+    else console.log("Agent test passed.");
   };
   child.once("error", (error) => finish("failed", { error: error.message }));
   child.once("exit", (code) => finish(code === 0 ? "passed" : "failed", { exitCode: code }));
@@ -151,6 +153,7 @@ async function handle(request, response) {
       return sendJson(response, 202, state.run);
     } catch (error) {
       state.run = { ...state.run, status: "failed", error: error.message, finishedAt: new Date().toISOString() };
+      console.error("Could not start agent test:", error);
       return sendJson(response, 503, state.run);
     }
   }
@@ -180,6 +183,14 @@ async function handle(request, response) {
 }
 
 async function selfCheck() {
+  const child = spawnPnpm(["--version"], REPO_DIR);
+  await new Promise<void>((resolve, reject) => {
+    child.once("error", reject);
+    child.once("close", (code) => {
+      if (code === 0) resolve();
+      else reject(new Error(`pnpm launcher exited with code ${code}`));
+    });
+  });
   const { classifyFinding, parseLine, parseLog, parseReport, questionTopic } = await import("./viewer-data.mjs");
   const { profileKind } = await import("./viewer-profiles.mjs");
   const { groupQuestions } = await import("./viewer-questions.mjs");
@@ -245,5 +256,8 @@ if (process.argv.includes("--check")) {
       sendJson(response, 500, { error: "Viewer error" });
     })
   );
-  server.listen(PORT, HOST, () => console.log(`Q3 Agent Town: http://${HOST}:${PORT}`));
+  server.listen(PORT, HOST, () => {
+    console.log(`Q3 Agent Town: http://${HOST}:${PORT}`);
+    console.log("Waiting for New test in the viewer. Test output will stream to this terminal.");
+  });
 }

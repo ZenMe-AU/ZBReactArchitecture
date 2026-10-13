@@ -8,6 +8,14 @@
       "restart": true,
       "port": 9229,
       "preLaunchTask": "Start"
+    },
+     {
+      "name": "Start Agent UI",
+      "type": "msedge",
+      "request": "launch",
+      "url": "http://127.0.0.1:4178",
+      "webRoot": "${workspaceFolder}/vitest/agents/viewer",
+      "preLaunchTask": "Start Agent UI"
     }
   ]
 }

@@ -10,6 +10,39 @@
       "dependsOn": ["Start Azurite"]
     },
     {
+      "label": "Start Agent UI",
+      "type": "process",
+      "command": "pwsh",
+      "args": [
+        "-NoProfile",
+        "-File",
+        "${workspaceFolder}/vitest/agents/run-ollama.ps1"
+      ],
+      "isBackground": true,
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": {
+        "owner": "agent-viewer",
+        "pattern": {
+          "regexp": "^(.+):(\\d+):(\\d+):\\s+(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "message": 4
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^Building Q3 and the agent viewer",
+          "endsPattern": "^Q3 Agent Town: http://"
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      }
+    },
+    {
       "label": "Install Dependencies",
       "type": "shell",
       "command": "pnpm install --frozen-lockfile"

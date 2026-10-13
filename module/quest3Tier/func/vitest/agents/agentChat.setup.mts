@@ -96,7 +96,9 @@ export async function pickParticipants() {
 
 export async function loadAgent(name) {
   const text = await readFile(path.join(AGENTS_DIR, name, `${name}.agent.md`), "utf8");
-  const [, frontmatter, persona] = text.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+  const match = text.replace(/\r\n/g, "\n").match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+if (!match) throw new Error(`Invalid frontmatter in ${name}.agent.md`);
+const [, frontmatter, persona] = match;
   const meta = Object.fromEntries(
     frontmatter.split("\n").map((line) => [line.slice(0, line.indexOf(":")).trim(), line.slice(line.indexOf(":") + 1).trim()])
   );
