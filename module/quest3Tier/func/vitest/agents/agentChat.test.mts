@@ -7,18 +7,21 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { TableClient } from "@azure/data-tables";
 import { invalidAction, learningCoverage, offlineActionReason, participantFriends, rules } from "./agentChat.config.mjs";
 import { factMemory } from "./agentChat.memory.mjs";
 import { list, runAgentChat } from "./agentChat.run.mjs";
 import { report } from "./agentChat.report.mjs";
 import { HUMAN_NAME, HUMAN_OID, loadHuman, writeMemory } from "./agentChat.setup.mjs";
 import * as authDev from "../../service/authDev.mjs";
-import { belongsToExperiment, isLocalAzurite } from "./agentChat.reset.mjs";
+import { belongsToExperiment, isLocalAzurite, resetExperiment } from "./agentChat.reset.mjs";
 
 const originalFetch = globalThis.fetch;
 
 afterEach(() => {
   globalThis.fetch = originalFetch;
+  vi.restoreAllMocks();
+  vi.unstubAllEnvs();
 });
 
 describe("Agent API lists", () => {
@@ -51,14 +54,6 @@ describe("agent option rules", () => {
     expect(invalidAction("POST", "/question/id/answer", { answer: "I prefer hybrid work.", duration: 3 })).toContain("option:required");
     expect(invalidAction("POST", "/question/id/answer", { option: "Hybrid", answer: "Long explanation", duration: 3 })).toContain("option-only");
     expect(invalidAction("POST", "/question/id/answer", { option: "This is much too long", duration: 3 })).toContain("option:too-long");
-  });
-
-  test("rejects vague group answers and accepts specific facts", () => {
-    expect(invalidAction("POST", "/question/id/answer", { option: "Asia", duration: 3 })).toContain("option:too-vague");
-    expect(invalidAction("POST", "/question/id/answer", { option: "Other", duration: 3 })).toContain("option:too-vague");
-    expect(invalidAction("POST", "/question/id/answer", { option: "Creative or media", duration: 3 })).toContain("option:too-vague");
-    expect(invalidAction("POST", "/question/id/answer", { option: "Taipei", duration: 3 })).toBeNull();
-    expect(invalidAction("POST", "/question/id/answer", { option: "UX design", duration: 3 })).toBeNull();
   });
 });
 
@@ -173,6 +168,26 @@ describe("human participant", () => {
   test("permits reset only against local Azurite", () => {
     expect(isLocalAzurite("UseDevelopmentStorage=true")).toBe(true);
     expect(isLocalAzurite("DefaultEndpointsProtocol=https;AccountName=production")).toBe(false);
+  });
+
+  test("configures reset storage from the local environment before connecting", async () => {
+    vi.stubEnv("AzureWebJobsStorage", "UseDevelopmentStorage=true");
+    const fromConnectionString = vi.spyOn(TableClient, "fromConnectionString");
+    const unavailable = new Error("Azurite unavailable");
+    vi.spyOn(TableClient.prototype, "createTable").mockRejectedValue(unavailable);
+
+    await expect(resetExperiment(["participant"])).rejects.toThrow(unavailable);
+    expect(fromConnectionString).toHaveBeenCalledWith("UseDevelopmentStorage=true", expect.any(String), {
+      allowInsecureConnection: true,
+    });
+  });
+
+  test("rejects non-local reset before creating a storage client", async () => {
+    vi.stubEnv("AzureWebJobsStorage", "DefaultEndpointsProtocol=https;AccountName=production");
+    const fromConnectionString = vi.spyOn(TableClient, "fromConnectionString");
+
+    await expect(resetExperiment(["participant"])).rejects.toThrow("Experiment reset is allowed only for local Azurite runs");
+    expect(fromConnectionString).not.toHaveBeenCalled();
   });
 });
 

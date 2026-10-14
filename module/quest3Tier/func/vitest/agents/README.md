@@ -51,6 +51,8 @@ AGENT_RUN=1 pnpm vitest run module/quest3Tier/func/vitest/agents/agentChat.test.
 
 Without `AGENT_RUN=1` the test is skipped, so normal test runs never call an LLM.
 
+Each agent run resets only records connected to its current participants. The reset configures its Table Storage client from `AzureWebJobsStorage`, loaded by the Q3 Vitest setup from `local.settings.json`, and refuses to run unless it uses local Azurite (`UseDevelopmentStorage=true`).
+
 To watch the conversation live, use the terminal, or open `runs/<time>_<participants>.chat.md`.
 
 ### Visual observer

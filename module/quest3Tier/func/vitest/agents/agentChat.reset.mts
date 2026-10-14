@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import { getTableClient } from "../../repository/table/init.mjs";
+import { configureTableStorage, getTableClient } from "../../repository/table/init.mjs";
 import { QUESTION_DATA_TABLE } from "../../repository/table/keys.mjs";
 import { PROFILE_DISCLOSURES_TABLE } from "../../repository/table/profileRepository.mjs";
 
@@ -21,9 +21,11 @@ export const isLocalAzurite = (connectionString = process.env.AzureWebJobsStorag
   String(connectionString).includes("UseDevelopmentStorage=true");
 
 export async function resetExperiment(profileIds) {
-  if (!isLocalAzurite()) {
+  const connectionString = process.env.AzureWebJobsStorage;
+  if (!isLocalAzurite(connectionString)) {
     throw new Error("Experiment reset is allowed only for local Azurite runs");
   }
+  configureTableStorage({ AzureWebJobsStorage: connectionString });
 
   const ids = new Set(profileIds);
   const questions = await getTableClient(QUESTION_DATA_TABLE);
