@@ -17,6 +17,7 @@ async function assertNoPendingDbMigrations(sequelize, config: DbConfig) {
     return;
   }
 
+  // Security note: This service account must not have permissions to edit the database schema, it only checks that it's up to date at startup.
   //TODO: remove dependency on the deploy folder by generating a database migration state file that can be used to check that the database schema is up to date without needing to run the migration scripts.
   const migrationDir = path.join(__dirname, "..", "..", "deploy", "db", "migration");
   const migration = createMigrationInstance({ db: sequelize, migrationDir });
@@ -26,15 +27,13 @@ async function assertNoPendingDbMigrations(sequelize, config: DbConfig) {
     return;
   }
 
-  const isAzurePostgres = Boolean(config.host?.includes("postgres.database.azure.com"));
-  const upgradeCommand = isAzurePostgres ? "node ./deploy/db/updateDbSchema.mjs" : "node ./deploy/db/updateDbSchemaLocal.mjs";
   const pendingMigrationNames = pendingMigrations.map((migrationItem) => migrationItem.name).join(", ");
 
   throw new Error(
     [
       "Database schema is outdated. Startup is blocked until the DB is upgraded.",
       `Pending migrations: ${pendingMigrationNames}`,
-      `Run this command with a schema-admin account: ${upgradeCommand}`,
+      `Run this command with a schema-admin account: "node ./deploy/db/updateDbSchema.mjs"`,
       "Then restart the Function App.",
     ].join("\n")
   );
@@ -44,6 +43,7 @@ export type DbConfig = {
   username?: string;
   database?: string;
   host?: string;
+  authMode?: string;
   password?: string;
   ignoreMigrationState?: string;
 };
@@ -51,19 +51,8 @@ export type DbConfig = {
 export async function initDbConnection({ ignoreMigrationState, ...settings }: DbConfig) {
   const { createDatabaseInstance } = await import("./models/connection/index.mjs");
   const DB_TYPE = (await import("../../enum/dbType.mjs")).default;
-
-  const config: Record<string, any> = {
-    ...settings,
-  };
-
-  // If a password is provided, use it even if using Azure Postgres, if azure postgres and no password then use azure-ad auth mode
-  config.authMode = "password";
-  if (!config.password && config.host?.includes("postgres.database.azure.com")) {
-    config.authMode = "azure-ad";
-  }
-
+  const config: Record<string, any> = {...settings,};
   const sequelize = await createDatabaseInstance(DB_TYPE.POSTGRES, config);
   await assertNoPendingDbMigrations(sequelize, { ...settings, ignoreMigrationState });
-
   return sequelize;
 }
