@@ -14,6 +14,7 @@ import { logEvent, setOperationId } from "@zenmechat/shared-ui/monitor/telemetry
 import { Suspense } from "react";
 import { Await } from "react-router";
 import { Skeleton } from "@mui/material";
+import { AgentLabJoin } from "../components/AgentLabJoin";
 
 export async function clientLoader() {
   return { questions: getQuestionsByUser(), profileId: localStorage.getItem("profileId") };
@@ -59,6 +60,7 @@ export default function QuestionCombinationList({ loaderData }: { loaderData: an
       <Typography variant="h4" gutterBottom>
         Question List
       </Typography>
+      <AgentLabJoin />
       <Suspense fallback={<QuestionListSkeleton />}>
         <Await
           resolve={questions}

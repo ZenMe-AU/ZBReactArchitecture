@@ -25,7 +25,7 @@ import { assertLlmReady, llm } from "./agentChat.llm.mjs";
 import { factMemory } from "./agentChat.memory.mjs";
 import { judge, report } from "./agentChat.report.mjs";
 import { resetExperiment } from "./agentChat.reset.mjs";
-import { HUMAN_NAME, loadAgent, loadHuman, LOCK_PATH, pickParticipants, RUNS_DIR, takeLock, writeMemory } from "./agentChat.setup.mjs";
+import { HUMAN_NAME, loadAgent, LOCK_PATH, pickParticipants, RUNS_DIR, takeLock, writeMemory } from "./agentChat.setup.mjs";
 
 const MAX_STEPS = Number(process.env.AGENT_STEPS ?? 30);
 const RECENT_STEPS = 8;
@@ -260,7 +260,9 @@ export async function runAgentChat() {
   await takeLock();
   try {
     const aiParticipants = await pickParticipants();
-    const humanMode = process.env.HUMAN_RUN === "1";
+    const humanProfileId = process.env.HUMAN_PROFILE_ID;
+    const humanMode = Boolean(humanProfileId);
+    if (process.env.HUMAN_RUN === "1" && !humanProfileId) throw new Error("HUMAN_PROFILE_ID is required for a human test");
     const participants = humanMode ? [...aiParticipants, HUMAN_NAME] : aiParticipants;
     const runName = `${new Date().toISOString().replaceAll(":", "-")}_${participants.join("-")}`;
     // Live chat log: printed as it happens (run vitest with --disableConsoleIntercept) and appended to a file you can keep open.
@@ -272,15 +274,16 @@ export async function runAgentChat() {
     };
     await say(`Run starts. Online: ${participants.join(", ")}.`);
     const agents = await Promise.all(aiParticipants.map(loadAgent));
-    const human = humanMode ? loadHuman() : null;
+    const human = humanMode ? { name: HUMAN_NAME, profileId: humanProfileId } : null;
     const actors = human ? [...agents, human] : agents;
-    for (const actor of actors) {
+    for (const actor of agents) {
       const me = await call(actor, "GET", new URL("/profile/me", QUESTION_URL));
       if (me.status >= 400) throw new Error(`Could not register ${actor.name} (${me.status})`);
       actor.profileId = me.response.return.id;
     }
     const realNamesById = Object.fromEntries(actors.map((actor) => [actor.profileId, actor.name]));
-    const removed = await resetExperiment(actors.map((actor) => actor.profileId));
+    // A real human profile can have normal Q3 data. Only Lab-owned agent data is reset.
+    const removed = await resetExperiment(agents.map((agent) => agent.profileId));
     await say(`Fresh test. Cleared ${removed.records} Q3 records and ${removed.disclosures} name disclosures.`);
     await Promise.all(actors.flatMap((actor, index) => actors.slice(index + 1).map(async (friend) => {
       const result = await call(actor, "PUT", new URL(`/profile/me/friends/${friend.profileId}`, QUESTION_URL));
@@ -318,7 +321,8 @@ export async function runAgentChat() {
     // Every question is visible to its owner, so the union over participants covers everything they touched.
     const questions = new Map();
     const names = {};
-    for (const agent of actors) {
+    const readers = new Map();
+    for (const agent of agents) {
       let visible = [];
       try {
         visible = await list(agent, "/questions");
@@ -328,16 +332,19 @@ export async function runAgentChat() {
       }
       const current = visible.filter((question) => question.isOwner || realNamesById[question.profileId]);
       if ("steps" in agent) agent.seenOthers = current.filter((question) => !question.isOwner).length;
-      for (const q of current) questions.set(q.id, q);
+      for (const q of current) {
+        questions.set(q.id, q);
+        readers.set(q.id, agent);
+      }
     }
     Object.assign(names, realNamesById);
     for (const q of questions.values()) {
-      const owner = actors.find((actor) => actor.name === names[q.profileId]) ?? agents[0];
+      const reader = readers.get(q.id) ?? agents[0];
       try {
-        q.answers = await list(owner, `/question/${q.id}/answers`);
+        q.answers = await list(reader, `/question/${q.id}/answers`);
       } catch (err: any) {
-        console.error(`[ERROR] Failed to list answers for [q:${q.id}] (${owner.name}): ${err.message}`);
-        await say(`[ERROR] Failed to list answers for [q:${q.id}] (${owner.name}): ${err.message}`);
+        console.error(`[ERROR] Failed to list answers for [q:${q.id}] (${reader.name}): ${err.message}`);
+        await say(`[ERROR] Failed to list answers for [q:${q.id}] (${reader.name}): ${err.message}`);
         q.answers = [];
       }
     }

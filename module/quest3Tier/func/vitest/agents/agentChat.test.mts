@@ -12,8 +12,7 @@ import { invalidAction, learningCoverage, offlineActionReason, participantFriend
 import { factMemory } from "./agentChat.memory.mjs";
 import { list, runAgentChat } from "./agentChat.run.mjs";
 import { report } from "./agentChat.report.mjs";
-import { HUMAN_NAME, HUMAN_OID, loadHuman, writeMemory } from "./agentChat.setup.mjs";
-import * as authDev from "../../service/authDev.mjs";
+import { HUMAN_NAME, writeMemory } from "./agentChat.setup.mjs";
 import { belongsToExperiment, isLocalAzurite, resetExperiment } from "./agentChat.reset.mjs";
 
 const originalFetch = globalThis.fetch;
@@ -138,11 +137,8 @@ describe("human participant", () => {
     expect(output).toContain("- Josh: Brisbane");
   });
 
-  test("uses a fixed local identity with an identity-blind token", async () => {
-    const human = loadHuman();
-    const claims = await authDev.decode(human.token);
-    expect(human.name).toBe(HUMAN_NAME);
-    expect(claims).toMatchObject({ oid: HUMAN_OID, name: HUMAN_NAME, experiment: "human" });
+  test("uses the Q3 participant label without minting a synthetic human token", () => {
+    expect(HUMAN_NAME).toBe("Josh");
   });
 
   test("attributes anonymous answers to the evaluator's real subject", () => {
