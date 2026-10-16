@@ -73,36 +73,121 @@ function Invoke-Brew {
     }
 }
 
+function Read-ToolSelection {
+    param([object[]]$Tools, [bool[]]$Selected)
+    $cursor = 0
+    Write-Host ""
+    Write-Host "Select tools to install: Up/Down to move, Space to toggle, 'a' all, 'n' none, Enter to install, Esc to cancel."
+    $draw = {
+        for ($i = 0; $i -lt $Tools.Count; $i++) {
+            $pointer = if ($i -eq $cursor) { '>' } else { ' ' }
+            $mark = if ($Selected[$i]) { 'x' } else { ' ' }
+            $line = "{0} [{1}] {2}" -f $pointer, $mark, $Tools[$i].Name
+            if ($i -eq $cursor) { Write-Host $line -ForegroundColor Cyan } else { Write-Host $line }
+        }
+    }
+    & $draw
+    $useAnsi = $PSVersionTable.PSVersion.Major -ge 6
+    if (-not $useAnsi) { $top = [Console]::CursorTop - $Tools.Count }
+    try { [Console]::CursorVisible = $false } catch {}
+    try {
+        while ($true) {
+            $key = [Console]::ReadKey($true)
+            switch ($key.Key) {
+                'UpArrow'   { $cursor = ($cursor - 1 + $Tools.Count) % $Tools.Count }
+                'DownArrow' { $cursor = ($cursor + 1) % $Tools.Count }
+                'Spacebar'  { $Selected[$cursor] = -not $Selected[$cursor] }
+                'A'         { for ($i = 0; $i -lt $Tools.Count; $i++) { $Selected[$i] = $true } }
+                'N'         { for ($i = 0; $i -lt $Tools.Count; $i++) { $Selected[$i] = $false } }
+                'Enter' {
+                    $count = @($Selected | Where-Object { $_ }).Count
+                    $prompt = if ($count -eq 0) { "No tools selected. Enter to skip installing, any other key to go back." } else { "Install $count tool(s)? Enter to confirm, any other key to go back." }
+                    Write-Host $prompt -ForegroundColor Yellow
+                    if ([Console]::ReadKey($true).Key -eq 'Enter') { return $true }
+                    if ($useAnsi) {
+                        [Console]::Write("$([char]27)[1A`r$([char]27)[2K")
+                    } else {
+                        [Console]::SetCursorPosition(0, $top + $Tools.Count)
+                        [Console]::Write(' ' * ([Console]::WindowWidth - 1))
+                        [Console]::SetCursorPosition(0, $top + $Tools.Count)
+                    }
+                }
+                'Escape'    { return $false }
+            }
+            if ($useAnsi) { [Console]::Write("$([char]27)[$($Tools.Count)A`r") } else { [Console]::SetCursorPosition(0, $top) }
+            & $draw
+        }
+    } finally {
+        try { [Console]::CursorVisible = $true } catch {}
+    }
+}
+
+function Select-Tools {
+    param([object[]]$Tools)
+    [bool[]]$selected = @($Tools | ForEach-Object { [bool]$_.Default })
+    if (-not [Console]::IsInputRedirected) {
+        try {
+            if (-not (Read-ToolSelection $Tools $selected)) {
+                for ($i = 0; $i -lt $selected.Count; $i++) { $selected[$i] = $false }
+            }
+        } catch {
+            Write-Warning "Interactive selection is not available in this host ($_). Installing the default selection."
+            [bool[]]$selected = @($Tools | ForEach-Object { [bool]$_.Default })
+        }
+    }
+    for ($i = 0; $i -lt $Tools.Count; $i++) {
+        if ($selected[$i]) { $Tools[$i] }
+    }
+}
+
+function Install-SelectedTools {
+    param([object[]]$Tools)
+    $chosen = @(Select-Tools $Tools)
+    Write-Host ""
+    if ($chosen.Count -eq 0) {
+        Write-Host "No tools selected; nothing to install."
+        return
+    }
+    Write-Host "Installing: $(($chosen | ForEach-Object { $_.Name }) -join ', ')"
+    foreach ($tool in $chosen) {
+        & $tool.Command
+    }
+}
+
 function Install-DevTools {
-    Install-NodeJsAndNpm
-    Install-Pnpm
-    Install-Terraform
-    Install-PostgreSql
-    Install-AwsCli
-    Install-AzureCli
-    Install-AzureStorageExplorer
-    Install-GitHubCli
+    Install-SelectedTools @(
+        [pscustomobject]@{ Name = 'Node.js and npm';        Command = 'Install-NodeJsAndNpm';         Default = $true }
+        [pscustomobject]@{ Name = 'pnpm';                   Command = 'Install-Pnpm';                 Default = $true }
+        [pscustomobject]@{ Name = 'Terraform';              Command = 'Install-Terraform';            Default = $true }
+        [pscustomobject]@{ Name = 'PostgreSQL';             Command = 'Install-PostgreSql';           Default = $true }
+        [pscustomobject]@{ Name = 'AWS CLI';                Command = 'Install-AwsCli';               Default = $true }
+        [pscustomobject]@{ Name = 'Azure CLI';              Command = 'Install-AzureCli';             Default = $true }
+        [pscustomobject]@{ Name = 'Azure Storage Explorer'; Command = 'Install-AzureStorageExplorer'; Default = $true }
+        [pscustomobject]@{ Name = 'GitHub CLI';             Command = 'Install-GitHubCli';            Default = $true }
+    )
 }
 
 function Install-DevAiTools {
-    Install-NodeJsAndNpm
-    Install-Pnpm
-    Install-Terraform
-    Install-PostgreSql
-    Install-AwsCli
-    Install-AzureCli
-    Install-AzureStorageExplorer
-    Install-Ripgrep
-    Install-Fd
-    Install-Jq
-    Install-Yq
-    Install-GitHubCli
-    Install-GitHubCopilotCli
-    Install-ClaudeCode
-    Install-Packer
-    #Install-DockerCli
-    Install-Ollama
-    Install-OllamaModels
+    Install-SelectedTools @(
+        [pscustomobject]@{ Name = 'Node.js and npm';        Command = 'Install-NodeJsAndNpm';         Default = $true }
+        [pscustomobject]@{ Name = 'pnpm';                   Command = 'Install-Pnpm';                 Default = $true }
+        [pscustomobject]@{ Name = 'Terraform';              Command = 'Install-Terraform';            Default = $true }
+        [pscustomobject]@{ Name = 'PostgreSQL';             Command = 'Install-PostgreSql';           Default = $true }
+        [pscustomobject]@{ Name = 'AWS CLI';                Command = 'Install-AwsCli';               Default = $true }
+        [pscustomobject]@{ Name = 'Azure CLI';              Command = 'Install-AzureCli';             Default = $true }
+        [pscustomobject]@{ Name = 'Azure Storage Explorer'; Command = 'Install-AzureStorageExplorer'; Default = $true }
+        [pscustomobject]@{ Name = 'ripgrep';                Command = 'Install-Ripgrep';              Default = $true }
+        [pscustomobject]@{ Name = 'fd';                     Command = 'Install-Fd';                   Default = $true }
+        [pscustomobject]@{ Name = 'jq';                     Command = 'Install-Jq';                   Default = $true }
+        [pscustomobject]@{ Name = 'yq';                     Command = 'Install-Yq';                   Default = $true }
+        [pscustomobject]@{ Name = 'GitHub CLI';             Command = 'Install-GitHubCli';            Default = $false }
+        [pscustomobject]@{ Name = 'GitHub Copilot CLI';     Command = 'Install-GitHubCopilotCli';     Default = $false }
+        [pscustomobject]@{ Name = 'Claude Code';            Command = 'Install-ClaudeCode';           Default = $false }
+        [pscustomobject]@{ Name = 'Packer';                 Command = 'Install-Packer';               Default = $false }
+        [pscustomobject]@{ Name = 'Docker CLI';             Command = 'Install-DockerCli';            Default = $false }
+        [pscustomobject]@{ Name = 'Ollama';                 Command = 'Install-Ollama';               Default = $false }
+        [pscustomobject]@{ Name = 'Ollama models';          Command = 'Install-OllamaModels';         Default = $false }
+    )
 }
 
 function Install-Pnpm {
