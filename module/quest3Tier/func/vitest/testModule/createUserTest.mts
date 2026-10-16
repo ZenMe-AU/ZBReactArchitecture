@@ -5,12 +5,7 @@
 
 import { randomUUID } from "crypto";
 import * as authEntraID from "../../service/authEntraID.mjs";
-<<<<<<< HEAD
-import * as authLocal from "../../service/authLocal.mjs";
-import { ensureProfile } from "../../service/profile.mjs";
-=======
 import * as authDev from "../../service/authDev.mjs";
->>>>>>> origin/josh-migrationagentlab
 
 const authProviders = {
   Dev: authDev,
