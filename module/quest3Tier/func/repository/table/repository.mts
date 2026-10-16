@@ -7,8 +7,8 @@ import { randomUUID } from "crypto";
 import { odata } from "@azure/data-tables";
 import { createQuestion, getQuestionById, getQuestionListByProfileId, getSharedQuestionListByProfileId, patchQuestionById, shareQuestion, updateQuestionById } from "./questionRepository.mjs";
 import { addAnswer, getAnswerById, getAnswerListByQuestionId } from "./answerRepository.mjs";
-import { createProfile, findProfileByExternalId } from "./profileRepository.mjs";
-import { getTableClient } from "./tableClient.mjs";
+import { addFriend as addTableFriend, createProfile, ensureProfile as ensureTableProfile, findProfileByExternalId, listFriends as listTableFriends, updatePreferredName as updateTablePreferredName } from "./profileRepository.mjs";
+import { configureTableStorage, getTableClient, type TableStorageSettings } from "./init.mjs";
 import { QUESTION_DATA_TABLE } from "./keys.mjs";
 import type { QuestRepository } from "../contracts.mjs";
 import cmdName from "../../enum/cmdName.mjs";
@@ -137,6 +137,26 @@ const repository = {
     return { id: profile.internalId, externalId: profile.externalId };
   },
 
+  async ensureProfile(externalId: string, details = {}) {
+    const result = await ensureTableProfile(externalId, details);
+    return { profile: { id: result.profile.internalId, externalId: result.profile.externalId }, created: result.created };
+  },
+
+  async updatePreferredName(externalId: string, preferredName: string) {
+    const profile = await updateTablePreferredName(externalId, preferredName);
+    return { id: profile.internalId, externalId: profile.externalId };
+  },
+
+  async addFriend(profileId: string, friendId: string) {
+    const friend = await addTableFriend(profileId, friendId);
+    return { id: friend.internalId, name: friend.name, degree: friend.degree, path: friend.path };
+  },
+
+  async listFriends(profileId: string) {
+    const friends = await listTableFriends(profileId);
+    return friends.map((friend) => ({ id: friend.internalId, name: friend.name, degree: friend.degree, path: friend.path }));
+  },
+
   async getById(questionId: string) {
     return getQuestionById(questionId);
   },
@@ -230,5 +250,10 @@ const repository = {
     return getSharedQuestionListByProfileId(profileId);
   },
 } satisfies QuestRepository;
+
+export function initRepository(settings: TableStorageSettings) {
+  configureTableStorage(settings);
+  return repository;
+}
 
 export default repository;

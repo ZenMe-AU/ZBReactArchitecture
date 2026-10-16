@@ -98,8 +98,11 @@ function Install-DevAiTools {
     Install-Yq
     Install-GitHubCli
     Install-GitHubCopilotCli
+    Install-ClaudeCode
     Install-Packer
     #Install-DockerCli
+    Install-Ollama
+    Install-OllamaModels
 }
 
 function Install-Pnpm {
@@ -353,7 +356,7 @@ function Install-PostgreSql {
     if (-not $postgresqlInstalled) {
         if ($script:IsWindows) {
             Write-Output "postgresql not found. Installing postgresql using winget..."
-            winget install PostgreSQL.PostgreSQL -e --silent
+            winget install PostgreSQL.PostgreSQL.18 -e --silent
         } elseif ($script:IsMacOS) {
             Write-Output "postgresql not found. Installing postgresql using Homebrew..."
             Invoke-Brew install postgresql
@@ -657,6 +660,77 @@ function Install-GitHubCopilotCli {
     }
 }
 
+function Install-ClaudeCode {
+    if (Get-Command claude -ErrorAction SilentlyContinue) {
+        Write-Output "Claude Code is already installed."
+        return
+    }
+    if (-not $script:IsWindows) {
+        Write-Warning "Automatic Claude Code installation using winget is only supported on Windows."
+        return 1
+    }
+    if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+        Write-Error "winget is not installed. Please install App Installer before installing Claude Code."
+        return 1
+    }
+    Write-Output "Claude Code not found. Installing Claude Code using winget..."
+    winget install --id Anthropic.ClaudeCode -e --source winget --silent --accept-source-agreements --accept-package-agreements
+    if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne -1978335189) {
+        Write-Error "Claude Code installation failed with exit code $LASTEXITCODE."
+        return 1
+    }
+    Update-ProcessPathFromEnvironment
+    if (-not (Get-Command claude -ErrorAction SilentlyContinue)) {
+        Write-Error "Claude Code was not found after installation. Please restart your terminal or install it manually."
+        return 1
+    }
+    Write-Output "Claude Code is installed."
+}
+
+function Install-Ollama {
+    if (Get-Command ollama -ErrorAction SilentlyContinue) {
+        Write-Output "Ollama is already installed."
+        return
+    }
+    if (-not $script:IsWindows) {
+        Write-Warning "Automatic Ollama installation using winget is only supported on Windows."
+        return 1
+    }
+    if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+        Write-Error "winget is not installed. Please install App Installer before installing Ollama."
+        return 1
+    }
+    Write-Output "Ollama not found. Installing Ollama using winget..."
+    winget install --id Ollama.Ollama -e --source winget --silent --accept-source-agreements --accept-package-agreements
+    if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne -1978335189) {
+        Write-Error "Ollama installation failed with exit code $LASTEXITCODE."
+        return 1
+    }
+    Update-ProcessPathFromEnvironment
+    if (-not (Get-Command ollama -ErrorAction SilentlyContinue)) {
+        Write-Error "Ollama was not found after installation. Please restart your terminal or install it manually."
+        return 1
+    }
+    Write-Output "Ollama is installed."
+}
+
+function Install-OllamaModels {
+    if (-not (Get-Command ollama -ErrorAction SilentlyContinue)) {
+        Write-Error "Ollama is not installed. Run Install-Ollama before downloading models."
+        return 1
+    }
+    try {
+        ollama pull qwen2.5:3b
+        if ($LASTEXITCODE -ne 0) { throw "Failed to download qwen2.5:3b (exit code $LASTEXITCODE)." }
+        ollama pull qwen2.5:7b
+        if ($LASTEXITCODE -ne 0) { throw "Failed to download qwen2.5:7b (exit code $LASTEXITCODE)." }
+    } catch {
+        Write-Error "$_ Ensure Ollama is running and retry."
+        return 1
+    }
+    Write-Output "Ollama models are installed."
+}
+
 function Set-TerraformEnvironmentType {
     param(
         [string]$type = "dev"
@@ -780,4 +854,4 @@ function Update-ProcessPathFromEnvironment {
     }
 }
 
-Export-ModuleMember -Function Initialize-PlatformState,Install-Pnpm,Install-NodeJsAndNpm,Install-Terraform,Install-Packer,Install-DockerCli,Install-PostgreSql,Install-AwsCli,Install-AzureCli,Install-AzureStorageExplorer,Install-Ripgrep,Install-Fd,Install-Jq,Install-Yq,Install-GitHubCli,Install-GitHubCopilotCli,Set-TerraformEnvironmentType,Set-ProjectRootFolder,Install-ProjectDependencies,Initialize-ResourceGroupBootstrap,Publish-MainEnvironment,Publish-ModuleDeployments,Publish-UserInterface,Test-InitializationEnvironment,Install-DevTools,Install-DevAiTools
+Export-ModuleMember -Function Initialize-PlatformState,Install-Pnpm,Install-NodeJsAndNpm,Install-Terraform,Install-Packer,Install-DockerCli,Install-PostgreSql,Install-AwsCli,Install-AzureCli,Install-AzureStorageExplorer,Install-Ripgrep,Install-Fd,Install-Jq,Install-Yq,Install-GitHubCli,Install-GitHubCopilotCli,Install-ClaudeCode,Install-Ollama,Set-TerraformEnvironmentType,Set-ProjectRootFolder,Install-ProjectDependencies,Initialize-ResourceGroupBootstrap,Publish-MainEnvironment,Publish-ModuleDeployments,Publish-UserInterface,Test-InitializationEnvironment,Install-DevTools,Install-DevAiTools

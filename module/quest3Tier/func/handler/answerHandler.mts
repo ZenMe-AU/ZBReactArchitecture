@@ -180,7 +180,8 @@ async function GetAnswerListByQuestionId(request, context) {
     return {
       ...ans,
       isEdited: ans.answerCount > 1 ? true : false,
-      profileId: ans.profileId === profileId ? ans.profileId : null,
+      profileId: ans.profileId, // TODO: Replace profileid with pairwiseid.
+      // TODO: lookup friend_name from friend table using profileId
       answerCount: undefined,
     };
   });

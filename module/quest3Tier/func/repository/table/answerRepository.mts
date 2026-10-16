@@ -8,7 +8,7 @@
 
 import { randomUUID } from "crypto";
 import { odata } from "@azure/data-tables";
-import { getTableClient } from "./tableClient.mjs";
+import { getTableClient } from "./init.mjs";
 import { assertProfileExists } from "./profileRepository.mjs";
 import { getQuestionById } from "./questionRepository.mjs";
 import { QUESTION_DATA_TABLE, questionPartitionKey, answerRowKey, answerRowKeyRange } from "./keys.mjs";

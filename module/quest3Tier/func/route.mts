@@ -8,8 +8,10 @@ import { requestHandler } from "./handler/handlerWrapper.mjs";
 import questionHandler from "./handler/questionHandler.mjs";
 import answerHandler from "./handler/answerHandler.mjs";
 import followupHandler from "./handler/followupHandler.mjs";
+import profileHandler from "./handler/profileHandler.mjs";
 import { sendFollowUpCmdSchema } from "./schema/sendFollowUpCmdSchema.mjs";
 import { shareQuestionCmdSchema } from "./schema/shareQuestionCmdSchema.mjs";
+import { updateMyProfileSchema } from "./schema/updateMyProfileSchema.mjs";
 
 //TODO: Review schema usage and ensure all endpoints have a correct schema assigned which is also in sync with the relevant function and relevant swagger doc.
 
@@ -83,6 +85,35 @@ app.http("GetSharedQuestionList", {
   handler: requestHandler(followupHandler.GetSharedQuestionListByUser),
 });
 
+app.http("GetMyProfile", {
+  route: "profile/me",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: requestHandler(profileHandler.GetMyProfile),
+});
+
+app.http("UpdateMyProfile", {
+  route: "profile/me",
+  methods: ["PUT"],
+  authLevel: "anonymous",
+  handler: requestHandler(profileHandler.UpdateMyProfile, {
+    schemas: [updateMyProfileSchema],
+  }),
+});
+
+app.http("AddMyFriend", {
+  route: "profile/me/friends/{id}",
+  methods: ["PUT"],
+  authLevel: "anonymous",
+  handler: requestHandler(profileHandler.AddMyFriend),
+});
+
+app.http("GetMyFriends", {
+  route: "profile/me/friends",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  handler: requestHandler(profileHandler.GetMyFriends),
+});
 app.http("SendFollowUpCmd", {
   route: "sendFollowUpCmd",
   methods: ["POST"],
