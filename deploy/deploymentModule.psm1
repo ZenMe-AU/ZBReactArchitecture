@@ -154,6 +154,95 @@ function Install-Pnpm {
             Write-Output "pnpm is installed and version $pnpmVersion meets the minimum required version $pnpmRequiredVersion."
         }
     }
+    Install-PnpmCompletion
+}
+
+function Install-PnpmCompletion {
+    try {
+        if ($script:IsWindows) {
+            $shellName = 'pwsh'
+        } elseif ($script:IsMacOS) {
+            $shellName = if ($env:SHELL) { Split-Path $env:SHELL -Leaf } else { 'zsh' }
+        } elseif ($script:IsUbuntu) {
+            $shellName = if ($env:SHELL) { Split-Path $env:SHELL -Leaf } else { 'bash' }
+        } else {
+            Write-Warning "Unsupported OS for automatic pnpm completion setup. Please run 'pnpm completion <shell>' manually."
+            return
+        }
+
+        switch ($shellName) {
+            'zsh'  { $profilePath = Join-Path $HOME '.zshrc';  $completionFile = Join-Path $HOME '.pnpm-completion.zsh' }
+            'bash' { $profilePath = Join-Path $HOME $(if ($script:IsMacOS) { '.bash_profile' } else { '.bashrc' }); $completionFile = Join-Path $HOME '.pnpm-completion.bash' }
+            'pwsh' { $profilePath = $PROFILE;                  $completionFile = Join-Path $HOME '.pnpm-completion.ps1' }
+            default {
+                Write-Warning "Unsupported shell '$shellName' for pnpm completion. Please run 'pnpm completion <shell>' manually."
+                return
+            }
+        }
+
+        Write-Output "Installing pnpm completion for $shellName..."
+        $generated = (pnpm completion $shellName) -join "`n"
+        if ($LASTEXITCODE -ne 0 -or -not $generated) { throw "pnpm completion $shellName failed" }
+
+        if ($shellName -eq 'pwsh') {
+            $marker = '$RequestComp="$Program completion-server"'
+            $filterAware = @'
+$Filter = $null
+    $FilterDir = $null
+    $Tokens = "$Arguments" -split '\s+'
+    for ($i = 0; $i -lt $Tokens.Count; $i++) {
+        if (($Tokens[$i] -eq '--filter' -or $Tokens[$i] -eq '-F') -and $i + 1 -lt $Tokens.Count) { $Filter = $Tokens[$i + 1] }
+        elseif ($Tokens[$i] -like '--filter=*') { $Filter = $Tokens[$i].Substring(9) }
+    }
+    if ($Filter) { $FilterDir = pnpm --filter $Filter ls --depth -1 --parseable 2>$null | Select-Object -First 1 }
+    $RequestComp = if ($FilterDir) { "Push-Location -LiteralPath '$($FilterDir -replace "'", "''")'; $Program completion-server; Pop-Location" } else { "$Program completion-server" }
+'@
+            $sourceLine = ". `"$completionFile`""
+        } else {
+            $marker = 'pnpm completion-server'
+            $filterAware = '_pnpm_filter_aware_completion_server'
+            $wrapper = @'
+
+_pnpm_filter_aware_completion_server() {
+  local filter="" prev="" word dir
+  for word in "$@"; do
+    case "$prev" in --filter|-F) filter="$word" ;; esac
+    case "$word" in --filter=*) filter="${word#--filter=}" ;; esac
+    prev="$word"
+  done
+  if [ -n "$filter" ]; then
+    dir=$(pnpm --filter "$filter" ls --depth -1 --parseable 2>/dev/null | head -n 1)
+    if [ -n "$dir" ]; then
+      (cd "$dir" && pnpm completion-server "$@")
+      return
+    fi
+  fi
+  pnpm completion-server "$@"
+}
+'@
+            $sourceLine = "[ -f `"$completionFile`" ] && source `"$completionFile`""
+        }
+
+        if ($generated.Contains($marker)) {
+            $generated = $generated.Replace($marker, $filterAware)
+            if ($shellName -ne 'pwsh') { $generated += $wrapper }
+        } else {
+            Write-Warning "pnpm's completion template changed; installing plain completion without --filter support."
+        }
+        [System.IO.File]::WriteAllText($completionFile, $generated + "`n")
+
+        if (-not (Test-Path $profilePath)) {
+            New-Item -ItemType File -Path $profilePath -Force | Out-Null
+        }
+        if (Select-String -Path $profilePath -SimpleMatch $completionFile -Quiet) {
+            Write-Output "pnpm completion already registered in $profilePath (regenerated $completionFile)."
+        } else {
+            Add-Content -Path $profilePath -Value "`n$sourceLine"
+            Write-Output "Added pnpm completion to $profilePath. Open a new terminal to use it."
+        }
+    } catch {
+        Write-Warning "pnpm shell completion was not installed: $_"
+    }
 }
 
 
@@ -854,4 +943,4 @@ function Update-ProcessPathFromEnvironment {
     }
 }
 
-Export-ModuleMember -Function Initialize-PlatformState,Install-Pnpm,Install-NodeJsAndNpm,Install-Terraform,Install-Packer,Install-DockerCli,Install-PostgreSql,Install-AwsCli,Install-AzureCli,Install-AzureStorageExplorer,Install-Ripgrep,Install-Fd,Install-Jq,Install-Yq,Install-GitHubCli,Install-GitHubCopilotCli,Install-ClaudeCode,Install-Ollama,Set-TerraformEnvironmentType,Set-ProjectRootFolder,Install-ProjectDependencies,Initialize-ResourceGroupBootstrap,Publish-MainEnvironment,Publish-ModuleDeployments,Publish-UserInterface,Test-InitializationEnvironment,Install-DevTools,Install-DevAiTools
+Export-ModuleMember -Function Initialize-PlatformState,Install-Pnpm,Install-NodeJsAndNpm,Install-Terraform,Install-Packer,Install-DockerCli,Install-PostgreSql,Install-AwsCli,Install-AzureCli,Install-AzureStorageExplorer,Install-Ripgrep,Install-Fd,Install-Jq,Install-Yq,Install-GitHubCli,Install-GitHubCopilotCli,Install-ClaudeCode,Install-Ollama,Set-TerraformEnvironmentType,Set-ProjectRootFolder,Install-ProjectDependencies,Initialize-ResourceGroupBootstrap,Publish-MainEnvironment,Publish-ModuleDeployments,Publish-UserInterface,Test-InitializationEnvironment,Install-DevTools,Install-DevAiTools,Install-PnpmCompletion
