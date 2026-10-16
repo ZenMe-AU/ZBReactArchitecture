@@ -3,25 +3,17 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const baseUrl = process.env.QUESTION_URL;
-const questionUrl = new URL("/question", baseUrl);
 import { test, expect } from "vitest";
-// import { generateToken } from "../../service/authUtils.mjs";
+import answerHandler from "../../handler/answerHandler.mjs";
+import { invokeHandler } from "./functionAppMock.mjs";
 
 const checkAnswer = (profileIdLookup, questionIdLookup) => {
   test.each(getAnswerTestResult())("There should be $count answers for question $questionId.", async (r) => {
-    // console.log(tokenLookup.data);
-    const response = await fetch(questionUrl + "/" + questionIdLookup.getQuestionId(r.questionId) + "/answers", {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-        "Access-Control-Allow-Origin": "*",
-        authorization: `Bearer ${profileIdLookup.getAuthToken(r.userId)}`,
-      },
+    const response = await invokeHandler(answerHandler.GetAnswerListByQuestionId, {
+      profileId: await profileIdLookup.getProfileId(r.userId),
+      params: { id: questionIdLookup.getQuestionId(r.questionId) },
     });
-    const resultData = await response.json();
-    const qty = resultData.return.list.length;
-    expect(qty).toBe(r.count);
+    expect(response.return.list.length).toBe(r.count);
   });
 };
 

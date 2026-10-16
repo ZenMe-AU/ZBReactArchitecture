@@ -6,6 +6,7 @@
 import { randomUUID } from "crypto";
 import * as authEntraID from "../../service/authEntraID.mjs";
 import * as authLocal from "../../service/authLocal.mjs";
+import { ensureProfile } from "../../service/profile.mjs";
 
 const authProviders = {
   authEntraID,
@@ -16,10 +17,13 @@ const loadAuthProvider = authProviders[process.env.AUTH_PROVIDER ?? "authEntraID
 
 const authProviderModule = loadAuthProvider;
 
-const createUser = () => {
-  createUserData().forEach((u) => {
-    profileIdLookup.add(u.userId);
-  });
+const createUser = async () => {
+  await Promise.all(
+    createUserData().map(async (u) => {
+      profileIdLookup.add(u.userId);
+      await profileIdLookup.getProfileId(u.userId);
+    })
+  );
 };
 
 const profileIdLookup = {
@@ -35,6 +39,14 @@ const profileIdLookup = {
       oid: this.data.find(d => d.testUserId === id)?.externalId,
     });
     return token;
+  },
+  getProfileId: async function (id) {
+    const user = this.data.find((d) => d.testUserId === id);
+    if (!user.profileId) {
+      const { profile } = await ensureProfile(user.externalId);
+      user.profileId = profile.internal_id;
+    }
+    return user.profileId;
   },
 };
 

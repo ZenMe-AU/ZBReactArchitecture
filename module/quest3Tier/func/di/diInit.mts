@@ -42,6 +42,7 @@ register("repository", async () => {
   console.log("Repository registered with DI container");
 });
 
-(async () => {
-  await startup();
-})();
+// register something else...(e.g. telemetry etc)
+const startupPromise = startup();
+
+export { startupPromise };
