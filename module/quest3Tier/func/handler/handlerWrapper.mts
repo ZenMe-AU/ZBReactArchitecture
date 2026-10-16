@@ -11,7 +11,7 @@ import container from "../di/diContainer.mjs";
 import { ensureProfile } from "../service/profile.mjs";
 
 const requestHandler =
-  (fn, { schemas = [], customParams = {}, requireAuth = true } = {}) =>
+  (fn, { params = null, schemas = [], customParams = {}, requireAuth = true } = {}) =>
   async (request, context) => {
     // await startup();
     const tracer = trace.getTracer("httpRequestTracer");
@@ -62,13 +62,17 @@ const requestHandler =
       if (!request.clientParams) {
         const contentType = request.headers.get("content-type");
         if (contentType && contentType.includes("application/json")) {
-          request.clientParams = await request.json();
+          request.clientParams = await request.json().catch(() => {
+            const err = new Error("Validation failed: body: Invalid JSON");
+            err.status = 400;
+            throw err;
+          });
         } else {
           request.clientParams = {};
         }
       }
-      // todo: exit if equal 0
-      if (schemas.length > 0) await validate(request, schemas);
+      if (params) validate(request.params, params, "params");
+      for (const schema of schemas) request.clientParams = validate(request.clientParams, schema, "body");
       request.customParams = customParams;
       console.log("✨✨correlationId:", request.correlationId);
       console.log("💁functionName:", functionName);
@@ -128,14 +132,15 @@ const requestHandler =
     }
   };
 
-const validate = async (request, schemas) => {
-  for (const schema of schemas) {
-    const { error, value } = schema.validate(request.clientParams);
-    if (error) {
-      throw new Error("Validation failed: " + error.details[0].message);
-    }
-    return value;
+const validate = (value, schema, location) => {
+  const result = schema.safeParse(value);
+  if (!result.success) {
+    const issue = result.error.issues[0];
+    const err = new Error(`Validation failed: ${[location, ...issue.path].join(".")}: ${issue.message}`);
+    err.status = 400;
+    throw err;
   }
+  return result.data;
 };
 
 const buildSpanContext = (traceId) => {
