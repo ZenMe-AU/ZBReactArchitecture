@@ -9,19 +9,19 @@ import { requestHandler } from "./handler/handlerWrapper.mjs";
 import questionHandler from "./handler/questionHandler.mjs";
 import answerHandler from "./handler/answerHandler.mjs";
 import followupHandler from "./handler/followupHandler.mjs";
-import * as CreateQuestion from "./schema/CreateQuestion.mjs";
-import * as GetQuestionById from "./schema/GetQuestionById.mjs";
-import * as UpdateQuestionById from "./schema/UpdateQuestionById.mjs";
-import * as PatchQuestionById from "./schema/PatchQuestionById.mjs";
-import * as AddAnswer from "./schema/AddAnswer.mjs";
-import * as GetAnswerById from "./schema/GetAnswerById.mjs";
-import * as GetQuestionListByUser from "./schema/GetQuestionListByUser.mjs";
-import * as GetAnswerListByQuestionId from "./schema/GetAnswerListByQuestionId.mjs";
-import * as ShareQuestion from "./schema/ShareQuestion.mjs";
-import * as GetSharedQuestionList from "./schema/GetSharedQuestionList.mjs";
-import * as SendFollowUpCmd from "./schema/SendFollowUpCmd.mjs";
-import * as ShareQuestionCmd from "./schema/ShareQuestionCmd.mjs";
-import * as getEventByCorrelationId from "./schema/getEventByCorrelationId.mjs";
+import * as CreateQuestion from "./handler/CreateQuestion.mjs";
+import * as GetQuestionById from "./handler/GetQuestionById.mjs";
+import * as UpdateQuestionById from "./handler/UpdateQuestionById.mjs";
+import * as PatchQuestionById from "./handler/PatchQuestionById.mjs";
+import * as AddAnswer from "./handler/AddAnswer.mjs";
+import * as GetAnswerById from "./handler/GetAnswerById.mjs";
+import * as GetQuestionListByUser from "./handler/GetQuestionListByUser.mjs";
+import * as GetAnswerListByQuestionId from "./handler/GetAnswerListByQuestionId.mjs";
+import * as ShareQuestion from "./handler/ShareQuestion.mjs";
+import * as GetSharedQuestionList from "./handler/GetSharedQuestionList.mjs";
+import * as SendFollowUpCmd from "./handler/SendFollowUpCmd.mjs";
+import * as ShareQuestionCmd from "./handler/ShareQuestionCmd.mjs";
+import * as getEventByCorrelationId from "./handler/getEventByCorrelationId.mjs";
 
 //TODO: Review schema usage and ensure all endpoints have a correct schema assigned which is also in sync with the relevant function and relevant swagger doc.
 
