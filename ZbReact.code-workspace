@@ -92,7 +92,7 @@
     "powershell.cwd": "ROOT",
     "powershell.scriptAnalysis.settingsPath": "PSScriptAnalyzerSettings.psd1",
     "powershell.scriptAnalysis.enable": true,
-
+    "js/ts.updateImportsOnFileMove.enabled": "always",
     "debug.internalConsoleOptions": "neverOpen",
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "dbaeumer.vscode-eslint",
