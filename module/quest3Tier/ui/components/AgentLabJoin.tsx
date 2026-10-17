@@ -23,7 +23,7 @@ export function AgentLabJoin() {
         const response = await fetch(`${LAB_URL}/api/run`, { cache: "no-store" });
         if (!response.ok) return;
         const run = await response.json();
-        if (!active || joined || !["waiting-for-human", "running"].includes(run.status)) return;
+        if (!active || joined || !["idle", "waiting-for-human", "running"].includes(run.status)) return;
         joined = true;
         setStatus("joining");
         const profileId = await getMyProfileId();
