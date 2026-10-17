@@ -68,6 +68,7 @@ function openChat(agent = "") {
   state.chatAgent = agent;
   state.chatMessages = [];
   elements.chatPanel.hidden = false;
+  elements.chatTitle.textContent = agent ? `${agent} chat` : "Test chat";
   elements.chatRunLabel.textContent = state.selectedRun
     ? `${agent ? `Chat with ${agent}` : "Results assistant"} · ${detailsForRun(state.selectedRun).title}`
     : "Select a run to begin";
@@ -207,10 +208,10 @@ async function loadRuns() {
   const newestRun = names[0] ?? "";
   if (!state.selectedRun || !names.includes(state.selectedRun) || state.selectedRun === state.latestRun) state.selectedRun = newestRun;
   state.latestRun = newestRun;
-  elements.chatTrigger.disabled = !state.selectedRun;
-    elements.chatRunLabel.textContent = state.selectedRun
-      ? `${state.chatAgent ? `Chat with ${state.chatAgent}` : "Results assistant"} · ${detailsForRun(state.selectedRun).title}`
-      : "Select a run to begin";
+  elements.chatTitle.textContent = state.chatAgent ? `${state.chatAgent} chat` : "Test chat";
+  elements.chatRunLabel.textContent = state.selectedRun
+    ? `${state.chatAgent ? `Chat with ${state.chatAgent}` : "Results assistant"} · ${detailsForRun(state.selectedRun).title}`
+    : "Select a run to begin";
   const signature = names.join("\n");
   if (elements.runList.dataset.signature !== signature) {
     elements.runList.dataset.signature = signature;
@@ -324,9 +325,6 @@ if (elements) {
     state.selectedEventId = null;
     for (const item of elements.viewTabs.querySelectorAll("[data-view]")) item.setAttribute("aria-pressed", String(item === tab));
     renderFeed();
-  });
-  elements.chatTrigger.addEventListener("click", () => {
-    openChat();
   });
   elements.chatClose.addEventListener("click", () => {
     elements.chatPanel.hidden = true;

@@ -38,7 +38,6 @@
     <div class="brand">ZB Agent Lab</div>
     <div class="top-actions">
       <button id="run-agent-test" class="new-test" type="button" data-idle-label="New agent test">New test</button>
-      <button id="open-chat" class="chat-trigger" type="button" aria-label="Ask about this test" disabled>💬 Chat</button>
       <span id="run-status" class="run-status" role="status">Loading</span>
     </div>
   </header>
@@ -82,7 +81,7 @@
   </div>
   <aside id="chat-panel" class="chat-panel" hidden aria-label="Test results chat">
     <header class="chat-head">
-      <div><h2>Ask about this test</h2><p id="chat-run-label">Select a run to begin</p></div>
+      <div><h2 id="chat-title">Chat</h2><p id="chat-run-label">Select a run to begin</p></div>
       <button id="close-chat" class="chat-close" type="button" aria-label="Close chat">×</button>
     </header>
     <ol id="chat-messages" class="chat-messages"><li class="chat-empty">Ask about scores, answers, leaks or agent behaviour.</li></ol>
