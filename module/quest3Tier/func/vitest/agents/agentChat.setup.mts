@@ -12,7 +12,7 @@ import { NAMES } from "./agentChat.config.mjs";
 export const AGENTS_DIR = path.dirname(fileURLToPath(import.meta.url));
 export const RUNS_DIR = path.join(AGENTS_DIR, "runs");
 export const LOCK_PATH = path.join(RUNS_DIR, ".lock");
-export const HUMAN_NAME = "Josh";
+export const HUMAN_NAME = process.env.HUMAN_NAME ?? "Human";
 const MEMORY_END = "<!-- /Q3_MEMORY -->";
 const PARTICIPANT_NAMES = [...NAMES, HUMAN_NAME];
 

@@ -138,8 +138,8 @@ describe("human participant", () => {
     expect(output).toContain("- Josh: Brisbane");
   });
 
-  test("uses the Q3 participant label without minting a synthetic human token", () => {
-    expect(HUMAN_NAME).toBe("Josh");
+  test("uses a configured human participant label without minting a synthetic token", () => {
+    expect(HUMAN_NAME).toBe(process.env.HUMAN_NAME ?? "Human");
   });
 
   test("attributes anonymous answers to the evaluator's real subject", () => {

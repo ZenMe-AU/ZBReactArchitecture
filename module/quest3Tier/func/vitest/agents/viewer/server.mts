@@ -250,7 +250,11 @@ async function selfCheck() {
   assert.equal(questionTopic({ title: "Where do you live?", text: "Choose your city" }), "Location");
   assert.equal(questionTopic({ title: "What do you do for fun?", text: "Choose one hobby" }), "Interests");
   const grouped = groupQuestions(
-    [{ agent: "Bella", kind: "answer", questionId: "q-1", text: 'answered "Where do you live?": Melbourne' }],
+    [
+      { agent: "", kind: "start", questionId: undefined, participants: ["Eric", "Bella", "Ian"], text: "Run starts. Online: Eric, Bella, Ian." },
+      { agent: "Eric", kind: "share", questionId: "q-1", text: 'shared "Where do you live?" with Bella, Ian' },
+      { agent: "Bella", kind: "answer", questionId: "q-1", text: 'answered "Where do you live?": Melbourne' },
+    ],
     [
       { id: "q-1", title: "Where do you live?", owner: "Eric", text: "", answers: [{ author: "Unknown", text: "Melbourne" }] },
       { id: "q-2", title: "Where do you live?", owner: "Bella", text: "", answers: [{ author: "Eric", text: "Taipei" }, { author: "Mike", text: "Seoul" }] },
@@ -260,6 +264,18 @@ async function selfCheck() {
     { id: "q-1", answers: [{ author: "Bella", text: "Melbourne" }] },
     { id: "q-2", answers: [{ author: "Eric", text: "Taipei" }, { author: "Mike", text: "Seoul" }] },
   ]);
+  assert.deepEqual(grouped.map(({ id, sharedWith }) => ({ id, sharedWith })), [
+    { id: "q-1", sharedWith: ["Bella", "Ian"] },
+    { id: "q-2", sharedWith: [] },
+  ]);
+  const anonymousRecipients = groupQuestions(
+    [
+      { agent: "", kind: "start", participants: ["Mike", "Ian", "Eric"], text: "Run starts. Online: Mike, Ian, Eric." },
+      { agent: "Mike", kind: "share", questionId: "q-3", text: 'shared "Where do you live?" with Person 1, Person 2' },
+    ],
+    [{ id: "q-3", title: "Where do you live?", owner: "Mike", text: "", answers: [{ author: "Ian", text: "Cape Town" }, { author: "Eric", text: "Taipei" }] }]
+  );
+  assert.deepEqual(anonymousRecipients[0].sharedWith, ["Ian", "Eric"]);
   const result = parseReport(
     "## Metrics\n\n| Agent | Steps | New questions | Edits | Shares | Re-shares | Answered / others' seen |\n|---|---|---|---|---|---|---|\n| Mike | 2 | 1 | 0 | 1 | 1 | 1/2 |\n\n## Judge\n\n| Observer | Subject | Accuracy /10 | Hidden links found | Note |\n|---|---|---|---|---|\n| Mike | Bella | 8 | - | Accurate |\n\n### Leaks\n\n- none\n\n## Findings"
   );

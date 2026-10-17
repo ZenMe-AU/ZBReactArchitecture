@@ -263,7 +263,27 @@ export async function runAgentChat() {
     const humanProfileId = process.env.HUMAN_PROFILE_ID;
     const humanMode = Boolean(humanProfileId);
     if (process.env.HUMAN_RUN === "1" && !humanProfileId) throw new Error("HUMAN_PROFILE_ID is required for a human test");
-    const participants = humanMode ? [...aiParticipants, HUMAN_NAME] : aiParticipants;
+    const agents = await Promise.all(aiParticipants.map(loadAgent));
+    const human = humanMode ? { name: HUMAN_NAME, profileId: humanProfileId } : null;
+    const actors = human ? [...agents, human] : agents;
+    for (const actor of agents) {
+      const me = await call(actor, "GET", new URL("/profile/me", QUESTION_URL));
+      if (me.status >= 400) throw new Error(`Could not register ${actor.name} (${me.status})`);
+      actor.profileId = me.response.return.id;
+    }
+    // A real human profile can have normal Q3 data. Only Lab-owned agent data is reset.
+    const removed = await resetExperiment(agents.map((agent) => agent.profileId));
+    await Promise.all(actors.flatMap((actor, index) => actors.slice(index + 1).map(async (friend) => {
+      const result = await call(actor, "PUT", new URL(`/profile/me/friends/${friend.profileId}`, QUESTION_URL));
+      if (result.status >= 400) throw new Error(`Could not connect ${actor.name} and ${friend.name} (${result.status})`);
+    })));
+    if (human) {
+      const contacts = await list(agents[0], "/profile/me/friends");
+      const profile = contacts.find((contact) => contact.id === human.profileId);
+      if (profile?.name) human.name = profile.name;
+    }
+    const realNamesById = Object.fromEntries(actors.map((actor) => [actor.profileId, actor.name]));
+    const participants = human ? [...aiParticipants, human.name] : aiParticipants;
     const runName = `${new Date().toISOString().replaceAll(":", "-")}_${participants.join("-")}`;
     // Live chat log: printed as it happens (run vitest with --disableConsoleIntercept) and appended to a file you can keep open.
     const chatPath = path.join(RUNS_DIR, `${runName}.chat.md`);
@@ -273,22 +293,7 @@ export async function runAgentChat() {
       await appendFile(chatPath, `${text}\n\n`);
     };
     await say(`Run starts. Online: ${participants.join(", ")}.`);
-    const agents = await Promise.all(aiParticipants.map(loadAgent));
-    const human = humanMode ? { name: HUMAN_NAME, profileId: humanProfileId } : null;
-    const actors = human ? [...agents, human] : agents;
-    for (const actor of agents) {
-      const me = await call(actor, "GET", new URL("/profile/me", QUESTION_URL));
-      if (me.status >= 400) throw new Error(`Could not register ${actor.name} (${me.status})`);
-      actor.profileId = me.response.return.id;
-    }
-    const realNamesById = Object.fromEntries(actors.map((actor) => [actor.profileId, actor.name]));
-    // A real human profile can have normal Q3 data. Only Lab-owned agent data is reset.
-    const removed = await resetExperiment(agents.map((agent) => agent.profileId));
     await say(`Fresh test. Cleared ${removed.records} Q3 records and ${removed.disclosures} name disclosures.`);
-    await Promise.all(actors.flatMap((actor, index) => actors.slice(index + 1).map(async (friend) => {
-      const result = await call(actor, "PUT", new URL(`/profile/me/friends/${friend.profileId}`, QUESTION_URL));
-      if (result.status >= 400) throw new Error(`Could not connect ${actor.name} and ${friend.name} (${result.status})`);
-    })));
     await say(`Participant friend network ready: ${actors.map((actor) => actor.name).join(", ")}.`);
 
     const participantIds = new Set(Object.keys(realNamesById));
