@@ -24,9 +24,12 @@ const decode = async (token) => {
   }
 
   try {
-    return jwt.verify(token, jwtSecret, { algorithms: ["HS256"] });
-  } catch {
-    throw Object.assign(new Error("Invalid or expired token"), { status: 401 });
+    return jwt.verify(token, jwtSecret, { algorithms: [jwtSignOptions.algorithm] });
+  } catch (error) {
+    console.log("JWT verification failed:", error.message);
+    const err = new Error("Invalid or expired token");
+    err.status = 401;
+    throw err;
   }
 };
 

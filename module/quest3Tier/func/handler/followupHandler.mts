@@ -8,51 +8,6 @@ import { getRepository } from "../repository/getRepository.mjs";
 import { v4 as uuidv4 } from "uuid";
 import cmdName from "../enum/cmdName.mjs";
 
-/**
- * @swagger
- * /getEventByCorrelationId/{name}/{correlationId}:
- *   get:
- *     tags:
- *       - Event
- *     summary: Get event by correlation ID
- *     description: Retrieve event details based on the event name and correlation ID.
- *     parameters:
- *       - name: name
- *         in: path
- *         required: true
- *         schema:
- *           type: string
- *           enum: [FollowUpCmd, ShareQuestionCmd]
- *         description: The event name (must be one of the predefined command names).
- *         example: "FollowUpCmd"
- *       - name: correlationId
- *         in: path
- *         required: true
- *         schema:
- *           type: string
- *           format: uuid
- *         description: The UUID correlation ID of the event.
- *         example: "550e8400-e29b-41d4-a716-446655440000"
- *     responses:
- *       200:
- *         description: Successfully retrieved event details.
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   description: Indicates if the request was successful.
- *                   example: true
- *                 return:
- *                   type: object
- *                   properties:
- *                     qty:
- *                       type: integer
- *                       description: The quantity of items.
- *                       example: 5
- */
 async function GetEventByCorrelationId(request, context) {
   const repository = getRepository();
   const { name, correlationId } = request.params;
@@ -60,7 +15,6 @@ async function GetEventByCorrelationId(request, context) {
   return { return: { qty: result.length } };
 }
 
-// TODO: Add swagger definition
 async function SendFollowUpCmd(request, context) {
   const repository = getRepository();
   const { correlationId, clientParams: body } = request;
@@ -112,7 +66,6 @@ async function getFollowUpReceiver(senderId, cmdData) {
   }
 }
 
-// TODO: Add swagger definition
 async function ShareQuestionCmd(request, context) {
   const repository = getRepository();
   const { correlationId, clientParams: body } = request;

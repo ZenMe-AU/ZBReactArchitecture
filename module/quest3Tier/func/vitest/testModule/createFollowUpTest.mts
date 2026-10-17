@@ -3,32 +3,24 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const baseUrl = process.env.QUESTION_URL;
-const sendFollowUpCmdUrl = new URL("/sendFollowUpCmd", baseUrl);
 import { test, expect } from "vitest";
+import followupHandler from "../../handler/followupHandler.mjs";
+import { invokeHandler } from "./functionAppMock.mjs";
 
 const createFollowUp = (profileIdLookup, questionIdLookup, testCorrelationId) => {
   test.each(followUpData())("send follow-up question by user $userId", async (followUp) => {
-    const response = await fetch(sendFollowUpCmdUrl, {
-      headers: {
-        "Content-Type": "application/json",
-        authorization: `Bearer ${profileIdLookup.getAuthToken(followUp.userId)}`,
-        "x-correlation-id": testCorrelationId,
+    const response = await invokeHandler(followupHandler.SendFollowUpCmd, {
+      userData: {
+        profileId: await profileIdLookup.getProfileId(followUp.userId),
       },
-      method: "POST",
-      body: JSON.stringify({
+      correlationId: testCorrelationId,
+      clientParams: {
         newQuestionId: questionIdLookup.getQuestionId(followUp.newQuestionId),
-        question: [
-          {
-            questionId: questionIdLookup.getQuestionId(followUp.questionId),
-            option: [followUp.option],
-          },
-        ],
+        question: [{ questionId: questionIdLookup.getQuestionId(followUp.questionId), option: [followUp.option] }],
         isSave: followUp.isSave,
-      }),
+      },
     });
-
-    expect(response.ok).toBeTruthy();
+    expect(response).toEqual({ return: true });
   });
 };
 

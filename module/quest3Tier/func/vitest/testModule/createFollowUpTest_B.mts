@@ -3,65 +3,32 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const baseUrl = process.env.QUESTION_URL;
-// const profileBaseUrl = process.env.PROFILE_URL;
-// const profileUrl = new URL("/profile", profileBaseUrl);
-const eventUrl = new URL("/getEventByCorrelationId", baseUrl);
-const followUpQuestionQty = 5;
 import { test, expect } from "vitest";
+import followupHandler from "../../handler/followupHandler.mjs";
+import { invokeHandler } from "./functionAppMock.mjs";
 
-const checkShareQuestion = (profileIdLookup, testCorrelationId) => {
-  //   test.each(shareQuestionData())("check shared question by user $userId", async (shared) => {
-  //     let qty = 0;
-  //     for (let i = 0; i < 5; i++) {
-  //       const response = await fetch(profileUrl + "/sharedQuestion", {
-  //         method: "GET",
-  //         headers: { authorization: `Bearer ${profileIdLookup.getAuthToken(shared.userId)}` },
-  //       });
-  //       let resultData = await response.json();
-  //       qty = resultData.return.list.length;
-  //       if (qty === shared.count) {
-  //         break;
-  //       }
-  //       await new Promise((resolve) => setTimeout(resolve, 1000));
-  //     }
-  //     expect(qty).toBe(shared.count);
-  //   });
+const followUpQuestionQty = 5;
+
+const checkShareQuestion = () => {
+  // Sharing tests remain disabled until shared-question fixtures are defined.
 };
 
 const checkFollowUpQty = (testCorrelationId, profileIdLookup) => {
-  test(
-    "check follow up question by Correlation Id:" + testCorrelationId,
-    async () => {
-      let qty = 0;
-      for (let i = 0; i < 5; i++) {
-        const response = await fetch(eventUrl + "/FollowUpCmd/" + testCorrelationId, {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-            authorization: `Bearer ${profileIdLookup.getAuthToken(1)}`,
-            "Access-Control-Allow-Origin": "*",
-          },
-        });
-        if (!response.ok) {
-          console.error(`Error: ${response.status} - ${response.statusText}`);
-          break;
-        }
-        let resultData = await response.json();
-        qty = resultData.return.qty;
-
-        if (qty === followUpQuestionQty) {
-          break;
-        } else {
-          console.log(`Retrying... expected qty: ${followUpQuestionQty}, current qty: ${qty}`);
-        }
-
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-      }
-      expect(qty).toBe(followUpQuestionQty);
-    },
-    100000
-  );
+  test("check follow up question by Correlation Id:" + testCorrelationId, async () => {
+    let qty = 0;
+    for (let i = 0; i < 5; i++) {
+      const response = await invokeHandler(followupHandler.GetEventByCorrelationId, {
+        userData: {
+          profileId: await profileIdLookup.getProfileId(1),
+        },
+        params: { name: "FollowUpCmd", correlationId: testCorrelationId },
+      });
+      qty = response.return.qty;
+      if (qty === followUpQuestionQty) break;
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+    }
+    expect(qty).toBe(followUpQuestionQty);
+  }, 100000);
 };
 
 function shareQuestionData() {
