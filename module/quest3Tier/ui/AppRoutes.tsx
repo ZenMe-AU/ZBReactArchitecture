@@ -8,6 +8,7 @@ import { Navigate, Outlet, useRoutes } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { useAuthState } from "./auth/AuthProvider";
+import { Button } from "@mui/material";
 import * as AddQuestionModule from "./routes/AddQuestion";
 import * as AnswerQuestionModule from "./routes/AnswerQuestion";
 import * as EditQuestionModule from "./routes/EditQuestion";
@@ -18,6 +19,7 @@ import * as QuestionDetailAddModule from "./routes/QuestionDetailAdd";
 import * as ShareQuestionModule from "./routes/ShareQuestion";
 import ManageFriends from "./routes/ManageFriends";
 import Login from "./routes/Login";
+import { AgentLabJoin } from "./components/AgentLabJoin";
 
 type FrameworkRouteModule = {
   default: (props: { loaderData?: unknown }) => JSX.Element;
@@ -63,7 +65,7 @@ function RouteModuleElement({ routeModule }: { routeModule: FrameworkRouteModule
 }
 
 function RequireAuth() {
-  const { isAuthenticated, isAuthReady } = useAuthState();
+  const { isAuthenticated, isAuthReady, logout } = useAuthState();
   const location = useLocation();
 
   if (!isAuthReady)
@@ -75,7 +77,15 @@ function RequireAuth() {
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location.pathname + location.search }} replace />;
   }
-  return <Outlet />;
+  return (
+    <>
+      <AgentLabJoin />
+      <Button onClick={() => void logout()} variant="outlined" size="small" sx={{ position: "fixed", top: 12, right: 16, zIndex: 1200 }}>
+        Log out
+      </Button>
+      <Outlet />
+    </>
+  );
 }
 
 export default function Quest3TierAppRoutes() {

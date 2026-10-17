@@ -38,6 +38,7 @@ const STATIC_FILES = {
 type RunState = { status: string; humanMode?: boolean; startedAt?: string; finishedAt?: string; humanProfileId?: string; humanName?: string; error?: string; exitCode?: number };
 const state: { runProcess?: ChildProcess; azuriteProcess?: ChildProcess; run: RunState } = { run: { status: "idle" } };
 const tableRepositoryState: { value?: Promise<{ listFriends(profileId: string): Promise<unknown[]> }> } = {};
+const pendingHuman: { profileId?: string; name?: string } = {};
 
 async function localSettings() {
   return JSON.parse(await readFile(path.join(FUNC_DIR, "local.settings.json"), "utf8")).Values ?? {};
@@ -229,7 +230,10 @@ async function handle(request, response) {
     if (state.runProcess || ["starting", "waiting-for-human"].includes(state.run.status)) return sendJson(response, 409, state.run);
     try {
       await readJson(request);
-      await startRun();
+      const human = pendingHuman.profileId ? { profileId: pendingHuman.profileId, name: pendingHuman.name ?? "Human" } : undefined;
+      delete pendingHuman.profileId;
+      delete pendingHuman.name;
+      await startRun(human?.profileId, human?.name);
       return sendJson(response, 202, state.run);
     } catch (error) {
       state.run = { ...state.run, status: "failed", error: error.message, finishedAt: new Date().toISOString() };
@@ -243,6 +247,17 @@ async function handle(request, response) {
   }
   if (url.pathname === "/api/join" && request.method === "POST") {
     if (!isQ3Origin(request)) return sendJson(response, 403, { error: "Q3 UI origin required" });
+    if (state.run.status === "idle") {
+      try {
+        const body = await readJson(request);
+        if (typeof body.profileId !== "string" || !body.profileId.trim()) return sendJoinJson(response, 400, { error: "profileId is required" }, request.headers.origin);
+        pendingHuman.profileId = body.profileId.trim();
+        pendingHuman.name = typeof body.name === "string" && body.name.trim() ? body.name.trim() : "Human";
+        return sendJoinJson(response, 202, { registered: true }, request.headers.origin);
+      } catch (error) {
+        return sendJoinJson(response, 400, { error: error instanceof Error ? error.message : String(error) }, request.headers.origin);
+      }
+    }
     if (!["running", "waiting-for-human"].includes(state.run.status)) return sendJoinJson(response, 409, { error: "No active test" }, request.headers.origin);
     try {
       const body = await readJson(request);
