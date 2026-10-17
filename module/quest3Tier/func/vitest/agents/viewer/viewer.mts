@@ -39,7 +39,7 @@ function setCount(name, value) {
   if (target) target.textContent = String(value);
 }
 
-const participantsFor = (events) => new Set(events.find((event) => event.kind === "start")?.participants ?? events.map((event) => event.agent).filter(Boolean));
+const participantsFor = (events) => new Set<string>(events.find((event) => event.kind === "start")?.participants ?? events.map((event) => event.agent).filter(Boolean));
 
 function visibleEvents() {
   const view = VIEWS[state.activeView];
@@ -111,7 +111,7 @@ function renderProfiles(participants) {
         state.activeAgent = name;
         state.activeView = "relationships";
         state.selectedEventId = null;
-        for (const item of elements.viewTabs.querySelectorAll("[data-view]")) item.setAttribute("aria-pressed", String(item.dataset.view === state.activeView));
+        for (const item of elements.viewTabs.querySelectorAll<HTMLElement>("[data-view]")) item.setAttribute("aria-pressed", String(item.dataset.view === state.activeView));
         renderProfiles(participants);
         renderFeed();
         return;
@@ -120,7 +120,7 @@ function renderProfiles(participants) {
       state.activeAgent = state.activeAgent === name ? "" : name;
       state.selectedEventId = null;
       state.activeView = "chat";
-      for (const item of elements.viewTabs.querySelectorAll("[data-view]")) item.setAttribute("aria-pressed", String(item.dataset.view === state.activeView));
+      for (const item of elements.viewTabs.querySelectorAll<HTMLElement>("[data-view]")) item.setAttribute("aria-pressed", String(item.dataset.view === state.activeView));
       renderProfiles(participants);
       renderFeed();
     },
@@ -377,7 +377,7 @@ if (elements) {
   elements.chatClose.addEventListener("click", () => {
     elements.chatPanel.hidden = true;
     state.activeView = "overview";
-    for (const item of elements.viewTabs.querySelectorAll("[data-view]")) item.setAttribute("aria-pressed", String(item.dataset.view === state.activeView));
+    for (const item of elements.viewTabs.querySelectorAll<HTMLElement>("[data-view]")) item.setAttribute("aria-pressed", String(item.dataset.view === state.activeView));
     renderFeed();
   });
   elements.chatForm.addEventListener("submit", async (event) => {
