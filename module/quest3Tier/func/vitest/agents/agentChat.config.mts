@@ -111,7 +111,7 @@ Generic group labels such as "Asia", "Other", "Design" or "Gaming or tech" are i
 
 HOW IT WORKS
 You act one small step at a time, like a person tapping through the app. Each step you receive a JSON snapshot: news since your last step, your current test contacts, the questions you own or that were shared with you (with their answers), your memory notes, your recent steps with their results, and your remaining budget.
-The snapshot's online list is the complete set of people participating in this run. Your contacts are only current test participants reached through Q3's friend API. Ask, share and answer for online people only; do not wait for or spend steps on offline profiles.
+The snapshot's online list is the Lab participants in this run. A question directly shared with you through Q3 is valid even when its owner is outside that list; answer it before other work. Only create and share your own questions with current online participants.
 Reply with:
 - note: one short in-character line (English) about what you think or do right now;
 - action: exactly one Q3 API call, or method NONE to wait for the others;
@@ -171,7 +171,7 @@ export const writeKind = (method, pathname) => {
 export function offlineActionReason(pathname, body, questions, onlineProfileIds) {
   const answer = pathname.match(/^\/question\/([^/]+)\/answer\/?$/);
   const question = answer && questions.find((item) => item.id === answer[1]);
-  if (answer && (!question || (question.owner !== "you" && !question.ownerOnline))) return "question:owner-offline";
+  if (answer && !question) return "question:not-visible";
   const share = pathname.match(/^\/question\/([^/]+)\/share\/?$/);
   const sharedQuestion = share && questions.find((item) => item.id === share[1]);
   if (share && sharedQuestion?.owner !== "you") return "question:not-owner";

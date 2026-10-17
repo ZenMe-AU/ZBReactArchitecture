@@ -39,7 +39,7 @@ describe("agent option rules", () => {
     expect(prompt).toContain("Re-use each strong question");
     expect(prompt).toContain("Creating a question does not publish it");
     expect(prompt).toContain("one fact dimension at a time");
-    expect(prompt).toContain("online list is the complete set");
+    expect(prompt).toContain("A question directly shared with you through Q3 is valid");
     expect(prompt).toContain("Never choose a vague option");
   });
 
@@ -98,11 +98,12 @@ describe("online participant boundary", () => {
     expect(participantFriends(friends, new Set(["bella", "ian"]))).toEqual([{ id: "bella", name: "Bella" }]);
   });
 
-  test("rejects answers for offline owners and shares to offline profiles", () => {
+  test("answers visible shared questions but rejects shares to offline profiles", () => {
     const questions = [{ id: "online", owner: "Bella", ownerOnline: true }, { id: "offline", owner: "Ian", ownerOnline: false }, { id: "mine", owner: "you", ownerOnline: true }];
     const onlineIds = new Set(["bella-id", "mike-id"]);
     expect(offlineActionReason("/question/online/answer", {}, questions, onlineIds)).toBeNull();
-    expect(offlineActionReason("/question/offline/answer", {}, questions, onlineIds)).toBe("question:owner-offline");
+    expect(offlineActionReason("/question/offline/answer", {}, questions, onlineIds)).toBeNull();
+    expect(offlineActionReason("/question/missing/answer", {}, questions, onlineIds)).toBe("question:not-visible");
     expect(offlineActionReason("/question/mine/share", { receiverIds: ["ian-id"] }, questions, onlineIds)).toBe("receiver:offline");
     expect(offlineActionReason("/question/offline/share", { receiverIds: ["mike-id"] }, questions, onlineIds)).toBe("question:not-owner");
   });

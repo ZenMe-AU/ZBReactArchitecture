@@ -122,7 +122,7 @@ const digest = (agent, questions) => questions.forEach((q) => q.answers.forEach(
 
 async function observe(agent) {
   const { questions: visibleQuestions, profiles } = await snapshot(agent);
-  const questions = visibleQuestions.filter((question) => question.isOwner || agent.realNamesById?.[question.profileId]);
+  const questions = visibleQuestions;
   const names = Object.fromEntries(profiles.map((p) => [p.id, p.name]));
 
   // News = what appeared since this agent last looked, so it can react like a person reading notifications.
@@ -330,7 +330,7 @@ export async function runAgentChat() {
         console.error(`[ERROR] Failed to list questions for ${agent.name}: ${err.message}`);
         await say(`[ERROR] Failed to list questions for ${agent.name}: ${err.message}`);
       }
-      const current = visible.filter((question) => question.isOwner || realNamesById[question.profileId]);
+      const current = visible;
       if ("steps" in agent) agent.seenOthers = current.filter((question) => !question.isOwner).length;
       for (const q of current) {
         questions.set(q.id, q);
