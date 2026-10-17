@@ -10,7 +10,9 @@ import { invokeHandler } from "./functionAppMock.mjs";
 const checkAnswer = (profileIdLookup, questionIdLookup) => {
   test.each(getAnswerTestResult())("There should be $count answers for question $questionId.", async (r) => {
     const response = await invokeHandler(answerHandler.GetAnswerListByQuestionId, {
-      profileId: await profileIdLookup.getProfileId(r.userId),
+      userData: {
+        profileId: await profileIdLookup.getProfileId(r.userId),
+      },
       params: { id: questionIdLookup.getQuestionId(r.questionId) },
     });
     expect(response.return.list.length).toBe(r.count);

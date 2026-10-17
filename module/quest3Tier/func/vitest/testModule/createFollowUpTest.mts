@@ -10,7 +10,9 @@ import { invokeHandler } from "./functionAppMock.mjs";
 const createFollowUp = (profileIdLookup, questionIdLookup, testCorrelationId) => {
   test.each(followUpData())("send follow-up question by user $userId", async (followUp) => {
     const response = await invokeHandler(followupHandler.SendFollowUpCmd, {
-      profileId: await profileIdLookup.getProfileId(followUp.userId),
+      userData: {
+        profileId: await profileIdLookup.getProfileId(followUp.userId),
+      },
       correlationId: testCorrelationId,
       clientParams: {
         newQuestionId: questionIdLookup.getQuestionId(followUp.newQuestionId),

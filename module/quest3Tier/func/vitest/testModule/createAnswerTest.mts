@@ -10,7 +10,9 @@ import { invokeHandler } from "./functionAppMock.mjs";
 const createAnswer = (profileIdLookup, questionIdLookup) => {
   test.each(answerData())("answer question $questionId by user $userId", async (answer) => {
     const response = await invokeHandler(answerHandler.AddAnswer, {
-      profileId: await profileIdLookup.getProfileId(answer.userId),
+      userData: {
+        profileId: await profileIdLookup.getProfileId(answer.userId),
+      },
       params: { id: questionIdLookup.getQuestionId(answer.questionId) },
       clientParams: answer,
     });

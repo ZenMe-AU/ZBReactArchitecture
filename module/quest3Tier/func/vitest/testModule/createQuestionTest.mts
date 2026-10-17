@@ -11,7 +11,9 @@ import { invokeHandler } from "./functionAppMock.mjs";
 export function createQuestion(profileIdLookup) {
   test.each(questionData())("create question $questionId", async (q) => {
     const question = await invokeHandler(questionHandler.CreateQuestion, {
-      profileId: await profileIdLookup.getProfileId(q.userId),
+      userData: {
+        profileId: await profileIdLookup.getProfileId(q.userId),
+      },
       clientParams: {
         title: q.title,
         questionText: q.question,
@@ -28,7 +30,9 @@ export function createQuestion(profileIdLookup) {
 const checkQuestion = (profileIdLookup) => {
   test.each(questionTestResult())("There should be $count questions by user $userId", async (r) => {
     const response = await invokeHandler(questionHandler.GetQuestionListByUser, {
-      profileId: await profileIdLookup.getProfileId(r.userId),
+      userData: {
+        profileId: await profileIdLookup.getProfileId(r.userId),
+      },
     });
     expect(response.return.list.length).toBe(r.count);
   });

@@ -31,12 +31,12 @@ await startupPromise;
 export const invokeHandler = async (
   handler: Function,
   {
-    profileId,
+    userData: { profileId },
     params = {},
     clientParams = {},
     correlationId = "vitest-correlation-id",
   }: {
-    profileId: string;
+    userData: { profileId: string };
     params?: Record<string, string>;
     clientParams?: Record<string, unknown>;
     correlationId?: string;

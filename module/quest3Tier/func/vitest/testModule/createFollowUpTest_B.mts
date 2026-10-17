@@ -18,7 +18,9 @@ const checkFollowUpQty = (testCorrelationId, profileIdLookup) => {
     let qty = 0;
     for (let i = 0; i < 5; i++) {
       const response = await invokeHandler(followupHandler.GetEventByCorrelationId, {
-        profileId: await profileIdLookup.getProfileId(1),
+        userData: {
+          profileId: await profileIdLookup.getProfileId(1),
+        },
         params: { name: "FollowUpCmd", correlationId: testCorrelationId },
       });
       qty = response.return.qty;

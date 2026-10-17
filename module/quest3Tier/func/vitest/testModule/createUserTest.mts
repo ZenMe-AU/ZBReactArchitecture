@@ -44,7 +44,7 @@ const profileIdLookup = {
     const user = this.data.find((d) => d.testUserId === id);
     if (!user.profileId) {
       const { profile } = await ensureProfile(user.externalId);
-      user.profileId = profile.internal_id;
+      user.profileId = profile.id;
     }
     return user.profileId;
   },
