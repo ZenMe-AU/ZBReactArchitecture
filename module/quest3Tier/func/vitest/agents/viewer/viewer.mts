@@ -22,6 +22,7 @@ const state = {
   network: {},
   selectedEventId: null,
   chatMessages: [] as { role: "user" | "assistant"; content: string }[],
+  chatAgent: "",
 };
 
 const detailsForRun = (name) => {
@@ -62,6 +63,18 @@ function renderInspector(event) {
 
 const resultContext = () => ({ activeAgent: state.activeAgent, elements, network: state.network, report: state.currentReport, renderInspector });
 
+function openChat(agent = "") {
+  state.activeAgent = "";
+  state.chatAgent = agent;
+  state.chatMessages = [];
+  elements.chatPanel.hidden = false;
+  elements.chatRunLabel.textContent = state.selectedRun
+    ? `${agent ? `Chat with ${agent}` : "Results assistant"} · ${detailsForRun(state.selectedRun).title}`
+    : "Select a run to begin";
+  renderChat();
+  elements.chatInput.focus();
+}
+
 function renderProfiles(participants) {
   renderProfileCards({
     activeProfile: state.activeAgent,
@@ -71,10 +84,7 @@ function renderProfiles(participants) {
     participants,
     questions: state.currentReport.questionList,
     onSelect: (name) => {
-      state.activeAgent = state.activeAgent === name ? "" : name;
-      state.selectedEventId = null;
-      renderProfiles(participants);
-      renderFeed();
+      openChat(name);
     },
   });
 }
@@ -198,7 +208,9 @@ async function loadRuns() {
   if (!state.selectedRun || !names.includes(state.selectedRun) || state.selectedRun === state.latestRun) state.selectedRun = newestRun;
   state.latestRun = newestRun;
   elements.chatTrigger.disabled = !state.selectedRun;
-  elements.chatRunLabel.textContent = state.selectedRun ? detailsForRun(state.selectedRun).title : "Select a run to begin";
+    elements.chatRunLabel.textContent = state.selectedRun
+      ? `${state.chatAgent ? `Chat with ${state.chatAgent}` : "Results assistant"} · ${detailsForRun(state.selectedRun).title}`
+      : "Select a run to begin";
   const signature = names.join("\n");
   if (elements.runList.dataset.signature !== signature) {
     elements.runList.dataset.signature = signature;
@@ -299,6 +311,7 @@ if (elements) {
     state.announcedRun = "";
     state.announcedCount = 0;
     state.selectedEventId = null;
+    state.chatAgent = "";
     state.chatMessages = [];
     renderChat();
     refreshLog();
@@ -313,8 +326,7 @@ if (elements) {
     renderFeed();
   });
   elements.chatTrigger.addEventListener("click", () => {
-    elements.chatPanel.hidden = false;
-    elements.chatInput.focus();
+    openChat();
   });
   elements.chatClose.addEventListener("click", () => {
     elements.chatPanel.hidden = true;
@@ -331,7 +343,7 @@ if (elements) {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ run: state.selectedRun, message, history: state.chatMessages }),
+        body: JSON.stringify({ run: state.selectedRun, agent: state.chatAgent, message, history: state.chatMessages }),
       });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error ?? "Chat request failed");

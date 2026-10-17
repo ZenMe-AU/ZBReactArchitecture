@@ -104,6 +104,7 @@ const CHAT_SCHEMA = {
   properties: { answer: { type: "string" } },
   required: ["answer"],
 };
+const AGENT_NAMES = new Set(["Mike", "Bella", "Ian", "Eric"]);
 
 async function readJson(request) {
   const chunks: Buffer[] = [];
@@ -111,14 +112,18 @@ async function readJson(request) {
   return chunks.length ? JSON.parse(Buffer.concat(chunks).toString("utf8")) : {};
 }
 
-async function answerAboutRun(run: string, message: string, history: unknown[]) {
+async function answerAboutRun(run: string, message: string, history: unknown[], agent = "") {
   const report = await readFile(path.join(RUNS_DIR, run.replace(/\.chat\.md$/, ".md")), "utf8").catch(() => "");
   const chat = await readFile(path.join(RUNS_DIR, run), "utf8").catch(() => "");
+  const persona = agent
+    ? await readFile(path.join(FUNC_DIR, "vitest/agents", agent, `${agent}.agent.md`), "utf8").catch(() => "")
+    : "";
   const { llm } = await import("../agentChat.llm.mjs");
   return llm(
-    "You are the Q3 Agent Lab results assistant. Answer only from the supplied run report and chat log. " +
-      "Explain evidence and uncertainty plainly. Do not invent events, scores or people. Keep the answer concise.",
-    { question: message, history: history.slice(-8), report: report.slice(-30000), chat: chat.slice(-20000) },
+    agent
+      ? `You are ${agent}, one of the Q3 Agent Lab participants. Speak directly to the user in your persona. Use the persona and supplied run evidence, but do not invent personal facts or events. Keep the answer concise.`
+      : "You are the Q3 Agent Lab results assistant. Answer only from the supplied run report and chat log. Explain evidence and uncertainty plainly. Do not invent events, scores or people. Keep the answer concise.",
+    { agent, persona, question: message, history: history.slice(-8), report: report.slice(-30000), chat: chat.slice(-20000) },
     process.env.CHAT_MODEL ?? process.env.AGENT_MODEL ?? "haiku",
     CHAT_SCHEMA,
     RUNS_DIR,
@@ -194,9 +199,11 @@ async function handle(request, response) {
       const runs = await listRuns();
       const run = typeof body.run === "string" ? body.run : "";
       const message = typeof body.message === "string" ? body.message.trim() : "";
+      const agent = typeof body.agent === "string" ? body.agent : "";
       if (!isRunName(run) || !runs.some((item) => item.name === run)) return sendJson(response, 404, { error: "Run not found" });
+      if (agent && !AGENT_NAMES.has(agent)) return sendJson(response, 400, { error: "Unknown agent" });
       if (!message || message.length > 1000) return sendJson(response, 400, { error: "Message must be 1-1000 characters" });
-      const result = await answerAboutRun(run, message, Array.isArray(body.history) ? body.history : []);
+      const result = await answerAboutRun(run, message, Array.isArray(body.history) ? body.history : [], agent);
       return sendJson(response, 200, { answer: result.answer });
     } catch (error) {
       console.error("Run chat failed:", error);
