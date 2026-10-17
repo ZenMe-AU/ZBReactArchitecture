@@ -22,6 +22,12 @@
   "azurite.debug": true,
   "azurite.silent": true,
   "eslint.workingDirectories": [{ "mode": "auto" }],
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
   "sarif-viewer.connectToGithubCodeScanning": "off",
   "cSpell.language": "en-AU",
   "cSpell.dictionaries": ["en-au"],

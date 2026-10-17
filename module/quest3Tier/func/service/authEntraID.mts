@@ -31,22 +31,28 @@ async function getSigningKey(kid) {
   });
 }
 const decode = async (token) => {
+  let verified;
   try {
     const decoded = jwt.decode(token, { complete: true });
     if (!decoded?.header?.kid) {
       throw new Error("The token is missing key id header (kid)");
     }
     const publicKey = await getSigningKey(decoded.header.kid);
-    const verified = jwt.verify(token, publicKey, {
+    verified = jwt.verify(token, publicKey, {
       algorithms: ["RS256"],
       issuer: `https://sts.windows.net/${TENANT_ID}/`,
       audience: `api://${CLIENT_ID}`,
     });
-    return verified;
   } catch (error) {
     console.log("JWT verification failed:", error.message);
     throw Object.assign(new Error("Invalid or expired token"), { status: 401 });
   }
+  if (!verified.scp?.split(" ").includes("access_as_user")) {
+    const err = new Error("Token is missing the access_as_user scope");
+    err.status = 403;
+    throw err;
+  }
+  return verified;
 };
 
 export { generateToken, decode };
