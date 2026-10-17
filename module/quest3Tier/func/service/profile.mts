@@ -5,19 +5,18 @@
 
 import { getRepository } from "../repository/getRepository.mjs";
 
-async function ensureProfile(externalId, details = {}) {
-  const repository = getRepository();
+async function ensureProfile(externalId: string, details = {}) {
   const _externalId = externalId?.toString().trim().slice(0, 1024); // Ensure the externalId is a string and trim it to a reasonable length
   if (!_externalId) {
     const error = new Error("Authenticated profile ID is required");
     error.status = 401;
     throw error;
   }
-
+  const repository = getRepository();
   return repository.ensureProfile(_externalId, details);
 }
 
-async function updatePreferredName(externalId, preferredName) {
+async function updatePreferredName(externalId: string, preferredName: string) {
   const _externalId = externalId?.toString();
   if (!_externalId) {
     const err = new Error("Authenticated user id is missing");

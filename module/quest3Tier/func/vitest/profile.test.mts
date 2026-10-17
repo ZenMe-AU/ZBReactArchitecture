@@ -7,7 +7,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import container from "../di/diContainer.mjs";
 import { requestHandler } from "../handler/handlerWrapper.mjs";
 import profileHandler from "../handler/profileHandler.mjs";
-import { updateMyProfileSchema } from "../schema/updateMyProfileSchema.mjs";
+import { updateMyProfileSchema } from "../handler/updateMyProfileSchema.mjs";
 import { ensureProfile, updatePreferredName } from "../service/profile.mjs";
 
 const ensureRepositoryProfile = vi.fn();
@@ -40,7 +40,7 @@ describe("ensureProfile", () => {
   });
 
   it("rejects a missing authenticated profile id", async () => {
-    await expect(ensureProfile()).rejects.toMatchObject({ status: 401 });
+    await expect(ensureProfile("")).rejects.toMatchObject({ status: 401 });
     expect(ensureRepositoryProfile).not.toHaveBeenCalled();
   });
 
