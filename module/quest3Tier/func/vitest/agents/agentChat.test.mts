@@ -98,6 +98,26 @@ describe("fact-only memory", () => {
     ]);
     expect(memory.Mike).toBe("### Facts\n- None verified.");
   });
+
+  test("keeps relationship progress beside verified facts", () => {
+    const memory = factMemory("Bella", ["Ian"], [
+      {
+        id: "q1",
+        ownerName: "Bella",
+        questionText: "Where do you live?",
+        answers: [{ id: "a1", memoryAuthor: "Ian", optionId: "Brisbane" }],
+      },
+      {
+        id: "q2",
+        ownerName: "Bella",
+        questionText: "What do you do there?",
+        answers: [{ id: "a2", memoryAuthor: "Ian", optionId: "Engineering" }],
+      },
+    ]);
+    expect(memory.Ian).toContain("### Relationship");
+    expect(memory.Ian).toContain("Stage: Learning details");
+    expect(memory.Ian).toContain("do not repeat a verified basic");
+  });
 });
 
 describe("online participant boundary", () => {

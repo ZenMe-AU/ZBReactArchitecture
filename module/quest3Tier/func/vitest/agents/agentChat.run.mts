@@ -84,6 +84,7 @@ async function snapshot(agent) {
 
   for (const q of questions) {
     q.isOwner = q.profileId === agent.profileId;
+    q.ownerName = agent.realNamesById?.[q.profileId];
     try {
       q.answers = await list(agent, `/question/${q.id}/answers`);
     } catch (err: any) {

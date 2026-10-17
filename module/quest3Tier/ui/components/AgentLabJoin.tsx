@@ -18,15 +18,13 @@ export function AgentLabJoin() {
   useEffect(() => {
     let active = true;
     let joined = false;
+    let profileId = "";
     const check = async () => {
       try {
-        const response = await fetch(`${LAB_URL}/api/run`, { cache: "no-store" });
-        if (!response.ok) return;
-        const run = await response.json();
-        if (!active || joined || !["idle", "waiting-for-human", "running"].includes(run.status)) return;
+        if (!active || joined) return;
         joined = true;
         setStatus("joining");
-        const profileId = await getMyProfileId();
+        profileId ||= await getMyProfileId();
         localStorage.setItem("agentLabProfileId", profileId);
         const joinResponse = await fetch(`${LAB_URL}/api/join`, {
           method: "POST",

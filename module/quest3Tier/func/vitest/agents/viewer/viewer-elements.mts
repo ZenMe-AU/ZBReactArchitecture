@@ -24,6 +24,7 @@ export const elements = typeof document === "undefined" ? null : {
   chatPanel: select<HTMLElement>("#chat-panel"),
   chatTitle: select<HTMLElement>("#chat-title"),
   chatRunLabel: select<HTMLElement>("#chat-run-label"),
+  chatStatus: select<HTMLElement>("#chat-status"),
   chatSend: select<HTMLButtonElement>("#chat-send"),
   inspector: select<HTMLElement>(".inspector"),
   profileCards: select<HTMLElement>("#profile-cards"),

@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import type { ChildProcess } from "node:child_process";
 import { createServer } from "node:http";
-import { appendFile, readFile, readdir, stat } from "node:fs/promises";
+import { appendFile, readFile, readdir, stat, writeFile } from "node:fs/promises";
 import { connect } from "node:net";
 import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
@@ -39,6 +39,20 @@ type RunState = { status: string; humanMode?: boolean; startedAt?: string; finis
 const state: { runProcess?: ChildProcess; azuriteProcess?: ChildProcess; run: RunState } = { run: { status: "idle" } };
 const tableRepositoryState: { value?: Promise<{ listFriends(profileId: string): Promise<unknown[]> }> } = {};
 const pendingHuman: { profileId?: string; name?: string } = {};
+const registeredHuman: { profileId?: string; name?: string } = {};
+const HUMAN_STATE_PATH = path.join(RUNS_DIR, ".human.json");
+
+async function loadRegisteredHuman() {
+  const saved = JSON.parse(await readFile(HUMAN_STATE_PATH, "utf8").catch(() => "{}"));
+  if (typeof saved.profileId === "string" && saved.profileId.trim()) registeredHuman.profileId = saved.profileId.trim();
+  if (typeof saved.name === "string" && saved.name.trim()) registeredHuman.name = saved.name.trim();
+}
+
+async function rememberHuman(profileId: string, name: string) {
+  registeredHuman.profileId = profileId;
+  registeredHuman.name = name;
+  await writeFile(HUMAN_STATE_PATH, JSON.stringify(registeredHuman, null, 2));
+}
 
 async function localSettings() {
   return JSON.parse(await readFile(path.join(FUNC_DIR, "local.settings.json"), "utf8")).Values ?? {};
@@ -205,6 +219,12 @@ async function startRun(humanProfileId?: string, humanName = "Human") {
   child.once("exit", (code) => finish(code === 0 ? "passed" : "failed", { exitCode: code }));
 }
 
+async function waitForPendingHuman(timeoutMs = 2000) {
+  const deadline = Date.now() + timeoutMs;
+  while (!pendingHuman.profileId && Date.now() < deadline) await delay(100);
+  return pendingHuman.profileId ? { profileId: pendingHuman.profileId, name: pendingHuman.name ?? "Human" } : undefined;
+}
+
 async function handle(request, response) {
   const url = new URL(request.url, `http://${HOST}:${PORT}`);
   if (request.method === "POST" && url.pathname === "/api/chat") {
@@ -230,7 +250,13 @@ async function handle(request, response) {
     if (state.runProcess || ["starting", "waiting-for-human"].includes(state.run.status)) return sendJson(response, 409, state.run);
     try {
       await readJson(request);
-      const human = pendingHuman.profileId ? { profileId: pendingHuman.profileId, name: pendingHuman.name ?? "Human" } : undefined;
+      const human = pendingHuman.profileId
+        ? { profileId: pendingHuman.profileId, name: pendingHuman.name ?? "Human" }
+        : registeredHuman.profileId
+          ? { profileId: registeredHuman.profileId, name: registeredHuman.name ?? "Human" }
+        : state.run.humanProfileId
+          ? { profileId: state.run.humanProfileId, name: state.run.humanName ?? "Human" }
+          : await waitForPendingHuman();
       delete pendingHuman.profileId;
       delete pendingHuman.name;
       await startRun(human?.profileId, human?.name);
@@ -247,12 +273,13 @@ async function handle(request, response) {
   }
   if (url.pathname === "/api/join" && request.method === "POST") {
     if (!isQ3Origin(request)) return sendJson(response, 403, { error: "Q3 UI origin required" });
-    if (state.run.status === "idle") {
+    if (["idle", "passed", "failed"].includes(state.run.status)) {
       try {
         const body = await readJson(request);
         if (typeof body.profileId !== "string" || !body.profileId.trim()) return sendJoinJson(response, 400, { error: "profileId is required" }, request.headers.origin);
         pendingHuman.profileId = body.profileId.trim();
         pendingHuman.name = typeof body.name === "string" && body.name.trim() ? body.name.trim() : "Human";
+        await rememberHuman(pendingHuman.profileId, pendingHuman.name);
         return sendJoinJson(response, 202, { registered: true }, request.headers.origin);
       } catch (error) {
         return sendJoinJson(response, 400, { error: error instanceof Error ? error.message : String(error) }, request.headers.origin);
@@ -263,9 +290,15 @@ async function handle(request, response) {
       const body = await readJson(request);
       if (typeof body.profileId !== "string" || !body.profileId.trim()) return sendJoinJson(response, 400, { error: "profileId is required" }, request.headers.origin);
       const humanName = typeof body.name === "string" && body.name.trim() ? body.name.trim() : "Human";
-      if (state.run.status === "waiting-for-human") await startRun(body.profileId.trim(), humanName);
-      else state.run = { ...state.run, humanMode: true, humanProfileId: body.profileId.trim(), humanName };
-      return sendJoinJson(response, 202, state.run, request.headers.origin);
+      if (state.run.status === "waiting-for-human") {
+        await rememberHuman(body.profileId.trim(), humanName);
+        await startRun(body.profileId.trim(), humanName);
+        return sendJoinJson(response, 202, state.run, request.headers.origin);
+      }
+      pendingHuman.profileId = body.profileId.trim();
+      pendingHuman.name = humanName;
+      await rememberHuman(pendingHuman.profileId, pendingHuman.name);
+      return sendJoinJson(response, 202, { registered: true, nextRun: true }, request.headers.origin);
     } catch (error) {
       state.run = { ...state.run, status: "failed", error: error.message, finishedAt: new Date().toISOString() };
       return sendJoinJson(response, 503, state.run, request.headers.origin);
@@ -410,6 +443,8 @@ async function selfCheck() {
   assert.equal(parseLine("not an event"), null);
   console.log("Agent viewer self-check passed.");
 }
+
+await loadRegisteredHuman();
 
 if (process.argv.includes("--check")) {
   await selfCheck();
