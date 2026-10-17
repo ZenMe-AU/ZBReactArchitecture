@@ -12,14 +12,6 @@ export interface ShareFriend {
   degree: number;
 }
 
-export async function getMyProfileId(): Promise<string> {
-  await loadConfig();
-  const response = await jwtFetch(`${getConfig("QUEST3TIER_DOMAIN")}/profile/me`, { method: "GET" });
-  if (!response.ok) throw new Error("Failed to fetch your Q3 profile");
-  const data = await response.json();
-  return data.return.id;
-}
-
 export async function getShareFriends(): Promise<ShareFriend[]> {
   await loadConfig();
   const response = await jwtFetch(`${getConfig("QUEST3TIER_DOMAIN")}/profile/me/friends`, { method: "GET" });

@@ -207,17 +207,14 @@ async function loadRunState() {
   const response = await fetch("/api/run", { cache: "no-store" });
   if (!response.ok) throw new Error("Could not read the test runner state");
   const state = await response.json();
-  const active = state.status === "waiting-for-human" || state.status === "starting" || state.status === "running";
+  const active = state.status === "starting" || state.status === "running";
   elements.agentStartButton.disabled = active;
-  elements.agentStartButton.textContent = state.status === "waiting-for-human"
-    ? "Waiting for human..."
-    : state.status === "starting"
+  elements.agentStartButton.textContent = state.status === "starting"
       ? "Starting test..."
       : state.status === "running"
         ? "Test running..."
         : elements.agentStartButton.dataset.idleLabel;
   elements.agentStartButton.title = state.error ?? (state.status === "failed" ? `Test exited with code ${state.exitCode ?? "unknown"}` : "");
-  if (state.status === "waiting-for-human") elements.announcer.textContent = "Open Q3 separately, sign in, then join this active test from Question List.";
 }
 
 async function refreshLog() {
@@ -264,7 +261,7 @@ if (elements) {
       });
       const state = await response.json();
       if (!response.ok) throw new Error(state.error ?? "Could not start the test");
-      elements.announcer.textContent = "Test is ready. Join it from the separate Q3 UI.";
+      elements.announcer.textContent = "Agent test started";
       await loadRunState();
     } catch (error) {
       button.disabled = false;

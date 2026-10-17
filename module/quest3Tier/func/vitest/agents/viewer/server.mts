@@ -35,7 +35,7 @@ const STATIC_FILES = {
   "/viewer-results.mjs": ["viewer-results.mjs", "text/javascript; charset=utf-8"],
   "/viewer-questions.mjs": ["viewer-questions.mjs", "text/javascript; charset=utf-8"],
 } as const;
-type RunState = { status: string; humanMode?: boolean; startedAt?: string; finishedAt?: string; humanProfileId?: string; error?: string; exitCode?: number };
+type RunState = { status: string; startedAt?: string; finishedAt?: string; error?: string; exitCode?: number };
 const state: { runProcess?: ChildProcess; azuriteProcess?: ChildProcess; run: RunState } = { run: { status: "idle" } };
 const tableRepositoryState: { value?: Promise<{ listFriends(profileId: string): Promise<unknown[]> }> } = {};
 
@@ -99,18 +99,6 @@ function send(response, status, contentType, body) {
 
 const sendJson = (response, status, body) => send(response, status, "application/json; charset=utf-8", JSON.stringify(body));
 const isSameOrigin = (request) => request.headers.origin === `http://${HOST}:${PORT}`;
-const isQ3Origin = (request) => ["http://localhost:5183", "http://127.0.0.1:5183"].includes(request.headers.origin ?? "");
-const sendJoinJson = (response, status, body, origin) => {
-  response.writeHead(status, {
-    "Access-Control-Allow-Headers": "Content-Type",
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Origin": origin,
-    "Cache-Control": "no-store",
-    "Content-Type": "application/json; charset=utf-8",
-    Vary: "Origin",
-  });
-  response.end(JSON.stringify(body));
-};
 
 async function readJson(request) {
   const chunks: Buffer[] = [];
@@ -156,19 +144,14 @@ async function ensureServices() {
   if (!(await portOpen(7073))) throw new Error("Q3 API is not running on port 7073. Start the Agent Start debug configuration first.");
 }
 
-async function startRun(humanProfileId) {
-  state.run = { status: "starting", humanMode: true, humanProfileId, startedAt: new Date().toISOString() };
-  console.log("Starting agent test with a Q3 human participant...");
+async function startRun() {
+  state.run = { status: "starting", startedAt: new Date().toISOString() };
+  console.log("Starting agent test...");
   await ensureServices();
   const child = spawnPnpm(["vitest", "run", TEST_FILE, "--disableConsoleIntercept"], REPO_DIR,
-    { ...CHILD_ENV, ...(await localSettings()), AGENT_RUN: "1", HUMAN_RUN: "1", HUMAN_PROFILE_ID: humanProfileId });
+    { ...CHILD_ENV, ...(await localSettings()), AGENT_RUN: "1" });
   state.runProcess = child;
-  state.run = {
-    status: "running",
-    humanMode: true,
-    humanProfileId,
-    startedAt: new Date().toISOString(),
-  };
+  state.run = { status: "running", startedAt: new Date().toISOString() };
   child.stdout.pipe(process.stdout);
   child.stderr.pipe(process.stderr);
   const finish = (status, detail) => {
@@ -189,34 +172,13 @@ async function handle(request, response) {
     if (state.runProcess || state.run.status === "starting") return sendJson(response, 409, state.run);
     try {
       await readJson(request);
-      await ensureServices();
-      state.run = { status: "waiting-for-human", humanMode: true, startedAt: new Date().toISOString() };
+      await startRun();
       return sendJson(response, 202, state.run);
     } catch (error) {
       state.run = { ...state.run, status: "failed", error: error.message, finishedAt: new Date().toISOString() };
       console.error("Could not start agent test:", error);
       return sendJson(response, 503, state.run);
     }
-  }
-  if (url.pathname === "/api/join" && request.method === "OPTIONS") {
-    if (!isQ3Origin(request)) return sendJson(response, 403, { error: "Q3 UI origin required" });
-    return sendJoinJson(response, 204, {}, request.headers.origin);
-  }
-  if (url.pathname === "/api/join" && request.method === "POST") {
-    if (!isQ3Origin(request)) return sendJson(response, 403, { error: "Q3 UI origin required" });
-    if (state.run.status !== "waiting-for-human") return sendJoinJson(response, 409, { error: "No test is waiting for a human" }, request.headers.origin);
-    try {
-      const body = await readJson(request);
-      if (typeof body.profileId !== "string" || !body.profileId.trim()) return sendJoinJson(response, 400, { error: "profileId is required" }, request.headers.origin);
-      await startRun(body.profileId.trim());
-      return sendJoinJson(response, 202, state.run, request.headers.origin);
-    } catch (error) {
-      state.run = { ...state.run, status: "failed", error: error.message, finishedAt: new Date().toISOString() };
-      return sendJoinJson(response, 503, state.run, request.headers.origin);
-    }
-  }
-  if (url.pathname === "/api/run" && request.method === "GET" && isQ3Origin(request)) {
-    return sendJoinJson(response, 200, state.run, request.headers.origin);
   }
   if (request.method !== "GET") return sendJson(response, 405, { error: "Method not allowed" });
 
@@ -263,8 +225,6 @@ async function selfCheck() {
   assert.equal(isRunName("../secret.chat.md"), false);
   assert.equal(isSameOrigin({ headers: { origin: `http://${HOST}:${PORT}` } }), true);
   assert.equal(isSameOrigin({ headers: { origin: "https://example.com" } }), false);
-  assert.equal(isQ3Origin({ headers: { origin: "http://localhost:5183" } }), true);
-  assert.equal(isQ3Origin({ headers: { origin: "https://example.com" } }), false);
   assert.deepEqual(parseLine('[03:44:11] Mike answered "A useful question": A useful answer'), {
     time: "03:44:11",
     agent: "Mike",
