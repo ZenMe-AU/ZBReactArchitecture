@@ -16,6 +16,7 @@ import * as QuestionCombinationListModule from "./routes/QuestionCombinationList
 import * as QuestionDetailModule from "./routes/QuestionDetail";
 import * as QuestionDetailAddModule from "./routes/QuestionDetailAdd";
 import * as ShareQuestionModule from "./routes/ShareQuestion";
+import ManageFriends from "./routes/ManageFriends";
 import Login from "./routes/Login";
 
 type FrameworkRouteModule = {
@@ -95,6 +96,7 @@ export default function Quest3TierAppRoutes() {
             { path: ":id/followUp", element: <RouteModuleElement routeModule={FollowUpQuestionModule} /> },
             { path: ":id/edit", element: <RouteModuleElement routeModule={EditQuestionModule} /> },
             { path: ":id/share", element: <RouteModuleElement routeModule={ShareQuestionModule} /> },
+            { path: "friends", element: <ManageFriends /> },
           ],
         },
         { path: "*", element: <Navigate to="/quest3Tier" replace /> },

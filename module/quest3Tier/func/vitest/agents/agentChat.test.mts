@@ -41,6 +41,14 @@ describe("agent option rules", () => {
     expect(prompt).toContain("one fact dimension at a time");
     expect(prompt).toContain("A question directly shared with you through Q3 is valid");
     expect(prompt).toContain("Never choose a vague option");
+    expect(prompt).toContain("POST /sendFollowUpCmd");
+    expect(prompt).toContain("share your new question only with people whose previous answers match every filter");
+    expect(prompt).toContain("FOLLOW-UP GATE");
+    expect(prompt).toContain("Do not add escape-hatch options");
+    expect(prompt).toContain("Do not create an \"Other\" or \"Something else\" option");
+    expect(prompt).toContain("you MUST submit one new truthful, short option");
+    expect(prompt).toContain("Do not skip a question just because its options are incomplete");
+    expect(prompt).toContain('"Other city"');
   });
 
   test("requires 4-10 short options on new questions", () => {

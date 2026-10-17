@@ -30,7 +30,8 @@ import { HUMAN_NAME, loadAgent, LOCK_PATH, pickParticipants, RUNS_DIR, takeLock,
 const MAX_STEPS = Number(process.env.AGENT_STEPS ?? 30);
 const RECENT_STEPS = 8;
 const POLL_MS = 5 * 1000;
-const IDLE_POLLS = Number(process.env.HUMAN_RUN === "1" ? 60 : 3);
+// Human participation is optional after joining; agents must finish without waiting indefinitely.
+const IDLE_POLLS = 3;
 const QUESTION_URL = process.env.QUESTION_URL ?? "http://127.0.0.1:7073";
 async function call(agent, method, url, body?) {
   // A JSON Content-Type with an empty body makes the handler wrapper 500, so only send it with a body.
@@ -206,6 +207,10 @@ function narrate(r, titles, names) {
   if (root === "question" && sub === "share") return `shared [q:${id}] ${q} with ${(r.body?.receiverIds ?? []).map((pid) => names[pid] ?? pid).join(", ")}`;
   if (root === "question" && sub === "answer") return `answered [q:${id}] ${q}: ${clip(r.body?.option)}`;
   if (root === "question" && !sub) return `edited [q:${id}] ${q}: ${clip(JSON.stringify(r.body))}`;
+  if (r.path === "/sendFollowUpCmd") {
+    const filters = (r.body?.question ?? []).map((filter) => `${titles[filter.questionId] ?? filter.questionId} = ${(filter.option ?? []).join(" or ")}`).join("; ");
+    return `followed up [q:${r.body?.newQuestionId ?? "unknown"}] for people matching ${filters || "the selected answers"}`;
+  }
   return `${r.method} ${r.path} ${clip(JSON.stringify(r.body))}`;
 }
 

@@ -63,17 +63,39 @@ function renderInspector(event) {
 
 const resultContext = () => ({ activeAgent: state.activeAgent, elements, network: state.network, report: state.currentReport, renderInspector });
 
-function openChat(agent = "") {
-  state.activeAgent = "";
+function setChatTarget(agent = "") {
+  if (state.chatAgent !== agent) state.chatMessages = [];
   state.chatAgent = agent;
-  state.chatMessages = [];
-  elements.chatPanel.hidden = false;
   elements.chatTitle.textContent = agent ? `${agent} chat` : "Test chat";
   elements.chatRunLabel.textContent = state.selectedRun
     ? `${agent ? `Chat with ${agent}` : "Results assistant"} · ${detailsForRun(state.selectedRun).title}`
     : "Select a run to begin";
+  for (const item of elements.chatAgentPicker?.querySelectorAll<HTMLButtonElement>("[data-chat-agent]") ?? []) {
+    item.setAttribute("aria-pressed", String(item.dataset.chatAgent === agent));
+  }
   renderChat();
-  elements.chatInput.focus();
+}
+
+function renderChatView(participants = new Set<string>()) {
+  const names = [...new Set([...AGENTS, ...participants])];
+  if (!state.chatAgent || !names.includes(state.chatAgent)) state.chatAgent = names[0] ?? "";
+  if (elements.chatAgentPicker) {
+    elements.chatAgentPicker.replaceChildren(...names.map((name) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.dataset.chatAgent = name;
+      button.textContent = name;
+      button.setAttribute("aria-pressed", String(name === state.chatAgent));
+      return button;
+    }));
+  }
+  elements.feed.hidden = true;
+  elements.feedHead.hidden = true;
+  elements.inspector.hidden = true;
+  elements.chatPanel.hidden = false;
+  setChatTarget(state.chatAgent);
+  elements.viewTitle.textContent = "Chat";
+  elements.filterNote.textContent = state.chatAgent ? `Chat with ${state.chatAgent}` : "Choose a participant";
 }
 
 function renderProfiles(participants) {
@@ -85,13 +107,33 @@ function renderProfiles(participants) {
     participants,
     questions: state.currentReport.questionList,
     onSelect: (name) => {
-      openChat(name);
+      if (!AGENTS.includes(name)) {
+        state.activeAgent = name;
+        state.activeView = "relationships";
+        state.selectedEventId = null;
+        for (const item of elements.viewTabs.querySelectorAll("[data-view]")) item.setAttribute("aria-pressed", String(item.dataset.view === state.activeView));
+        renderProfiles(participants);
+        renderFeed();
+        return;
+      }
+      setChatTarget(name);
+      state.activeAgent = state.activeAgent === name ? "" : name;
+      state.selectedEventId = null;
+      state.activeView = "chat";
+      for (const item of elements.viewTabs.querySelectorAll("[data-view]")) item.setAttribute("aria-pressed", String(item.dataset.view === state.activeView));
+      renderProfiles(participants);
+      renderFeed();
     },
   });
 }
 
 function renderFeed() {
   const view = VIEWS[state.activeView];
+  if (state.activeView === "chat") return renderChatView(participantsFor(state.currentEvents));
+  elements.chatPanel.hidden = true;
+  elements.feed.hidden = false;
+  elements.feedHead.hidden = false;
+  elements.inspector.hidden = false;
   if (state.activeView === "network") return renderNetwork(resultContext());
   if (state.activeView === "overview") return renderOverview(resultContext());
   if (state.activeView === "relationships") return renderRelationships(resultContext());
@@ -241,12 +283,14 @@ async function loadRunState() {
   const response = await fetch("/api/run", { cache: "no-store" });
   if (!response.ok) throw new Error("Could not read the test runner state");
   const state = await response.json();
-  const active = state.status === "starting" || state.status === "running";
+  const active = state.status === "starting" || state.status === "running" || state.status === "waiting-for-human";
   elements.agentStartButton.disabled = active;
   elements.agentStartButton.textContent = state.status === "starting"
       ? "Starting test..."
       : state.status === "running"
         ? "Test running..."
+        : state.status === "waiting-for-human"
+          ? "Waiting for human..."
         : elements.agentStartButton.dataset.idleLabel;
   elements.agentStartButton.title = state.error ?? (state.status === "failed" ? `Test exited with code ${state.exitCode ?? "unknown"}` : "");
 }
@@ -326,8 +370,15 @@ if (elements) {
     for (const item of elements.viewTabs.querySelectorAll("[data-view]")) item.setAttribute("aria-pressed", String(item === tab));
     renderFeed();
   });
+  elements.chatAgentPicker?.addEventListener("click", (event) => {
+    const button = (event.target as Element).closest<HTMLButtonElement>("[data-chat-agent]");
+    if (button?.dataset.chatAgent) setChatTarget(button.dataset.chatAgent);
+  });
   elements.chatClose.addEventListener("click", () => {
     elements.chatPanel.hidden = true;
+    state.activeView = "overview";
+    for (const item of elements.viewTabs.querySelectorAll("[data-view]")) item.setAttribute("aria-pressed", String(item.dataset.view === state.activeView));
+    renderFeed();
   });
   elements.chatForm.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -336,6 +387,7 @@ if (elements) {
     state.chatMessages.push({ role: "user", content: message });
     elements.chatInput.value = "";
     elements.chatSend.disabled = true;
+    elements.chatSend.textContent = "Thinking…";
     renderChat();
     try {
       const response = await fetch("/api/chat", {
@@ -350,6 +402,7 @@ if (elements) {
       state.chatMessages.push({ role: "assistant", content: `Unable to answer: ${error instanceof Error ? error.message : String(error)}` });
     } finally {
       elements.chatSend.disabled = false;
+      elements.chatSend.textContent = "Send";
       renderChat();
       elements.chatInput.focus();
     }

@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import type { ChildProcess } from "node:child_process";
 import { createServer } from "node:http";
-import { readFile, readdir, stat } from "node:fs/promises";
+import { appendFile, readFile, readdir, stat } from "node:fs/promises";
 import { connect } from "node:net";
 import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
@@ -35,7 +35,7 @@ const STATIC_FILES = {
   "/viewer-results.mjs": ["viewer-results.mjs", "text/javascript; charset=utf-8"],
   "/viewer-questions.mjs": ["viewer-questions.mjs", "text/javascript; charset=utf-8"],
 } as const;
-type RunState = { status: string; startedAt?: string; finishedAt?: string; error?: string; exitCode?: number };
+type RunState = { status: string; humanMode?: boolean; startedAt?: string; finishedAt?: string; humanProfileId?: string; humanName?: string; error?: string; exitCode?: number };
 const state: { runProcess?: ChildProcess; azuriteProcess?: ChildProcess; run: RunState } = { run: { status: "idle" } };
 const tableRepositoryState: { value?: Promise<{ listFriends(profileId: string): Promise<unknown[]> }> } = {};
 
@@ -99,6 +99,18 @@ function send(response, status, contentType, body) {
 
 const sendJson = (response, status, body) => send(response, status, "application/json; charset=utf-8", JSON.stringify(body));
 const isSameOrigin = (request) => request.headers.origin === `http://${HOST}:${PORT}`;
+const isQ3Origin = (request) => ["http://localhost:5183", "http://127.0.0.1:5183"].includes(request.headers.origin ?? "");
+const sendJoinJson = (response, status, body, origin) => {
+  response.writeHead(status, {
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Origin": origin,
+    "Cache-Control": "no-store",
+    "Content-Type": "application/json; charset=utf-8",
+    Vary: "Origin",
+  });
+  response.end(JSON.stringify(body));
+};
 const CHAT_SCHEMA = {
   type: "object",
   properties: { answer: { type: "string" } },
@@ -169,14 +181,16 @@ async function ensureServices() {
   if (!(await portOpen(7073))) throw new Error("Q3 API is not running on port 7073. Start the Agent Start debug configuration first.");
 }
 
-async function startRun() {
-  state.run = { status: "starting", startedAt: new Date().toISOString() };
-  console.log("Starting agent test...");
+async function startRun(humanProfileId?: string, humanName = "Human") {
+  const humanMode = Boolean(humanProfileId);
+  state.run = { status: "starting", humanMode, ...(humanProfileId && { humanProfileId, humanName }), startedAt: new Date().toISOString() };
+  console.log(`Starting agent test${humanMode ? " with a Q3 human participant" : ""}...`);
   await ensureServices();
-  const child = spawnPnpm(["vitest", "run", TEST_FILE, "--disableConsoleIntercept"], REPO_DIR,
-    { ...CHILD_ENV, ...(await localSettings()), AGENT_RUN: "1" });
+  const childEnv = { ...CHILD_ENV, ...(await localSettings()), AGENT_RUN: "1" };
+  if (humanMode) Object.assign(childEnv, { HUMAN_RUN: "1", HUMAN_PROFILE_ID: humanProfileId });
+  const child = spawnPnpm(["vitest", "run", TEST_FILE, "--disableConsoleIntercept"], REPO_DIR, childEnv);
   state.runProcess = child;
-  state.run = { status: "running", startedAt: new Date().toISOString() };
+  state.run = { ...state.run, status: "running" };
   child.stdout.pipe(process.stdout);
   child.stderr.pipe(process.stderr);
   const finish = (status, detail) => {
@@ -212,7 +226,7 @@ async function handle(request, response) {
   }
   if (request.method === "POST" && url.pathname === "/api/run") {
     if (!isSameOrigin(request)) return sendJson(response, 403, { error: "Same-origin request required" });
-    if (state.runProcess || state.run.status === "starting") return sendJson(response, 409, state.run);
+    if (state.runProcess || ["starting", "waiting-for-human"].includes(state.run.status)) return sendJson(response, 409, state.run);
     try {
       await readJson(request);
       await startRun();
@@ -222,6 +236,52 @@ async function handle(request, response) {
       console.error("Could not start agent test:", error);
       return sendJson(response, 503, state.run);
     }
+  }
+  if (url.pathname === "/api/join" && request.method === "OPTIONS") {
+    if (!isQ3Origin(request)) return sendJson(response, 403, { error: "Q3 UI origin required" });
+    return sendJoinJson(response, 204, {}, request.headers.origin);
+  }
+  if (url.pathname === "/api/join" && request.method === "POST") {
+    if (!isQ3Origin(request)) return sendJson(response, 403, { error: "Q3 UI origin required" });
+    if (!["running", "waiting-for-human"].includes(state.run.status)) return sendJoinJson(response, 409, { error: "No active test" }, request.headers.origin);
+    try {
+      const body = await readJson(request);
+      if (typeof body.profileId !== "string" || !body.profileId.trim()) return sendJoinJson(response, 400, { error: "profileId is required" }, request.headers.origin);
+      const humanName = typeof body.name === "string" && body.name.trim() ? body.name.trim() : "Human";
+      if (state.run.status === "waiting-for-human") await startRun(body.profileId.trim(), humanName);
+      else state.run = { ...state.run, humanMode: true, humanProfileId: body.profileId.trim(), humanName };
+      return sendJoinJson(response, 202, state.run, request.headers.origin);
+    } catch (error) {
+      state.run = { ...state.run, status: "failed", error: error.message, finishedAt: new Date().toISOString() };
+      return sendJoinJson(response, 503, state.run, request.headers.origin);
+    }
+  }
+  if (url.pathname === "/api/human-event" && request.method === "OPTIONS") {
+    if (!isQ3Origin(request)) return sendJson(response, 403, { error: "Q3 UI origin required" });
+    return sendJoinJson(response, 204, {}, request.headers.origin);
+  }
+  if (url.pathname === "/api/human-event" && request.method === "POST") {
+    if (!isQ3Origin(request)) return sendJson(response, 403, { error: "Q3 UI origin required" });
+    if (state.run.status !== "running") return sendJoinJson(response, 409, { error: "No active human test" }, request.headers.origin);
+    try {
+      const body = await readJson(request);
+      const questionId = typeof body.questionId === "string" ? body.questionId.trim() : "";
+      const profileId = typeof body.profileId === "string" ? body.profileId.trim() : "";
+      const title = typeof body.title === "string" ? body.title.trim() : "";
+      const answer = typeof body.answer === "string" ? body.answer.trim() : "";
+      if (!questionId || (state.run.humanProfileId && profileId !== state.run.humanProfileId) || !title || !answer || answer.length > 500) {
+        return sendJoinJson(response, 400, { error: "Invalid human answer event" }, request.headers.origin);
+      }
+      const runs = await listRuns();
+      if (!runs[0]) return sendJoinJson(response, 409, { error: "Live run log is not ready" }, request.headers.origin);
+      await appendFile(path.join(RUNS_DIR, runs[0].name), `[${new Date().toISOString().slice(11, 19)}] ${state.run.humanName ?? "Human"} answered [q:${questionId}] "${title}": ${answer}\n\n`);
+      return sendJoinJson(response, 202, { accepted: true }, request.headers.origin);
+    } catch (error) {
+      return sendJoinJson(response, 400, { error: error instanceof Error ? error.message : String(error) }, request.headers.origin);
+    }
+  }
+  if (url.pathname === "/api/run" && request.method === "GET" && isQ3Origin(request)) {
+    return sendJoinJson(response, 200, state.run, request.headers.origin);
   }
   if (request.method !== "GET") return sendJson(response, 405, { error: "Method not allowed" });
 
@@ -268,6 +328,8 @@ async function selfCheck() {
   assert.equal(isRunName("../secret.chat.md"), false);
   assert.equal(isSameOrigin({ headers: { origin: `http://${HOST}:${PORT}` } }), true);
   assert.equal(isSameOrigin({ headers: { origin: "https://example.com" } }), false);
+  assert.equal(isQ3Origin({ headers: { origin: "http://localhost:5183" } }), true);
+  assert.equal(isQ3Origin({ headers: { origin: "https://example.com" } }), false);
   assert.deepEqual(parseLine('[03:44:11] Mike answered "A useful question": A useful answer'), {
     time: "03:44:11",
     agent: "Mike",
