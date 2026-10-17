@@ -14,8 +14,13 @@ vi.mock("@azure/functions", () => ({
     http: (name: string, options: { handler: Function }) => {
       registrations.handlers.set(name, options.handler);
     },
+    openAPIPath: (name: string, _summary: string, options: { handler: Function }) => {
+      registrations.handlers.set(name, options.handler);
+    },
   },
 }));
+
+vi.mock("../../swagger/openapi.mjs", () => ({}));
 
 // Importing the route verifies that all functions can still be registered without
 // starting the Functions host. The tests invoke the underlying handlers directly.

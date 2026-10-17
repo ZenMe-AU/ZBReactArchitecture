@@ -22,6 +22,9 @@ import * as GetSharedQuestionList from "./handler/GetSharedQuestionList.mjs";
 import * as SendFollowUpCmd from "./handler/SendFollowUpCmd.mjs";
 import * as ShareQuestionCmd from "./handler/ShareQuestionCmd.mjs";
 import * as getEventByCorrelationId from "./handler/getEventByCorrelationId.mjs";
+import profileHandler from "./handler/profileHandler.mjs";
+import * as Profile from "./handler/Profile.mjs";
+import { updateMyProfileSchema } from "./handler/updateMyProfileSchema.mjs";
 
 //TODO: Review schema usage and ensure all endpoints have a correct schema assigned which is also in sync with the relevant function and relevant swagger doc.
 
@@ -149,33 +152,45 @@ app.openAPIPath("GetSharedQuestionList", "List questions shared with the caller"
   handler: requestHandler(followupHandler.GetSharedQuestionListByUser),
 });
 
-app.http("GetMyProfile", {
+app.openAPIPath("GetMyProfile", "Get the caller's profile", {
   route: "profile/me",
   methods: ["GET"],
   authLevel: "anonymous",
+  tags: ["Profile"],
+  responses: Profile.getMyProfileResponses,
   handler: requestHandler(profileHandler.GetMyProfile),
 });
 
-app.http("UpdateMyProfile", {
+app.openAPIPath("UpdateMyProfile", "Update the caller's profile", {
   route: "profile/me",
   methods: ["PUT"],
   authLevel: "anonymous",
+  tags: ["Profile"],
+  body: Profile.updateMyProfileBody,
+  responses: Profile.updateMyProfileResponses,
   handler: requestHandler(profileHandler.UpdateMyProfile, {
     schemas: [updateMyProfileSchema],
   }),
 });
 
-app.http("AddMyFriend", {
+app.openAPIPath("AddMyFriend", "Add a friend to the caller's profile", {
   route: "profile/me/friends/{id}",
   methods: ["PUT"],
   authLevel: "anonymous",
-  handler: requestHandler(profileHandler.AddMyFriend),
+  tags: ["Profile"],
+  params: Profile.addMyFriendParams,
+  responses: Profile.addMyFriendResponses,
+  handler: requestHandler(profileHandler.AddMyFriend, {
+    params: Profile.addMyFriendParams,
+  }),
 });
 
-app.http("GetMyFriends", {
+app.openAPIPath("GetMyFriends", "List the caller's friends", {
   route: "profile/me/friends",
   methods: ["GET"],
   authLevel: "anonymous",
+  tags: ["Profile"],
+  responses: Profile.getMyFriendsResponses,
   handler: requestHandler(profileHandler.GetMyFriends),
 });
 

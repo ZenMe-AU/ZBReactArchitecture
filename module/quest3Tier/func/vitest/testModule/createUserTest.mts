@@ -6,6 +6,7 @@
 import { randomUUID } from "crypto";
 import * as authEntraID from "../../service/authEntraID.mjs";
 import * as authDev from "../../service/authDev.mjs";
+import { ensureProfile } from "../../service/profile.mjs";
 
 const authProviders = {
   Dev: authDev,
