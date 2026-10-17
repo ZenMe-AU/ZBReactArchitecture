@@ -99,11 +99,31 @@ function send(response, status, contentType, body) {
 
 const sendJson = (response, status, body) => send(response, status, "application/json; charset=utf-8", JSON.stringify(body));
 const isSameOrigin = (request) => request.headers.origin === `http://${HOST}:${PORT}`;
+const CHAT_SCHEMA = {
+  type: "object",
+  properties: { answer: { type: "string" } },
+  required: ["answer"],
+};
 
 async function readJson(request) {
   const chunks: Buffer[] = [];
   for await (const chunk of request) chunks.push(chunk);
   return chunks.length ? JSON.parse(Buffer.concat(chunks).toString("utf8")) : {};
+}
+
+async function answerAboutRun(run: string, message: string, history: unknown[]) {
+  const report = await readFile(path.join(RUNS_DIR, run.replace(/\.chat\.md$/, ".md")), "utf8").catch(() => "");
+  const chat = await readFile(path.join(RUNS_DIR, run), "utf8").catch(() => "");
+  const { llm } = await import("../agentChat.llm.mjs");
+  return llm(
+    "You are the Q3 Agent Lab results assistant. Answer only from the supplied run report and chat log. " +
+      "Explain evidence and uncertainty plainly. Do not invent events, scores or people. Keep the answer concise.",
+    { question: message, history: history.slice(-8), report: report.slice(-30000), chat: chat.slice(-20000) },
+    process.env.CHAT_MODEL ?? process.env.AGENT_MODEL ?? "haiku",
+    CHAT_SCHEMA,
+    RUNS_DIR,
+    { effort: "low", thinking: false },
+  );
 }
 
 const portOpen = (port, host = HOST) =>
@@ -167,6 +187,22 @@ async function startRun() {
 
 async function handle(request, response) {
   const url = new URL(request.url, `http://${HOST}:${PORT}`);
+  if (request.method === "POST" && url.pathname === "/api/chat") {
+    if (!isSameOrigin(request)) return sendJson(response, 403, { error: "Same-origin request required" });
+    try {
+      const body = await readJson(request);
+      const runs = await listRuns();
+      const run = typeof body.run === "string" ? body.run : "";
+      const message = typeof body.message === "string" ? body.message.trim() : "";
+      if (!isRunName(run) || !runs.some((item) => item.name === run)) return sendJson(response, 404, { error: "Run not found" });
+      if (!message || message.length > 1000) return sendJson(response, 400, { error: "Message must be 1-1000 characters" });
+      const result = await answerAboutRun(run, message, Array.isArray(body.history) ? body.history : []);
+      return sendJson(response, 200, { answer: result.answer });
+    } catch (error) {
+      console.error("Run chat failed:", error);
+      return sendJson(response, 503, { error: error instanceof Error ? error.message : String(error) });
+    }
+  }
   if (request.method === "POST" && url.pathname === "/api/run") {
     if (!isSameOrigin(request)) return sendJson(response, 403, { error: "Same-origin request required" });
     if (state.runProcess || state.run.status === "starting") return sendJson(response, 409, state.run);

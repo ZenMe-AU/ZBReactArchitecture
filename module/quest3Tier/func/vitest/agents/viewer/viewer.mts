@@ -21,6 +21,7 @@ const state = {
   currentReport: parseReport(""),
   network: {},
   selectedEventId: null,
+  chatMessages: [] as { role: "user" | "assistant"; content: string }[],
 };
 
 const detailsForRun = (name) => {
@@ -140,6 +141,24 @@ function renderFeed() {
   renderInspector(events.find((event) => event.id === state.selectedEventId));
 }
 
+function renderChat() {
+  if (!elements.chatMessages) return;
+  if (!state.chatMessages.length) {
+    const empty = document.createElement("li");
+    empty.className = "chat-empty";
+    empty.textContent = "Ask about scores, answers, leaks or agent behaviour.";
+    elements.chatMessages.replaceChildren(empty);
+    return;
+  }
+  elements.chatMessages.replaceChildren(...state.chatMessages.map(({ role, content }) => {
+    const item = document.createElement("li");
+    item.className = `chat-message ${role}`;
+    item.textContent = content;
+    return item;
+  }));
+  elements.chatMessages.lastElementChild?.scrollIntoView({ block: "nearest" });
+}
+
 function render(events, mtime) {
   state.currentEvents = events.map((event, id) => ({ ...event, id }));
   const participants = participantsFor(state.currentEvents);
@@ -178,6 +197,8 @@ async function loadRuns() {
   const newestRun = names[0] ?? "";
   if (!state.selectedRun || !names.includes(state.selectedRun) || state.selectedRun === state.latestRun) state.selectedRun = newestRun;
   state.latestRun = newestRun;
+  elements.chatTrigger.disabled = !state.selectedRun;
+  elements.chatRunLabel.textContent = state.selectedRun ? detailsForRun(state.selectedRun).title : "Select a run to begin";
   const signature = names.join("\n");
   if (elements.runList.dataset.signature !== signature) {
     elements.runList.dataset.signature = signature;
@@ -278,6 +299,8 @@ if (elements) {
     state.announcedRun = "";
     state.announcedCount = 0;
     state.selectedEventId = null;
+    state.chatMessages = [];
+    renderChat();
     refreshLog();
     loadRuns();
   });
@@ -288,6 +311,38 @@ if (elements) {
     state.selectedEventId = null;
     for (const item of elements.viewTabs.querySelectorAll("[data-view]")) item.setAttribute("aria-pressed", String(item === tab));
     renderFeed();
+  });
+  elements.chatTrigger.addEventListener("click", () => {
+    elements.chatPanel.hidden = false;
+    elements.chatInput.focus();
+  });
+  elements.chatClose.addEventListener("click", () => {
+    elements.chatPanel.hidden = true;
+  });
+  elements.chatForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const message = elements.chatInput.value.trim();
+    if (!message || !state.selectedRun) return;
+    state.chatMessages.push({ role: "user", content: message });
+    elements.chatInput.value = "";
+    elements.chatSend.disabled = true;
+    renderChat();
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ run: state.selectedRun, message, history: state.chatMessages }),
+      });
+      const body = await response.json();
+      if (!response.ok) throw new Error(body.error ?? "Chat request failed");
+      state.chatMessages.push({ role: "assistant", content: body.answer });
+    } catch (error) {
+      state.chatMessages.push({ role: "assistant", content: `Unable to answer: ${error instanceof Error ? error.message : String(error)}` });
+    } finally {
+      elements.chatSend.disabled = false;
+      renderChat();
+      elements.chatInput.focus();
+    }
   });
   await update();
   // ponytail: whole-file polling is enough for short test logs; switch to byte ranges only if runs become large.
