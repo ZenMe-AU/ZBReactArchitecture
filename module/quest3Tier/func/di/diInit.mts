@@ -22,23 +22,24 @@ register("authProvider", async () => {
   console.log("Auth provider initialized:", authProviderName);
 });
 
-  // Register only one of sql or table repository into the DI container. This is intentionally not made configurable to avoid confusion.
-  // TODO: Delete the repository that is not needed when you have confirmed your prefered data source choice.
-// register("repository", async () => {
-//   // Initialize SQL repository variable
-//   const { initRepository: initSqlRepository } = await import("../repository/sql/repository.mjs");
-//   const { repository: sqlRepository } = await initSqlRepository({
-//     username: process.env.DB_USERNAME,
-//     database: process.env.DB_DATABASE,
-//     host: process.env.DB_HOST,
-//     authMode: process.env.DB_AUTH_MODE?? "azure-ad", // azure-ad is preferred for security.
-//     password: process.env.DB_PASSWORD,
-//     ignoreMigrationState: process.env.DB_IGNORE_MIGRATION_STATE,
-//   });
-//   console.log("SQL repository initialized");
-//   container.register("repository", sqlRepository);
-//   console.log("Repository registered with DI container");
-// });
+// Register only one of sql or table repository into the DI container. This is intentionally not made configurable to avoid confusion.
+// TODO: Delete the repository that is not needed when you have confirmed your prefered data source choice.
+if(false) register("repository", async () => {
+  // Initialize SQL repository variable
+  const { initRepository: initSqlRepository } = await import("../repository/sql/repository.mjs");
+  const { repository: sqlRepository } = await initSqlRepository({
+    username: process.env.DB_USERNAME,
+    database: process.env.DB_DATABASE,
+    host: process.env.DB_HOST,
+    authMode: process.env.DB_AUTH_MODE?? "azure-ad", // azure-ad is preferred for security.
+    password: process.env.DB_PASSWORD,
+    ignoreMigrationState: process.env.DB_IGNORE_MIGRATION_STATE,
+  });
+  console.log("SQL repository initialized");
+  container.register("repository", sqlRepository);
+  console.log("Repository registered with DI container");
+});
+
 
 register("repository", async () => {
   // Initialize table repository variable
@@ -53,7 +54,7 @@ register("repository", async () => {
   console.log("Repository registered with DI container");
 });
 
-// register something else...(e.g. telemetry etc)
+// register anything else like telemetry etc.
 const startupPromise = startup();
 
 export { startupPromise };

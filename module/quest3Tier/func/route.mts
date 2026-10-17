@@ -6,16 +6,20 @@
 import "./swagger/openapi.mjs";
 import { app } from "@azure/functions";
 import { requestHandler } from "./handler/handlerWrapper.mjs";
-import questionHandler from "./handler/questionHandler.mjs";
+import { CreateQuestion } from "./handler/question/create.mjs";
+import { GetQuestionById } from "./handler/question/getById.mjs";
+import { GetQuestionListByUser } from "./handler/question/getListByUser.mjs";
+import { PatchQuestionById } from "./handler/question/patchById.mjs";
+import { UpdateQuestionById } from "./handler/question/updateById.mjs";
 import answerHandler from "./handler/answerHandler.mjs";
 import followupHandler from "./handler/followupHandler.mjs";
-import * as CreateQuestion from "./handler/CreateQuestion.mjs";
-import * as GetQuestionById from "./handler/GetQuestionById.mjs";
-import * as UpdateQuestionById from "./handler/UpdateQuestionById.mjs";
-import * as PatchQuestionById from "./handler/PatchQuestionById.mjs";
+import * as CreateQuestionschema from "./handler/CreateQuestion.mjs";
+import * as GetQuestionByIdsc from "./handler/GetQuestionById.mjs";
+import * as UpdateQuestionByIdsc from "./handler/UpdateQuestionById.mjs";
+import * as PatchQuestionByIdsc from "./handler/PatchQuestionById.mjs";
 import * as AddAnswer from "./handler/AddAnswer.mjs";
 import * as GetAnswerById from "./handler/GetAnswerById.mjs";
-import * as GetQuestionListByUser from "./handler/GetQuestionListByUser.mjs";
+import * as GetQuestionListByUsersc from "./handler/GetQuestionListByUser.mjs";
 import * as GetAnswerListByQuestionId from "./handler/GetAnswerListByQuestionId.mjs";
 import * as ShareQuestion from "./handler/ShareQuestion.mjs";
 import * as GetSharedQuestionList from "./handler/GetSharedQuestionList.mjs";
@@ -33,10 +37,10 @@ app.openAPIPath("CreateQuestion", "Create a question", {
   methods: ["POST"],
   authLevel: "anonymous",
   tags: ["Question"],
-  body: CreateQuestion.body,
-  responses: CreateQuestion.responses,
-  handler: requestHandler(questionHandler.CreateQuestion, {
-    schemas: [CreateQuestion.body],
+  body: CreateQuestionschema.body,
+  responses: CreateQuestionschema.responses,
+  handler: requestHandler(CreateQuestion, {
+    schemas: [CreateQuestionschema.body],
   }),
 });
 
@@ -45,10 +49,10 @@ app.openAPIPath("GetQuestionById", "Get a question by ID", {
   methods: ["GET"],
   authLevel: "anonymous",
   tags: ["Question"],
-  params: GetQuestionById.params,
-  responses: GetQuestionById.responses,
-  handler: requestHandler(questionHandler.GetQuestionById, {
-    params: GetQuestionById.params,
+  params: GetQuestionByIdsc.params,
+  responses: GetQuestionByIdsc.responses,
+  handler: requestHandler(GetQuestionById, {
+    params: GetQuestionByIdsc.params,
   }),
 });
 
@@ -57,12 +61,12 @@ app.openAPIPath("UpdateQuestionById", "Update a question", {
   methods: ["PUT"],
   authLevel: "anonymous",
   tags: ["Question"],
-  params: UpdateQuestionById.params,
-  body: UpdateQuestionById.body,
-  responses: UpdateQuestionById.responses,
-  handler: requestHandler(questionHandler.UpdateQuestionById, {
-    params: UpdateQuestionById.params,
-    schemas: [UpdateQuestionById.body],
+  params: UpdateQuestionByIdsc.params,
+  body: UpdateQuestionByIdsc.body,
+  responses: UpdateQuestionByIdsc.responses,
+  handler: requestHandler(UpdateQuestionById, {
+    params: UpdateQuestionByIdsc.params,
+    schemas: [UpdateQuestionByIdsc.body],
   }),
 });
 
@@ -72,13 +76,13 @@ app.openAPIPath("PatchQuestionById", "Update a question using JSON Patch", {
   authLevel: "anonymous",
   tags: ["Question"],
   request: {
-    params: PatchQuestionById.params,
-    body: { content: { "application/json-patch+json": { schema: PatchQuestionById.body } } },
+    params: PatchQuestionByIdsc.params,
+    body: { content: { "application/json-patch+json": { schema: PatchQuestionByIdsc.body } } },
   },
-  responses: PatchQuestionById.responses,
-  handler: requestHandler(questionHandler.PatchQuestionById, {
-    params: PatchQuestionById.params,
-    schemas: [PatchQuestionById.body],
+  responses: PatchQuestionByIdsc.responses,
+  handler: requestHandler(PatchQuestionById, {
+    params: PatchQuestionByIdsc.params,
+    schemas: [PatchQuestionByIdsc.body],
   }),
 });
 
@@ -112,9 +116,8 @@ app.openAPIPath("GetQuestionListByUser", "List questions created by or shared wi
   route: "questions",
   methods: ["GET"],
   authLevel: "anonymous",
-  tags: ["Question"],
-  responses: GetQuestionListByUser.responses,
-  handler: requestHandler(questionHandler.GetQuestionListByUser),
+  responses: GetQuestionListByUsersc.responses,
+  handler: requestHandler(GetQuestionListByUser)
 });
 
 app.openAPIPath("GetAnswerListByQuestionId", "List answers to a question", {
