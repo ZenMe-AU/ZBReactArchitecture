@@ -20,12 +20,12 @@ import { appendFile, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { setTimeout as sleep } from "node:timers/promises";
 import os from "node:os";
 import path from "node:path";
-import { invalidAction, learningCoverage, LIMITS, offlineActionReason, participantFriends, rules, STEP_SCHEMA, writeKind } from "./agentChat.config.mjs";
+import { invalidAction, learningCoverage, LIMITS, needsAnswer, offlineActionReason, participantFriends, rules, STEP_SCHEMA, writeKind } from "./agentChat.config.mjs";
 import { assertLlmReady, llm } from "./agentChat.llm.mjs";
 import { factMemory } from "./agentChat.memory.mjs";
 import { judge, report } from "./agentChat.report.mjs";
 import { resetExperiment } from "./agentChat.reset.mjs";
-import { HUMAN_NAME, loadAgent, loadHuman, LOCK_PATH, pickParticipants, RUNS_DIR, takeLock, writeMemory } from "./agentChat.setup.mjs";
+import { HUMAN_NAME, loadAgent, LOCK_PATH, pickParticipants, RUNS_DIR, takeLock, writeMemory } from "./agentChat.setup.mjs";
 
 const MAX_STEPS = Number(process.env.AGENT_STEPS ?? 30);
 const RECENT_STEPS = 8;
@@ -110,6 +110,7 @@ const view = (questions, names, digested = new Set()) =>
     title: q.title,
     text: q.questionText,
     options: q.option ?? [],
+    needsAnswer: needsAnswer(q),
     answers: q.answers.map((a) => ({
       id: a.id,
       ...(a.author && { by: a.author }),
@@ -122,7 +123,7 @@ const digest = (agent, questions) => questions.forEach((q) => q.answers.forEach(
 
 async function observe(agent) {
   const { questions: visibleQuestions, profiles } = await snapshot(agent);
-  const questions = visibleQuestions.filter((question) => question.isOwner || agent.realNamesById?.[question.profileId]);
+  const questions = visibleQuestions;
   const names = Object.fromEntries(profiles.map((p) => [p.id, p.name]));
 
   // News = what appeared since this agent last looked, so it can react like a person reading notifications.
@@ -151,6 +152,7 @@ async function observe(agent) {
     news: news.slice(-15),
     profiles,
     questions: view(questions, names, agent.digested),
+    unanswered: questions.filter(needsAnswer).map((q) => ({ id: q.id, title: q.title, owner: names[q.profileId] ?? "unknown" })),
     coverage: learningCoverage(agent, questions),
     memory: Object.fromEntries(
       Object.entries(knownMemory(agent)).map(([name, value]) => [agent.labelsByName?.[name] ?? name, value])
@@ -260,8 +262,30 @@ export async function runAgentChat() {
   await takeLock();
   try {
     const aiParticipants = await pickParticipants();
-    const humanMode = process.env.HUMAN_RUN === "1";
-    const participants = humanMode ? [...aiParticipants, HUMAN_NAME] : aiParticipants;
+    const humanProfileId = process.env.HUMAN_PROFILE_ID;
+    const humanMode = Boolean(humanProfileId);
+    if (process.env.HUMAN_RUN === "1" && !humanProfileId) throw new Error("HUMAN_PROFILE_ID is required for a human test");
+    const agents = await Promise.all(aiParticipants.map(loadAgent));
+    const human = humanMode ? { name: HUMAN_NAME, profileId: humanProfileId } : null;
+    const actors = human ? [...agents, human] : agents;
+    for (const actor of agents) {
+      const me = await call(actor, "GET", new URL("/profile/me", QUESTION_URL));
+      if (me.status >= 400) throw new Error(`Could not register ${actor.name} (${me.status})`);
+      actor.profileId = me.response.return.id;
+    }
+    // A real human profile can have normal Q3 data. Only Lab-owned agent data is reset.
+    const removed = await resetExperiment(agents.map((agent) => agent.profileId));
+    await Promise.all(actors.flatMap((actor, index) => actors.slice(index + 1).map(async (friend) => {
+      const result = await call(actor, "PUT", new URL(`/profile/me/friends/${friend.profileId}`, QUESTION_URL));
+      if (result.status >= 400) throw new Error(`Could not connect ${actor.name} and ${friend.name} (${result.status})`);
+    })));
+    if (human) {
+      const contacts = await list(agents[0], "/profile/me/friends");
+      const profile = contacts.find((contact) => contact.id === human.profileId);
+      if (profile?.name) human.name = profile.name;
+    }
+    const realNamesById = Object.fromEntries(actors.map((actor) => [actor.profileId, actor.name]));
+    const participants = human ? [...aiParticipants, human.name] : aiParticipants;
     const runName = `${new Date().toISOString().replaceAll(":", "-")}_${participants.join("-")}`;
     // Live chat log: printed as it happens (run vitest with --disableConsoleIntercept) and appended to a file you can keep open.
     const chatPath = path.join(RUNS_DIR, `${runName}.chat.md`);
@@ -271,21 +295,7 @@ export async function runAgentChat() {
       await appendFile(chatPath, `${text}\n\n`);
     };
     await say(`Run starts. Online: ${participants.join(", ")}.`);
-    const agents = await Promise.all(aiParticipants.map(loadAgent));
-    const human = humanMode ? loadHuman() : null;
-    const actors = human ? [...agents, human] : agents;
-    for (const actor of actors) {
-      const me = await call(actor, "GET", new URL("/profile/me", QUESTION_URL));
-      if (me.status >= 400) throw new Error(`Could not register ${actor.name} (${me.status})`);
-      actor.profileId = me.response.return.id;
-    }
-    const realNamesById = Object.fromEntries(actors.map((actor) => [actor.profileId, actor.name]));
-    const removed = await resetExperiment(actors.map((actor) => actor.profileId));
     await say(`Fresh test. Cleared ${removed.records} Q3 records and ${removed.disclosures} name disclosures.`);
-    await Promise.all(actors.flatMap((actor, index) => actors.slice(index + 1).map(async (friend) => {
-      const result = await call(actor, "PUT", new URL(`/profile/me/friends/${friend.profileId}`, QUESTION_URL));
-      if (result.status >= 400) throw new Error(`Could not connect ${actor.name} and ${friend.name} (${result.status})`);
-    })));
     await say(`Participant friend network ready: ${actors.map((actor) => actor.name).join(", ")}.`);
 
     const participantIds = new Set(Object.keys(realNamesById));
@@ -318,7 +328,8 @@ export async function runAgentChat() {
     // Every question is visible to its owner, so the union over participants covers everything they touched.
     const questions = new Map();
     const names = {};
-    for (const agent of actors) {
+    const readers = new Map();
+    for (const agent of agents) {
       let visible = [];
       try {
         visible = await list(agent, "/questions");
@@ -326,18 +337,21 @@ export async function runAgentChat() {
         console.error(`[ERROR] Failed to list questions for ${agent.name}: ${err.message}`);
         await say(`[ERROR] Failed to list questions for ${agent.name}: ${err.message}`);
       }
-      const current = visible.filter((question) => question.isOwner || realNamesById[question.profileId]);
+      const current = visible;
       if ("steps" in agent) agent.seenOthers = current.filter((question) => !question.isOwner).length;
-      for (const q of current) questions.set(q.id, q);
+      for (const q of current) {
+        questions.set(q.id, q);
+        readers.set(q.id, agent);
+      }
     }
     Object.assign(names, realNamesById);
     for (const q of questions.values()) {
-      const owner = actors.find((actor) => actor.name === names[q.profileId]) ?? agents[0];
+      const reader = readers.get(q.id) ?? agents[0];
       try {
-        q.answers = await list(owner, `/question/${q.id}/answers`);
+        q.answers = await list(reader, `/question/${q.id}/answers`);
       } catch (err: any) {
-        console.error(`[ERROR] Failed to list answers for [q:${q.id}] (${owner.name}): ${err.message}`);
-        await say(`[ERROR] Failed to list answers for [q:${q.id}] (${owner.name}): ${err.message}`);
+        console.error(`[ERROR] Failed to list answers for [q:${q.id}] (${reader.name}): ${err.message}`);
+        await say(`[ERROR] Failed to list answers for [q:${q.id}] (${reader.name}): ${err.message}`);
         q.answers = [];
       }
     }

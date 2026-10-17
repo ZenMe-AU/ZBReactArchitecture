@@ -6,7 +6,7 @@
 import { Helmet } from "react-helmet";
 import { Link } from "react-router";
 import { getQuestionsByUser } from "../api/question";
-import { Alert, Container, Typography, List, ListItem, ListItemButton, ListItemText, Button, Box, Divider } from "@mui/material";
+import { Alert, Chip, Container, Typography, List, ListItem, ListItemButton, ListItemText, Button, Box, Divider } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import ShareIcon from "@mui/icons-material/Share";
 import type { Question } from "../types/interfaces";
@@ -16,11 +16,11 @@ import { Await } from "react-router";
 import { Skeleton } from "@mui/material";
 
 export async function clientLoader() {
-  return { questions: getQuestionsByUser(), profileId: localStorage.getItem("profileId") };
+  return { questions: getQuestionsByUser() };
 }
 
 export default function QuestionCombinationList({ loaderData }: { loaderData: any }) {
-  const { questions, profileId } = loaderData;
+  const { questions } = loaderData;
   const handleOpenAnswer = (questionId: string) => {
     const correlationId = setOperationId();
     logEvent("btnAnswerDetailClick", {
@@ -68,44 +68,51 @@ export default function QuestionCombinationList({ loaderData }: { loaderData: an
             </Alert>
           }
         >
-          {(resolvedQuestions: Question[]) => (
-            <>
-              <List>
-                {resolvedQuestions.map((q: Question, index: number) => (
-                  <div key={q.id}>
-                    <ListItem disablePadding>
-                      <ListItemButton component={Link} to={`/quest3Tier/${q.id}/answer`} onClick={() => handleOpenAnswer(q.id)}>
-                        <ListItemText primary={q.title} />
-                        <Box display="flex" gap={1} ml={2}>
-                          <Button
-                            variant="outlined"
-                            size="small"
-                            startIcon={<EditIcon />}
-                            component={Link}
-                            to={`/quest3Tier/${q.id}` + (q.profileId !== profileId ? "/add" : "")}
-                            onClick={() => handleEditQuestion(q.id, q.profileId !== profileId)}
-                          >
-                            Edit
-                          </Button>
-                          <Button
-                            variant="outlined"
-                            size="small"
-                            startIcon={<ShareIcon />}
-                            component={Link}
-                            to={`/quest3Tier/${q.id}/share`}
-                            onClick={() => handleShareQuestion(q.id)}
-                          >
-                            Share
-                          </Button>
-                        </Box>
-                      </ListItemButton>
-                    </ListItem>
-                    {index < resolvedQuestions.length - 1 && <Divider sx={{ bgcolor: "grey.800" }} />}
-                  </div>
-                ))}
-              </List>
-            </>
-          )}
+          {(resolvedQuestions: Question[]) => {
+            const visibleQuestions = resolvedQuestions.filter((q: Question) => q.isOwner || !q.latestAnswer);
+            return (
+              <>
+                <List>
+                  {visibleQuestions.map((q: Question, index: number) => {
+                    const isOwner = q.isOwner === true;
+                    return (
+                      <div key={q.id}>
+                        <ListItem disablePadding>
+                          <ListItemButton component={Link} to={`/quest3Tier/${q.id}/answer`} onClick={() => handleOpenAnswer(q.id)}>
+                            <ListItemText primary={q.title} secondary={!isOwner && !q.latestAnswer ? "Not answered" : undefined} />
+                            {isOwner && <Chip label="My question" size="small" color="primary" variant="outlined" sx={{ mr: 1 }} />}
+                            <Box display="flex" gap={1} ml={2}>
+                              <Button
+                                variant="outlined"
+                                size="small"
+                                startIcon={<EditIcon />}
+                                component={Link}
+                                to={`/quest3Tier/${q.id}` + (!isOwner ? "/add" : "")}
+                                onClick={() => handleEditQuestion(q.id, !isOwner)}
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                variant="outlined"
+                                size="small"
+                                startIcon={<ShareIcon />}
+                                component={Link}
+                                to={`/quest3Tier/${q.id}/share`}
+                                onClick={() => handleShareQuestion(q.id)}
+                              >
+                                Share
+                              </Button>
+                            </Box>
+                          </ListItemButton>
+                        </ListItem>
+                        {index < visibleQuestions.length - 1 && <Divider sx={{ bgcolor: "grey.800" }} />}
+                      </div>
+                    );
+                  })}
+                </List>
+              </>
+            );
+          }}
         </Await>
       </Suspense>
       <Box mt={4} display="flex" justifyContent="space-between">

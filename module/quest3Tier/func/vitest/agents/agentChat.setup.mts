@@ -12,8 +12,7 @@ import { NAMES } from "./agentChat.config.mjs";
 export const AGENTS_DIR = path.dirname(fileURLToPath(import.meta.url));
 export const RUNS_DIR = path.join(AGENTS_DIR, "runs");
 export const LOCK_PATH = path.join(RUNS_DIR, ".lock");
-export const HUMAN_NAME = "Josh";
-export const HUMAN_OID = "10000000-0000-4000-8000-000000000005";
+export const HUMAN_NAME = process.env.HUMAN_NAME ?? "Human";
 const MEMORY_END = "<!-- /Q3_MEMORY -->";
 const PARTICIPANT_NAMES = [...NAMES, HUMAN_NAME];
 
@@ -31,7 +30,6 @@ function parseMemory(text, owner) {
     })
   );
 }
-
 const readMemoryFile = async (file, subject) => {
   const text = await readFile(file, "utf8").catch(() => "");
   const separator = text.indexOf("\n\n");
@@ -47,7 +45,6 @@ export async function writeMemory(directory, owner, memory) {
     )
   );
 }
-
 async function loadMemory(name) {
   const directory = path.join(AGENTS_DIR, name, "memory");
   const combinedFile = path.join(AGENTS_DIR, name, "memory.md");
@@ -111,7 +108,6 @@ const [, frontmatter, persona] = match;
       oid: meta.oid,
       name,
       preferred_username: meta.email,
-      ...(process.env.HUMAN_RUN === "1" && { experiment: "human" }),
     }),
     memoryDirectory,
     memory,
@@ -133,18 +129,5 @@ const [, frontmatter, persona] = match;
     shareableIds: new Set(),
     online: [],
     seenOthers: 0,
-  };
-}
-
-export function loadHuman() {
-  return {
-    name: HUMAN_NAME,
-    profileId: "",
-    token: authDev.generateToken({
-      oid: HUMAN_OID,
-      name: HUMAN_NAME,
-      preferred_username: "josh@q3.local",
-      experiment: "human",
-    }),
   };
 }

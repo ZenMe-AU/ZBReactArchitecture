@@ -181,8 +181,9 @@ function testRepositoryContract(repository: QuestRepository, ids: RepositoryTest
       option: ["yes", "no"],
     });
     await expect(repository.getCombinationListByUser(owner.id)).resolves.toEqual(
-      expect.arrayContaining([expect.objectContaining({ id: question.id })])
+      expect.arrayContaining([expect.objectContaining({ id: question.id, latestAnswer: null })])
     );
+    await expect(repository.shareQuestion(question.id, owner.id, [responder.id])).resolves.toHaveLength(1);
 
     await expect(repository.updateById(question.id, "Updated Quest DB", "Which option?", ["yes", "no", "maybe"])).resolves.toEqual({ id: question.id });
     await expect(repository.patchById(question.id, [{ op: "replace", path: "/title", value: "Patched Quest DB" }], owner.id)).resolves.toMatchObject({ id: expect.any(String) });
@@ -199,6 +200,16 @@ function testRepositoryContract(repository: QuestRepository, ids: RepositoryTest
     });
     await expect(repository.getAnswerListByQuestionId(question.id)).resolves.toEqual(
       expect.arrayContaining([expect.objectContaining({ profileId: responder.id, answerCount: 1, optionId: "yes" })])
+    );
+
+    await repository.addAnswerByQuestionId(question.id, responder.id, 12, "no", "no");
+    await expect(repository.getCombinationListByUser(responder.id)).resolves.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: question.id,
+          latestAnswer: expect.objectContaining({ profileId: responder.id, optionId: "no" }),
+        }),
+      ])
     );
 
     await expect(repository.shareQuestion(question.id, owner.id, [receiver.id])).resolves.toHaveLength(1);

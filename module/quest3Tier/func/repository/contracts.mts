@@ -45,6 +45,10 @@ export interface AnswerRecord {
   answerCount?: number;
 }
 
+export interface QuestionListRecord extends QuestionRecord {
+  latestAnswer: AnswerRecord | null;
+}
+
 export interface CommandRecord {
   id: string;
 }
@@ -59,7 +63,7 @@ export interface QuestRepository {
   getById(questionId: string): Promise<QuestionRecord | null>;
   create(profileId: string, title?: string | null, question?: string | null, option?: string[] | null): Promise<QuestionRecord>;
   updateById(questionId: string, title?: string | null, questionText?: string | null, option?: string[] | null): Promise<{ id: string }>;
-  getCombinationListByUser(profileId: string): Promise<QuestionRecord[]>;
+  getCombinationListByUser(profileId: string): Promise<QuestionListRecord[]>;
   patchById(questionId: string, action: unknown, profileId: string): Promise<{ id: string }>;
   addAnswerByQuestionId(questionId: string, profileId: string, duration: number, answer?: string | null, option?: string | null): Promise<AnswerRecord>;
   getAnswerById(questionId: string, answerId: string): Promise<AnswerRecord | null>;

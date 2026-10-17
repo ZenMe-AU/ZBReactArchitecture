@@ -35,9 +35,13 @@ const STATIC_FILES = {
   "/viewer-results.mjs": ["viewer-results.mjs", "text/javascript; charset=utf-8"],
   "/viewer-questions.mjs": ["viewer-questions.mjs", "text/javascript; charset=utf-8"],
 } as const;
-type RunState = { status: string; humanMode?: boolean; startedAt?: string; finishedAt?: string; joinUrl?: string; error?: string; exitCode?: number };
-const state: { runProcess?: ChildProcess; azuriteProcess?: ChildProcess; uiProcess?: ChildProcess; run: RunState } = { run: { status: "idle" } };
+type RunState = { status: string; startedAt?: string; finishedAt?: string; error?: string; exitCode?: number };
+const state: { runProcess?: ChildProcess; azuriteProcess?: ChildProcess; run: RunState } = { run: { status: "idle" } };
 const tableRepositoryState: { value?: Promise<{ listFriends(profileId: string): Promise<unknown[]> }> } = {};
+
+async function localSettings() {
+  return JSON.parse(await readFile(path.join(FUNC_DIR, "local.settings.json"), "utf8")).Values ?? {};
+}
 
 const spawnPnpm = (args: string[], cwd: string, env = CHILD_ENV) => spawn(
   process.platform === "win32" ? process.env.ComSpec ?? "cmd.exe" : "pnpm",
@@ -60,7 +64,7 @@ async function listRuns() {
 async function getTableRepository() {
   if (!tableRepositoryState.value) {
     tableRepositoryState.value = (async () => {
-      const settings = JSON.parse(await readFile(path.join(FUNC_DIR, "local.settings.json"), "utf8")).Values ?? {};
+      const settings = await localSettings();
       const { initRepository } = await import("../../../repository/table/repository.mjs");
       return initRepository({
         AzureWebJobsStorage: process.env.AzureWebJobsStorage ?? settings.AzureWebJobsStorage,
@@ -95,6 +99,37 @@ function send(response, status, contentType, body) {
 
 const sendJson = (response, status, body) => send(response, status, "application/json; charset=utf-8", JSON.stringify(body));
 const isSameOrigin = (request) => request.headers.origin === `http://${HOST}:${PORT}`;
+const CHAT_SCHEMA = {
+  type: "object",
+  properties: { answer: { type: "string" } },
+  required: ["answer"],
+};
+const AGENT_NAMES = new Set(["Mike", "Bella", "Ian", "Eric"]);
+
+async function readJson(request) {
+  const chunks: Buffer[] = [];
+  for await (const chunk of request) chunks.push(chunk);
+  return chunks.length ? JSON.parse(Buffer.concat(chunks).toString("utf8")) : {};
+}
+
+async function answerAboutRun(run: string, message: string, history: unknown[], agent = "") {
+  const report = await readFile(path.join(RUNS_DIR, run.replace(/\.chat\.md$/, ".md")), "utf8").catch(() => "");
+  const chat = await readFile(path.join(RUNS_DIR, run), "utf8").catch(() => "");
+  const persona = agent
+    ? await readFile(path.join(FUNC_DIR, "vitest/agents", agent, `${agent}.agent.md`), "utf8").catch(() => "")
+    : "";
+  const { llm } = await import("../agentChat.llm.mjs");
+  return llm(
+    agent
+      ? `You are ${agent}, one of the Q3 Agent Lab participants. Speak directly to the user in your persona. Use the persona and supplied run evidence, but do not invent personal facts or events. Keep the answer concise.`
+      : "You are the Q3 Agent Lab results assistant. Answer only from the supplied run report and chat log. Explain evidence and uncertainty plainly. Do not invent events, scores or people. Keep the answer concise.",
+    { agent, persona, question: message, history: history.slice(-8), report: report.slice(-30000), chat: chat.slice(-20000) },
+    process.env.CHAT_MODEL ?? process.env.AGENT_MODEL ?? "haiku",
+    CHAT_SCHEMA,
+    RUNS_DIR,
+    { effort: "low", thinking: false },
+  );
+}
 
 const portOpen = (port, host = HOST) =>
   new Promise((resolve) => {
@@ -120,7 +155,7 @@ const waitForPort = async (port, host, attempts) => {
   return false;
 };
 
-async function ensureServices(humanMode) {
+async function ensureServices() {
   if (!(await portOpen(10002))) {
     state.azuriteProcess = spawn(process.execPath, [AZURITE_BIN, "--location", REPO_DIR, "--tableHost", HOST, "--tablePort", "10002", "--silent"], {
       cwd: REPO_DIR,
@@ -132,27 +167,16 @@ async function ensureServices(humanMode) {
     if (!(await waitForPort(10002, HOST, 50))) throw new Error("Azurite Table did not start on port 10002");
   }
   if (!(await portOpen(7073))) throw new Error("Q3 API is not running on port 7073. Start the Agent Start debug configuration first.");
-  if (humanMode && !(await portOpen(5183, "localhost"))) {
-    state.uiProcess = spawnPnpm(["run", "dev"], path.join(REPO_DIR, "module/quest3Tier/ui"));
-    state.uiProcess.stdout?.pipe(process.stdout);
-    state.uiProcess.stderr?.pipe(process.stderr);
-    if (!(await waitForPort(5183, "localhost", 100))) throw new Error("Q3 UI did not start on port 5183");
-  }
 }
 
-async function startRun(humanMode = false) {
-  state.run = { status: "starting", humanMode, startedAt: new Date().toISOString() };
-  console.log(`Starting agent test${humanMode ? " with a human participant" : ""}...`);
-  await ensureServices(humanMode);
+async function startRun() {
+  state.run = { status: "starting", startedAt: new Date().toISOString() };
+  console.log("Starting agent test...");
+  await ensureServices();
   const child = spawnPnpm(["vitest", "run", TEST_FILE, "--disableConsoleIntercept"], REPO_DIR,
-    { ...CHILD_ENV, AGENT_RUN: "1", ...(humanMode && { HUMAN_RUN: "1" }) });
+    { ...CHILD_ENV, ...(await localSettings()), AGENT_RUN: "1" });
   state.runProcess = child;
-  state.run = {
-    status: "running",
-    humanMode,
-    startedAt: new Date().toISOString(),
-    ...(humanMode && { joinUrl: "http://localhost:5183/login?human=1" }),
-  };
+  state.run = { status: "running", startedAt: new Date().toISOString() };
   child.stdout.pipe(process.stdout);
   child.stderr.pipe(process.stderr);
   const finish = (status, detail) => {
@@ -168,14 +192,30 @@ async function startRun(humanMode = false) {
 
 async function handle(request, response) {
   const url = new URL(request.url, `http://${HOST}:${PORT}`);
+  if (request.method === "POST" && url.pathname === "/api/chat") {
+    if (!isSameOrigin(request)) return sendJson(response, 403, { error: "Same-origin request required" });
+    try {
+      const body = await readJson(request);
+      const runs = await listRuns();
+      const run = typeof body.run === "string" ? body.run : "";
+      const message = typeof body.message === "string" ? body.message.trim() : "";
+      const agent = typeof body.agent === "string" ? body.agent : "";
+      if (!isRunName(run) || !runs.some((item) => item.name === run)) return sendJson(response, 404, { error: "Run not found" });
+      if (agent && !AGENT_NAMES.has(agent)) return sendJson(response, 400, { error: "Unknown agent" });
+      if (!message || message.length > 1000) return sendJson(response, 400, { error: "Message must be 1-1000 characters" });
+      const result = await answerAboutRun(run, message, Array.isArray(body.history) ? body.history : [], agent);
+      return sendJson(response, 200, { answer: result.answer });
+    } catch (error) {
+      console.error("Run chat failed:", error);
+      return sendJson(response, 503, { error: error instanceof Error ? error.message : String(error) });
+    }
+  }
   if (request.method === "POST" && url.pathname === "/api/run") {
     if (!isSameOrigin(request)) return sendJson(response, 403, { error: "Same-origin request required" });
     if (state.runProcess || state.run.status === "starting") return sendJson(response, 409, state.run);
     try {
-      const chunks = [];
-      for await (const chunk of request) chunks.push(chunk);
-      const body = chunks.length ? JSON.parse(Buffer.concat(chunks).toString("utf8")) : {};
-      await startRun(body.humanMode === true);
+      await readJson(request);
+      await startRun();
       return sendJson(response, 202, state.run);
     } catch (error) {
       state.run = { ...state.run, status: "failed", error: error.message, finishedAt: new Date().toISOString() };
@@ -253,7 +293,11 @@ async function selfCheck() {
   assert.equal(questionTopic({ title: "Where do you live?", text: "Choose your city" }), "Location");
   assert.equal(questionTopic({ title: "What do you do for fun?", text: "Choose one hobby" }), "Interests");
   const grouped = groupQuestions(
-    [{ agent: "Bella", kind: "answer", questionId: "q-1", text: 'answered "Where do you live?": Melbourne' }],
+    [
+      { agent: "", kind: "start", questionId: undefined, participants: ["Eric", "Bella", "Ian"], text: "Run starts. Online: Eric, Bella, Ian." },
+      { agent: "Eric", kind: "share", questionId: "q-1", text: 'shared "Where do you live?" with Bella, Ian' },
+      { agent: "Bella", kind: "answer", questionId: "q-1", text: 'answered "Where do you live?": Melbourne' },
+    ],
     [
       { id: "q-1", title: "Where do you live?", owner: "Eric", text: "", answers: [{ author: "Unknown", text: "Melbourne" }] },
       { id: "q-2", title: "Where do you live?", owner: "Bella", text: "", answers: [{ author: "Eric", text: "Taipei" }, { author: "Mike", text: "Seoul" }] },
@@ -263,6 +307,18 @@ async function selfCheck() {
     { id: "q-1", answers: [{ author: "Bella", text: "Melbourne" }] },
     { id: "q-2", answers: [{ author: "Eric", text: "Taipei" }, { author: "Mike", text: "Seoul" }] },
   ]);
+  assert.deepEqual(grouped.map(({ id, sharedWith }) => ({ id, sharedWith })), [
+    { id: "q-1", sharedWith: ["Bella", "Ian"] },
+    { id: "q-2", sharedWith: [] },
+  ]);
+  const anonymousRecipients = groupQuestions(
+    [
+      { agent: "", kind: "start", participants: ["Mike", "Ian", "Eric"], text: "Run starts. Online: Mike, Ian, Eric." },
+      { agent: "Mike", kind: "share", questionId: "q-3", text: 'shared "Where do you live?" with Person 1, Person 2' },
+    ],
+    [{ id: "q-3", title: "Where do you live?", owner: "Mike", text: "", answers: [{ author: "Ian", text: "Cape Town" }, { author: "Eric", text: "Taipei" }] }]
+  );
+  assert.deepEqual(anonymousRecipients[0].sharedWith, ["Ian", "Eric"]);
   const result = parseReport(
     "## Metrics\n\n| Agent | Steps | New questions | Edits | Shares | Re-shares | Answered / others' seen |\n|---|---|---|---|---|---|---|\n| Mike | 2 | 1 | 0 | 1 | 1 | 1/2 |\n\n## Judge\n\n| Observer | Subject | Accuracy /10 | Hidden links found | Note |\n|---|---|---|---|---|\n| Mike | Bella | 8 | - | Accurate |\n\n### Leaks\n\n- none\n\n## Findings"
   );

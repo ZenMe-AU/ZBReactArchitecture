@@ -9,6 +9,7 @@ export const MAX_LENGTH = { title: 60, questionText: 200, answer: 500 };
 export const OPTION_LIMITS = { minOptionCount: 4, maxOptionCount: 10, maxCharsPerOption: 40, maxWordsPerOption: 4 };
 export const BASIC_TOPICS = ["location", "work", "household", "hobby", "formative experience"];
 export const participantFriends = (friends, participantIds) => friends.filter((friend) => participantIds.has(friend.id));
+export const needsAnswer = (question) => question.isOwner !== true && question.latestAnswer == null;
 
 export function learningTopic(question) {
   const text = `${question.title ?? ""} ${question.questionText ?? ""}`.toLowerCase();
@@ -111,12 +112,12 @@ Generic group labels such as "Asia", "Other", "Design" or "Gaming or tech" are i
 
 HOW IT WORKS
 You act one small step at a time, like a person tapping through the app. Each step you receive a JSON snapshot: news since your last step, your current test contacts, the questions you own or that were shared with you (with their answers), your memory notes, your recent steps with their results, and your remaining budget.
-The snapshot's online list is the complete set of people participating in this run. Your contacts are only current test participants reached through Q3's friend API. Ask, share and answer for online people only; do not wait for or spend steps on offline profiles.
+The snapshot's online list is the Lab participants in this run. A question directly shared with you through Q3 is valid even when its owner is outside that list; answer it before other work. Only create and share your own questions with current online participants.
 Reply with:
 - note: one short in-character line (English) about what you think or do right now;
 - action: exactly one Q3 API call, or method NONE to wait for the others;
 - findings: problems you noticed (usually empty).
-Other people act at the same time. A newly shared question you have not answered is your highest priority; answer it before taking another action unless your Disclosure rules require you to skip it. Then read new answers and follow up.
+Other people act at the same time. The state includes an unanswered list from Q3's latestAnswer field. A newly shared question you have not answered is your highest priority; answer one item from that list before taking another action unless your Disclosure rules require you to skip it. Then read new answers and follow up.
 Every question is a relationship with its owner/asker. Your answer is for that asker only. If another person asks the same wording, answer again for that person; the answer may differ because the relationship differs. Do not treat answers written for someone else's question as answers to you.
 Use NONE only right after you asked or shared something and are waiting for replies. Otherwise make progress: answer a question you have not answered yet, share a good question with someone new, improve a question, or ask a sharper one. If everyone waits, nobody learns anything.
 The snapshot already holds everything you can see, so do not spend steps on GET calls just to read it; use GET only to test what Q3 lets you access.
@@ -171,7 +172,7 @@ export const writeKind = (method, pathname) => {
 export function offlineActionReason(pathname, body, questions, onlineProfileIds) {
   const answer = pathname.match(/^\/question\/([^/]+)\/answer\/?$/);
   const question = answer && questions.find((item) => item.id === answer[1]);
-  if (answer && (!question || (question.owner !== "you" && !question.ownerOnline))) return "question:owner-offline";
+  if (answer && !question) return "question:not-visible";
   const share = pathname.match(/^\/question\/([^/]+)\/share\/?$/);
   const sharedQuestion = share && questions.find((item) => item.id === share[1]);
   if (share && sharedQuestion?.owner !== "you") return "question:not-owner";

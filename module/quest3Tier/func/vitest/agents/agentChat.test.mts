@@ -8,12 +8,11 @@ import { mkdtemp, readFile, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { TableClient } from "@azure/data-tables";
-import { invalidAction, learningCoverage, offlineActionReason, participantFriends, rules } from "./agentChat.config.mjs";
+import { invalidAction, learningCoverage, needsAnswer, offlineActionReason, participantFriends, rules } from "./agentChat.config.mjs";
 import { factMemory } from "./agentChat.memory.mjs";
 import { list, runAgentChat } from "./agentChat.run.mjs";
 import { report } from "./agentChat.report.mjs";
-import { HUMAN_NAME, HUMAN_OID, loadHuman, writeMemory } from "./agentChat.setup.mjs";
-import * as authDev from "../../service/authDev.mjs";
+import { HUMAN_NAME, writeMemory } from "./agentChat.setup.mjs";
 import { belongsToExperiment, isLocalAzurite, resetExperiment } from "./agentChat.reset.mjs";
 
 const originalFetch = globalThis.fetch;
@@ -40,7 +39,7 @@ describe("agent option rules", () => {
     expect(prompt).toContain("Re-use each strong question");
     expect(prompt).toContain("Creating a question does not publish it");
     expect(prompt).toContain("one fact dimension at a time");
-    expect(prompt).toContain("online list is the complete set");
+    expect(prompt).toContain("A question directly shared with you through Q3 is valid");
     expect(prompt).toContain("Never choose a vague option");
   });
 
@@ -94,16 +93,24 @@ describe("fact-only memory", () => {
 });
 
 describe("online participant boundary", () => {
+  test("prioritises only visible questions without the current user's latest answer", () => {
+    expect(needsAnswer({ isOwner: false, latestAnswer: null })).toBe(true);
+    expect(needsAnswer({ isOwner: false, latestAnswer: undefined })).toBe(true);
+    expect(needsAnswer({ isOwner: false, latestAnswer: { optionId: "Taipei" } })).toBe(false);
+    expect(needsAnswer({ isOwner: true, latestAnswer: null })).toBe(false);
+  });
+
   test("keeps only current participants from the Q3 friend response", () => {
     const friends = [{ id: "bella", name: "Bella" }, { id: "past-contact", name: "Past contact" }];
     expect(participantFriends(friends, new Set(["bella", "ian"]))).toEqual([{ id: "bella", name: "Bella" }]);
   });
 
-  test("rejects answers for offline owners and shares to offline profiles", () => {
+  test("answers visible shared questions but rejects shares to offline profiles", () => {
     const questions = [{ id: "online", owner: "Bella", ownerOnline: true }, { id: "offline", owner: "Ian", ownerOnline: false }, { id: "mine", owner: "you", ownerOnline: true }];
     const onlineIds = new Set(["bella-id", "mike-id"]);
     expect(offlineActionReason("/question/online/answer", {}, questions, onlineIds)).toBeNull();
-    expect(offlineActionReason("/question/offline/answer", {}, questions, onlineIds)).toBe("question:owner-offline");
+    expect(offlineActionReason("/question/offline/answer", {}, questions, onlineIds)).toBeNull();
+    expect(offlineActionReason("/question/missing/answer", {}, questions, onlineIds)).toBe("question:not-visible");
     expect(offlineActionReason("/question/mine/share", { receiverIds: ["ian-id"] }, questions, onlineIds)).toBe("receiver:offline");
     expect(offlineActionReason("/question/offline/share", { receiverIds: ["mike-id"] }, questions, onlineIds)).toBe("question:not-owner");
   });
@@ -138,11 +145,8 @@ describe("human participant", () => {
     expect(output).toContain("- Josh: Brisbane");
   });
 
-  test("uses a fixed local identity with an identity-blind token", async () => {
-    const human = loadHuman();
-    const claims = await authDev.decode(human.token);
-    expect(human.name).toBe(HUMAN_NAME);
-    expect(claims).toMatchObject({ oid: HUMAN_OID, name: HUMAN_NAME, experiment: "human" });
+  test("uses a configured human participant label without minting a synthetic token", () => {
+    expect(HUMAN_NAME).toBe(process.env.HUMAN_NAME ?? "Human");
   });
 
   test("attributes anonymous answers to the evaluator's real subject", () => {
