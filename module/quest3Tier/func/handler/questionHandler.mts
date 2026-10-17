@@ -201,6 +201,31 @@ async function UpdateQuestionById(request, context) {
  *                             type: string
  *                             format: date-time
  *                             example: "2024-12-18T13:05:14.411Z"
+ *                           latestAnswer:
+ *                             nullable: true
+ *                             description: The authenticated user's latest answer to this question, or null when unanswered.
+ *                             type: object
+ *                             properties:
+ *                               id:
+ *                                 type: string
+ *                                 format: uuid
+ *                               questionId:
+ *                                 type: string
+ *                                 format: uuid
+ *                               profileId:
+ *                                 type: string
+ *                                 format: uuid
+ *                               answerText:
+ *                                 type: string
+ *                                 nullable: true
+ *                               optionId:
+ *                                 type: string
+ *                                 nullable: true
+ *                               duration:
+ *                                 type: integer
+ *                               createdAt:
+ *                                 type: string
+ *                                 format: date-time
  */
 async function GetQuestionListByUser(request, context) {
   const repository = getRepository();

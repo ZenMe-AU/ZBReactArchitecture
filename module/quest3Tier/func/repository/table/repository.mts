@@ -175,7 +175,12 @@ const repository = {
   },
 
   async getCombinationListByUser(profileId: string) {
-    return getQuestionListByProfileId(profileId);
+    const questions = await getQuestionListByProfileId(profileId);
+    // shortcut: one answer lookup per question, batch only if question-list latency becomes measurable.
+    return Promise.all(questions.map(async (question) => ({
+      ...question,
+      latestAnswer: (await getAnswerListByQuestionId(question.id)).find((answer) => answer.profileId === profileId) ?? null,
+    })));
   },
 
   async patchById(questionId: string, action: unknown, profileId: string) {

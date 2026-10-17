@@ -358,7 +358,7 @@ async function updateById(questionId, title = null, questionText = null, option 
  */
 async function getCombinationListByUser(profileId) {
   try {
-    return await models.Question.findAll({
+    const questions = await models.Question.findAll({
       where: {
         [Op.or]: [
           { profileId: profileId },
@@ -375,6 +375,14 @@ async function getCombinationListByUser(profileId) {
         },
       ],
     });
+    // shortcut: one answer lookup per question, batch only if question-list latency becomes measurable.
+    return Promise.all(questions.map(async (question) => ({
+      ...question.toJSON(),
+      latestAnswer: (await models.QuestionAnswer.findOne({
+        where: { questionId: question.id, profileId },
+        order: [["createdAt", "DESC"]],
+      }))?.toJSON() ?? null,
+    })));
   } catch (err) {
     console.log(err);
     throw new Error(`Failed to retrieve questions for profileId: ${profileId}; ${err.message}`, { cause: err });
