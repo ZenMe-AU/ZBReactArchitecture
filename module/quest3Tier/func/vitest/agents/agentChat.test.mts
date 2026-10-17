@@ -8,7 +8,7 @@ import { mkdtemp, readFile, rm } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { TableClient } from "@azure/data-tables";
-import { invalidAction, learningCoverage, offlineActionReason, participantFriends, rules } from "./agentChat.config.mjs";
+import { invalidAction, learningCoverage, needsAnswer, offlineActionReason, participantFriends, rules } from "./agentChat.config.mjs";
 import { factMemory } from "./agentChat.memory.mjs";
 import { list, runAgentChat } from "./agentChat.run.mjs";
 import { report } from "./agentChat.report.mjs";
@@ -93,6 +93,13 @@ describe("fact-only memory", () => {
 });
 
 describe("online participant boundary", () => {
+  test("prioritises only visible questions without the current user's latest answer", () => {
+    expect(needsAnswer({ isOwner: false, latestAnswer: null })).toBe(true);
+    expect(needsAnswer({ isOwner: false, latestAnswer: undefined })).toBe(true);
+    expect(needsAnswer({ isOwner: false, latestAnswer: { optionId: "Taipei" } })).toBe(false);
+    expect(needsAnswer({ isOwner: true, latestAnswer: null })).toBe(false);
+  });
+
   test("keeps only current participants from the Q3 friend response", () => {
     const friends = [{ id: "bella", name: "Bella" }, { id: "past-contact", name: "Past contact" }];
     expect(participantFriends(friends, new Set(["bella", "ian"]))).toEqual([{ id: "bella", name: "Bella" }]);

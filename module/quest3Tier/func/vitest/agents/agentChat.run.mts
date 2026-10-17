@@ -20,7 +20,7 @@ import { appendFile, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { setTimeout as sleep } from "node:timers/promises";
 import os from "node:os";
 import path from "node:path";
-import { invalidAction, learningCoverage, LIMITS, offlineActionReason, participantFriends, rules, STEP_SCHEMA, writeKind } from "./agentChat.config.mjs";
+import { invalidAction, learningCoverage, LIMITS, needsAnswer, offlineActionReason, participantFriends, rules, STEP_SCHEMA, writeKind } from "./agentChat.config.mjs";
 import { assertLlmReady, llm } from "./agentChat.llm.mjs";
 import { factMemory } from "./agentChat.memory.mjs";
 import { judge, report } from "./agentChat.report.mjs";
@@ -110,6 +110,7 @@ const view = (questions, names, digested = new Set()) =>
     title: q.title,
     text: q.questionText,
     options: q.option ?? [],
+    needsAnswer: needsAnswer(q),
     answers: q.answers.map((a) => ({
       id: a.id,
       ...(a.author && { by: a.author }),
@@ -151,6 +152,7 @@ async function observe(agent) {
     news: news.slice(-15),
     profiles,
     questions: view(questions, names, agent.digested),
+    unanswered: questions.filter(needsAnswer).map((q) => ({ id: q.id, title: q.title, owner: names[q.profileId] ?? "unknown" })),
     coverage: learningCoverage(agent, questions),
     memory: Object.fromEntries(
       Object.entries(knownMemory(agent)).map(([name, value]) => [agent.labelsByName?.[name] ?? name, value])
