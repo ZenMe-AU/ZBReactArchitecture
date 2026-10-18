@@ -10,7 +10,7 @@
       "dependsOn": ["Start Azurite"]
     },
     {
-      "label": "Start Agent UI",
+      "label": "Start OpenVino",
       "type": "process",
       "command": "pwsh",
       "args": [
@@ -44,7 +44,7 @@
       }
     },
     {
-      "label": "Start Agent UI (Ollama)",
+      "label": "Start Ollama",
       "type": "process",
       "command": "pwsh",
       "args": [
