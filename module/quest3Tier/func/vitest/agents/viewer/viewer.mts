@@ -22,6 +22,7 @@ const state = {
   network: {},
   selectedEventId: null,
   chatMessages: [] as { role: "user" | "assistant"; content: string }[],
+  selectedChatMessage: -1,
   chatAgent: "",
   chatStatus: "" as "" | "Thinking…" | "Answering…",
 };
@@ -64,37 +65,50 @@ function renderInspector(event) {
 
 const resultContext = () => ({ activeAgent: state.activeAgent, elements, network: state.network, report: state.currentReport, renderInspector });
 
-function setChatTarget(agent = "", focus = false) {
-  if (state.chatAgent !== agent) state.chatMessages = [];
-  state.chatAgent = agent;
-  elements.chatTitle.textContent = agent || "Test chat";
-  elements.chatRunLabel.textContent = state.selectedRun ? detailsForRun(state.selectedRun).title : "Select a run to begin";
-  for (const item of elements.chatAgentPicker?.querySelectorAll<HTMLButtonElement>("[data-chat-agent]") ?? []) {
-    item.setAttribute("aria-pressed", String(item.dataset.chatAgent === agent));
+function setChatTarget(agent = "") {
+  if (state.chatAgent !== agent) {
+    state.chatMessages = [];
+    state.selectedChatMessage = -1;
   }
+  state.chatAgent = agent;
   renderChat();
-  if (focus) requestAnimationFrame(() => elements.chatPanel?.scrollIntoView({ behavior: "smooth", block: "start" }));
+}
+
+function inspectChatMessage(message: { role: "user" | "assistant"; content: string }, index: number) {
+  state.selectedChatMessage = index;
+  const sender = message.role === "user" ? "You" : state.chatAgent || "Test assistant";
+  renderInspector({
+    kind: "system",
+    title: `${sender} chat message`,
+    actorLabel: sender,
+    kindLabel: message.role === "user" ? "Sent" : "Response received",
+    time: "Not recorded",
+    text: [
+      `Sender\n${sender}`,
+      "Timestamp\nNot provided by the chat API",
+      `Response status\n${message.role === "assistant" ? "Received" : "Sent"}`,
+      `Response content\n${message.content}`,
+    ].join("\n\n"),
+  });
+  renderChat();
 }
 
 function renderChatView(participants = new Set<string>()) {
-  document.body.dataset.chatMode = "true";
   const names = [...new Set([...AGENTS, ...participants])];
-  if (!state.chatAgent || !names.includes(state.chatAgent)) state.chatAgent = names[0] ?? "";
-  if (elements.chatAgentPicker) {
-    elements.chatAgentPicker.replaceChildren(...names.map((name) => {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.dataset.chatAgent = name;
-      button.textContent = name;
-      button.setAttribute("aria-pressed", String(name === state.chatAgent));
-      return button;
-    }));
-  }
+  const filteredAgent = state.activeAgent && names.includes(state.activeAgent) ? state.activeAgent : "";
+  const chatTarget = filteredAgent || (state.chatAgent && names.includes(state.chatAgent) ? state.chatAgent : names[0] ?? "");
   elements.feed.hidden = true;
   elements.feedHead.hidden = true;
-  elements.inspector.hidden = true;
   elements.chatPanel.hidden = false;
-  setChatTarget(state.chatAgent);
+  setChatTarget(chatTarget);
+  renderInspector({
+    kind: "system",
+    title: "Chat details",
+    actorLabel: state.chatAgent || "Test assistant",
+    kindLabel: "Chat",
+    time: "Ready",
+    text: "Select a message to inspect its sender, status and content.",
+  });
   elements.viewTitle.textContent = "Chat";
   elements.filterNote.textContent = state.chatAgent || "Choose a participant";
 }
@@ -200,10 +214,16 @@ function renderChat() {
     }
     return;
   }
-  const messages = state.chatMessages.map(({ role, content }) => {
+  const messages = state.chatMessages.map((message, index) => {
     const item = document.createElement("li");
-    item.className = `chat-message ${role}`;
-    item.textContent = content;
+    const button = document.createElement("button");
+    item.className = `chat-message-row ${message.role}`;
+    button.type = "button";
+    button.className = `chat-message ${message.role}`;
+    button.textContent = message.content;
+    button.setAttribute("aria-pressed", String(state.selectedChatMessage === index));
+    button.addEventListener("click", () => inspectChatMessage(message, index));
+    item.append(button);
     return item;
   });
   if (state.chatStatus) {
@@ -214,8 +234,6 @@ function renderChat() {
     messages.push(status);
   }
   elements.chatMessages.replaceChildren(...messages);
-  elements.chatMessages.lastElementChild?.scrollIntoView({ block: "nearest" });
-  if (elements.chatStatus) elements.chatStatus.textContent = state.chatStatus;
 }
 
 function render(events, mtime) {
@@ -256,8 +274,6 @@ async function loadRuns() {
   const newestRun = names[0] ?? "";
   if (!state.selectedRun || !names.includes(state.selectedRun) || state.selectedRun === state.latestRun) state.selectedRun = newestRun;
   state.latestRun = newestRun;
-  elements.chatTitle.textContent = state.chatAgent || "Test chat";
-  elements.chatRunLabel.textContent = state.selectedRun ? detailsForRun(state.selectedRun).title : "Select a run to begin";
   const signature = names.join("\n");
   if (elements.runList.dataset.signature !== signature) {
     elements.runList.dataset.signature = signature;
@@ -374,24 +390,13 @@ if (elements) {
     state.selectedEventId = null;
     for (const item of elements.viewTabs.querySelectorAll("[data-view]")) item.setAttribute("aria-pressed", String(item === tab));
     renderFeed();
-    if (state.activeView === "chat") requestAnimationFrame(() => elements.chatPanel?.scrollIntoView({ behavior: "smooth", block: "start" }));
-  });
-  elements.chatAgentPicker?.addEventListener("click", (event) => {
-    const button = (event.target as Element).closest<HTMLButtonElement>("[data-chat-agent]");
-    if (button?.dataset.chatAgent) setChatTarget(button.dataset.chatAgent, true);
-  });
-  elements.chatClose.addEventListener("click", () => {
-    elements.chatPanel.hidden = true;
-    state.chatStatus = "";
-    state.activeView = "overview";
-    for (const item of elements.viewTabs.querySelectorAll<HTMLElement>("[data-view]")) item.setAttribute("aria-pressed", String(item.dataset.view === state.activeView));
-    renderFeed();
   });
   elements.chatForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const message = elements.chatInput.value.trim();
     if (!message || !state.selectedRun) return;
     state.chatMessages.push({ role: "user", content: message });
+    state.selectedChatMessage = -1;
     elements.chatInput.value = "";
     elements.chatSend.disabled = true;
     elements.chatSend.textContent = "Thinking…";
