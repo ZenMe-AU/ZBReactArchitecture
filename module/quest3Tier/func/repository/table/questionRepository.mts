@@ -38,11 +38,12 @@ export interface UpdateQuestionInput {
 }
 
 function toQuestionDetail(entity: QuestionEntity): QuestionDetail {
+  const optionJson = entity.optionList ?? entity.option;
   return {
     id: entity.id,
     title: entity.title ?? null,
     questionText: entity.questionText,
-    option: entity.option ? JSON.parse(entity.option) : null,
+    option: optionJson ? JSON.parse(optionJson) : null,
     profileId: entity.profileId,
   };
 }
@@ -59,6 +60,7 @@ export async function createQuestion(input: CreateQuestionInput): Promise<{ id: 
     title: input.title,
     questionText: input.questionText,
     option: JSON.stringify(input.option ?? null),
+    optionList: JSON.stringify(input.option ?? null),
     createdAt,
   };
 
@@ -194,6 +196,7 @@ function toUpdatedEntity(existing: QuestionEntity, next: UpdateQuestionInput): Q
     title: next.title,
     questionText: next.questionText ?? existing.questionText,
     option: JSON.stringify(next.option ?? null),
+    optionList: JSON.stringify(next.option ?? null),
     createdAt: existing.createdAt,
   };
 }

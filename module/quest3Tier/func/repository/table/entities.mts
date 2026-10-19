@@ -16,6 +16,7 @@ export interface QuestionEntity {
   title: string | null;
   questionText: string;
   option: string; // JSON-encoded string[] | null
+  optionList?: string | null; // Q5-compatible JSON-encoded string[] | null
   createdAt: string;
   etag?: string;
 }

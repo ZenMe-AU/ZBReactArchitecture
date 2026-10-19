@@ -312,6 +312,7 @@ async function create(profileId, title = null, question = null, option = null) {
       title: title,
       questionText: question,
       option: option,
+      optionList: option,
     });
   } catch (err) {
     console.log(err);
@@ -335,6 +336,7 @@ async function updateById(questionId, title = null, questionText = null, option 
         title: title,
         questionText: questionText,
         option: option,
+        optionList: option,
       },
       {
         where: {
