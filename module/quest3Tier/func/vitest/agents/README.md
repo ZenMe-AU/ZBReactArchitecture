@@ -38,6 +38,25 @@ AI personas sign in to Quest3 with their own profiles and try to get to know eac
 
 ## Run
 
+### Provider integration smoke test
+
+Run `pnpm --dir module/quest3Tier/func test:llm` to test the provider selected by `Values.LLM_PROVIDER` in `local.settings.json` first, followed sequentially by a separate suite for each predefined backend below. The existing Q3 Vitest setup loads those settings; the tests use real providers without mocks. Each suite checks readiness, an exact JSON echo, and basic arithmetic in a second independent request.
+
+| Preset | Model | Connection |
+|---|---|---|
+| OpenVINO | `D:\Models\OpenVINO\Qwen3.5-9B-int4-ov` | GPU, with the provider's CPU fallback |
+| Ollama | `qwen2.5:3b` | `http://localhost:11434/v1`, no API key |
+| OpenAI | `gpt-5-mini` | `https://api.openai.com/v1`; requires `OPENAI_API_KEY` or `LLM_API_KEY` |
+| Claude | `haiku` | Logged-in Claude CLI; respects `CLAUDE_BIN` |
+
+Presets run even when they duplicate the locally selected provider. Unavailable backends fail their suite rather than skip. Models/endpoints are hardcoded; credentials remain in local settings or environment variables.
+
+The local-settings suite uses `AGENT_MODEL`, then `LLM_MODEL`, or the provider default when neither is set. Configure the selected backend's usual connection/authentication settings and model (for example, `AGENT_MODEL` for OpenAI/Ollama, or `LLM_MODEL` / `OPENVINO_MODEL_DIR` for OpenVINO). These tests make real LLM calls and can incur API costs. They do not require the Q3 API or Azurite.
+
+The same file exports `testJsonObject(provider, model)` and `testBasicRequest(provider, model)` for reuse in other Vitest tests. Both perform the request and assert its result. Importing [llmProvider.test.mts](llmProvider/llmProvider.test.mts) also registers all its integration suites.
+
+### Agent chat run
+
 Use three terminals:
 
 ```sh

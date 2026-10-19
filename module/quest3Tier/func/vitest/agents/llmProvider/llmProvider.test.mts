@@ -1,0 +1,126 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
+import { beforeAll, describe, expect, it } from "vitest";
+import { getLlmProvider, getProviderInstance, type ILlmProvider } from "../agentChat.llm.mjs";
+import { ClaudeProvider, OpenaiCompatibleProvider, OpenvinoProvider } from "./index.mjs";
+
+describe.sequential("LLM provider integration", () => {
+  describe("LLM provider from localsettings", () => {
+    let provider: ILlmProvider;
+    let model: string;
+
+    beforeAll(async () => {
+      // The setup loads local.settings.json Values into process.env.
+      const providerName = getLlmProvider();
+      provider = getProviderInstance();
+      model = process.env.AGENT_MODEL ?? process.env.LLM_MODEL ?? "";
+
+      expect(provider.name).toBe(providerName);
+      await provider.assertReady();
+    }, 180_000);
+
+    it("returns JSON object", async () => {
+      await testJsonObject(provider, model);
+    }, 200_000);
+
+    it("basic request", async () => {
+      await testBasicRequest(provider, model);
+    }, 200_000);
+  });
+
+  describe("OpenVINO provider", () => {
+    registerProviderTests(
+      () =>
+        new OpenvinoProvider({
+          localModelDir: "D:\\Models\\OpenVINO\\Qwen3.5-9B-int4-ov",
+          device: "GPU",
+        }),
+      "D:\\Models\\OpenVINO\\Qwen3.5-9B-int4-ov"
+    );
+  });
+
+  describe("Ollama provider", () => {
+    registerProviderTests(
+      () =>
+        new OpenaiCompatibleProvider("ollama", {
+          baseUrl: "http://localhost:11434/v1",
+          apiKey: "",
+        }),
+      "qwen2.5:3b"
+    );
+  });
+
+  describe("OpenAI provider", () => {
+    registerProviderTests(() => {
+      const apiKey = process.env.OPENAI_API_KEY ?? process.env.LLM_API_KEY;
+      if (!apiKey) {
+        throw new Error("OpenAI preset requires OPENAI_API_KEY or LLM_API_KEY in local.settings.json or the environment.");
+      }
+      return new OpenaiCompatibleProvider("openai", {
+        baseUrl: "https://api.openai.com/v1",
+        apiKey,
+      });
+    }, "gpt-5-mini");
+  });
+
+  describe("Claude provider", () => {
+    registerProviderTests(() => new ClaudeProvider(), "haiku");
+  });
+});
+
+function registerProviderTests(createProvider: () => ILlmProvider, model: string): void {
+  let provider: ILlmProvider;
+
+  beforeAll(async () => {
+    provider = createProvider();
+    await provider.assertReady();
+  }, 180_000);
+
+  it("returns JSON object", async () => {
+    await testJsonObject(provider, model);
+  }, 200_000);
+
+  it("basic request", async () => {
+    await testBasicRequest(provider, model);
+  }, 200_000);
+}
+
+export async function testJsonObject(provider: ILlmProvider, model: string): Promise<void> {
+  const result = await provider.completeJson({
+    systemPrompt: "Return the input object unchanged as JSON. No reasoning or other text.",
+    input: { message: "hello", ok: true },
+    model,
+    schema: {
+      type: "object",
+      properties: {
+        message: { type: "string" },
+        ok: { type: "boolean" },
+      },
+      required: ["message", "ok"],
+      additionalProperties: false,
+    },
+    options: { maxTokens: 128 },
+  });
+
+  expect(result).toEqual({ message: "hello", ok: true });
+}
+
+export async function testBasicRequest(provider: ILlmProvider, model: string): Promise<void> {
+  const result = await provider.completeJson({
+    systemPrompt: "Add the two input numbers and return their sum as a JSON object with a numeric answer property. No reasoning or other text.",
+    input: { a: 7, b: 5 },
+    model,
+    schema: {
+      type: "object",
+      properties: { answer: { type: "number" } },
+      required: ["answer"],
+      additionalProperties: false,
+    },
+    options: { maxTokens: 128 },
+  });
+
+  expect(result).toEqual({ answer: 12 });
+}

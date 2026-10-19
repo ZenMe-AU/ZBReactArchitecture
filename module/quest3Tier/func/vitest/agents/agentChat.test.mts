@@ -10,7 +10,7 @@ import path from "node:path";
 import { TableClient } from "@azure/data-tables";
 import { invalidAction, learningCoverage, needsAnswer, offlineActionReason, participantFriends, rules } from "./agentChat.config.mjs";
 import { factMemory } from "./agentChat.memory.mjs";
-import { assertLlmReady, getLlmProvider } from "./agentChat.llm.mjs";
+import { assertLlmReady, getLlmProvider, getProviderInstance, llm, OpenvinoProvider } from "./agentChat.llm.mjs";
 import { list, runAgentChat } from "./agentChat.run.mjs";
 import { report } from "./agentChat.report.mjs";
 import { HUMAN_NAME, writeMemory } from "./agentChat.setup.mjs";
@@ -281,9 +281,6 @@ describe("LLM provider configuration", () => {
 describe("OpenVINO generation queue", () => {
   test("serializes concurrent calls and continues after a generation fails", async () => {
     vi.stubEnv("LLM_PROVIDER", "openvino");
-    vi.stubEnv("OPENVINO_MODEL_DIR", os.tmpdir());
-    vi.stubEnv("OPENVINO_DEVICE", "GPU");
-    vi.resetModules();
 
     let release: () => void;
     let started: () => void;
@@ -298,20 +295,25 @@ describe("OpenVINO generation queue", () => {
       })
       .mockRejectedValueOnce(failure)
       .mockResolvedValueOnce({ texts: ['{"ok":3}'] });
-    const createPipeline = vi.fn().mockResolvedValue({ generate });
-    vi.doMock("openvino-genai-node", () => ({
-      LLMPipeline: createPipeline,
-      StructuredOutputConfig: class {},
-    }));
+    const provider = getProviderInstance();
+    expect(provider).toBeInstanceOf(OpenvinoProvider);
+    if (!(provider instanceof OpenvinoProvider)) {
+      throw new Error("Expected the selected provider to be OpenVINO");
+    }
+    const getPipeline = vi.spyOn(provider, "getPipeline").mockResolvedValue({ generate });
 
     try {
-      const { llm } = await import("./agentChat.llm.mjs");
       const schema = { type: "object", properties: { ok: { type: "number" } }, required: ["ok"] };
       const results = Promise.allSettled([1, 2, 3].map((id) => llm("system", { id }, "", schema, "", {})));
       try {
-        await firstStarted;
+        await Promise.race([
+          firstStarted,
+          results.then(() => {
+            throw new Error("LLM calls settled before the mocked generation started");
+          }),
+        ]);
         await new Promise<void>((resolve) => setImmediate(resolve));
-        expect(createPipeline).toHaveBeenCalledTimes(1);
+        expect(getPipeline).toHaveBeenCalledTimes(1);
         expect(generate).toHaveBeenCalledTimes(1);
       } finally {
         release();
@@ -321,10 +323,10 @@ describe("OpenVINO generation queue", () => {
         { status: "rejected", reason: failure },
         { status: "fulfilled", value: { ok: 3 } },
       ]);
+      expect(getPipeline).toHaveBeenCalledTimes(3);
       expect(generate.mock.calls.map(([prompt]) => [1, 2, 3].find((id) => prompt.includes(JSON.stringify({ id }))))).toEqual([1, 2, 3]);
     } finally {
-      vi.doUnmock("openvino-genai-node");
-      vi.resetModules();
+      getPipeline.mockRestore();
     }
   });
 });

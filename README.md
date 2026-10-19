@@ -30,3 +30,15 @@ TypeScript 6 support.
 7. Open the VSCode "Run and Debug" menu, and start the task: "Start Fullstack App (workspace)"
 8. If any commands are not found, restart VSCode or your computer and run `deployLocalDependencies.bat` again to confirm that no depdencies are missing.
 9. If the above has errors, go to the individual READMe.md files in each of the following folder to run them individually: \ui, \modules\
+
+
+
+## Design decisions
+
+1. Design decisions are tracked as part of readme.md files within folders.
+2. Each design decision is recorded at the highest level where it makes sense, e.g. as few as possible decisions should be recorded at the top level.
+3. Sometimes a design decision is document generically at a high level, and more specific at a lower level.
+4. AI agents are encouraged to record design decisions during each session in the folders where they are working, this allow the design decisions to be recorded quickly and later elevated during higher level sessions.
+5. Code files should have the higher level functions at the top and the lower level support functions towards the bottom.
+
+

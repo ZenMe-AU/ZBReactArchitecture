@@ -6,18 +6,10 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
 import type { GenerationConfig } from "openvino-genai-node";
-import {
-  clip,
-  type ILlmProvider,
-  type LlmProviderConfig,
-  type LlmRequest,
-} from "./contract.mjs";
+import { clip, type ILlmProvider, type LlmProviderConfig, type LlmRequest } from "./contract.mjs";
 
 export type OpenVinoPipelineInstance = {
-  generate(
-    prompt: string,
-    config: GenerationConfig,
-  ): Promise<{ texts: string[] }>;
+  generate(prompt: string, config: GenerationConfig): Promise<{ texts: string[] }>;
 };
 
 export interface OpenvinoProviderConfig extends LlmProviderConfig {
@@ -25,10 +17,7 @@ export interface OpenvinoProviderConfig extends LlmProviderConfig {
   modelName?: string;
   device?: string;
   maxTokens?: number;
-  pipelineFactory?: (
-    modelDir: string,
-    device: string,
-  ) => Promise<OpenVinoPipelineInstance>;
+  pipelineFactory?: (modelDir: string, device: string) => Promise<OpenVinoPipelineInstance>;
 }
 
 export class OpenvinoProvider implements ILlmProvider {
@@ -39,10 +28,7 @@ export class OpenvinoProvider implements ILlmProvider {
   private currentPipelineModelDir = "";
   private queue: Promise<void> = Promise.resolve();
 
-  constructor(
-    configOrLocalModelDir?: OpenvinoProviderConfig | string,
-    modelName?: string,
-  ) {
+  constructor(configOrLocalModelDir?: OpenvinoProviderConfig | string, modelName?: string) {
     if (typeof configOrLocalModelDir === "string") {
       this.config = {
         localModelDir: configOrLocalModelDir,
@@ -57,11 +43,7 @@ export class OpenvinoProvider implements ILlmProvider {
   }
 
   get localModelDir(): string | undefined {
-    return (
-      this.config.localModelDir ??
-      process.env.LLM_MODEL ??
-      process.env.OPENVINO_MODEL_DIR
-    );
+    return this.config.localModelDir ?? process.env.LLM_MODEL ?? process.env.OPENVINO_MODEL_DIR;
   }
 
   get modelName(): string | undefined {
@@ -73,53 +55,35 @@ export class OpenvinoProvider implements ILlmProvider {
   }
 
   get maxTokens(): number {
-    return (
-      this.config.maxTokens ??
-      (process.env.OPENVINO_MAX_TOKENS
-        ? Number(process.env.OPENVINO_MAX_TOKENS)
-        : 2048)
-    );
+    return this.config.maxTokens ?? (process.env.OPENVINO_MAX_TOKENS ? Number(process.env.OPENVINO_MAX_TOKENS) : 2048);
   }
 
   async getPipeline(modelDir?: string): Promise<OpenVinoPipelineInstance> {
-    const targetDir =
-      modelDir && (path.isAbsolute(modelDir) || existsSync(modelDir))
-        ? modelDir
-        : this.localModelDir;
+    const targetDir = modelDir && (path.isAbsolute(modelDir) || existsSync(modelDir)) ? modelDir : this.localModelDir;
 
     if (this.pipeline && this.currentPipelineModelDir === targetDir) {
       return this.pipeline;
     }
 
     if (!targetDir || !existsSync(targetDir)) {
-      throw new Error(
-        `OpenVINO model directory not found: ${targetDir}. Please configure LLM_MODEL or OPENVINO_MODEL_DIR.`,
-      );
+      throw new Error(`OpenVINO model directory not found: ${targetDir}. Please configure LLM_MODEL or OPENVINO_MODEL_DIR.`);
     }
 
     const preferredDevice = this.device;
 
     if (this.config.pipelineFactory) {
-      this.pipeline = await this.config.pipelineFactory(
-        targetDir,
-        preferredDevice,
-      );
+      this.pipeline = await this.config.pipelineFactory(targetDir, preferredDevice);
       this.currentPipelineModelDir = targetDir;
       return this.pipeline;
     }
 
     const { LLMPipeline, VLMPipeline } = await import("openvino-genai-node");
-    const createPipeline = async (
-      device: string,
-    ): Promise<OpenVinoPipelineInstance> => {
+    const createPipeline = async (device: string): Promise<OpenVinoPipelineInstance> => {
       // Multimodal exports use inputs_embeds, not the input_ids expected by LLMPipeline.
-      if (
-        existsSync(path.join(targetDir, "openvino_vision_embeddings_model.xml"))
-      ) {
+      if (existsSync(path.join(targetDir, "openvino_vision_embeddings_model.xml"))) {
         const pipeline = await VLMPipeline(targetDir, device);
         return {
-          generate: (prompt, generationConfig) =>
-            pipeline.generate(prompt, { generationConfig }),
+          generate: (prompt, generationConfig) => pipeline.generate(prompt, { generationConfig }),
         };
       }
       return await LLMPipeline(targetDir, device);
@@ -131,9 +95,7 @@ export class OpenvinoProvider implements ILlmProvider {
     } catch (err: unknown) {
       const errorDetail = err instanceof Error ? err.message : String(err);
       if (preferredDevice !== "CPU") {
-        console.warn(
-          `[OpenVINO] Failed to initialize on ${preferredDevice} (${errorDetail}). Retrying on CPU...`,
-        );
+        console.warn(`[OpenVINO] Failed to initialize on ${preferredDevice} (${errorDetail}). Retrying on CPU...`);
         this.pipeline = await createPipeline("CPU");
         this.currentPipelineModelDir = targetDir;
       } else {
@@ -152,9 +114,7 @@ export class OpenvinoProvider implements ILlmProvider {
     await this.getPipeline(targetDir);
   }
 
-  private async generate<TOutput = unknown>(
-    request: LlmRequest,
-  ): Promise<TOutput> {
+  private async generate<TOutput = unknown>(request: LlmRequest): Promise<TOutput> {
     const pipe = await this.getPipeline(request.model);
     const { StructuredOutputConfig } = await import("openvino-genai-node");
 
@@ -171,9 +131,7 @@ export class OpenvinoProvider implements ILlmProvider {
       }
     }
 
-    const maxTokens = Number(
-      (request.options?.maxTokens as number | undefined) ?? this.maxTokens,
-    );
+    const maxTokens = Number((request.options?.maxTokens as number | undefined) ?? this.maxTokens);
     const genOptions: GenerationConfig = { max_new_tokens: maxTokens };
     if (structConfig) {
       genOptions.structured_output_config = structConfig;
@@ -195,11 +153,8 @@ export class OpenvinoProvider implements ILlmProvider {
     })();
 
     if (request.schema?.required && Array.isArray(request.schema.required)) {
-      const missing = request.schema.required.filter(
-        (key: string) => !(key in out),
-      );
-      if (missing.length)
-        throw new Error(`OpenVINO reply misses ${missing.join(", ")}`);
+      const missing = request.schema.required.filter((key: string) => !(key in out));
+      if (missing.length) throw new Error(`OpenVINO reply misses ${missing.join(", ")}`);
     }
 
     return out as TOutput;
@@ -210,7 +165,7 @@ export class OpenvinoProvider implements ILlmProvider {
     // Keep the single-pipeline queue usable after errors; callers still receive the original rejection.
     this.queue = result.then(
       () => undefined,
-      () => undefined,
+      () => undefined
     );
     return await result;
   }
