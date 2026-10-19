@@ -20,6 +20,7 @@ export interface AddAnswerInput {
   recipientProfileId?: string;
   answerText: string | null;
   optionId: string | null;
+  optionAnswerList?: string[] | null;
   when?: string | null;
   duration: number;
 }
@@ -51,7 +52,7 @@ export async function addAnswer(input: AddAnswerInput): Promise<{ id: string }> 
     pairwiseId,
     answerText: input.answerText,
     optionId: input.optionId,
-    optionAnswerList: input.optionId === null ? null : JSON.stringify([input.optionId]),
+    optionAnswerList: input.optionAnswerList ? JSON.stringify(input.optionAnswerList) : input.optionId === null ? null : JSON.stringify([input.optionId]),
     when: input.when ?? null,
     duration: input.duration,
     createdAt,

@@ -75,12 +75,13 @@ export async function initRepository(config: DbConfig) {
  */
 async function addAnswerByQuestionId(questionId, profileId, duration, answer = null, option = null, _recipientProfileId = undefined, when = null) {
   try {
+    const options = option === null ? null : Array.isArray(option) ? option : [option];
     return await models.QuestionAnswer.create({
       questionId: questionId,
       profileId: profileId, // Use the actual profileId when available
       answerText: answer,
-      optionId: option,
-      optionAnswerList: option === null ? null : [option],
+      optionId: options?.[0] ?? null,
+      optionAnswerList: options,
       when,
       duration: duration,
     });

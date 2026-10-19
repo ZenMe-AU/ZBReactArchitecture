@@ -69,7 +69,7 @@ export interface QuestRepository {
   updateById(questionId: string, title?: string | null, questionText?: string | null, option?: string[] | null): Promise<{ id: string }>;
   getCombinationListByUser(profileId: string): Promise<QuestionListRecord[]>;
   patchById(questionId: string, action: unknown, profileId: string): Promise<{ id: string }>;
-  addAnswerByQuestionId(questionId: string, profileId: string, duration: number, answer?: string | null, option?: string | null, recipientProfileId?: string, when?: string | null): Promise<AnswerRecord>;
+  addAnswerByQuestionId(questionId: string, profileId: string, duration: number, answer?: string | null, option?: string | string[] | null, recipientProfileId?: string, when?: string | null): Promise<AnswerRecord>;
   getAnswerById(questionId: string, answerId: string): Promise<AnswerRecord | null>;
   getAnswerListByQuestionId(questionId: string): Promise<AnswerRecord[]>;
   getEventByCorrelationId(name: string, correlationId: string): Promise<unknown[]>;
