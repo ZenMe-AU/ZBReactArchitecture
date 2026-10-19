@@ -31,6 +31,7 @@ export interface AnswerEntity {
   pairwiseId: string;
   answerText: string | null;
   optionId: string | null;
+  optionAnswerList?: string | null; // Q5-compatible JSON-encoded string[] | null
   duration: number;
   createdAt: string;
 }
@@ -49,7 +50,9 @@ export interface QuestionShareEntity {
 }
 
 // Shapes returned to handlers, matching the existing API response contract.
-export type AnswerRecord = Omit<AnswerEntity, "partitionKey" | "rowKey">;
+export type AnswerRecord = Omit<AnswerEntity, "partitionKey" | "rowKey" | "optionAnswerList"> & {
+  optionAnswerList: string[] | null;
+};
 
 export interface QuestionDetail {
   id: string;
@@ -73,6 +76,7 @@ export interface AnswerListItem {
   questionId: string;
   answerText: string | null;
   optionId: string | null;
+  optionAnswerList: string[] | null;
   duration: number;
   createdAt: string;
   answerCount: number;

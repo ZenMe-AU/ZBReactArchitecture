@@ -13,6 +13,7 @@ const answer = z
     profileId: z.uuid().nullable(),
     answerText: z.string().nullable(),
     optionId: z.string().nullable(),
+    optionAnswerList: z.array(z.string()).nullable().optional(),
     duration: z.int(),
     createdAt: z.iso.datetime(),
   })

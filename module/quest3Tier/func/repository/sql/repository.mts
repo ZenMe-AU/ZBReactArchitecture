@@ -80,6 +80,7 @@ async function addAnswerByQuestionId(questionId, profileId, duration, answer = n
       profileId: profileId, // Use the actual profileId when available
       answerText: answer,
       optionId: option,
+      optionAnswerList: option === null ? null : [option],
       duration: duration,
     });
   } catch (err) {
@@ -134,6 +135,7 @@ async function getAnswerListByQuestionId(questionId) {
             "questionId",
             "answerText",
             "optionId",
+            "optionAnswerList",
             "duration"
           FROM "questionAnswer"
           WHERE "questionId" = :questionId

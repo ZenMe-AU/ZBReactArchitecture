@@ -42,6 +42,7 @@ export interface AnswerRecord {
   pairwiseId?: string;
   answerText: string | null;
   optionId: string | null;
+  optionAnswerList?: string[] | null;
   duration: number;
   createdAt: Date | string;
   answerCount?: number;

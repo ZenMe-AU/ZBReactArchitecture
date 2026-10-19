@@ -196,10 +196,11 @@ function testRepositoryContract(repository: QuestRepository, ids: RepositoryTest
       profileId: responder.id,
       answerText: "yes",
       optionId: "yes",
+      optionAnswerList: ["yes"],
       duration: 15,
     });
     await expect(repository.getAnswerListByQuestionId(question.id)).resolves.toEqual(
-      expect.arrayContaining([expect.objectContaining({ profileId: responder.id, answerCount: 1, optionId: "yes" })])
+      expect.arrayContaining([expect.objectContaining({ profileId: responder.id, answerCount: 1, optionId: "yes", optionAnswerList: ["yes"] })])
     );
 
     await repository.addAnswerByQuestionId(question.id, responder.id, 12, "no", "no");
