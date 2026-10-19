@@ -1558,6 +1558,9 @@ importers:
       '@types/recharts':
         specifier: ^2.0.1
         version: 2.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      cross-env:
+        specifier: ^7.0.3
+        version: 7.0.3
       eslint:
         specifier: ^9.38.0
         version: 9.38.0(jiti@2.6.1)(supports-color@8.1.1)

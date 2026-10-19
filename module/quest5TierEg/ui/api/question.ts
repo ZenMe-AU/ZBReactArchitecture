@@ -5,6 +5,7 @@
 
 import { jwtFetch } from "@zenmechat/shared-ui/api/jwtFetch";
 import { getConfig, loadConfig } from "@zenmechat/shared-ui/config/loadConfig";
+import { getMyProfileId } from "./profile";
 // const apiDomain = getConfig("QUEST5TIEREG_DOMAIN");
 // Fetch list of questions for a specific user
 export const getQuestionsByUser = async () => {
@@ -12,7 +13,7 @@ export const getQuestionsByUser = async () => {
   try {
     await loadConfig();
     const apiDomain = getConfig("QUEST5TIEREG_DOMAIN");
-    const response = await jwtFetch(`${apiDomain}/questionQry/getQuestions/${profileId}`, {
+    const response = await jwtFetch(`${apiDomain}/questions`, {
       method: "GET",
     });
 
@@ -32,14 +33,12 @@ export const getQuestionsByUser = async () => {
 
 // Create a new questionnaire
 export const createQuestion = async (title: string, questionText: string, option: string[] | null) => {
-  const profileId = localStorage.getItem("profileId");
   try {
     await loadConfig();
     const apiDomain = getConfig("QUEST5TIEREG_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/questionCmd/createQuestion`, {
       method: "POST",
       body: JSON.stringify({
-        profileId: profileId,
         title: title,
         questionText: questionText,
         option: option,
@@ -106,7 +105,7 @@ export const updateQuestion = async (id: string, data: { title: string; question
 };
 
 // Share a question
-export const shareQuestion = async (id: string, profileId: string, receiverIds: string[]) => {
+export const shareQuestion = async (id: string, receiverIds: string[]) => {
   try {
     // const response = await jwtFetch(`${apiDomain}/question/${id}/share`, {
     //   method: "POST",
@@ -121,7 +120,6 @@ export const shareQuestion = async (id: string, profileId: string, receiverIds: 
       method: "POST",
       body: JSON.stringify({
         newQuestionId: id,
-        profileId: profileId,
         receiverIds: receiverIds,
       }),
     });
@@ -144,14 +142,12 @@ export const submitAnswer = async (
   answerPayload: { option: string[] | null; answerText: string | null; answerDuration: number; when: string | null },
   questionText: string | null
 ) => {
-  const profileId = localStorage.getItem("profileId");
   try {
     await loadConfig();
     const apiDomain = getConfig("QUEST5TIEREG_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/questionCmd/createAnswer/${id}`, {
       method: "POST",
       body: JSON.stringify({
-        profileId: profileId,
         questionText: questionText,
         option: answerPayload.option,
         answer: answerPayload.answerText,
@@ -258,14 +254,12 @@ export const sendFollowUpQuestion = async (
   followUpQuestionIds: string[],
   saveFilter: boolean
 ) => {
-  const profileId = localStorage.getItem("profileId");
   try {
     await loadConfig();
     const apiDomain = getConfig("QUEST5TIEREG_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/questionCmd/sendFollowUp`, {
       method: "POST",
       body: JSON.stringify({
-        profileId: profileId,
         questionIdList: followUpQuestionIds,
         question: questionFilter,
         isSave: saveFilter,
