@@ -9,8 +9,8 @@ async function AddAnswer(request, context) {
   const repository = getRepository();
   const { id: questionId } = request.params;
   const profileId = request.userData.profileId;
-  const { answer = null, option = null, duration } = request.clientParams;
-  const questionnaire = await repository.addAnswerByQuestionId(questionId, profileId, duration, answer, option);
+  const { answer = null, option = null, duration, recipientProfileId } = request.clientParams;
+  const questionnaire = await repository.addAnswerByQuestionId(questionId, profileId, duration, answer, option, recipientProfileId);
   return { return: { id: questionnaire.id } };
 }
 
@@ -30,7 +30,9 @@ async function GetAnswerListByQuestionId(request, context) {
     return {
       ...ans,
       isEdited: ans.answerCount > 1 ? true : false,
-      profileId: ans.profileId, // TODO: Replace profileid with pairwiseid.
+      profileId: ans.profileId,
+      pairwiseId: ans.pairwiseId,
+      recipientProfileId: ans.recipientProfileId,
       // TODO: lookup friend_name from friend table using profileId
       answerCount: undefined,
     };
