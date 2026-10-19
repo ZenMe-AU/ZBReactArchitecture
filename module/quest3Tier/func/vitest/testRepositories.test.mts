@@ -189,7 +189,7 @@ function testRepositoryContract(repository: QuestRepository, ids: RepositoryTest
     await expect(repository.patchById(question.id, [{ op: "replace", path: "/title", value: "Patched Quest DB" }], owner.id)).resolves.toMatchObject({ id: expect.any(String) });
     await expect(repository.getById(question.id)).resolves.toMatchObject({ title: "Patched Quest DB", option: ["yes", "no", "maybe"] });
 
-    const answer = await repository.addAnswerByQuestionId(question.id, responder.id, 15, "yes", "yes");
+    const answer = await repository.addAnswerByQuestionId(question.id, responder.id, 15, "yes", "yes", undefined, "during-work");
     await expect(repository.getAnswerById(question.id, answer.id)).resolves.toMatchObject({
       id: answer.id,
       questionId: question.id,
@@ -197,10 +197,11 @@ function testRepositoryContract(repository: QuestRepository, ids: RepositoryTest
       answerText: "yes",
       optionId: "yes",
       optionAnswerList: ["yes"],
+      when: "during-work",
       duration: 15,
     });
     await expect(repository.getAnswerListByQuestionId(question.id)).resolves.toEqual(
-      expect.arrayContaining([expect.objectContaining({ profileId: responder.id, answerCount: 1, optionId: "yes", optionAnswerList: ["yes"] })])
+      expect.arrayContaining([expect.objectContaining({ profileId: responder.id, answerCount: 1, optionId: "yes", optionAnswerList: ["yes"], when: "during-work" })])
     );
 
     await repository.addAnswerByQuestionId(question.id, responder.id, 12, "no", "no");

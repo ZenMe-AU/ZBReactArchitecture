@@ -73,7 +73,7 @@ export async function initRepository(config: DbConfig) {
  * @param {string|null} [option=null] - Selected option identifier.
  * @returns {Promise<any>} Created answer model instance.
  */
-async function addAnswerByQuestionId(questionId, profileId, duration, answer = null, option = null) {
+async function addAnswerByQuestionId(questionId, profileId, duration, answer = null, option = null, _recipientProfileId = undefined, when = null) {
   try {
     return await models.QuestionAnswer.create({
       questionId: questionId,
@@ -81,6 +81,7 @@ async function addAnswerByQuestionId(questionId, profileId, duration, answer = n
       answerText: answer,
       optionId: option,
       optionAnswerList: option === null ? null : [option],
+      when,
       duration: duration,
     });
   } catch (err) {
@@ -136,6 +137,7 @@ async function getAnswerListByQuestionId(questionId) {
             "answerText",
             "optionId",
             "optionAnswerList",
+            "when",
             "duration"
           FROM "questionAnswer"
           WHERE "questionId" = :questionId

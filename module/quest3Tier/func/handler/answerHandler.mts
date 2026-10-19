@@ -9,8 +9,8 @@ async function AddAnswer(request, context) {
   const repository = getRepository();
   const { id: questionId } = request.params;
   const profileId = request.userData.profileId;
-  const { answer = null, option = null, duration, recipientProfileId } = request.clientParams;
-  const questionnaire = await repository.addAnswerByQuestionId(questionId, profileId, duration, answer, option, recipientProfileId);
+  const { answer = null, option = null, duration, recipientProfileId, when = null } = request.clientParams;
+  const questionnaire = await repository.addAnswerByQuestionId(questionId, profileId, duration, answer, option, recipientProfileId, when);
   return { return: { id: questionnaire.id } };
 }
 

@@ -140,7 +140,7 @@ export const shareQuestion = async (id: string, receiverIds: string[]) => {
 // Submit an answer
 export const submitAnswer = async (
   id: string,
-  answerPayload: { option: string | null; answerText: string | null; answerDuration: number },
+  answerPayload: { option: string | null; answerText: string | null; answerDuration: number; when: string | null },
   questionText: string | null
 ) => {
   try {
@@ -153,6 +153,7 @@ export const submitAnswer = async (
         option: answerPayload.option,
         answer: answerPayload.answerText,
         duration: answerPayload.answerDuration,
+        when: answerPayload.when,
       }),
     });
 

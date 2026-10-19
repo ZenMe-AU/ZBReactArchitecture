@@ -20,6 +20,7 @@ export interface AddAnswerInput {
   recipientProfileId?: string;
   answerText: string | null;
   optionId: string | null;
+  when?: string | null;
   duration: number;
 }
 
@@ -51,6 +52,7 @@ export async function addAnswer(input: AddAnswerInput): Promise<{ id: string }> 
     answerText: input.answerText,
     optionId: input.optionId,
     optionAnswerList: input.optionId === null ? null : JSON.stringify([input.optionId]),
+    when: input.when ?? null,
     duration: input.duration,
     createdAt,
   };
@@ -77,6 +79,7 @@ function toAnswerRecord(e: AnswerEntity): AnswerRecord {
     answerText: e.answerText ?? null,
     optionId: e.optionId ?? null,
     optionAnswerList,
+    when: e.when ?? null,
     duration: e.duration,
     createdAt: e.createdAt,
   };

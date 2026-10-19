@@ -12,6 +12,7 @@ export const body = z
   .object({
     answer: z.string().nullable().optional(),
     option: z.string().nullable().optional(),
+    when: z.string().nullable().optional(),
     duration: z.int(),
   })
   .meta({ id: "AnswerBody" });

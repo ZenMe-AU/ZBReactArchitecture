@@ -13,6 +13,7 @@ export default (sequelize, DataTypes) => {
       answerText: { type: DataTypes.TEXT, allowNull: true },
       optionId: { type: DataTypes.STRING, allowNull: true },
       optionAnswerList: { type: DataTypes.JSON, allowNull: true },
+      when: { type: DataTypes.STRING, allowNull: true },
       duration: { type: DataTypes.INTEGER, allowNull: false },
     },
     { tableName: "questionAnswer", updatedAt: false }

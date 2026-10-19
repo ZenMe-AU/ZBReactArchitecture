@@ -25,4 +25,5 @@ export interface Answer {
   profileId: string;
   optionId: string | null;
   answerText: string | null;
+  when?: string | null;
 }

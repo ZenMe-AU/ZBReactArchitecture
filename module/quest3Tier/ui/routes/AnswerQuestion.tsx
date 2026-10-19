@@ -35,6 +35,7 @@ function AnswerQuestion() {
   const [question, setQuestion] = useState<Question | null>(null);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [textAnswer, setTextAnswer] = useState<string>("");
+  const [when, setWhen] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -43,6 +44,7 @@ function AnswerQuestion() {
   const [prevAns, setPrevAns] = useState<{
     optionId: string | null;
     answerText: string | null;
+    when?: string | null;
   } | null>(null);
   const [answerList, setAnswerList] = useState<Answer[]>([]);
 
@@ -97,6 +99,7 @@ function AnswerQuestion() {
           setPrevAns(answerList.self[0]);
           setSelectedOption(answerList.self[0].optionId);
           setTextAnswer(answerList.self[0].answerText);
+          setWhen(answerList.self[0].when ?? "");
         }
       } catch (error) {
         console.error("Error fetching answers:", error);
@@ -184,6 +187,7 @@ function AnswerQuestion() {
       option: question?.option && question.option.length > 0 ? selectedOption : null,
       answerText: question?.option && question.option.length > 0 ? null : textAnswer,
       answerDuration,
+      when: when.trim() || null,
     };
 
     if (!answerPayload.option && !answerPayload.answerText) {
@@ -192,7 +196,7 @@ function AnswerQuestion() {
       return;
     }
 
-    if (answerPayload.option === prevAns?.optionId && answerPayload.answerText === prevAns?.answerText) {
+    if (answerPayload.option === prevAns?.optionId && answerPayload.answerText === prevAns?.answerText && answerPayload.when === (prevAns?.when ?? null)) {
       console.log("nothing changed!");
       setSubmitting(false);
       return;
@@ -206,11 +210,13 @@ function AnswerQuestion() {
           return {
             optionId: answerPayload.option,
             answerText: answerPayload.answerText,
+            when: answerPayload.when,
           };
         return {
           ...prev,
           optionId: answerPayload.option,
           answerText: answerPayload.answerText,
+          when: answerPayload.when,
         };
       });
       // navigate(`/quest3Tier/${id}`);
@@ -282,6 +288,15 @@ function AnswerQuestion() {
             sx={{ mb: 2 }}
           />
         )}
+        <TextField
+          label="When does this answer apply?"
+          value={when}
+          onChange={(e) => setWhen(e.target.value)}
+          placeholder="e.g. right now, on weekends"
+          helperText="Optional — add context if your answer depends on timing."
+          fullWidth
+          sx={{ mb: 2 }}
+        />
         <Box display="flex" justifyContent="center" gap={2}>
           <Button type="submit" variant="contained" color="primary" disabled={submitting}>
             {submitting ? "Submitting..." : "Submit Answer"}
