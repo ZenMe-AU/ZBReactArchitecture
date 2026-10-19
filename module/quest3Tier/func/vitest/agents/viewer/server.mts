@@ -12,6 +12,8 @@ import { connect } from "node:net";
 import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
+import { sendLiveChat } from "../agentChat.live.mjs";
+import { answerResults } from "./results-chat.mjs";
 
 const VIEWER_DIR = path.dirname(fileURLToPath(import.meta.url));
 const viewerParent = path.resolve(VIEWER_DIR, "../../..");
@@ -35,12 +37,22 @@ const STATIC_FILES = {
   "/viewer-results.mjs": ["viewer-results.mjs", "text/javascript; charset=utf-8"],
   "/viewer-questions.mjs": ["viewer-questions.mjs", "text/javascript; charset=utf-8"],
 } as const;
-type RunState = { status: string; humanMode?: boolean; startedAt?: string; finishedAt?: string; humanProfileId?: string; humanName?: string; error?: string; exitCode?: number };
+type RunState = {
+  status: string;
+  humanMode?: boolean;
+  startedAt?: string;
+  finishedAt?: string;
+  humanProfileId?: string;
+  humanName?: string;
+  error?: string;
+  exitCode?: number;
+};
 const state: { runProcess?: ChildProcess; azuriteProcess?: ChildProcess; run: RunState } = { run: { status: "idle" } };
 const tableRepositoryState: { value?: Promise<{ listFriends(profileId: string): Promise<unknown[]> }> } = {};
 const pendingHuman: { profileId?: string; name?: string } = {};
 const registeredHuman: { profileId?: string; name?: string } = {};
 const HUMAN_STATE_PATH = path.join(RUNS_DIR, ".human.json");
+let resultsChatPending = false;
 
 async function loadRegisteredHuman() {
   const saved = JSON.parse(await readFile(HUMAN_STATE_PATH, "utf8").catch(() => "{}"));
@@ -58,11 +70,12 @@ async function localSettings() {
   return JSON.parse(await readFile(path.join(FUNC_DIR, "local.settings.json"), "utf8")).Values ?? {};
 }
 
-const spawnPnpm = (args: string[], cwd: string, env = CHILD_ENV) => spawn(
-  process.platform === "win32" ? process.env.ComSpec ?? "cmd.exe" : "pnpm",
-  process.platform === "win32" ? ["/d", "/s", "/c", "pnpm", ...args] : args,
-  { cwd, env, stdio: ["ignore", "pipe", "pipe"] }
-);
+const spawnPnpm = (args: string[], cwd: string, env = CHILD_ENV) =>
+  spawn(process.platform === "win32" ? (process.env.ComSpec ?? "cmd.exe") : "pnpm", process.platform === "win32" ? ["/d", "/s", "/c", "pnpm", ...args] : args, {
+    cwd,
+    env,
+    stdio: ["ignore", "pipe", "pipe"],
+  });
 
 const isRunName = (name) => typeof name === "string" && path.basename(name) === name && name.endsWith(".chat.md");
 
@@ -140,22 +153,42 @@ async function readJson(request) {
 }
 
 async function answerAboutRun(run: string, message: string, history: unknown[], agent = "") {
-  const report = await readFile(path.join(RUNS_DIR, run.replace(/\.chat\.md$/, ".md")), "utf8").catch(() => "");
-  const chat = await readFile(path.join(RUNS_DIR, run), "utf8").catch(() => "");
-  const persona = agent
-    ? await readFile(path.join(FUNC_DIR, "vitest/agents", agent, `${agent}.agent.md`), "utf8").catch(() => "")
-    : "";
-  const { llm } = await import("../agentChat.llm.mjs");
-  return llm(
-    agent
-      ? `You are ${agent}, one of the Q3 Agent Lab participants. Speak directly to the user in your persona. Use the persona and supplied run evidence, but do not invent personal facts or events. Keep the answer concise.`
-      : "You are the Q3 Agent Lab results assistant. Answer only from the supplied run report and chat log. Explain evidence and uncertainty plainly. Do not invent events, scores or people. Keep the answer concise.",
-    { agent, persona, question: message, history: history.slice(-8), report: report.slice(-30000), chat: chat.slice(-20000) },
-    process.env.CHAT_MODEL ?? process.env.AGENT_MODEL ?? "haiku",
-    CHAT_SCHEMA,
-    RUNS_DIR,
-    { effort: "low", thinking: false },
-  );
+  if (agent) {
+    if (!state.runProcess || state.run.status !== "running")
+      throw new Error("Live agent chat requires an active run. Finished or offline agents cannot receive messages.");
+    try {
+      return await sendLiveChat(path.join(RUNS_DIR, run), agent, message);
+    } catch (error) {
+      if (error instanceof Error && "code" in error && error.code === "ENOENT") {
+        throw new Error("This run has no active agent chat endpoint. It may still be starting or its agents have finished.");
+      }
+      throw error;
+    }
+  }
+  if (state.runProcess || ["starting", "waiting-for-human"].includes(state.run.status)) {
+    throw new Error("The results assistant is available after the run ends. Select an active agent to chat during the run.");
+  }
+  if (resultsChatPending) throw new Error("The results assistant is already answering a message.");
+  resultsChatPending = true;
+  try {
+    const report = await readFile(path.join(RUNS_DIR, run.replace(/\.chat\.md$/, ".md")), "utf8").catch(() => "");
+    const chat = await readFile(path.join(RUNS_DIR, run), "utf8").catch(() => "");
+    const env = { ...CHILD_ENV, ...(await localSettings()) };
+    return await answerResults(
+      {
+        systemPrompt:
+          "You are the Q3 Agent Lab results assistant. Answer only from the supplied run report and chat log. Explain evidence and uncertainty plainly. Do not invent events, scores or people. Keep the answer concise.",
+        input: { question: message, history: history.slice(-8), report: report.slice(-30000), chat: chat.slice(-20000) },
+        model: env.CHAT_MODEL ?? env.AGENT_MODEL ?? env.LLM_MODEL ?? "",
+        schema: CHAT_SCHEMA,
+        sandbox: RUNS_DIR,
+        options: { effort: "low", thinking: false, maxTokens: 512 },
+      },
+      env
+    );
+  } finally {
+    resultsChatPending = false;
+  }
 }
 
 const portOpen = (port, host = HOST) =>
@@ -197,6 +230,7 @@ async function ensureServices() {
 }
 
 async function startRun(humanProfileId?: string, humanName = "Human") {
+  if (resultsChatPending) throw new Error("Wait for the results assistant to finish before starting another run.");
   const humanMode = Boolean(humanProfileId);
   state.run = { status: "starting", humanMode, ...(humanProfileId && { humanProfileId, humanName }), startedAt: new Date().toISOString() };
   console.log(`Starting agent test${humanMode ? " with a Q3 human participant" : ""}...`);
@@ -254,9 +288,9 @@ async function handle(request, response) {
         ? { profileId: pendingHuman.profileId, name: pendingHuman.name ?? "Human" }
         : registeredHuman.profileId
           ? { profileId: registeredHuman.profileId, name: registeredHuman.name ?? "Human" }
-        : state.run.humanProfileId
-          ? { profileId: state.run.humanProfileId, name: state.run.humanName ?? "Human" }
-          : await waitForPendingHuman();
+          : state.run.humanProfileId
+            ? { profileId: state.run.humanProfileId, name: state.run.humanName ?? "Human" }
+            : await waitForPendingHuman();
       delete pendingHuman.profileId;
       delete pendingHuman.name;
       await startRun(human?.profileId, human?.name);
@@ -276,7 +310,8 @@ async function handle(request, response) {
     if (["idle", "passed", "failed"].includes(state.run.status)) {
       try {
         const body = await readJson(request);
-        if (typeof body.profileId !== "string" || !body.profileId.trim()) return sendJoinJson(response, 400, { error: "profileId is required" }, request.headers.origin);
+        if (typeof body.profileId !== "string" || !body.profileId.trim())
+          return sendJoinJson(response, 400, { error: "profileId is required" }, request.headers.origin);
         pendingHuman.profileId = body.profileId.trim();
         pendingHuman.name = typeof body.name === "string" && body.name.trim() ? body.name.trim() : "Human";
         await rememberHuman(pendingHuman.profileId, pendingHuman.name);
@@ -288,7 +323,8 @@ async function handle(request, response) {
     if (!["running", "waiting-for-human"].includes(state.run.status)) return sendJoinJson(response, 409, { error: "No active test" }, request.headers.origin);
     try {
       const body = await readJson(request);
-      if (typeof body.profileId !== "string" || !body.profileId.trim()) return sendJoinJson(response, 400, { error: "profileId is required" }, request.headers.origin);
+      if (typeof body.profileId !== "string" || !body.profileId.trim())
+        return sendJoinJson(response, 400, { error: "profileId is required" }, request.headers.origin);
       const humanName = typeof body.name === "string" && body.name.trim() ? body.name.trim() : "Human";
       if (state.run.status === "waiting-for-human") {
         await rememberHuman(body.profileId.trim(), humanName);
@@ -322,7 +358,10 @@ async function handle(request, response) {
       }
       const runs = await listRuns();
       if (!runs[0]) return sendJoinJson(response, 409, { error: "Live run log is not ready" }, request.headers.origin);
-      await appendFile(path.join(RUNS_DIR, runs[0].name), `[${new Date().toISOString().slice(11, 19)}] ${state.run.humanName ?? "Human"} answered [q:${questionId}] "${title}": ${answer}\n\n`);
+      await appendFile(
+        path.join(RUNS_DIR, runs[0].name),
+        `[${new Date().toISOString().slice(11, 19)}] ${state.run.humanName ?? "Human"} answered [q:${questionId}] "${title}": ${answer}\n\n`
+      );
       return sendJoinJson(response, 202, { accepted: true }, request.headers.origin);
     } catch (error) {
       return sendJoinJson(response, 400, { error: error instanceof Error ? error.message : String(error) }, request.headers.origin);
@@ -410,35 +449,80 @@ async function selfCheck() {
     ],
     [
       { id: "q-1", title: "Where do you live?", owner: "Eric", text: "", answers: [{ author: "Unknown", text: "Melbourne" }] },
-      { id: "q-2", title: "Where do you live?", owner: "Bella", text: "", answers: [{ author: "Eric", text: "Taipei" }, { author: "Mike", text: "Seoul" }] },
+      {
+        id: "q-2",
+        title: "Where do you live?",
+        owner: "Bella",
+        text: "",
+        answers: [
+          { author: "Eric", text: "Taipei" },
+          { author: "Mike", text: "Seoul" },
+        ],
+      },
     ]
   );
-  assert.deepEqual(grouped.map(({ id, answers }) => ({ id, answers })), [
-    { id: "q-1", answers: [{ author: "Bella", text: "Melbourne" }] },
-    { id: "q-2", answers: [{ author: "Eric", text: "Taipei" }, { author: "Mike", text: "Seoul" }] },
-  ]);
-  assert.deepEqual(grouped.map(({ id, sharedWith }) => ({ id, sharedWith })), [
-    { id: "q-1", sharedWith: ["Bella", "Ian"] },
-    { id: "q-2", sharedWith: [] },
-  ]);
+  assert.deepEqual(
+    grouped.map(({ id, answers }) => ({ id, answers })),
+    [
+      { id: "q-1", answers: [{ author: "Bella", text: "Melbourne" }] },
+      {
+        id: "q-2",
+        answers: [
+          { author: "Eric", text: "Taipei" },
+          { author: "Mike", text: "Seoul" },
+        ],
+      },
+    ]
+  );
+  assert.deepEqual(
+    grouped.map(({ id, sharedWith }) => ({ id, sharedWith })),
+    [
+      { id: "q-1", sharedWith: ["Bella", "Ian"] },
+      { id: "q-2", sharedWith: [] },
+    ]
+  );
   const anonymousRecipients = groupQuestions(
     [
       { agent: "", kind: "start", participants: ["Mike", "Ian", "Eric"], text: "Run starts. Online: Mike, Ian, Eric." },
       { agent: "Mike", kind: "share", questionId: "q-3", text: 'shared "Where do you live?" with Person 1, Person 2' },
     ],
-    [{ id: "q-3", title: "Where do you live?", owner: "Mike", text: "", answers: [{ author: "Ian", text: "Cape Town" }, { author: "Eric", text: "Taipei" }] }]
+    [
+      {
+        id: "q-3",
+        title: "Where do you live?",
+        owner: "Mike",
+        text: "",
+        answers: [
+          { author: "Ian", text: "Cape Town" },
+          { author: "Eric", text: "Taipei" },
+        ],
+      },
+    ]
   );
   assert.deepEqual(anonymousRecipients[0].sharedWith, ["Ian", "Eric"]);
   const result = parseReport(
     "## Metrics\n\n| Agent | Steps | New questions | Edits | Shares | Re-shares | Answered / others' seen |\n|---|---|---|---|---|---|---|\n| Mike | 2 | 1 | 0 | 1 | 1 | 1/2 |\n\n## Judge\n\n| Observer | Subject | Accuracy /10 | Hidden links found | Note |\n|---|---|---|---|---|\n| Mike | Bella | 8 | - | Accurate |\n\n### Leaks\n\n- none\n\n## Findings"
   );
-  assert.deepEqual({ average: result.average, questions: result.questions, reshares: result.reshares, details: result.pairs[0].detailsAvailable }, { average: 8, questions: 1, reshares: 1, details: false });
+  assert.deepEqual(
+    { average: result.average, questions: result.questions, reshares: result.reshares, details: result.pairs[0].detailsAvailable },
+    { average: 8, questions: 1, reshares: 1, details: false }
+  );
   const details = parseReport(
     '## Metrics\n\n| Agent | Steps | New questions | Edits | Shares | Re-shares | Answered / others\' seen |\n|---|---|---|---|---|---|---|\n\n## Judge\n\n| Observer | Subject | Accuracy /10 | Hidden links found | Correct facts | Incorrect facts | Missing facts | Stored memory | Note |\n|---|---|---|---|---|---|---|---|---|\n| Mike | Eric | 6 | Game | ["Taipei"] | ["Age 40"] | ["Work"] | "### Facts\\n- Taipei" | Mixed |\n\n### Leaks\n\n- none\n\n## Findings'
   ).pairs[0];
-  assert.deepEqual({ available: details.detailsAvailable, correct: details.correctFacts, wrong: details.incorrectFacts, memory: details.memory }, { available: true, correct: ["Taipei"], wrong: ["Age 40"], memory: "### Facts\n- Taipei" });
-  assert.deepEqual(parseReport("## Participant profiles\n\n| Participant | Profile ID |\n|---|---|\n| Mike | mike-id |\n\n## Metrics\n\n| Agent | Steps | New questions | Edits | Shares | Re-shares | Answered / others' seen |\n|---|---|---|---|---|---|---|\n\n## Judge\n\n### Leaks\n\n- none").profileIds, { Mike: "mike-id" });
-  const answer = parseReport("## Questions (final)\n\n### Where? (id q-1; owner Mike)\n\nWhere do you live?\nOptions: Brisbane\n- Bella: Brisbane\n\n## Call log").questionList[0].answers[0];
+  assert.deepEqual(
+    { available: details.detailsAvailable, correct: details.correctFacts, wrong: details.incorrectFacts, memory: details.memory },
+    { available: true, correct: ["Taipei"], wrong: ["Age 40"], memory: "### Facts\n- Taipei" }
+  );
+  assert.deepEqual(
+    parseReport(
+      "## Participant profiles\n\n| Participant | Profile ID |\n|---|---|\n| Mike | mike-id |\n\n## Metrics\n\n| Agent | Steps | New questions | Edits | Shares | Re-shares | Answered / others' seen |\n|---|---|---|---|---|---|---|\n\n## Judge\n\n### Leaks\n\n- none"
+    ).profileIds,
+    { Mike: "mike-id" }
+  );
+  const answer = parseReport(
+    "## Questions (final)\n\n### Where? (id q-1; owner Mike)\n\nWhere do you live?\nOptions: Brisbane\n- Bella: Brisbane\n\n## Call log"
+  ).questionList[0].answers[0];
   assert.deepEqual(answer, { author: "Bella", text: "Brisbane" });
   assert.equal(parseLine("not an event"), null);
   console.log("Agent viewer self-check passed.");

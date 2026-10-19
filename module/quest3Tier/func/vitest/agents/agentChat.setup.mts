@@ -40,9 +40,7 @@ const readMemoryFile = async (file, subject) => {
 export async function writeMemory(directory, owner, memory) {
   await mkdir(directory, { recursive: true });
   await Promise.all(
-    memorySubjects(owner).map((subject) =>
-      writeFile(path.join(directory, `${subject}.md`), `${memoryTitle(owner, subject)}\n\n${memory[subject] ?? ""}\n`)
-    )
+    memorySubjects(owner).map((subject) => writeFile(path.join(directory, `${subject}.md`), `${memoryTitle(owner, subject)}\n\n${memory[subject] ?? ""}\n`))
   );
 }
 async function loadMemory(name) {
@@ -94,11 +92,9 @@ export async function pickParticipants() {
 export async function loadAgent(name) {
   const text = await readFile(path.join(AGENTS_DIR, name, `${name}.agent.md`), "utf8");
   const match = text.replace(/\r\n/g, "\n").match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
-if (!match) throw new Error(`Invalid frontmatter in ${name}.agent.md`);
-const [, frontmatter, persona] = match;
-  const meta = Object.fromEntries(
-    frontmatter.split("\n").map((line) => [line.slice(0, line.indexOf(":")).trim(), line.slice(line.indexOf(":") + 1).trim()])
-  );
+  if (!match) throw new Error(`Invalid frontmatter in ${name}.agent.md`);
+  const [, frontmatter, persona] = match;
+  const meta = Object.fromEntries(frontmatter.split("\n").map((line) => [line.slice(0, line.indexOf(":")).trim(), line.slice(line.indexOf(":") + 1).trim()]));
   const { directory: memoryDirectory, memory } = await loadMemory(name);
   return {
     name,
@@ -116,6 +112,7 @@ const [, frontmatter, persona] = match;
     seen: new Set(),
     digested: new Set(),
     recent: [],
+    dashboardChat: [] as { role: "user" | "assistant"; content: string }[],
     findings: [],
     steps: 0,
     errors: 0,
