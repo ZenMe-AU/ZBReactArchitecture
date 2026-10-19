@@ -17,7 +17,9 @@
     "CLIENT_ID": "87aa3687-66a4-4fab-bf59-70de6bf768fa",
     "TENANT_ID": "15fb0613-7977-4551-801b-6aadac824241",
     "QUESTION_URL": "http://localhost:7073",
-    "LLM_PROVIDER": "openvino"
+    "LLM_PROVIDER": "openvino",
+    "LLM_MODEL": "D:\\Models\\OpenVINO\\Qwen3.5-9B-int4-ov",
+    "OPENVINO_LOG_LEVEL": "5"
   },
   "Host": {
     "LocalHttpPort": 7073,

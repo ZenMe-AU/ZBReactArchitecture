@@ -15,7 +15,8 @@
     "test:vitest": "cross-env vitest run vitest/testQuestion.test.mts",
     "test:vitest:debug": "cross-env NODE_OPTIONS=--inspect-brk=9230 vitest run vitest/testQuestion.test.mts --pool=forks --no-file-parallelism",
     "test:profile": "vitest --root ../../.. run module/quest3Tier/func/vitest/profile.test.mts --pool=forks --no-file-parallelism",
-    "test:profile-db": "vitest --root ../../.. run module/quest3Tier/func/vitest/profile.test.mts module/quest3Tier/func/vitest/dbTest.test.mts --pool=forks --no-file-parallelism"
+    "test:profile-db": "vitest --root ../../.. run module/quest3Tier/func/vitest/profile.test.mts module/quest3Tier/func/vitest/dbTest.test.mts --pool=forks --no-file-parallelism",
+    "test:openvino": "vitest --root ../../.. run module/quest3Tier/func/vitest/openvinoUnit.test.mts module/quest3Tier/func/vitest/agents/llmProvider/openvino.provider.test.mts"
   },
   "dependencies": {
     "@apvee/azure-functions-openapi": "2.0.0",

@@ -278,6 +278,57 @@ describe("LLM provider configuration", () => {
   });
 });
 
+describe("OpenVINO generation queue", () => {
+  test("serializes concurrent calls and continues after a generation fails", async () => {
+    vi.stubEnv("LLM_PROVIDER", "openvino");
+    vi.stubEnv("OPENVINO_MODEL_DIR", os.tmpdir());
+    vi.stubEnv("OPENVINO_DEVICE", "GPU");
+    vi.resetModules();
+
+    let release: () => void;
+    let started: () => void;
+    const blocked = new Promise<void>((resolve) => { release = resolve; });
+    const firstStarted = new Promise<void>((resolve) => { started = resolve; });
+    const failure = new Error("generation failed");
+    const generate = vi.fn()
+      .mockImplementationOnce(async () => {
+        started();
+        await blocked;
+        return { texts: ['{"ok":1}'] };
+      })
+      .mockRejectedValueOnce(failure)
+      .mockResolvedValueOnce({ texts: ['{"ok":3}'] });
+    const createPipeline = vi.fn().mockResolvedValue({ generate });
+    vi.doMock("openvino-genai-node", () => ({
+      LLMPipeline: createPipeline,
+      StructuredOutputConfig: class {},
+    }));
+
+    try {
+      const { llm } = await import("./agentChat.llm.mjs");
+      const schema = { type: "object", properties: { ok: { type: "number" } }, required: ["ok"] };
+      const results = Promise.allSettled([1, 2, 3].map((id) => llm("system", { id }, "", schema, "", {})));
+      try {
+        await firstStarted;
+        await new Promise<void>((resolve) => setImmediate(resolve));
+        expect(createPipeline).toHaveBeenCalledTimes(1);
+        expect(generate).toHaveBeenCalledTimes(1);
+      } finally {
+        release();
+      }
+      expect(await results).toEqual([
+        { status: "fulfilled", value: { ok: 1 } },
+        { status: "rejected", reason: failure },
+        { status: "fulfilled", value: { ok: 3 } },
+      ]);
+      expect(generate.mock.calls.map(([prompt]) => [1, 2, 3].find((id) => prompt.includes(JSON.stringify({ id }))))).toEqual([1, 2, 3]);
+    } finally {
+      vi.doUnmock("openvino-genai-node");
+      vi.resetModules();
+    }
+  });
+});
+
 describe.skipIf(!process.env.AGENT_RUN)("agent chat run", () => {
   test("agents get to know each other through Q3", runAgentChat, 60 * 60 * 1000);
 });
