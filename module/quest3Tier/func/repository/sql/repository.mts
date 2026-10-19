@@ -261,6 +261,7 @@ async function shareQuestion(newQuestionId, senderId, receiverIds) {
     const addData = receiverIds.map(function (receiverId) {
       return {
         newQuestionId: newQuestionId,
+        questionId: newQuestionId,
         senderProfileId: senderId,
         receiverProfileId: receiverId,
       };

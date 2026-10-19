@@ -11,6 +11,7 @@ import { initSqlRepository, initTableRepository } from "./util/repositoriesInit.
 import tableRepository from "../repository/table/repository.mjs";
 import { getTableClient } from "../repository/table/init.mjs";
 import { QUESTION_DATA_TABLE } from "../repository/table/keys.mjs";
+import type { QuestionShareEntity } from "../repository/table/entities.mjs";
 import type { QuestRepository } from "../repository/contracts.mjs";
 import cmdName from "../enum/cmdName.mjs";
 
@@ -37,7 +38,11 @@ describe("Test SQL repository", () => {
       if (sequelize) await sequelize.close();
     }
   });
-  testRepositoryContract(sqlRepository, ids);
+  testRepositoryContract(sqlRepository, ids, async (questionId, senderId, receiverId) => {
+    const share = await models.QuestionShare.findOne({ where: { newQuestionId: questionId, senderProfileId: senderId, receiverProfileId: receiverId } });
+    expect(share?.get("questionId")).toBe(questionId);
+    await share!.update({ questionId: null });
+  });
 });
 
 describe("Test Azure Table repository", () => {
@@ -46,7 +51,14 @@ describe("Test Azure Table repository", () => {
   afterAll(async () => {
     if (ids.profileIds.length > 0) await cleanupTableRows(ids.profileIds, ids.externalIds);
   });
-  testRepositoryContract(tableRepository, ids);
+  testRepositoryContract(tableRepository, ids, async (questionId, senderId, receiverId) => {
+    const client = await getTableClient(QUESTION_DATA_TABLE);
+    const rows = client.listEntities<QuestionShareEntity>({ queryOptions: { filter: odata`PartitionKey eq ${senderId} and newQuestionId eq ${questionId} and receiverProfileId eq ${receiverId}` } });
+    const share = (await rows.next()).value;
+    expect(share?.questionId).toBe(questionId);
+    const { partitionKey, rowKey, id, newQuestionId, senderProfileId, receiverProfileId, status, type, createdAt } = share!;
+    await client.updateEntity({ partitionKey, rowKey, id, newQuestionId, senderProfileId, receiverProfileId, status, type, createdAt }, "Replace");
+  });
 
   it("stores the signed-in name on the canonical profile", async () => {
     const externalId = `named-profile-${randomUUID()}`;
@@ -156,7 +168,7 @@ describe("Test Azure Table repository", () => {
 });
 
 
-function testRepositoryContract(repository: QuestRepository, ids: RepositoryTestIds) {
+function testRepositoryContract(repository: QuestRepository, ids: RepositoryTestIds, verifyShare: (questionId: string, senderId: string, receiverId: string) => Promise<void>) {
   it("testRepositoryContract: question, answer, share, and follow-up", async () => {
     async function createTestProfile(label: string) {
       const externalId = `questdb-${label}-${randomUUID()}`;
@@ -184,6 +196,10 @@ function testRepositoryContract(repository: QuestRepository, ids: RepositoryTest
       expect.arrayContaining([expect.objectContaining({ id: question.id, latestAnswer: null })])
     );
     await expect(repository.shareQuestion(question.id, owner.id, [responder.id])).resolves.toHaveLength(1);
+    await verifyShare(question.id, owner.id, responder.id);
+    await expect(repository.getSharedQuestionListByProfileId(responder.id)).resolves.toEqual(
+      expect.arrayContaining([expect.objectContaining({ id: question.id, profileId: owner.id })])
+    );
 
     await expect(repository.updateById(question.id, "Updated Quest DB", "Which option?", ["yes", "no", "maybe"])).resolves.toEqual({ id: question.id });
     await expect(repository.patchById(question.id, [{ op: "replace", path: "/title", value: "Patched Quest DB" }], owner.id)).resolves.toMatchObject({ id: expect.any(String) });

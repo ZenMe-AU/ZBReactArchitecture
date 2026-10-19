@@ -43,6 +43,7 @@ export interface QuestionShareEntity {
   rowKey: string;
   id: string;
   newQuestionId: string;
+  questionId?: string | null;
   senderProfileId: string;
   receiverProfileId: string;
   status: number;
