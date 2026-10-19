@@ -230,6 +230,18 @@ function testRepositoryContract(repository: QuestRepository, ids: RepositoryTest
       ])
     );
 
+    const multiAnswer = await repository.addAnswerByQuestionId(question.id, responder.id, 10, null, ["yes", "custom option"]);
+    await expect(repository.getAnswerById(question.id, multiAnswer.id)).resolves.toMatchObject({
+      optionId: "yes",
+      optionAnswerList: ["yes", "custom option"],
+    });
+    await expect(repository.getAnswerListByQuestionId(question.id)).resolves.toEqual(
+      expect.arrayContaining([expect.objectContaining({ profileId: responder.id, optionAnswerList: ["yes", "custom option"] })])
+    );
+    await expect(repository.getCombinationListByUser(responder.id)).resolves.toEqual(
+      expect.arrayContaining([expect.objectContaining({ id: question.id, latestAnswer: expect.objectContaining({ optionAnswerList: ["yes", "custom option"] }) })])
+    );
+
     await expect(repository.shareQuestion(question.id, owner.id, [receiver.id])).resolves.toHaveLength(1);
     await expect(repository.getSharedQuestionListByProfileId(receiver.id)).resolves.toEqual(
       expect.arrayContaining([expect.objectContaining({ id: question.id, profileId: owner.id })])

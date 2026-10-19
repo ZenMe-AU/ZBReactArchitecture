@@ -187,8 +187,9 @@ const repository = {
     return patchQuestionById(questionId, profileId, action);
   },
 
-  async addAnswerByQuestionId(questionId: string, profileId: string, duration: number, answer = null, option = null, recipientProfileId?: string, when?: string | null) {
-    const created = await addAnswer({ questionId, profileId, duration, answerText: answer, optionId: option, recipientProfileId, when });
+  async addAnswerByQuestionId(questionId: string, profileId: string, duration: number, answer = null, option: string | string[] | null = null, recipientProfileId?: string, when?: string | null) {
+    const options = option === null ? null : Array.isArray(option) ? option : [option];
+    const created = await addAnswer({ questionId, profileId, duration, answerText: answer, optionId: options?.[0] ?? null, optionAnswerList: options, recipientProfileId, when });
     const record = await getAnswerById(questionId, created.id);
     if (!record) throw new Error(`Answer not found after creation: ${created.id}`);
     return record;
