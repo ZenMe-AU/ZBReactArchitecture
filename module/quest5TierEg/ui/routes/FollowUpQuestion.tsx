@@ -1,5 +1,5 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
@@ -207,7 +207,7 @@ function FollowUpQuestion() {
       setSubmitting(true);
       const response = await sendFollowUpQuestion(id, filterData, followUpQuestions, saveFilter);
       console.log("Response:", response);
-      // navigate(`/quest5TierEg/${id}`, { replace: true });
+      navigate(`/quest5TierEg`, { replace: true });
     } catch (error) {
       console.error("Error send follow up question:", error); // Log error if any
     } finally {
@@ -442,9 +442,7 @@ function FollowUpQuestion() {
                   {(questionList.find((q) => q.id === selectedQuestions[cardId])?.optionList || []).map((option, index) => (
                     <FormControlLabel
                       key={index}
-                      control={
-                        <Checkbox checked={selectedOptions[cardId]?.includes(option) || false} onChange={() => handleOptionChange(cardId, option)} />
-                      }
+                      control={<Checkbox checked={selectedOptions[cardId]?.includes(option) || false} onChange={() => handleOptionChange(cardId, option)} />}
                       label={
                         <Box display="flex" alignItems="center">
                           <Typography variant="body1" sx={{ mr: 1 }}>

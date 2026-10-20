@@ -62,6 +62,7 @@ export interface QuestionDetail {
   title: string | null;
   questionText: string;
   option: string[] | null;
+  optionList: string[] | null; // Q5-compatible alias of option
   profileId: string;
 }
 

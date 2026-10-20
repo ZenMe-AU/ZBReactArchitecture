@@ -29,6 +29,7 @@ import * as getEventByCorrelationId from "./handler/getEventByCorrelationId.mjs"
 import profileHandler from "./handler/profileHandler.mjs";
 import * as Profile from "./handler/Profile.mjs";
 import { updateMyProfileSchema } from "./handler/updateMyProfileSchema.mjs";
+import q5Handler, { sendFollowUpBody } from "./handler/q5Handler.mjs";
 
 //TODO: Review schema usage and ensure all endpoints have a correct schema assigned which is also in sync with the relevant function and relevant swagger doc.
 
@@ -232,5 +233,107 @@ app.openAPIPath("getEventByCorrelationId", "Count events recorded for a command"
   responses: getEventByCorrelationId.responses,
   handler: requestHandler(followupHandler.GetEventByCorrelationId, {
     params: getEventByCorrelationId.params,
+  }),
+});
+
+// Q5 UI (quest5TierEg/ui) routes. Same handlers as above; see handler/q5Handler.mts for the Q5 values.
+
+app.openAPIPath("Q5GetQuestion", "Get a question by ID (Q5 UI)", {
+  route: "questionQry/getQuestion/{id}",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  tags: ["Q5"],
+  params: GetQuestionByIdsc.params,
+  responses: GetQuestionByIdsc.responses,
+  handler: requestHandler(q5Handler.getQuestion, {
+    params: GetQuestionByIdsc.params,
+  }),
+});
+
+// {profileId} is ignored; the caller comes from the token.
+app.openAPIPath("Q5GetQuestions", "List questions created by or shared with the caller (Q5 UI)", {
+  route: "questionQry/getQuestions/{profileId}",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  tags: ["Q5"],
+  responses: GetQuestionListByUsersc.responses,
+  handler: requestHandler(q5Handler.getQuestions),
+});
+
+app.openAPIPath("Q5GetAnswers", "List answers to a question (Q5 UI)", {
+  route: "questionQry/getAnswers/{id}",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  tags: ["Q5"],
+  params: GetAnswerListByQuestionId.params,
+  responses: GetAnswerListByQuestionId.responses,
+  handler: requestHandler(q5Handler.getAnswers, {
+    params: GetAnswerListByQuestionId.params,
+  }),
+});
+
+app.openAPIPath("Q5CreateQuestion", "Create a question (Q5 UI)", {
+  route: "questionCmd/createQuestion",
+  methods: ["POST"],
+  authLevel: "anonymous",
+  tags: ["Q5"],
+  body: CreateQuestionschema.body,
+  responses: CreateQuestionschema.responses,
+  handler: requestHandler(CreateQuestion, {
+    schemas: [CreateQuestionschema.body],
+  }),
+});
+
+app.openAPIPath("Q5UpdateQuestion", "Update a question using JSON Patch (Q5 UI)", {
+  route: "questionCmd/updateQuestion/{id}",
+  methods: ["POST"],
+  authLevel: "anonymous",
+  tags: ["Q5"],
+  request: {
+    params: PatchQuestionByIdsc.params,
+    body: { content: { "application/json-patch+json": { schema: PatchQuestionByIdsc.body } } },
+  },
+  responses: PatchQuestionByIdsc.responses,
+  handler: requestHandler(q5Handler.updateQuestion, {
+    params: PatchQuestionByIdsc.params,
+    schemas: [PatchQuestionByIdsc.body],
+  }),
+});
+
+app.openAPIPath("Q5CreateAnswer", "Answer a question (Q5 UI)", {
+  route: "questionCmd/createAnswer/{id}",
+  methods: ["POST"],
+  authLevel: "anonymous",
+  tags: ["Q5"],
+  params: AddAnswer.params,
+  body: AddAnswer.body,
+  responses: AddAnswer.responses,
+  handler: requestHandler(answerHandler.AddAnswer, {
+    params: AddAnswer.params,
+    schemas: [AddAnswer.body],
+  }),
+});
+
+app.openAPIPath("Q5ShareQuestion", "Share a question with profiles (Q5 UI)", {
+  route: "questionCmd/shareQuestion",
+  methods: ["POST"],
+  authLevel: "anonymous",
+  tags: ["Q5"],
+  body: ShareQuestionCmd.body,
+  responses: ShareQuestionCmd.responses,
+  handler: requestHandler(followupHandler.ShareQuestionCmd, {
+    schemas: [ShareQuestionCmd.body],
+  }),
+});
+
+app.openAPIPath("Q5SendFollowUp", "Send follow-up questions to matching respondents (Q5 UI)", {
+  route: "questionCmd/sendFollowUp",
+  methods: ["POST"],
+  authLevel: "anonymous",
+  tags: ["Q5"],
+  body: sendFollowUpBody,
+  responses: SendFollowUpCmd.responses,
+  handler: requestHandler(q5Handler.sendFollowUp, {
+    schemas: [sendFollowUpBody],
   }),
 });

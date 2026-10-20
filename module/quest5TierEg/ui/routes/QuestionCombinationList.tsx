@@ -13,6 +13,7 @@ import type { Question } from "../types/interfaces";
 import { logEvent, setOperationId } from "@zenmechat/shared-ui/monitor/telemetry";
 
 export async function clientLoader() {
+  const profileId = localStorage.getItem("profileId");
 
   try {
     const questions: Question[] = await getQuestionsByUser();
@@ -24,7 +25,7 @@ export async function clientLoader() {
 }
 
 export default function QuestionCombinationList({ loaderData }: { loaderData: any }) {
-  const { questions } = loaderData;
+  const { questions, profileId } = loaderData;
   const handleOpenAnswer = (questionId: string) => {
     const correlationId = setOperationId();
     logEvent("btnAnswerDetailClick", {
