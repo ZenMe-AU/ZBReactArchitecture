@@ -71,7 +71,7 @@ function ShareQuestion() {
         profileId,
         selectedReceivers.map(({ id }) => id)
       );
-      alert("Question shared successfully!");
+      // alert("Question shared successfully!");
       logEvent("bntSendShareQuestionClick", {
         parentId: "SubmitButton",
         questionId: id,

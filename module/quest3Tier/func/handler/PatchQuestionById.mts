@@ -9,14 +9,21 @@ import { apiResponses } from "./commonSchema.mjs";
 export const params = z.object({ id: z.uuid() });
 
 export const body = z
-  .array(
+  .union([
+    z.array(
+      z.object({
+        op: z.enum(["add", "remove", "replace", "move", "copy", "test"]),
+        path: z.string(),
+        from: z.string().optional(),
+        value: z.unknown().optional(),
+      })
+    ),
     z.object({
-      op: z.enum(["add", "remove", "replace", "move", "copy", "test"]),
-      path: z.string(),
-      from: z.string().optional(),
-      value: z.unknown().optional(),
-    })
-  )
+      title: z.string().nullable().optional(),
+      questionText: z.string(),
+      option: z.array(z.string()).nullable().optional(),
+    }),
+  ])
   .meta({ id: "JsonPatch" });
 
 export const responses = apiResponses([200, 400, 401, 403, 500], z.object({ id: z.uuid() }));

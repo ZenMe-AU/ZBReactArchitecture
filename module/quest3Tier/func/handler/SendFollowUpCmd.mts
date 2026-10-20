@@ -13,19 +13,32 @@ export const headers = z.object({
 });
 
 export const body = z
-  .strictObject({
-    newQuestionId: uuid,
-    question: z
-      .array(
-        z.strictObject({
-          questionId: uuid,
-          option: z.array(z.string().min(1)).min(1),
-        })
-      )
-      .min(1),
-    // Follow-up filters are no longer stored; isSave is accepted from older clients and ignored.
-    isSave: z.boolean().optional(),
-  })
+  .union([
+    z.strictObject({
+      newQuestionId: uuid,
+      question: z
+        .array(
+          z.strictObject({
+            questionId: uuid,
+            option: z.array(z.string().min(1)).min(1),
+          })
+        )
+        .min(1),
+      isSave: z.boolean().optional(),
+    }),
+    z.strictObject({
+      questionIdList: z.array(uuid).min(1),
+      question: z
+        .array(
+          z.strictObject({
+            questionId: uuid,
+            option: z.array(z.string().min(1)).min(1),
+          })
+        )
+        .min(1),
+      isSave: z.boolean().optional(),
+    }),
+  ])
   .meta({ id: "SendFollowUpCmd" });
 
 export const responses = apiResponses([200, 400, 401, 403, 500], z.literal(true));

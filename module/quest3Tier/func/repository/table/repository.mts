@@ -215,21 +215,24 @@ const repository = {
   },
 
   async insertFollowUpFilter(senderId: string, data: Record<string, unknown>) {
-    if (!data.save || !Array.isArray(data.question)) return [];
+    if (!(data.isSave ?? data.save) || !Array.isArray(data.question)) return [];
     const client = await getTableClient(QUESTION_DATA_TABLE);
     const filterId = randomUUID();
-    const newQuestionId = String(data.newQuestionId);
-    const filters = data.question.map((item: any, index) => ({
-      partitionKey: senderId,
-      rowKey: `filter:${newQuestionId}:${filterId}:${index + 1}`,
-      id: filterId,
-      order: index + 1,
-      senderProfileId: senderId,
-      refQuestionId: item.questionId,
-      refOption: JSON.stringify(item.option),
-      newQuestionId,
-      createdAt: new Date().toISOString(),
-    }));
+    const questionIdList = Array.isArray(data.questionIdList) ? data.questionIdList.map(String) : [String(data.newQuestionId)];
+    const questions = data.question as Array<{ questionId: string; option: string[] }>;
+    const filters = questionIdList.flatMap((newQuestionId) =>
+      questions.map((item, index) => ({
+        partitionKey: senderId,
+        rowKey: `filter:${newQuestionId}:${filterId}:${index + 1}`,
+        id: filterId,
+        order: index + 1,
+        senderProfileId: senderId,
+        refQuestionId: item.questionId,
+        refOption: JSON.stringify(item.option),
+        newQuestionId,
+        createdAt: new Date().toISOString(),
+      }))
+    );
     for (const filter of filters) await client.createEntity(filter);
     return filters;
   },

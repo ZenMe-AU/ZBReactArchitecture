@@ -211,7 +211,7 @@ export default function AnswerQuestion({ loaderData }: { loaderData: any }) {
     const correlationId = setOperationId();
     console.log("Correlation ID:", correlationId);
     if (!id || !question) {
-      alert("Invalid question ID.");
+      // alert("Invalid question ID.");
       setSubmitting(false);
       return;
     }
@@ -238,7 +238,7 @@ export default function AnswerQuestion({ loaderData }: { loaderData: any }) {
     };
 
     if (!answerPayload.option && !answerPayload.answerText) {
-      alert("Please provide an answer.");
+      // alert("Please provide an answer.");
       setSubmitting(false);
       return;
     }
@@ -258,7 +258,7 @@ export default function AnswerQuestion({ loaderData }: { loaderData: any }) {
     // return;
     try {
       await submitAnswer(id, answerPayload, question.questionText);
-      alert("Answer submitted successfully!");
+      // alert("Answer submitted successfully!");
       setPrevAns((prev) => {
         if (!prev)
           return {
@@ -276,7 +276,7 @@ export default function AnswerQuestion({ loaderData }: { loaderData: any }) {
       // navigate(`/quest5Tier/${id}`);
     } catch (err) {
       console.error("Error submitting answer:", err);
-      alert("Failed to submit the answer.");
+      // alert("Failed to submit the answer.");
     } finally {
       logEvent("btnAnswerQuestionClick", {
         parentId: "SubmitButton",

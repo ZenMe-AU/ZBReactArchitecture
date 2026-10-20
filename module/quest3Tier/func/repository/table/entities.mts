@@ -80,6 +80,7 @@ export interface AnswerListItem {
   answerText: string | null;
   optionId: string | null;
   optionAnswerList: string[] | null;
+  when: string | null;
   duration: number;
   createdAt: string;
   answerCount: number;

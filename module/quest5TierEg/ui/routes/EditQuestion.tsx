@@ -1,5 +1,5 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
@@ -66,6 +66,7 @@ function EditQuestion() {
       setSubmitting(true);
       if (id) {
         console.log("Question question:", question);
+        // TODO: If I'm the owner of the question, then I can update it, if I'm not the owner, then any edits to the question will create a new question where I'm the owner.
         // await updateQuestion(id, question);
       } else {
         console.error("Question ID is undefined");

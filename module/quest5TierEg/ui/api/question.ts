@@ -1,5 +1,5 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
@@ -213,7 +213,7 @@ export const getSharedQuestionList = async () => {
 type PatchOperation = {
   op: "add" | "remove" | "replace" | "move" | "copy" | "test";
   path: string;
-  value?: any;
+  value?: unknown;
 };
 
 export const updateQuestionPatch = async (id: string, patches: PatchOperation[]) => {

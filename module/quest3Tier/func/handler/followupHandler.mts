@@ -7,6 +7,7 @@ import { getRepository } from "../repository/getRepository.mjs";
 
 import { v4 as uuidv4 } from "uuid";
 import cmdName from "../enum/cmdName.mjs";
+import { toExternalProfileId, toInternalProfileId } from "./profileId.mjs";
 
 async function GetEventByCorrelationId(request, context) {
   const repository = getRepository();
@@ -17,12 +18,14 @@ async function GetEventByCorrelationId(request, context) {
 
 async function SendFollowUpCmd(request, context) {
   const repository = getRepository();
-  const { correlationId, clientParams: body } = request;
+  const { correlationId, clientParams } = request;
   const profileId = request.userData.profileId;
+  const questionIdList = clientParams.questionIdList ?? [clientParams.newQuestionId];
+  const body = { ...clientParams, newQuestionId: questionIdList[0], questionIdList };
   const cmd = await repository.insertFollowUpCmd(profileId, body, correlationId);
   const filters = repository.insertFollowUpFilter(profileId, body);
   const receiverIds = getFollowUpReceiver(profileId, body);
-  const sharedQuestions = repository.shareQuestion(body["newQuestionId"], profileId, await receiverIds);
+  const sharedQuestions = Promise.all((await receiverIds).flatMap((receiverId) => questionIdList.map((questionId) => repository.shareQuestion(questionId, profileId, [receiverId]))));
 
   const settled = await Promise.allSettled([filters, sharedQuestions]);
   const errors = settled.filter((result) => result.status === "rejected").map((result) => result.reason);
@@ -71,7 +74,7 @@ async function ShareQuestionCmd(request, context) {
   const { correlationId, clientParams: body } = request;
   const profileId = request.userData.profileId;
   const cmd = await repository.insertQuestionShareCmd(profileId, body, correlationId);
-  const sharedQuestions = await repository.shareQuestion(body["newQuestionId"], profileId, body["receiverIds"]);
+  const sharedQuestions = await repository.shareQuestion(body["newQuestionId"], profileId, await Promise.all(body["receiverIds"].map(toInternalProfileId)));
 
   await repository.updateQuestionShareCmdStatus(cmd["id"]);
   return { return: true };
@@ -79,13 +82,14 @@ async function ShareQuestionCmd(request, context) {
 
 async function ShareQuestionById(request, context) {
   const repository = getRepository();
-  await repository.shareQuestion(request.params.id, request.userData.profileId, request.clientParams.receiverIds ?? []);
+  await repository.shareQuestion(request.params.id, request.userData.profileId, await Promise.all((request.clientParams.receiverIds ?? []).map(toInternalProfileId)));
   return { return: true };
 }
 
 async function GetSharedQuestionListByUser(request, context) {
   const repository = getRepository();
-  return { return: { list: await repository.getSharedQuestionListByProfileId(request.userData.profileId) } };
+  const questions = await repository.getSharedQuestionListByProfileId(request.userData.profileId);
+  return { return: { list: await Promise.all(questions.map(async (question) => ({ ...question, profileId: await toExternalProfileId(question.profileId) }))) } };
 }
 
 export default {
