@@ -77,9 +77,11 @@ Each agent run resets only records connected to its current participants. The re
 
 To watch the conversation live, use the terminal, or open `runs/<time>_<participants>.chat.md`.
 
-### Visual observer
+### Visual observer and helper scripts
 
 See the [viewer architecture overview](viewer/architecture-overview.md) for the UI, data flow, and build details.
+
+**Configuration Single Source of Truth**: All LLM settings (`LLM_PROVIDER`, `LLM_MODEL`, `OPENVINO_MODEL_DIR`, `OPENVINO_DEVICE`, `OPENVINO_LOG_LEVEL`, `LLM_BASE_URL`, `AGENT_MODEL`, etc.) are configured under `Values` in [local.settings.json](../../local.settings.json). The helper scripts `run-openvino.ps1` and `run-ollama.ps1` read `local.settings.json` automatically, ensuring that the launcher scripts, VS Code tasks, integration tests, and the agent chat runner all use the exact same LLM configuration. Explicit parameters passed to the scripts or existing environment variables can still be used to override these values.
 
 From the repo root, start the local viewer in another terminal:
 
@@ -87,6 +89,10 @@ From the repo root, start the local viewer in another terminal:
 pnpm exec tsc --project module/quest3Tier/func/vitest/agents/tsconfig.json
 node module/quest3Tier/func/dist/vitest/agents/viewer/server.mjs
 ```
+
+Or run via the helper scripts / VS Code tasks:
+- `pwsh module/quest3Tier/func/vitest/agents/run-openvino.ps1` (or the VS Code task **Start OpenVino**)
+- `pwsh module/quest3Tier/func/vitest/agents/run-ollama.ps1` (or the VS Code task **Start Ollama**)
 
 Open `http://127.0.0.1:4178`. It follows the selected `.chat.md` once per second, can replay earlier runs and shows the completed judge report under **Results**. **New test** starts Azurite when needed and refuses to spend an agent run if the Q3 API is not available. The viewer does not expose persona files or change what the agents see. Set `AGENT_VIEW_PORT` to use another port. A quick check is available after the build with `node module/quest3Tier/func/dist/vitest/agents/viewer/server.mjs --check`.
 
