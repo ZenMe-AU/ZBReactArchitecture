@@ -114,7 +114,7 @@ function send(response, status, contentType, body) {
 
 const sendJson = (response, status, body) => send(response, status, "application/json; charset=utf-8", JSON.stringify(body));
 const isSameOrigin = (request) => request.headers.origin === `http://${HOST}:${PORT}`;
-const isLabClientOrigin = (request) => ["http://localhost:5183", "http://127.0.0.1:5183", "http://localhost:5186", "http://127.0.0.1:5186"].includes(request.headers.origin ?? "");
+const isQ3Origin = (request) => ["http://localhost:5183", "http://127.0.0.1:5183"].includes(request.headers.origin ?? "");
 const sendJoinJson = (response, status, body, origin) => {
   response.writeHead(status, {
     "Access-Control-Allow-Headers": "Content-Type",
@@ -268,11 +268,11 @@ async function handle(request, response) {
     }
   }
   if (url.pathname === "/api/join" && request.method === "OPTIONS") {
-    if (!isLabClientOrigin(request)) return sendJson(response, 403, { error: "Q3 or Q5 UI origin required" });
+    if (!isQ3Origin(request)) return sendJson(response, 403, { error: "Q3 UI origin required" });
     return sendJoinJson(response, 204, {}, request.headers.origin);
   }
   if (url.pathname === "/api/join" && request.method === "POST") {
-    if (!isLabClientOrigin(request)) return sendJson(response, 403, { error: "Q3 or Q5 UI origin required" });
+    if (!isQ3Origin(request)) return sendJson(response, 403, { error: "Q3 UI origin required" });
     if (["idle", "passed", "failed"].includes(state.run.status)) {
       try {
         const body = await readJson(request);
@@ -305,11 +305,11 @@ async function handle(request, response) {
     }
   }
   if (url.pathname === "/api/human-event" && request.method === "OPTIONS") {
-    if (!isLabClientOrigin(request)) return sendJson(response, 403, { error: "Q3 or Q5 UI origin required" });
+    if (!isQ3Origin(request)) return sendJson(response, 403, { error: "Q3 UI origin required" });
     return sendJoinJson(response, 204, {}, request.headers.origin);
   }
   if (url.pathname === "/api/human-event" && request.method === "POST") {
-    if (!isLabClientOrigin(request)) return sendJson(response, 403, { error: "Q3 or Q5 UI origin required" });
+    if (!isQ3Origin(request)) return sendJson(response, 403, { error: "Q3 UI origin required" });
     if (state.run.status !== "running") return sendJoinJson(response, 409, { error: "No active human test" }, request.headers.origin);
     try {
       const body = await readJson(request);
@@ -328,7 +328,7 @@ async function handle(request, response) {
       return sendJoinJson(response, 400, { error: error instanceof Error ? error.message : String(error) }, request.headers.origin);
     }
   }
-  if (url.pathname === "/api/run" && request.method === "GET" && isLabClientOrigin(request)) {
+  if (url.pathname === "/api/run" && request.method === "GET" && isQ3Origin(request)) {
     return sendJoinJson(response, 200, state.run, request.headers.origin);
   }
   if (request.method !== "GET") return sendJson(response, 405, { error: "Method not allowed" });
@@ -376,9 +376,8 @@ async function selfCheck() {
   assert.equal(isRunName("../secret.chat.md"), false);
   assert.equal(isSameOrigin({ headers: { origin: `http://${HOST}:${PORT}` } }), true);
   assert.equal(isSameOrigin({ headers: { origin: "https://example.com" } }), false);
-  assert.equal(isLabClientOrigin({ headers: { origin: "http://localhost:5183" } }), true);
-  assert.equal(isLabClientOrigin({ headers: { origin: "http://localhost:5186" } }), true);
-  assert.equal(isLabClientOrigin({ headers: { origin: "https://example.com" } }), false);
+  assert.equal(isQ3Origin({ headers: { origin: "http://localhost:5183" } }), true);
+  assert.equal(isQ3Origin({ headers: { origin: "https://example.com" } }), false);
   assert.deepEqual(parseLine('[03:44:11] Mike answered "A useful question": A useful answer'), {
     time: "03:44:11",
     agent: "Mike",

@@ -18,7 +18,6 @@ import * as QuestionDetailAddModule from "./routes/QuestionDetailAdd";
 import * as ShareQuestionModule from "./routes/ShareQuestion";
 import ManageFriends from "./routes/ManageFriends";
 import Login from "./routes/Login";
-import { AgentLabJoin } from "./components/AgentLabJoin";
 
 type FrameworkRouteModule = {
   default: (props: { loaderData?: unknown }) => JSX.Element;
@@ -105,12 +104,7 @@ function RequireAuth() {
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location.pathname + location.search }} replace />;
   }
-  return (
-    <>
-      <AgentLabJoin />
-      <Outlet />
-    </>
-  );
+  return <Outlet />;
 }
 
 export default function Quest5TierEgAppRoutes() {

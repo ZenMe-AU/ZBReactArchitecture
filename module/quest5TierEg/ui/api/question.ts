@@ -13,7 +13,7 @@ export const getQuestionsByUser = async () => {
   try {
     await loadConfig();
     const apiDomain = getConfig("QUEST5TIEREG_DOMAIN");
-    const response = await jwtFetch(`${apiDomain}/questionQry/getQuestions/${profileId}`, {
+    const response = await jwtFetch(`${apiDomain}/questions`, {
       method: "GET",
     });
 
@@ -162,20 +162,6 @@ export const submitAnswer = async (
 
     // Parse the JSON response body
     const data = await response.json();
-    void getMyProfileId()
-      .then((profileId) =>
-        fetch("http://127.0.0.1:4178/api/human-event", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            profileId,
-            questionId: id,
-            title: questionText,
-            answer: answerPayload.option?.join(", ") || answerPayload.answerText,
-          }),
-        })
-      )
-      .catch(() => undefined);
     return data.return;
   } catch (err) {
     console.error("Error submitting answer:", err);
