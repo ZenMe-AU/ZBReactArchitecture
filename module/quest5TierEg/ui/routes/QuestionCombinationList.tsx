@@ -1,5 +1,5 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
@@ -13,8 +13,8 @@ import type { Question } from "../types/interfaces";
 import { logEvent, setOperationId } from "@zenmechat/shared-ui/monitor/telemetry";
 
 export async function clientLoader() {
-
   try {
+    const profileId = localStorage.getItem("profileId");
     const questions: Question[] = await getQuestionsByUser();
     return { questions, profileId };
   } catch (error) {
@@ -23,8 +23,8 @@ export async function clientLoader() {
   }
 }
 
-export default function QuestionCombinationList({ loaderData }: { loaderData: any }) {
-  const { questions } = loaderData;
+export default function QuestionCombinationList({ loaderData }: { loaderData: unknown }) {
+  const { questions, profileId } = loaderData;
   const handleOpenAnswer = (questionId: string) => {
     const correlationId = setOperationId();
     logEvent("btnAnswerDetailClick", {
