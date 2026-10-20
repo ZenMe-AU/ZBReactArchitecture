@@ -46,6 +46,7 @@ type HandlerResponse = {
  */
 export async function GetQuestionById(request: RequestWithQuestionId, context: unknown): Promise<HandlerResponse> {
   const { id: questionId } = request.params;
-  const questionnaire: QuestionRecord | null = await getRepository().getById(questionId);
+  let questionnaire: QuestionRecord | null = await getRepository().getById(questionId);
+  questionnaire.optionList = questionnaire.option;
   return { return: { detail: questionnaire } };
 }

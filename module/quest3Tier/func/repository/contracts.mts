@@ -30,6 +30,7 @@ export interface QuestionRecord {
   title: string | null;
   questionText: string;
   option: string[] | null;
+  optionList?: string[] | null;
   profileId: string;
   createdAt?: Date | string;
 }
