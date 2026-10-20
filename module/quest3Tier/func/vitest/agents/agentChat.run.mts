@@ -35,7 +35,6 @@ import { assertLlmReady, llm } from "./agentChat.llm.mjs";
 import { startLiveChat } from "./agentChat.live.mjs";
 import { factMemory } from "./agentChat.memory.mjs";
 import { judge, report } from "./agentChat.report.mjs";
-import { resetExperiment } from "./agentChat.reset.mjs";
 import { HUMAN_NAME, loadAgent, LOCK_PATH, pickParticipants, RUNS_DIR, takeLock, writeMemory } from "./agentChat.setup.mjs";
 
 const MAX_STEPS = Number(process.env.AGENT_STEPS ?? 30);
@@ -78,7 +77,7 @@ async function snapshot(agent) {
   try {
     rawFriends = await list(agent, "/profile/me/friends");
   } catch (err: unknown) {
-    console.error(`[ERROR] ${agent.name} failed to fetch friends: ${err.message}`);
+    console.error(`[ERROR] ${agent.name} failed to fetch friends: ${err instanceof Error ? err.message : String(err)}`);
   }
   const profiles = participantFriends(rawFriends, agent.shareableIds).map((profile) => ({ ...profile, name: agent.labelsById?.[profile.id] ?? "unknown" }));
   const names = Object.fromEntries(profiles.map((p) => [p.id, p.name]));
@@ -87,7 +86,7 @@ async function snapshot(agent) {
   try {
     questions = await list(agent, "/questions");
   } catch (err: unknown) {
-    console.error(`[ERROR] ${agent.name} failed to fetch questions: ${err.message}`);
+    console.error(`[ERROR] ${agent.name} failed to fetch questions: ${err instanceof Error ? err.message : String(err)}`);
   }
 
   for (const q of questions) {
@@ -96,7 +95,7 @@ async function snapshot(agent) {
     try {
       q.answers = await list(agent, `/question/${q.id}/answers`);
     } catch (err: unknown) {
-      console.error(`[ERROR] ${agent.name} failed to fetch answers for [q:${q.id}]: ${err.message}`);
+      console.error(`[ERROR] ${agent.name} failed to fetch answers for [q:${q.id}]: ${err instanceof Error ? err.message : String(err)}`);
       q.answers = [];
     }
     for (const ans of q.answers) {
@@ -335,8 +334,6 @@ export async function runAgentChat() {
       if (me.status >= 400) throw new Error(`Could not register ${actor.name} (${me.status})`);
       actor.profileId = me.response.return.id;
     }
-    // A real human profile can have normal Q3 data. Only Lab-owned agent data is reset.
-    const removed = await resetExperiment(agents.map((agent) => agent.profileId));
     await Promise.all(
       actors.flatMap((actor, index) =>
         actors.slice(index + 1).map(async (friend) => {
@@ -361,7 +358,7 @@ export async function runAgentChat() {
       await appendFile(chatPath, `${text}\n\n`);
     };
     await say(`Run starts. Online: ${participants.join(", ")}.`);
-    await say(`Fresh test. Cleared ${removed.records} Q3 records and ${removed.disclosures} name disclosures.`);
+    await say("Continuing with retained Q3 data and saved memory; per-run session state starts fresh.");
     await say(`Participant friend network ready: ${actors.map((actor) => actor.name).join(", ")}.`);
 
     const participantIds = new Set(Object.keys(realNamesById));
@@ -370,7 +367,7 @@ export async function runAgentChat() {
       try {
         rawContacts = await list(agent, "/profile/me/friends");
       } catch (err: unknown) {
-        console.error(`[ERROR] ${agent.name} failed to reach friends list: ${err.message}`);
+        console.error(`[ERROR] ${agent.name} failed to reach friends list: ${err instanceof Error ? err.message : String(err)}`);
         throw err;
       }
       const contacts = participantFriends(rawContacts, participantIds).filter((contact) => contact.id !== agent.profileId);
@@ -405,8 +402,8 @@ export async function runAgentChat() {
       try {
         visible = await list(agent, "/questions");
       } catch (err: unknown) {
-        console.error(`[ERROR] Failed to list questions for ${agent.name}: ${err.message}`);
-        await say(`[ERROR] Failed to list questions for ${agent.name}: ${err.message}`);
+        console.error(`[ERROR] Failed to list questions for ${agent.name}: ${err instanceof Error ? err.message : String(err)}`);
+        await say(`[ERROR] Failed to list questions for ${agent.name}: ${err instanceof Error ? err.message : String(err)}`);
       }
       const current = visible;
       if ("steps" in agent) agent.seenOthers = current.filter((question) => !question.isOwner).length;
@@ -421,8 +418,8 @@ export async function runAgentChat() {
       try {
         q.answers = await list(reader, `/question/${q.id}/answers`);
       } catch (err: unknown) {
-        console.error(`[ERROR] Failed to list answers for [q:${q.id}] (${reader.name}): ${err.message}`);
-        await say(`[ERROR] Failed to list answers for [q:${q.id}] (${reader.name}): ${err.message}`);
+        console.error(`[ERROR] Failed to list answers for [q:${q.id}] (${reader.name}): ${err instanceof Error ? err.message : String(err)}`);
+        await say(`[ERROR] Failed to list answers for [q:${q.id}] (${reader.name}): ${err instanceof Error ? err.message : String(err)}`);
         q.answers = [];
       }
     }
