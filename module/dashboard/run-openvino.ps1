@@ -10,8 +10,7 @@ $ErrorActionPreference = 'Stop'
 
 # Load LLM settings from local.settings.json as the single source of truth,
 # falling back to environment variables or defaults when unspecified.
-$funcDir = Resolve-Path (Join-Path $PSScriptRoot '../..')
-$localSettingsPath = Join-Path $funcDir 'local.settings.json'
+$localSettingsPath = Join-Path $PSScriptRoot 'local.settings.json'
 $settingsValues = @{}
 if (Test-Path $localSettingsPath) {
     try {
@@ -76,7 +75,7 @@ if (-not (Test-Path $ModelDir)) {
     throw "Model directory '$ModelDir' does not exist. Please check the path."
 }
 
-Push-Location (Join-Path $PSScriptRoot '../../../../..')
+Push-Location (Join-Path $PSScriptRoot '../..')
 try {
     $savedEnvironment = @{}
     foreach ($name in @('LLM_PROVIDER', 'LLM_MODEL', 'OPENVINO_MODEL_DIR', 'OPENVINO_DEVICE', 'AGENT_RUN')) {
@@ -94,7 +93,7 @@ try {
     if ($LASTEXITCODE -ne 0) {
         throw "Q3 build failed with exit code $LASTEXITCODE."
     }
-    & pnpm exec tsc --project module/quest3Tier/func/vitest/agents/tsconfig.json
+    & pnpm --dir module/dashboard run build
     if ($LASTEXITCODE -ne 0) {
         throw "Viewer build failed with exit code $LASTEXITCODE."
     }
@@ -115,7 +114,7 @@ try {
 
     Write-Host "Start the test from the viewer UI at $viewerUrl. The Q3 API must already be running."
     Write-Host 'Viewer and test output will appear here. Press Ctrl+C to stop the viewer.'
-    & node module/quest3Tier/func/dist/vitest/agents/viewer/server.mjs
+    & node module/dashboard/dist/viewer/server.mjs
     if ($LASTEXITCODE -ne 0) {
         throw "Viewer exited with code $LASTEXITCODE."
     }

@@ -18,7 +18,9 @@ import {
 export * from "./llmProvider/index.mjs";
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
-const localSettingsPath = path.resolve(currentDir, "..", "..", "local.settings.json");
+const localSettingsPath = existsSync(path.resolve(currentDir, "local.settings.json"))
+  ? path.resolve(currentDir, "local.settings.json")
+  : path.resolve(currentDir, "..", "local.settings.json");
 
 function ensureSettingsLoaded() {
   if (!process.env.LLM_PROVIDER && existsSync(localSettingsPath)) {

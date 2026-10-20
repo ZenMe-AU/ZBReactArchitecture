@@ -10,8 +10,7 @@ $ErrorActionPreference = 'Stop'
 
 # Load LLM settings from local.settings.json as the single source of truth,
 # falling back to environment variables or defaults when unspecified.
-$funcDir = Resolve-Path (Join-Path $PSScriptRoot '../..')
-$localSettingsPath = Join-Path $funcDir 'local.settings.json'
+$localSettingsPath = Join-Path $PSScriptRoot 'local.settings.json'
 $settingsValues = @{}
 if (Test-Path $localSettingsPath) {
     try {
@@ -96,7 +95,7 @@ $savedEnvironment = @{}
 foreach ($name in @('LLM_BASE_URL', 'LLM_API_KEY', 'AGENT_MODEL', 'JUDGE_MODEL', 'AGENT_RUN')) {
     $savedEnvironment[$name] = [Environment]::GetEnvironmentVariable($name, 'Process')
 }
-Push-Location (Join-Path $PSScriptRoot '../../../../..')
+Push-Location (Join-Path $PSScriptRoot '../..')
 try {
     $env:LLM_BASE_URL = "$baseUrl/v1"
     $env:AGENT_MODEL = $Model
@@ -108,7 +107,7 @@ try {
     if ($LASTEXITCODE -ne 0) {
         throw "Q3 build failed with exit code $LASTEXITCODE."
     }
-    & pnpm exec tsc --project module/quest3Tier/func/vitest/agents/tsconfig.json
+    & pnpm --dir module/dashboard run build
     if ($LASTEXITCODE -ne 0) {
         throw "Viewer build failed with exit code $LASTEXITCODE."
     }
@@ -127,7 +126,7 @@ try {
     }
     Write-Host "Start the test from the viewer UI at $viewerUrl. The Q3 API must already be running."
     Write-Host 'Viewer and test output will appear here. Press Ctrl+C to stop the viewer.'
-    & node module/quest3Tier/func/dist/vitest/agents/viewer/server.mjs
+    & node module/dashboard/dist/viewer/server.mjs
     if ($LASTEXITCODE -ne 0) {
         throw "Viewer exited with code $LASTEXITCODE."
     }

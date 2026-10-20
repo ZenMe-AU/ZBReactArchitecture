@@ -16,12 +16,12 @@ import { sendLiveChat } from "../agentChat.live.mjs";
 import { answerResults } from "./results-chat.mjs";
 
 const VIEWER_DIR = path.dirname(fileURLToPath(import.meta.url));
-const viewerParent = path.resolve(VIEWER_DIR, "../../..");
-const FUNC_DIR = path.basename(viewerParent) === "dist" ? path.resolve(VIEWER_DIR, "../../../..") : viewerParent;
-const SOURCE_VIEWER_DIR = path.join(FUNC_DIR, "vitest/agents/viewer");
-const RUNS_DIR = path.join(FUNC_DIR, "vitest/agents/runs");
-const REPO_DIR = path.resolve(FUNC_DIR, "../../..");
-const TEST_FILE = "module/quest3Tier/func/vitest/agents/agentChat.test.mts";
+const viewerParent = path.resolve(VIEWER_DIR, "..");
+const DASHBOARD_DIR = path.basename(viewerParent) === "dist" ? path.resolve(VIEWER_DIR, "../..") : viewerParent;
+const SOURCE_VIEWER_DIR = path.join(DASHBOARD_DIR, "viewer");
+const RUNS_DIR = path.join(DASHBOARD_DIR, "runs");
+const REPO_DIR = path.resolve(DASHBOARD_DIR, "../..");
+const RUN_SCRIPT = path.join(DASHBOARD_DIR, "dist/agentChat.run.mjs");
 const AZURITE_BIN = path.join(REPO_DIR, "node_modules/azurite/dist/src/azurite.js");
 const HOST = "127.0.0.1";
 const PORT = Number(process.env.AGENT_VIEW_PORT ?? 4178);
@@ -67,7 +67,8 @@ async function rememberHuman(profileId: string, name: string) {
 }
 
 async function localSettings() {
-  return JSON.parse(await readFile(path.join(FUNC_DIR, "local.settings.json"), "utf8")).Values ?? {};
+  const settingsPath = path.join(DASHBOARD_DIR, "local.settings.json");
+  return JSON.parse(await readFile(settingsPath, "utf8").catch(() => "{}")).Values ?? {};
 }
 
 const spawnPnpm = (args: string[], cwd: string, env = CHILD_ENV) =>
@@ -93,7 +94,10 @@ async function getTableRepository() {
   if (!tableRepositoryState.value) {
     tableRepositoryState.value = (async () => {
       const settings = await localSettings();
-      const { initRepository } = await import("../../../repository/table/repository.mjs");
+      const repoPath = path.resolve(REPO_DIR, "module/quest3Tier/func/dist/repository/table/repository.mjs");
+      const { initRepository } = (await import(repoPath)) as {
+        initRepository: (settings: unknown) => { listFriends: (profileId: string) => Promise<unknown[]> };
+      };
       return initRepository({
         AzureWebJobsStorage: process.env.AzureWebJobsStorage ?? settings.AzureWebJobsStorage,
         AzureWebJobsStorage__tableServiceUri: process.env.AzureWebJobsStorage__tableServiceUri ?? settings.AzureWebJobsStorage__tableServiceUri,
@@ -233,11 +237,15 @@ async function startRun(humanProfileId?: string, humanName = "Human") {
   if (resultsChatPending) throw new Error("Wait for the results assistant to finish before starting another run.");
   const humanMode = Boolean(humanProfileId);
   state.run = { status: "starting", humanMode, ...(humanProfileId && { humanProfileId, humanName }), startedAt: new Date().toISOString() };
-  console.log(`Starting agent test${humanMode ? " with a Q3 human participant" : ""}...`);
+  console.log(`Starting agent run${humanMode ? " with a Q3 human participant" : ""}...`);
   await ensureServices();
   const childEnv = { ...CHILD_ENV, ...(await localSettings()), AGENT_RUN: "1" };
   if (humanMode) Object.assign(childEnv, { HUMAN_RUN: "1", HUMAN_PROFILE_ID: humanProfileId });
-  const child = spawnPnpm(["vitest", "run", TEST_FILE, "--disableConsoleIntercept"], REPO_DIR, childEnv);
+  const child = spawn(process.execPath, [RUN_SCRIPT], {
+    cwd: DASHBOARD_DIR,
+    env: childEnv,
+    stdio: ["ignore", "pipe", "pipe"],
+  });
   state.runProcess = child;
   state.run = { ...state.run, status: "running" };
   child.stdout.pipe(process.stdout);
@@ -246,8 +254,8 @@ async function startRun(humanProfileId?: string, humanName = "Human") {
     if (state.runProcess !== child) return;
     state.runProcess = undefined;
     state.run = { ...state.run, status, finishedAt: new Date().toISOString(), ...detail };
-    if (status === "failed") console.error("Agent test failed:", detail.error ?? `exit code ${detail.exitCode}`);
-    else console.log("Agent test passed.");
+    if (status === "failed") console.error("Agent run failed:", detail.error ?? `exit code ${detail.exitCode}`);
+    else console.log("Agent run completed.");
   };
   child.once("error", (error) => finish("failed", { error: error.message }));
   child.once("exit", (code) => finish(code === 0 ? "passed" : "failed", { exitCode: code }));

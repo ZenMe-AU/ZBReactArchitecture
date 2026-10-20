@@ -6,10 +6,11 @@
 import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import * as authDev from "../../service/authDev.mjs";
+import * as authDev from "./service/authDev.mjs";
 import { NAMES } from "./agentChat.config.mjs";
 
-export const AGENTS_DIR = path.dirname(fileURLToPath(import.meta.url));
+const setupDir = path.dirname(fileURLToPath(import.meta.url));
+export const AGENTS_DIR = path.basename(setupDir) === "dist" ? path.resolve(setupDir, "..") : setupDir;
 export const RUNS_DIR = path.join(AGENTS_DIR, "runs");
 export const LOCK_PATH = path.join(RUNS_DIR, ".lock");
 export const HUMAN_NAME = process.env.HUMAN_NAME ?? "Human";

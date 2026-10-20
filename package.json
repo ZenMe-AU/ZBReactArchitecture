@@ -13,7 +13,8 @@
     "module/quest5Tier/func",
     "module/quest5TierEg/func",
     "module/profile/func",
-    "module/coordinate/func"
+    "module/coordinate/func",
+    "module/dashboard"
   ],
   "scripts": {
     "prepare": "husky",

@@ -20,6 +20,7 @@ import { appendFile, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { setTimeout as sleep } from "node:timers/promises";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   invalidAction,
   learningCoverage,
@@ -446,4 +447,17 @@ export async function runAgentChat() {
       await rm(LOCK_PATH, { force: true });
     }
   }
+}
+
+const isMain =
+  Boolean(process.argv[1]) &&
+  (fileURLToPath(import.meta.url) === path.resolve(process.argv[1]) ||
+    process.argv[1].endsWith("agentChat.run.mjs") ||
+    process.argv[1].endsWith("agentChat.run.mts"));
+
+if (isMain) {
+  runAgentChat().catch((error) => {
+    console.error("Agent run failed:", error);
+    process.exit(1);
+  });
 }

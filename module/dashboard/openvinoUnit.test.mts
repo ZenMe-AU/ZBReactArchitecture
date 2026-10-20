@@ -4,7 +4,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { OpenvinoProvider } from "./agents/llmProvider/index.mjs";
+import { OpenvinoProvider } from "./llmProvider/index.mjs";
 
 describe("OpenVINO unit tests", () => {
   it("loads the selected model and generates structured JSON through its matching pipeline", async () => {
