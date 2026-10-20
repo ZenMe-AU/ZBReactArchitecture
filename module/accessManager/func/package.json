@@ -1,21 +1,24 @@
 {
-  "name": "accessManager",
+  "name": "quest3Tier",
   "version": "1.0.0",
   "type": "commonjs",
   "description": "",
-  "main": "index.cjs",
+  "main": "dist/index.cjs",
   "scripts": {
-    "build": "tsc",
-    "setup:local": "node deploy/localDev/localSetting.mjs",
-    "prestart": "pnpm run build",
     "start": "func start",
-    "deploy": "pnpm deploy --filter accessManager --prod out",
-    "test:vitest": "cross-env vitest run vitest/testQuestion.test.mjs",
-    "test:vitest:debug": "cross-env NODE_OPTIONS=--inspect-brk=9230 vitest run vitest/testQuestion.test.mjs --pool=forks --no-file-parallelism",
-    "test:profile": "vitest --root ../../.. run module/accessManager/func/vitest/profile.test.mjs --pool=forks --no-file-parallelism",
-    "test:profile-db": "vitest --root ../../.. run module/accessManager/func/vitest/profile.test.mjs module/accessManager/func/vitest/dbTest.test.mjs --pool=forks --no-file-parallelism"
+    "deploy": "pnpm deploy --filter quest3Tier --prod out",
+    "build": "tsc --project tsconfig.json",
+    "build:deploy-db": "tsc --project tsconfig.deploy.json",
+    "dbmigrate:local": "pnpm run build:deploy-db && node dist/migrate/deploy/db/updateDbSchemaLocal.mjs",
+    "watch": "tsc --project tsconfig.json --watch",
+    "prestart": "pnpm run build",
+    "test:vitest": "cross-env vitest run vitest/testQuestion.test.mts",
+    "test:vitest:debug": "cross-env NODE_OPTIONS=--inspect-brk=9230 vitest run vitest/testQuestion.test.mts --pool=forks --no-file-parallelism",
+    "test:profile": "vitest --root ../../.. run module/quest3Tier/func/vitest/profile.test.mts --pool=forks --no-file-parallelism",
+    "test:profile-db": "vitest --root ../../.. run module/quest3Tier/func/vitest/profile.test.mts module/quest3Tier/func/vitest/dbTest.test.mts --pool=forks --no-file-parallelism"
   },
   "dependencies": {
+    "@azure/data-tables": "^13.3.2",
     "@azure/functions": "^4.0.0",
     "@azure/identity": "^4.4.1",
     "@azure/monitor-opentelemetry-exporter": "^1.0.0-beta.31",
@@ -37,15 +40,14 @@
     "pg": "^8.12.0",
     "pg-hstore": "^2.3.4",
     "postgrejs": "^2.15.4",
-    "sequelize": "^6.37.3",
-    "sequelize-cli": "^6.6.2",
+    "@sequelize/core": "^7.0.0-alpha.47",
+    "@sequelize/postgres": "^7.0.0-alpha.47",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-dist": "^5.17.14",
     "swagger-ui-express": "^5.0.1",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
-    "@types/node": "^24.0.0",
     "azure-functions-core-tools": "^4.x",
     "cross-env": "^7.0.3",
     "dotenv": "^16.4.5",
@@ -53,7 +55,6 @@
     "env-cmd": "^10.1.0",
     "jest": "^29.7.0",
     "minimist": "^1.2.8",
-    "typescript": "^7.0.2",
     "umzug": "^3.8.2",
     "vitest": "^4.1.9"
   }

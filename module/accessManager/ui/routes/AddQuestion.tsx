@@ -26,7 +26,7 @@ import { logEvent, setOperationId } from "@zenmechat/shared-ui/monitor/telemetry
 //   try {
 //     const id = await createQuestion(title, questionText, options.length === 0 ? null : options);
 //     // return { id };
-//     navigate(`/accessManager/${id}`, { replace: true });
+//     navigate(`/quest3Tier/${id}`, { replace: true });
 //   } catch (error) {
 //     console.error("Error creating question:", error);
 //     throw error;
@@ -80,7 +80,7 @@ function AddQuestion() {
           parentId: "QuestionForm",
           questionId: id,
         });
-        navigate(`/accessManager/${id}`, { replace: true }); // Redirect to the question detail page after successful submission
+        navigate(`/quest3Tier/${id}`, { replace: true }); // Redirect to the question detail page after successful submission
       }
     }
   };
@@ -125,7 +125,13 @@ function AddQuestion() {
             ))}
           </List>
           <Box display="flex" alignItems="center" gap={2}>
-            <TextField label="New Option" value={newOption} onChange={(e) => setNewOption(e.target.value)} placeholder="Enter an option" sx={{ flexGrow: 1 }} />
+            <TextField
+              label="New Option"
+              value={newOption}
+              onChange={(e) => setNewOption(e.target.value)}
+              placeholder="Enter an option"
+              sx={{ flexGrow: 1 }}
+            />
             <Button variant="contained" onClick={handleAddOption}>
               Add
             </Button>

@@ -36,7 +36,7 @@ export async function clientLoader({ params }: { params: { id: string } }) {
 
   const question = await getQuestionById(id);
   if (question.profileId === localStorage.getItem("profileId")) {
-    return redirect(`/accessManager/${id}`);
+    return redirect(`/quest3Tier/${id}`);
   }
 
   return { question };
@@ -60,7 +60,7 @@ function QuestionDetailAdd({ loaderData }: { loaderData: { question: Question } 
   //       setQuestionData(data);
   //       setEditedData(data); // Initialize editing data
   //       if (data.profileId == localStorage.getItem("profileId")) {
-  //         navigate(`/accessManager/${id}`, { replace: true });
+  //         navigate(`/quest3Tier/${id}`, { replace: true });
   //       }
   //     } catch (error) {
   //       console.error("Error fetching question:", error);
@@ -87,7 +87,7 @@ function QuestionDetailAdd({ loaderData }: { loaderData: { question: Question } 
   // Handle changes to a specific field
   const handleFieldEdit = (field: string, value: string) => {
     if (editedData) {
-      setEditedData((prev) => ({ ...prev, [field]: value }) as Question);
+      setEditedData((prev) => ({ ...prev, [field]: value } as Question));
       setIsEditing(true);
     }
   };
@@ -100,7 +100,7 @@ function QuestionDetailAdd({ loaderData }: { loaderData: { question: Question } 
   // Update options list
   const handleOptionsEdit = (options: string[]) => {
     if (editedData) {
-      setEditedData((prev) => ({ ...prev, option: options }) as Question);
+      setEditedData((prev) => ({ ...prev, option: options } as Question));
       setIsEditing(true);
     }
   };

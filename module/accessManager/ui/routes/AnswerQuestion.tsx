@@ -213,7 +213,7 @@ function AnswerQuestion() {
           answerText: answerPayload.answerText,
         };
       });
-      // navigate(`/accessManager/${id}`);
+      // navigate(`/quest3Tier/${id}`);
     } catch (err) {
       console.error("Error submitting answer:", err);
       alert("Failed to submit the answer.");
@@ -292,7 +292,7 @@ function AnswerQuestion() {
               variant="outlined"
               color="secondary"
               component={Link}
-              to={`/accessManager/${question.id}/followUp`}
+              to={`/quest3Tier/${question.id}/followUp`}
               onClick={() => handleFollowUp(question.id)}
             >
               Follow Up

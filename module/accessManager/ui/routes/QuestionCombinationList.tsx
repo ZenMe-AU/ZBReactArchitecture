@@ -74,7 +74,7 @@ export default function QuestionCombinationList({ loaderData }: { loaderData: an
                 {resolvedQuestions.map((q: Question, index: number) => (
                   <div key={q.id}>
                     <ListItem disablePadding>
-                      <ListItemButton component={Link} to={`/accessManager/${q.id}/answer`} onClick={() => handleOpenAnswer(q.id)}>
+                      <ListItemButton component={Link} to={`/quest3Tier/${q.id}/answer`} onClick={() => handleOpenAnswer(q.id)}>
                         <ListItemText primary={q.title} />
                         <Box display="flex" gap={1} ml={2}>
                           <Button
@@ -82,7 +82,7 @@ export default function QuestionCombinationList({ loaderData }: { loaderData: an
                             size="small"
                             startIcon={<EditIcon />}
                             component={Link}
-                            to={`/accessManager/${q.id}` + (q.profileId !== profileId ? "/add" : "")}
+                            to={`/quest3Tier/${q.id}` + (q.profileId !== profileId ? "/add" : "")}
                             onClick={() => handleEditQuestion(q.id, q.profileId !== profileId)}
                           >
                             Edit
@@ -92,7 +92,7 @@ export default function QuestionCombinationList({ loaderData }: { loaderData: an
                             size="small"
                             startIcon={<ShareIcon />}
                             component={Link}
-                            to={`/accessManager/${q.id}/share`}
+                            to={`/quest3Tier/${q.id}/share`}
                             onClick={() => handleShareQuestion(q.id)}
                           >
                             Share
@@ -109,7 +109,7 @@ export default function QuestionCombinationList({ loaderData }: { loaderData: an
         </Await>
       </Suspense>
       <Box mt={4} display="flex" justifyContent="space-between">
-        <Button variant="contained" color="primary" component={Link} to="/accessManager/add" onClick={() => handleAddQuestion}>
+        <Button variant="contained" color="primary" component={Link} to="/quest3Tier/add" onClick={() => handleAddQuestion}>
           + Add Question
         </Button>
       </Box>

@@ -44,7 +44,7 @@ function QuestionDetail() {
         setQuestionData(data);
         setEditedData(data); // Initialize editing data
         if (data.profileId !== localStorage.getItem("profileId")) {
-          navigate(`/accessManager/${id}/add`, { replace: true });
+          navigate(`/quest3Tier/${id}/add`, { replace: true });
         }
       } catch (error) {
         console.error("Error fetching question:", error);
@@ -70,7 +70,7 @@ function QuestionDetail() {
 
   // Handle changes to a specific field
   const handleFieldEdit = (field: keyof Question, value: any) => {
-    setEditedData((prev) => ({ ...prev, [field]: value }) as Question);
+    setEditedData((prev) => ({ ...prev, [field]: value } as Question));
     setIsEditing(true);
   };
 
