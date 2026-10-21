@@ -23,6 +23,12 @@ export interface LlmRequest<TInput = unknown> {
   schema: LlmJsonSchema;
   sandbox?: string;
   options?: LlmCompletionOptions;
+  onMetrics?: (metrics: LlmCompletionMetrics) => void;
+}
+
+export interface LlmCompletionMetrics {
+  outputTokens: number;
+  elapsedMs: number;
 }
 
 export interface LlmProviderConfig {

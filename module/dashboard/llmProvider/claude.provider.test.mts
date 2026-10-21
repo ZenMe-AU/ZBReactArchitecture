@@ -3,6 +3,8 @@
  * @license SPDX-License-Identifier: MIT
  */
 
+// Run from parent folder: pnpm exec vitest run llmProvider/claude.provider.test.mts
+
 import { describe, expect, it, vi } from "vitest";
 import { type ILlmProvider, type LlmRequest, ClaudeProvider } from "./index.mjs";
 
@@ -109,25 +111,10 @@ describe("ClaudeProvider", () => {
   });
 
   describe("unmocked backend", () => {
-    it("asserts ready and generates JSON via unmocked Claude CLI backend", async () => {
+    it("quick integration and performance", async () => {
+      const { providerSettings, testProviderSmoke } = await import("./providerSmoke.mjs");
       const provider: ILlmProvider = new ClaudeProvider();
-      await provider.assertReady();
-
-      const request: LlmRequest = {
-        systemPrompt: "Return a JSON object conforming strictly to the schema.",
-        input: { ping: "pong" },
-        model: "",
-        schema: {
-          type: "object",
-          properties: { ok: { type: "boolean" } },
-          required: ["ok"],
-        },
-        options: { effort: "low", thinking: false },
-      };
-
-      const result = await provider.completeJson<{ ok: boolean }>(request);
-      expect(result).toHaveProperty("ok");
-      expect(typeof result.ok).toBe("boolean");
-    }, 120_000);
+      await testProviderSmoke(provider, providerSettings().CLAUDE_MODEL);
+    }, 180_000);
   });
 });

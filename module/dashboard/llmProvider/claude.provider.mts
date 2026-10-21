@@ -115,6 +115,7 @@ export class ClaudeProvider implements ILlmProvider {
   }
 
   async completeJson<TOutput = unknown>(request: LlmRequest): Promise<TOutput> {
+    const startedAt = performance.now();
     const effort = (request.options?.effort as string | undefined) ?? "low";
     const thinking = Boolean(request.options?.thinking);
 
@@ -147,6 +148,10 @@ export class ClaudeProvider implements ILlmProvider {
     const out = JSON.parse(String(stdout));
     if (out.is_error) throw new Error(out.result || "Claude CLI error");
     if (!out.structured_output) throw new Error(`no structured output: ${out.subtype} ${clip(out.result, 200)}`);
+    const outputTokens = out.usage?.output_tokens;
+    if (typeof outputTokens === "number") {
+      request.onMetrics?.({ outputTokens, elapsedMs: performance.now() - startedAt });
+    }
 
     return out.structured_output as TOutput;
   }

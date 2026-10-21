@@ -3,10 +3,12 @@
  * @license SPDX-License-Identifier: MIT
  */
 
+// Run from parent folder: pnpm exec vitest run llmProvider/ollama.provider.test.mts
+
 import { beforeAll, describe, expect, it, vi } from "vitest";
 import { type ILlmProvider, type LlmRequest, OpenaiCompatibleProvider } from "./index.mjs";
 
-describe("OpenaiCompatibleProvider", () => {
+describe("Ollama provider", () => {
   describe("mocked backend", () => {
     it("mock - asserts unready when baseUrl is missing and ready when provided", async () => {
       const unreadyProvider: ILlmProvider = new OpenaiCompatibleProvider("ollama", {
@@ -41,6 +43,7 @@ describe("OpenaiCompatibleProvider", () => {
                 },
               },
             ],
+            usage: { completion_tokens: 8 },
           }),
         };
       }) as unknown as typeof fetch;
@@ -61,6 +64,8 @@ describe("OpenaiCompatibleProvider", () => {
           required: ["answer", "count"],
         },
       };
+      const onMetrics = vi.fn();
+      request.onMetrics = onMetrics;
 
       const result = await provider.completeJson<{
         answer: string;
@@ -71,6 +76,7 @@ describe("OpenaiCompatibleProvider", () => {
       expect(capturedOptions?.method).toBe("POST");
       expect((capturedOptions?.headers as Record<string, string>)?.authorization).toBe("Bearer test-token");
       expect(result).toEqual({ answer: "mocked success", count: 42 });
+      expect(onMetrics).toHaveBeenCalledWith(expect.objectContaining({ outputTokens: 8 }));
     });
 
     it("mock - throws error when upstream returns non-ok status", async () => {
@@ -128,53 +134,14 @@ describe("OpenaiCompatibleProvider", () => {
   });
 
   describe("unmocked backend", () => {
-    let ollamaLive = false;
-    let availableModel = "qwen2.5:3b";
-
-    beforeAll(async () => {
-      try {
-        const res = await fetch("http://localhost:11434/api/tags", {
-          signal: AbortSignal.timeout(2000),
-        });
-        if (res.ok) {
-          const data = (await res.json().catch(() => null)) as {
-            models?: Array<{ name: string }>;
-          } | null;
-          if (data?.models?.length) {
-            ollamaLive = true;
-            availableModel = data.models[0].name;
-          }
-        }
-      } catch {
-        ollamaLive = false;
-      }
-    });
-
-    it("asserts ready and generates JSON via unmocked Ollama backend", async () => {
-      if (!ollamaLive) {
-        throw new Error("Unmocked Ollama test failed: Ollama is not running on http://localhost:11434. Start Ollama and pull a model.");
-      }
-
+    it("quick integration and performance", async () => {
+      const { providerSettings, testProviderSmoke } = await import("./providerSmoke.mjs");
+      const settings = providerSettings();
       const provider: ILlmProvider = new OpenaiCompatibleProvider("ollama", {
-        baseUrl: "http://localhost:11434/v1",
+        baseUrl: settings.OLLAMA_BASE_URL,
+        apiKey: "",
       });
-
-      await provider.assertReady();
-
-      const request: LlmRequest = {
-        systemPrompt: "Return a JSON object conforming strictly to the schema.",
-        input: { ping: "pong" },
-        model: availableModel,
-        schema: {
-          type: "object",
-          properties: { ok: { type: "boolean" } },
-          required: ["ok"],
-        },
-      };
-
-      const result = await provider.completeJson<{ ok: boolean }>(request);
-      expect(result).toHaveProperty("ok");
-      expect(typeof result.ok).toBe("boolean");
-    }, 60_000);
+      await testProviderSmoke(provider, settings.OLLAMA_MODEL);
+    }, 180_000);
   });
 });

@@ -3,9 +3,12 @@
  * @license SPDX-License-Identifier: MIT
  */
 
+// Run from parent folder: pnpm exec vitest run llmProvider/llmProvider.test.mts
+
 import { beforeAll, describe, expect, it } from "vitest";
 import { getLlmProvider, getProviderInstance, type ILlmProvider } from "../agentChat.llm.mjs";
 import { ClaudeProvider, OpenaiCompatibleProvider, OpenvinoProvider } from "./index.mjs";
+import { testProviderSmoke } from "./providerSmoke.mjs";
 
 describe.sequential("LLM provider integration", () => {
   describe("LLM provider from localsettings", () => {
@@ -69,14 +72,30 @@ describe.sequential("LLM provider integration", () => {
   describe("Claude provider", () => {
     registerProviderTests(() => new ClaudeProvider(), "haiku");
   });
+
+  describe("OVMS provider", () => {
+    registerProviderTests(
+      () => new OpenaiCompatibleProvider("ovms", { baseUrl: "http://127.0.0.1:8000/v3" }),
+      async () => {
+        const response = await fetch("http://127.0.0.1:8000/v3/models", { signal: AbortSignal.timeout(5000) });
+        if (!response.ok) throw new Error(`OVMS model-list request failed (${response.status}).`);
+        const body = (await response.json()) as { data?: Array<{ id?: string }> };
+        const model = body.data?.[0]?.id;
+        if (!model) throw new Error("OVMS returned no model IDs from /v3/models.");
+        return model;
+      }
+    );
+  });
 });
 
-function registerProviderTests(createProvider: () => ILlmProvider, model: string): void {
+function registerProviderTests(createProvider: () => ILlmProvider, configuredModel: string | (() => Promise<string>)): void {
   let provider: ILlmProvider;
+  let model: string;
 
   beforeAll(async () => {
     provider = createProvider();
     await provider.assertReady();
+    model = typeof configuredModel === "string" ? configuredModel : await configuredModel();
   }, 180_000);
 
   it("returns JSON object", async () => {
@@ -89,23 +108,7 @@ function registerProviderTests(createProvider: () => ILlmProvider, model: string
 }
 
 export async function testJsonObject(provider: ILlmProvider, model: string): Promise<void> {
-  const result = await provider.completeJson({
-    systemPrompt: "Return the input object unchanged as JSON. No reasoning or other text.",
-    input: { message: "hello", ok: true },
-    model,
-    schema: {
-      type: "object",
-      properties: {
-        message: { type: "string" },
-        ok: { type: "boolean" },
-      },
-      required: ["message", "ok"],
-      additionalProperties: false,
-    },
-    options: { maxTokens: 128 },
-  });
-
-  expect(result).toEqual({ message: "hello", ok: true });
+  await testProviderSmoke(provider, model);
 }
 
 export async function testBasicRequest(provider: ILlmProvider, model: string): Promise<void> {

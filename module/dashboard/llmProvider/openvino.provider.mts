@@ -115,6 +115,7 @@ export class OpenvinoProvider implements ILlmProvider {
   }
 
   private async generate<TOutput = unknown>(request: LlmRequest): Promise<TOutput> {
+    const startedAt = performance.now();
     const pipe = await this.getPipeline(request.model);
     const { StructuredOutputConfig } = await import("openvino-genai-node");
 
@@ -138,6 +139,11 @@ export class OpenvinoProvider implements ILlmProvider {
     }
 
     const res = await pipe.generate(prompt, genOptions);
+    const perfMetrics = (res as typeof res & { perfMetrics?: { getNumGeneratedTokens?: () => number } }).perfMetrics;
+    const outputTokens = perfMetrics?.getNumGeneratedTokens?.();
+    if (typeof outputTokens === "number") {
+      request.onMetrics?.({ outputTokens, elapsedMs: performance.now() - startedAt });
+    }
     const text = res.texts?.[0] ?? "";
     const firstBrace = text.indexOf("{");
     const lastBrace = text.lastIndexOf("}");

@@ -47,6 +47,7 @@ export class OpenaiCompatibleProvider implements ILlmProvider {
   }
 
   async completeJson<TOutput = unknown>(request: LlmRequest): Promise<TOutput> {
+    const startedAt = performance.now();
     const baseUrl = (this.baseUrl || "").replace(/\/$/, "");
     if (!baseUrl) {
       throw new Error(`LLM_PROVIDER='${this.name}' requires 'LLM_BASE_URL' to be configured.`);
@@ -89,11 +90,15 @@ export class OpenaiCompatibleProvider implements ILlmProvider {
       | {
           error?: unknown;
           choices?: Array<{ message?: { content?: string } }>;
+          usage?: { completion_tokens?: number };
         }
       | null
       | undefined;
     if (!res.ok) {
       throw new Error(`LLM API ${res.status}: ${clip(JSON.stringify(body?.error ?? body), 300)}`);
+    }
+    if (typeof body?.usage?.completion_tokens === "number") {
+      request.onMetrics?.({ outputTokens: body.usage.completion_tokens, elapsedMs: performance.now() - startedAt });
     }
 
     const text = body?.choices?.[0]?.message?.content ?? "";

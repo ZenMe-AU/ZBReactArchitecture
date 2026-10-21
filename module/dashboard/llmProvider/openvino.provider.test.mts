@@ -3,6 +3,8 @@
  * @license SPDX-License-Identifier: MIT
  */
 
+// Run from parent folder: pnpm exec vitest run llmProvider/openvino.provider.test.mts
+
 import os from "node:os";
 import path from "node:path";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
@@ -171,44 +173,16 @@ describe("OpenvinoProvider", () => {
   });
 
   describe("unmocked backend", () => {
-    it("loads the selected model, reuses its pipeline and generates exact JSON on successive calls", async () => {
-      const activeModelDir = process.env.LLM_MODEL ?? process.env.OPENVINO_MODEL_DIR;
-      if (!activeModelDir) {
-        throw new Error("Set LLM_MODEL or OPENVINO_MODEL_DIR to select the OpenVINO model under test.");
-      }
-
+    it("quick integration and performance", async () => {
+      const { providerSettings, testProviderSmoke } = await import("./providerSmoke.mjs");
+      const settings = providerSettings();
+      const activeModelDir = settings.OPENVINO_MODEL_DIR ?? settings.LLM_MODEL;
       const provider = new OpenvinoProvider({
-        device: process.env.OPENVINO_DEVICE ?? "GPU",
-        maxTokens: 64,
+        localModelDir: activeModelDir,
+        device: settings.OPENVINO_DEVICE ?? "GPU",
       });
-
-      expect(provider.localModelDir).toBe(activeModelDir);
-      await provider.assertReady();
-      const pipeline = await provider.getPipeline(activeModelDir);
-      expect(pipeline.generate).toBeTypeOf("function");
-      expect(await provider.getPipeline()).toBe(pipeline);
-
-      const request: LlmRequest = {
-        systemPrompt: "Return the input object unchanged as JSON. No reasoning or other text.",
-        input: { ok: true },
-        model: activeModelDir,
-        schema: {
-          type: "object",
-          properties: { ok: { type: "boolean" } },
-          required: ["ok"],
-          additionalProperties: false,
-        },
-      };
-
-      const instance: ILlmProvider = provider;
-      expect(await instance.completeJson(request)).toEqual({ ok: true });
-      expect(
-        await instance.completeJson({
-          ...request,
-          input: { ok: false },
-          model: "haiku",
-        })
-      ).toEqual({ ok: false });
+      await testProviderSmoke(provider, activeModelDir);
+      const pipeline = await provider.getPipeline();
       expect(await provider.getPipeline()).toBe(pipeline);
     }, 180_000);
   });
