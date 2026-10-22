@@ -56,6 +56,6 @@
     "vite-plugin-devtools-json": "^1.0.0"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": "^24.22.1"
   }
 }
