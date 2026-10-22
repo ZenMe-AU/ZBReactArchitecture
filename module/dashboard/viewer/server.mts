@@ -71,6 +71,17 @@ async function localSettings() {
   return JSON.parse(await readFile(settingsPath, "utf8").catch(() => "{}")).Values ?? {};
 }
 
+async function getAgentOids(): Promise<Record<string, string>> {
+  const { AGENTS } = await import("./viewer-data.mjs");
+  return Object.fromEntries(await Promise.all(AGENTS.map(async (name) => {
+    const text = await readFile(path.join(DASHBOARD_DIR, name, `${name}.agent.md`), "utf8");
+    const frontmatter = text.replace(/\r\n/g, "\n").match(/^---\n([\s\S]*?)\n---(?:\n|$)/)?.[1];
+    const oid = frontmatter?.match(/^oid:\s*(\S+)\s*$/m)?.[1];
+    if (!oid) throw new Error(`Missing oid in ${name}.agent.md`);
+    return [name, oid];
+  })));
+}
+
 const spawnPnpm = (args: string[], cwd: string, env = CHILD_ENV) =>
   spawn(process.platform === "win32" ? (process.env.ComSpec ?? "cmd.exe") : "pnpm", process.platform === "win32" ? ["/d", "/s", "/c", "pnpm", ...args] : args, {
     cwd,
@@ -383,6 +394,7 @@ async function handle(request, response) {
   if (url.pathname === "/favicon.ico") return send(response, 204, "image/x-icon", "");
   if (url.pathname === "/api/run") return sendJson(response, 200, state.run);
   if (url.pathname === "/api/runs") return sendJson(response, 200, { runs: await listRuns() });
+  if (url.pathname === "/api/agents") return sendJson(response, 200, { oids: await getAgentOids() });
   if (url.pathname === "/api/log") {
     const runs = await listRuns();
     const requested = url.searchParams.get("run") ?? runs[0]?.name;
