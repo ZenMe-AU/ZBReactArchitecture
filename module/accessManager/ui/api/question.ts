@@ -5,14 +5,14 @@
 
 import { jwtFetch } from "@zenmechat/shared-ui/api/jwtFetch";
 import { getConfig, loadConfig } from "@zenmechat/shared-ui/config/loadConfig"; //Config file: /ui/env.json
-// const apiDomain = getConfig("QUEST3TIER_DOMAIN");
+// const apiDomain = getConfig("ACCESSMANAGER_DOMAIN");
 
 // Fetch list of questions for a specific user
 export const getQuestionsByUser = async () => {
   const profileId = localStorage.getItem("profileId");
   try {
     await loadConfig();
-    const apiDomain = getConfig("QUEST3TIER_DOMAIN");
+    const apiDomain = getConfig("ACCESSMANAGER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/questions`, {
       method: "GET",
     });
@@ -35,7 +35,7 @@ export const getQuestionsByUser = async () => {
 export const createQuestion = async (title: string, questionText: string, option: string[] | null) => {
   try {
     await loadConfig();
-    const apiDomain = getConfig("QUEST3TIER_DOMAIN");
+    const apiDomain = getConfig("ACCESSMANAGER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/question`, {
       method: "POST",
       body: JSON.stringify({
@@ -61,7 +61,7 @@ export const createQuestion = async (title: string, questionText: string, option
 export const getQuestionById = async (id: string) => {
   try {
     await loadConfig();
-    const apiDomain = getConfig("QUEST3TIER_DOMAIN");
+    const apiDomain = getConfig("ACCESSMANAGER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/question/${id}`, {
       method: "GET",
     });
@@ -82,7 +82,7 @@ export const getQuestionById = async (id: string) => {
 export const updateQuestion = async (id: string, data: { title: string; questionText: string; option: string[] | null }) => {
   try {
     await loadConfig();
-    const apiDomain = getConfig("QUEST3TIER_DOMAIN");
+    const apiDomain = getConfig("ACCESSMANAGER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/question/${id}`, {
       method: "PUT",
       body: JSON.stringify({
@@ -115,7 +115,7 @@ export const shareQuestion = async (id: string, receiverIds: string[]) => {
     //   }),
     // });
     await loadConfig();
-    const apiDomain = getConfig("QUEST3TIER_DOMAIN");
+    const apiDomain = getConfig("ACCESSMANAGER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/shareQuestionCmd`, {
       method: "POST",
       body: JSON.stringify({
@@ -144,7 +144,7 @@ export const submitAnswer = async (
 ) => {
   try {
     await loadConfig();
-    const apiDomain = getConfig("QUEST3TIER_DOMAIN");
+    const apiDomain = getConfig("ACCESSMANAGER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/question/${id}/answer`, {
       method: "POST",
       body: JSON.stringify({
@@ -171,7 +171,7 @@ export const submitAnswer = async (
 export const getAnswerListByQuestionId = async (id: string) => {
   try {
     await loadConfig();
-    const apiDomain = getConfig("QUEST3TIER_DOMAIN");
+    const apiDomain = getConfig("ACCESSMANAGER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/question/${id}/answers`, {
       method: "GET",
     });
@@ -192,7 +192,7 @@ export const getSharedQuestionList = async () => {
   const profileId = localStorage.getItem("profileId");
   try {
     await loadConfig();
-    const apiDomain = getConfig("QUEST3TIER_DOMAIN");
+    const apiDomain = getConfig("ACCESSMANAGER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/sharedQuestions`, {
       method: "GET",
     });
@@ -219,7 +219,7 @@ export const updateQuestionPatch = async (id: string, patches: PatchOperation[])
   const profileId = localStorage.getItem("profileId");
   try {
     await loadConfig();
-    const apiDomain = getConfig("QUEST3TIER_DOMAIN");
+    const apiDomain = getConfig("ACCESSMANAGER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/question/${id}`, {
       method: "PATCH",
       headers: {
@@ -255,7 +255,7 @@ export const sendFollowUpQuestion = async (
 ) => {
   try {
     await loadConfig();
-    const apiDomain = getConfig("QUEST3TIER_DOMAIN");
+    const apiDomain = getConfig("ACCESSMANAGER_DOMAIN");
     const response = await jwtFetch(`${apiDomain}/sendFollowUpCmd`, {
       method: "POST",
       body: JSON.stringify({

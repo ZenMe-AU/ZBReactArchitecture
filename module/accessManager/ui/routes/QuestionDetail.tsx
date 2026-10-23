@@ -44,7 +44,7 @@ function QuestionDetail() {
         setQuestionData(data);
         setEditedData(data); // Initialize editing data
         if (data.profileId !== localStorage.getItem("profileId")) {
-          navigate(`/quest3Tier/${id}/add`, { replace: true });
+          navigate(`/accessManager/${id}/add`, { replace: true });
         }
       } catch (error) {
         console.error("Error fetching question:", error);

@@ -16,4 +16,4 @@ clients use `AzureWebJobsStorage__tableServiceUri` and the Function App's
 managed identity.
 
 Run `pnpm run build`, `pnpm run test:profile`, and `pnpm run test:table` from
-`module/quest3Tier/func` after changing a repository.
+`module/accessManager/func` after changing a repository.

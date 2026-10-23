@@ -6,13 +6,13 @@ import type { RouteConfig } from "@react-router/dev/routes";
 import { route, index, layout } from "@react-router/dev/routes";
 
 export const protectedRoutes = [
-  route("quest3Tier", "../../module/quest3Tier/ui/routes/QuestionCombinationList.tsx"),
-  route("/quest3Tier/:id", "../../module/quest3Tier/ui/routes/QuestionDetail.tsx"),
-  route("/quest3Tier/:id/add", "../../module/quest3Tier/ui/routes/QuestionDetailAdd.tsx"),
-  route("/quest3Tier/:id/answer", "../../module/quest3Tier/ui/routes/AnswerQuestion.tsx"),
-  route("/quest3Tier/:id/followUp", "../../module/quest3Tier/ui/routes/FollowUpQuestion.tsx"),
-  route("/quest3Tier/add", "../../module/quest3Tier/ui/routes/AddQuestion.tsx"),
-  route("/quest3Tier/:id/edit", "../../module/quest3Tier/ui/routes/EditQuestion.tsx"),
-  route("/quest3Tier/:id/share", "../../module/quest3Tier/ui/routes/ShareQuestion.tsx"),
+  route("accessManager", "../../module/accessManager/ui/routes/QuestionCombinationList.tsx"),
+  route("/accessManager/:id", "../../module/accessManager/ui/routes/QuestionDetail.tsx"),
+  route("/accessManager/:id/add", "../../module/accessManager/ui/routes/QuestionDetailAdd.tsx"),
+  route("/accessManager/:id/answer", "../../module/accessManager/ui/routes/AnswerQuestion.tsx"),
+  route("/accessManager/:id/followUp", "../../module/accessManager/ui/routes/FollowUpQuestion.tsx"),
+  route("/accessManager/add", "../../module/accessManager/ui/routes/AddQuestion.tsx"),
+  route("/accessManager/:id/edit", "../../module/accessManager/ui/routes/EditQuestion.tsx"),
+  route("/accessManager/:id/share", "../../module/accessManager/ui/routes/ShareQuestion.tsx"),
 ];
 export const publicRoutes = [];

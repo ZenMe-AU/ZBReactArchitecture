@@ -77,15 +77,15 @@ function RequireAuth() {
   return <Outlet />;
 }
 
-export default function Quest3TierAppRoutes() {
+export default function AccessManagerAppRoutes() {
   const routes = useRoutes([
     { path: "login", element: <Login /> },
     {
       element: <RequireAuth />,
       children: [
-        { path: "/", element: <Navigate to="/quest3Tier" replace /> },
+        { path: "/", element: <Navigate to="/accessManager" replace /> },
         {
-          path: "quest3Tier",
+          path: "accessManager",
           children: [
             { index: true, element: <RouteModuleElement routeModule={QuestionCombinationListModule} /> },
             { path: "add", element: <RouteModuleElement routeModule={AddQuestionModule} /> },
@@ -97,7 +97,7 @@ export default function Quest3TierAppRoutes() {
             { path: ":id/share", element: <RouteModuleElement routeModule={ShareQuestionModule} /> },
           ],
         },
-        { path: "*", element: <Navigate to="/quest3Tier" replace /> },
+        { path: "*", element: <Navigate to="/accessManager" replace /> },
       ],
     },
   ]);

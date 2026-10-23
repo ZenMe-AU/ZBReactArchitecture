@@ -10,7 +10,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuthState } from "../auth/AuthProvider";
 
 function safeReturnPath(value: unknown) {
-  return typeof value === "string" && value.startsWith("/") && !value.startsWith("//") && !value.startsWith("/login") ? value : "/quest3Tier";
+  return typeof value === "string" && value.startsWith("/") && !value.startsWith("//") && !value.startsWith("/login") ? value : "/accessManager";
 }
 
 export default function Login() {
@@ -57,7 +57,7 @@ export default function Login() {
       <Card sx={{ width: "100%", maxWidth: 400, borderRadius: 4, boxShadow: 12 }}>
         <CardContent sx={{ textAlign: "center", p: 4 }}>
           <Typography component="h1" variant="h5" fontWeight="bold" sx={{ mb: 1 }}>
-            Quest 3 Tier
+            Access Manager
           </Typography>
           <Typography color="text.secondary" sx={{ mb: 3 }}>
             Sign in to continue

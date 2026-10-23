@@ -24,6 +24,7 @@ const questTiers = [
   { label: "Quest 3 Tier ", href: "/quest3Tier", icon: <ShieldIcon />, color: "#1976d2" },
   { label: "Quest 5 Tier", href: "/quest5Tier", icon: <EditNoteIcon />, color: "#2e7d32" },
   { label: "Quest 5 Tier EG", href: "/quest5TierEg", icon: <EmojiEventsIcon />, color: "#6a1b9a" },
+  { label: "Access Manager", href: "/accessManager", icon: <ShieldIcon />, color: "#ff9800" },
 ];
 
 const decorationItems = [

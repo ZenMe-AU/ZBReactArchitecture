@@ -64,7 +64,7 @@ export default function QuestionCombinationList({ loaderData }: { loaderData: an
           resolve={questions}
           errorElement={
             <Alert severity="error" sx={{ mt: 2 }}>
-              Quest 3 data could not be loaded. Please sign in again and make sure the local Quest 3 API is running.
+              Access Manager data could not be loaded. Please sign in again and make sure the local Access Manager API is running.
             </Alert>
           }
         >
@@ -74,7 +74,7 @@ export default function QuestionCombinationList({ loaderData }: { loaderData: an
                 {resolvedQuestions.map((q: Question, index: number) => (
                   <div key={q.id}>
                     <ListItem disablePadding>
-                      <ListItemButton component={Link} to={`/quest3Tier/${q.id}/answer`} onClick={() => handleOpenAnswer(q.id)}>
+                      <ListItemButton component={Link} to={`/accessManager/${q.id}/answer`} onClick={() => handleOpenAnswer(q.id)}>
                         <ListItemText primary={q.title} />
                         <Box display="flex" gap={1} ml={2}>
                           <Button
@@ -82,7 +82,7 @@ export default function QuestionCombinationList({ loaderData }: { loaderData: an
                             size="small"
                             startIcon={<EditIcon />}
                             component={Link}
-                            to={`/quest3Tier/${q.id}` + (q.profileId !== profileId ? "/add" : "")}
+                            to={`/accessManager/${q.id}` + (q.profileId !== profileId ? "/add" : "")}
                             onClick={() => handleEditQuestion(q.id, q.profileId !== profileId)}
                           >
                             Edit
@@ -92,7 +92,7 @@ export default function QuestionCombinationList({ loaderData }: { loaderData: an
                             size="small"
                             startIcon={<ShareIcon />}
                             component={Link}
-                            to={`/quest3Tier/${q.id}/share`}
+                            to={`/accessManager/${q.id}/share`}
                             onClick={() => handleShareQuestion(q.id)}
                           >
                             Share
@@ -109,7 +109,7 @@ export default function QuestionCombinationList({ loaderData }: { loaderData: an
         </Await>
       </Suspense>
       <Box mt={4} display="flex" justifyContent="space-between">
-        <Button variant="contained" color="primary" component={Link} to="/quest3Tier/add" onClick={() => handleAddQuestion}>
+        <Button variant="contained" color="primary" component={Link} to="/accessManager/add" onClick={() => handleAddQuestion}>
           + Add Question
         </Button>
       </Box>

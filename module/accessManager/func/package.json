@@ -1,12 +1,12 @@
 {
-  "name": "quest3Tier",
+  "name": "accessManager",
   "version": "1.0.0",
   "type": "commonjs",
   "description": "",
   "main": "dist/index.cjs",
   "scripts": {
     "start": "func start",
-    "deploy": "pnpm deploy --filter quest3Tier --prod out",
+    "deploy": "pnpm deploy --filter accessManager --prod out",
     "build": "tsc --project tsconfig.json",
     "build:deploy-db": "tsc --project tsconfig.deploy.json",
     "dbmigrate:local": "pnpm run build:deploy-db && node dist/migrate/deploy/db/updateDbSchemaLocal.mjs",
@@ -14,8 +14,8 @@
     "prestart": "pnpm run build",
     "test:vitest": "cross-env vitest run vitest/testQuestion.test.mts",
     "test:vitest:debug": "cross-env NODE_OPTIONS=--inspect-brk=9230 vitest run vitest/testQuestion.test.mts --pool=forks --no-file-parallelism",
-    "test:profile": "vitest --root ../../.. run module/quest3Tier/func/vitest/profile.test.mts --pool=forks --no-file-parallelism",
-    "test:profile-db": "vitest --root ../../.. run module/quest3Tier/func/vitest/profile.test.mts module/quest3Tier/func/vitest/dbTest.test.mts --pool=forks --no-file-parallelism"
+    "test:profile": "vitest --root ../../.. run module/accessManager/func/vitest/profile.test.mts --pool=forks --no-file-parallelism",
+    "test:profile-db": "vitest --root ../../.. run module/accessManager/func/vitest/profile.test.mts module/accessManager/func/vitest/dbTest.test.mts --pool=forks --no-file-parallelism"
   },
   "dependencies": {
     "@azure/data-tables": "^13.3.2",
