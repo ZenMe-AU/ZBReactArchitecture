@@ -1,0 +1,75 @@
+/**
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-License-Identifier: MIT
+ */
+
+import { fileURLToPath } from "url";
+import { resolve, dirname } from "path";
+import { classManageDataPermission } from "./classManageDataPermission.mjs";
+import { getTargetEnv, getModuleName } from "../../../../../deploy/util/envSetup.cjs";
+import { createDatabaseInstance } from "../../repository/model/connection/index.mjs";
+import { POSTGRES } from "../../enum/dbType.mjs";
+import {
+  getFunctionAppName,
+  getResourceGroupName,
+  getPgServerName,
+  getRwRoleName,
+  getRoRoleName,
+  getDbSchemaAdminName,
+  getDbSchemaAdminRoleName,
+  getDbAdminName,
+  getPgHost,
+} from "../../../../../deploy/util/namingConvention.cjs";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+(async () => {
+  //basic environment setup
+  const envType = process.env.TF_VAR_env_type || "dev";
+  const targetEnv = getTargetEnv();
+  const moduleName = getModuleName(resolve(__dirname, "..", "..", ".."));
+  const functionAppName = getFunctionAppName(targetEnv, moduleName);
+  const resourceGroupName = getResourceGroupName(envType, targetEnv);
+  const dbName = moduleName;
+  // pg role/user name setup
+  const pgServerName = getPgServerName(targetEnv);
+  const pgAdminUserName = process.env.TF_VAR_deployer_sp_name || getDbAdminName(envType);
+  const rwRoleName = getRwRoleName(moduleName);
+  const roRoleName = getRoRoleName(moduleName);
+  const dbSchemaAdminRoleName = getDbSchemaAdminRoleName(moduleName);
+  const dbSchemaAdminUserName = getDbSchemaAdminName(moduleName);
+  // db connection setup
+  const config = {
+    username: pgAdminUserName,
+    host: getPgHost(targetEnv),
+    dialect: "postgres",
+    database: dbName,
+    port: 5432,
+    logging: false,
+    dialectOptions: {
+      ssl: { require: true, rejectUnauthorized: false },
+    },
+  };
+  const moduleDb = await createDatabaseInstance(POSTGRES, config);
+  const postgresDb = await createDatabaseInstance(POSTGRES, {
+    ...config,
+    database: "postgres",
+  });
+  const dbManager = new classManageDataPermission({
+    targetEnv,
+    moduleName,
+    functionAppName,
+    resourceGroupName,
+    pgServerName,
+    pgAdminUserName,
+    moduleDb,
+    postgresDb,
+    dbName,
+    rwRoleName,
+    roRoleName,
+    dbSchemaAdminRoleName,
+    dbSchemaAdminUserName,
+  });
+
+  await dbManager.run();
+})();

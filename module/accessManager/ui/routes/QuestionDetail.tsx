@@ -70,7 +70,7 @@ function QuestionDetail() {
 
   // Handle changes to a specific field
   const handleFieldEdit = (field: keyof Question, value: any) => {
-    setEditedData((prev) => ({ ...prev, [field]: value }) as Question);
+    setEditedData((prev) => ({ ...prev, [field]: value } as Question));
     setIsEditing(true);
   };
 

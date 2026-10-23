@@ -125,7 +125,13 @@ function AddQuestion() {
             ))}
           </List>
           <Box display="flex" alignItems="center" gap={2}>
-            <TextField label="New Option" value={newOption} onChange={(e) => setNewOption(e.target.value)} placeholder="Enter an option" sx={{ flexGrow: 1 }} />
+            <TextField
+              label="New Option"
+              value={newOption}
+              onChange={(e) => setNewOption(e.target.value)}
+              placeholder="Enter an option"
+              sx={{ flexGrow: 1 }}
+            />
             <Button variant="contained" onClick={handleAddOption}>
               Add
             </Button>

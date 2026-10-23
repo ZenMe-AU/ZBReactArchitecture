@@ -7,29 +7,25 @@
 
 import type { GetInfo, GetAnnotations } from "react-router/internal";
 
-type Module = typeof import("../Logout.js");
+type Module = typeof import("../Logout.js")
 
 type Info = GetInfo<{
-  file: "./routes/Logout.tsx";
-  module: Module;
-}>;
+  file: "./routes/Logout.tsx",
+  module: Module
+}>
 
-type Matches = [
-  {
-    id: "root";
-    module: typeof import("../../root.js");
-  },
-  {
-    id: "layouts/protected";
-    module: typeof import("../../layouts/protected.js");
-  },
-  {
-    id: "routes/Logout";
-    module: typeof import("../Logout.js");
-  },
-];
+type Matches = [{
+  id: "root";
+  module: typeof import("../../root.js");
+}, {
+  id: "layouts/protected";
+  module: typeof import("../../layouts/protected.js");
+}, {
+  id: "routes/Logout";
+  module: typeof import("../Logout.js");
+}];
 
-type Annotations = GetAnnotations<Info & { module: Module; matches: Matches }>;
+type Annotations = GetAnnotations<Info & { module: Module, matches: Matches }>;
 
 export namespace Route {
   // links

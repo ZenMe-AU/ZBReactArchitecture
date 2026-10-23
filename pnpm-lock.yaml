@@ -96,6 +96,9 @@ importers:
 
   module/accessManager/func:
     dependencies:
+      '@azure/data-tables':
+        specifier: ^13.3.2
+        version: 13.3.2(supports-color@8.1.1)
       '@azure/functions':
         specifier: ^4.0.0
         version: 4.8.2
@@ -132,6 +135,12 @@ importers:
       '@opentelemetry/semantic-conventions':
         specifier: ^1.32.0
         version: 1.37.0
+      '@sequelize/core':
+        specifier: ^7.0.0-alpha.47
+        version: 7.0.0-alpha.48(supports-color@8.1.1)
+      '@sequelize/postgres':
+        specifier: ^7.0.0-alpha.47
+        version: 7.0.0-alpha.48(supports-color@8.1.1)
       applicationinsights:
         specifier: ^3.6.0
         version: 3.12.0(supports-color@8.1.1)
@@ -159,12 +168,6 @@ importers:
       postgrejs:
         specifier: ^2.15.4
         version: 2.22.7
-      sequelize:
-        specifier: ^6.37.3
-        version: 6.37.7(mysql2@3.22.3(@types/node@24.13.3))(pg-hstore@2.3.4)(pg@8.16.3)(supports-color@8.1.1)(tedious@16.7.1(@azure/core-client@1.10.1(supports-color@8.1.1))(supports-color@8.1.1))
-      sequelize-cli:
-        specifier: ^6.6.2
-        version: 6.6.3
       swagger-jsdoc:
         specifier: ^6.2.8
         version: 6.2.8(openapi-types@12.1.3)
@@ -178,9 +181,6 @@ importers:
         specifier: ^11.1.0
         version: 11.1.0
     devDependencies:
-      '@types/node':
-        specifier: ^24.0.0
-        version: 24.13.3
       azure-functions-core-tools:
         specifier: ^4.x
         version: 4.4.0(supports-color@8.1.1)
@@ -202,9 +202,6 @@ importers:
       minimist:
         specifier: ^1.2.8
         version: 1.2.8
-      typescript:
-        specifier: ^7.0.2
-        version: 7.0.2
       umzug:
         specifier: ^3.8.2
         version: 3.8.2(@types/node@24.13.3)
@@ -214,6 +211,12 @@ importers:
 
   module/accessManager/ui:
     dependencies:
+      '@azure/msal-browser':
+        specifier: ^4.28.1
+        version: 4.30.0
+      '@azure/msal-react':
+        specifier: ^3.0.25
+        version: 3.0.29(@azure/msal-browser@4.30.0)(react@18.3.1)
       '@emotion/react':
         specifier: ^11.14.0
         version: 11.14.0(@types/react@19.2.9)(react@18.3.1)(supports-color@8.1.1)
@@ -290,9 +293,6 @@ importers:
       '@eslint/js':
         specifier: ^9.38.0
         version: 9.38.0
-      '@originjs/vite-plugin-federation':
-        specifier: ^1.4.1
-        version: 1.4.1
       '@react-router/dev':
         specifier: ^7.6.2
         version: 7.15.1(@react-router/serve@7.18.0(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3))(@types/node@20.19.23)(babel-plugin-macros@3.1.0)(jiti@2.6.1)(react-router@7.15.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(supports-color@8.1.1)(typescript@5.9.3)(vite@7.3.6(@types/node@20.19.23)(jiti@2.6.1)(yaml@2.8.1))(yaml@2.8.1)
@@ -14257,19 +14257,6 @@ snapshots:
       named-placeholders: 1.1.6
       sql-escaper: 1.3.3
 
-  mysql2@3.22.3(@types/node@24.13.3):
-    dependencies:
-      '@types/node': 24.13.3
-      aws-ssl-profiles: 1.1.2
-      denque: 2.1.0
-      generate-function: 2.3.1
-      iconv-lite: 0.7.2
-      long: 5.3.2
-      lru.min: 1.1.4
-      named-placeholders: 1.1.6
-      sql-escaper: 1.3.3
-    optional: true
-
   named-placeholders@1.1.6:
     dependencies:
       lru.min: 1.1.4
@@ -15119,32 +15106,6 @@ snapshots:
       wkx: 0.5.0
     optionalDependencies:
       mysql2: 3.22.3(@types/node@20.19.23)
-      pg: 8.16.3
-      pg-hstore: 2.3.4
-      tedious: 16.7.1(@azure/core-client@1.10.1(supports-color@8.1.1))(supports-color@8.1.1)
-    transitivePeerDependencies:
-      - supports-color
-
-  sequelize@6.37.7(mysql2@3.22.3(@types/node@24.13.3))(pg-hstore@2.3.4)(pg@8.16.3)(supports-color@8.1.1)(tedious@16.7.1(@azure/core-client@1.10.1(supports-color@8.1.1))(supports-color@8.1.1)):
-    dependencies:
-      '@types/debug': 4.1.12
-      '@types/validator': 13.15.4
-      debug: 4.4.3(supports-color@8.1.1)
-      dottie: 2.0.6
-      inflection: 1.13.4
-      lodash: 4.17.21
-      moment: 2.30.1
-      moment-timezone: 0.5.48
-      pg-connection-string: 2.9.1
-      retry-as-promised: 7.1.1
-      semver: 7.7.3
-      sequelize-pool: 7.1.0
-      toposort-class: 1.0.1
-      uuid: 8.3.2
-      validator: 13.15.20
-      wkx: 0.5.0
-    optionalDependencies:
-      mysql2: 3.22.3(@types/node@24.13.3)
       pg: 8.16.3
       pg-hstore: 2.3.4
       tedious: 16.7.1(@azure/core-client@1.10.1(supports-color@8.1.1))(supports-color@8.1.1)
@@ -16181,7 +16142,7 @@ snapshots:
     dependencies:
       lodash.get: 4.4.2
       lodash.isequal: 4.5.0
-      validator: 13.15.20
+      validator: 13.15.35
     optionalDependencies:
       commander: 9.5.0
 

@@ -64,7 +64,7 @@ export default function QuestionCombinationList({ loaderData }: { loaderData: an
           resolve={questions}
           errorElement={
             <Alert severity="error" sx={{ mt: 2 }}>
-              Quest 3 data could not be loaded. Please sign in again and make sure the local Quest 3 API is running.
+              Access Manager data could not be loaded. Please sign in again and make sure the local Access Manager API is running.
             </Alert>
           }
         >

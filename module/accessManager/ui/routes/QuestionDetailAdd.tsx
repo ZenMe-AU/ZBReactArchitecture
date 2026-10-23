@@ -87,7 +87,7 @@ function QuestionDetailAdd({ loaderData }: { loaderData: { question: Question } 
   // Handle changes to a specific field
   const handleFieldEdit = (field: string, value: string) => {
     if (editedData) {
-      setEditedData((prev) => ({ ...prev, [field]: value }) as Question);
+      setEditedData((prev) => ({ ...prev, [field]: value } as Question));
       setIsEditing(true);
     }
   };
@@ -100,7 +100,7 @@ function QuestionDetailAdd({ loaderData }: { loaderData: { question: Question } 
   // Update options list
   const handleOptionsEdit = (options: string[]) => {
     if (editedData) {
-      setEditedData((prev) => ({ ...prev, option: options }) as Question);
+      setEditedData((prev) => ({ ...prev, option: options } as Question));
       setIsEditing(true);
     }
   };
