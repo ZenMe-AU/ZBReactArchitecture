@@ -53,7 +53,7 @@ type GetQuestionListByUserResponse = {
  *                           question:
  *                             type: string
  *                             example: "What is your favorite food?"
- *                           option:
+ *                           optionList:
  *                             type: array
  *                             items:
  *                               type: string

@@ -28,13 +28,13 @@ export interface CreateQuestionInput {
   profileId: string;
   title: string | null;
   questionText: string;
-  option: string[] | null;
+  optionList: string[] | null;
 }
 
 export interface UpdateQuestionInput {
   title: string | null;
   questionText: string | null;
-  option: string[] | null;
+  optionList: string[] | null;
 }
 
 function toQuestionDetail(entity: QuestionEntity): QuestionDetail {
@@ -43,7 +43,7 @@ function toQuestionDetail(entity: QuestionEntity): QuestionDetail {
     id: entity.id,
     title: entity.title ?? null,
     questionText: entity.questionText,
-    option: optionJson ? JSON.parse(optionJson) : null,
+    optionList: optionJson ? JSON.parse(optionJson) : null,
     profileId: entity.profileId,
   };
 }
@@ -59,8 +59,7 @@ export async function createQuestion(input: CreateQuestionInput): Promise<{ id: 
     profileId: input.profileId,
     title: input.title,
     questionText: input.questionText,
-    option: JSON.stringify(input.option ?? null),
-    optionList: JSON.stringify(input.option ?? null),
+    optionList: JSON.stringify(input.optionList ?? null),
     createdAt,
   };
 
@@ -196,8 +195,7 @@ function toUpdatedEntity(existing: QuestionEntity, next: UpdateQuestionInput): Q
     profileId: existing.profileId,
     title: next.title,
     questionText: next.questionText ?? existing.questionText,
-    option: JSON.stringify(next.option ?? null),
-    optionList: JSON.stringify(next.option ?? null),
+    optionList: JSON.stringify(next.optionList ?? null),
     createdAt: existing.createdAt,
   };
 }
@@ -218,7 +216,7 @@ export async function updateQuestionById(questionId: string, input: UpdateQuesti
 
 /**
  * Apply a JSON Patch (RFC 6902) to a question's title, questionText and
- * option. Returns the question id, the same as updateQuestionById.
+ * optionList. Returns the question id, the same as updateQuestionById.
  */
 export async function patchQuestionById(questionId: string, profileId: string, patchOps: unknown): Promise<{ id: string }> {
   await assertProfileExists(profileId);
@@ -228,7 +226,7 @@ export async function patchQuestionById(questionId: string, profileId: string, p
   }
 
   const patched = fastJsonPatch.applyPatch(toQuestionDetail(existing), patchOps as never).newDocument;
-  const next = { title: patched.title, questionText: patched.questionText, option: patched.option };
+  const next = { title: patched.title, questionText: patched.questionText, optionList: patched.optionList };
 
   const replaceMode: UpdateMode = "Replace";
   const client = await getTableClient(QUESTION_DATA_TABLE);

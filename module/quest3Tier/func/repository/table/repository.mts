@@ -161,17 +161,17 @@ const repository = {
     return getQuestionById(questionId);
   },
 
-  async create(profileId: string, title = null, question = null, option = null) {
-    const created = await createQuestion({ profileId, title, questionText: question ?? "", option });
+  async create(profileId: string, title = null, question = null, optionList = null) {
+    const created = await createQuestion({ profileId, title, questionText: question ?? "", optionList });
     const questionRecord = await getQuestionById(created.id);
     if (!questionRecord) throw new Error(`Question not found after creation: ${created.id}`);
     return questionRecord;
   },
 
-  async updateById(questionId: string, title = null, questionText = null, option = null) {
+  async updateById(questionId: string, title = null, questionText = null, optionList = null) {
     const question = await getQuestionById(questionId);
     if (!question) throw new Error(`Question not found for questionId: ${questionId}`);
-    return updateQuestionById(questionId, { title, questionText, option }, question.profileId);
+    return updateQuestionById(questionId, { title, questionText, optionList }, question.profileId);
   },
 
   async getCombinationListByUser(profileId: string) {

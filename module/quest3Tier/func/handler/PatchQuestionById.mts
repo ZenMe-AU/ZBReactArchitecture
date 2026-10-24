@@ -21,7 +21,7 @@ export const body = z
     z.object({
       title: z.string().nullable().optional(),
       questionText: z.string(),
-      option: z.array(z.string()).nullable().optional(),
+      optionList: z.array(z.string()).nullable().optional(),
     }),
   ])
   .meta({ id: "JsonPatch" });

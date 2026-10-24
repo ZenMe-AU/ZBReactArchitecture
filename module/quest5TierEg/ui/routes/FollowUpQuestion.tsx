@@ -288,11 +288,11 @@ function FollowUpQuestion() {
       try {
         setLoading(true);
         const fetchedQuestion = await getQuestionById(id);
-        // if (fetchedQuestion.option === null) {
+        // if (fetchedQuestion.optionList === null) {
         //   console.log("not an option");
         // }
         setQuestion(fetchedQuestion);
-        setOptionList(fetchedQuestion.option);
+        setOptionList(fetchedQuestion.optionList);
         // setCards(["card-initial"]);
         // setSelectedQuestions({ "card-initial": fetchedQuestion.id });
         // setSelectedOptions({ "card-initial": [] });

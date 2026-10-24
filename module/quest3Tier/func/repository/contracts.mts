@@ -29,8 +29,7 @@ export interface QuestionRecord {
   id: string;
   title: string | null;
   questionText: string;
-  option: string[] | null;
-  optionList?: string[] | null;
+  optionList: string[] | null;
   profileId: string;
   createdAt?: Date | string;
 }
@@ -66,8 +65,8 @@ export interface QuestRepository {
   addFriend(profileId: string, friendId: string): Promise<FriendRecord>;
   listFriends(profileId: string): Promise<FriendRecord[]>;
   getById(questionId: string): Promise<QuestionRecord | null>;
-  create(profileId: string, title?: string | null, question?: string | null, option?: string[] | null): Promise<QuestionRecord>;
-  updateById(questionId: string, title?: string | null, questionText?: string | null, option?: string[] | null): Promise<{ id: string }>;
+  create(profileId: string, title?: string | null, question?: string | null, optionList?: string[] | null): Promise<QuestionRecord>;
+  updateById(questionId: string, title?: string | null, questionText?: string | null, optionList?: string[] | null): Promise<{ id: string }>;
   getCombinationListByUser(profileId: string): Promise<QuestionListRecord[]>;
   patchById(questionId: string, action: unknown, profileId: string): Promise<{ id: string }>;
   addAnswerByQuestionId(questionId: string, profileId: string, duration: number, answer?: string | null, option?: string | string[] | null, recipientProfileId?: string, when?: string | null): Promise<AnswerRecord>;

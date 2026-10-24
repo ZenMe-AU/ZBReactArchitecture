@@ -49,6 +49,5 @@ export async function GetQuestionById(request: RequestWithQuestionId, context: u
   const { id: questionId } = request.params;
   let questionnaire: QuestionRecord | null = await getRepository().getById(questionId);
   if (!questionnaire) return { return: { detail: null } };
-  questionnaire.optionList = questionnaire.option;
   return { return: { detail: { ...questionnaire, profileId: await toExternalProfileId(questionnaire.profileId) } } };
 }

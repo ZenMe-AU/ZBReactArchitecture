@@ -60,6 +60,19 @@ describe("Test Azure Table repository", () => {
     await client.updateEntity({ partitionKey, rowKey, id, newQuestionId, senderProfileId, receiverProfileId, status, type, createdAt }, "Replace");
   });
 
+  it("patches optionList array entries", async () => {
+    const externalId = `option-list-${randomUUID()}`;
+    ids.externalIds.push(externalId);
+    const profile = await tableRepository.createProfile(externalId);
+    ids.profileIds.push(profile.id);
+    const question = await tableRepository.create(profile.id, "Options", "Choose one", ["A", "B", "C"]);
+    ids.questionIds.push(question.id);
+
+    await tableRepository.patchById(question.id, [{ op: "replace", path: "/optionList/2", value: "Updated C" }], profile.id);
+
+    await expect(tableRepository.getById(question.id)).resolves.toMatchObject({ optionList: ["A", "B", "Updated C"] });
+  });
+
   it("stores the signed-in name on the canonical profile", async () => {
     const externalId = `named-profile-${randomUUID()}`;
     const profiles = await getTableClient("Profiles");
@@ -190,7 +203,7 @@ function testRepositoryContract(repository: QuestRepository, ids: RepositoryTest
       profileId: owner.id,
       title: "Quest DB",
       questionText: "Which option?",
-      option: ["yes", "no"],
+      optionList: ["yes", "no"],
     });
     await expect(repository.getCombinationListByUser(owner.id)).resolves.toEqual(
       expect.arrayContaining([expect.objectContaining({ id: question.id, latestAnswer: null })])
@@ -203,7 +216,8 @@ function testRepositoryContract(repository: QuestRepository, ids: RepositoryTest
 
     await expect(repository.updateById(question.id, "Updated Quest DB", "Which option?", ["yes", "no", "maybe"])).resolves.toEqual({ id: question.id });
     await expect(repository.patchById(question.id, [{ op: "replace", path: "/title", value: "Patched Quest DB" }], owner.id)).resolves.toMatchObject({ id: expect.any(String) });
-    await expect(repository.getById(question.id)).resolves.toMatchObject({ title: "Patched Quest DB", option: ["yes", "no", "maybe"] });
+    await expect(repository.patchById(question.id, [{ op: "replace", path: "/optionList/2", value: "maybe" }], owner.id)).resolves.toMatchObject({ id: expect.any(String) });
+    await expect(repository.getById(question.id)).resolves.toMatchObject({ title: "Patched Quest DB", optionList: ["yes", "no", "maybe"] });
 
     const answer = await repository.addAnswerByQuestionId(question.id, responder.id, 15, "yes", "yes", undefined, "during-work");
     await expect(repository.getAnswerById(question.id, answer.id)).resolves.toMatchObject({

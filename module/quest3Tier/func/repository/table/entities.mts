@@ -5,7 +5,7 @@
 
 // Row shapes stored under the QuestionData table. Table Storage properties
 // are limited to String/Int32/Int64/Double/Boolean/DateTime/Guid/Binary, so
-// arrays (option) are stored as JSON strings and parsed back at the
+// arrays (optionList) are stored as JSON strings and parsed back at the
 // repository boundary.
 
 export interface QuestionEntity {
@@ -15,8 +15,8 @@ export interface QuestionEntity {
   profileId: string;
   title: string | null;
   questionText: string;
-  option: string; // JSON-encoded string[] | null
-  optionList?: string | null; // Q5-compatible JSON-encoded string[] | null
+  option?: string; // Legacy JSON-encoded options
+  optionList: string; // JSON-encoded string[] | null
   createdAt: string;
   etag?: string;
 }
@@ -61,7 +61,7 @@ export interface QuestionDetail {
   id: string;
   title: string | null;
   questionText: string;
-  option: string[] | null;
+  optionList: string[] | null;
   profileId: string;
 }
 
