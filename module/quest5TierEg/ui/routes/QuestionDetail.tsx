@@ -8,6 +8,7 @@ import { useParams, useNavigate } from "react-router";
 import { Helmet } from "react-helmet";
 // import { compare } from "fast-json-patch";
 import { getQuestionById, updateQuestionPatch } from "../api/question";
+import { friendlyError } from "../api/friendlyError";
 import { Container, Typography, Box, TextField, Button, List, ListItem, IconButton } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -104,7 +105,7 @@ function QuestionDetail() {
         navigate("/quest5TierEg", { replace: true, state: { saved: true } });
       } catch (error) {
         setIsEditing(true);
-        setSubmitError(error instanceof Error ? error.message : "Failed to update the question. Please try again.");
+        setSubmitError(friendlyError(error, "We couldn’t save your changes. Please try again.", "Please check the question details and options, then try again."));
         console.error("Error updating question:", error);
       }
     }

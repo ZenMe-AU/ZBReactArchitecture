@@ -7,6 +7,7 @@ import { useEffect, useState, useRef } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { getQuestionById, submitAnswer, getAnswerListByQuestionId } from "../api/question";
+import { friendlyError } from "../api/friendlyError";
 import type { Question, Answer } from "../types/interfaces";
 import {
   Container,
@@ -278,7 +279,7 @@ export default function AnswerQuestion({ loaderData }: { loaderData: any }) {
       // navigate(`/quest5TierEg/${id}`);
     } catch (err) {
       console.error("Error submitting answer:", err);
-      setSubmitError(err instanceof Error ? err.message : "Failed to submit the answer. Please try again.");
+      setSubmitError(friendlyError(err, "We couldn’t submit your answer. Please try again.", "Please check your answer and options, then try again."));
     } finally {
       logEvent("btnAnswerQuestionClick", {
         parentId: "SubmitButton",
