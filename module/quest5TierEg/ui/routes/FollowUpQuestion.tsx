@@ -81,6 +81,7 @@ function FollowUpQuestion() {
   const [cardErrors, setCardErrors] = useState<CardErrors>({});
   const [submitting, setSubmitting] = useState(false);
   const [submittingError, setSubmittingError] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const handleBackClick = () => {
     const correlationId = setOperationId();
@@ -185,6 +186,7 @@ function FollowUpQuestion() {
 
     setCardErrors(newErrors);
     setSubmittingError(hasError);
+    setSubmitError(hasError ? "Complete each required follow-up question and option." : "");
 
     if (hasError) {
       console.log("hasError", newErrors);
@@ -205,11 +207,13 @@ function FollowUpQuestion() {
     // return;
     try {
       setSubmitting(true);
+      setSubmitError("");
       const response = await sendFollowUpQuestion(id, filterData, followUpQuestions, saveFilter);
       console.log("Response:", response);
-      // navigate(`/quest5TierEg/${id}`, { replace: true });
+      navigate("/quest5TierEg", { replace: true, state: { saved: true } });
     } catch (error) {
       console.error("Error send follow up question:", error); // Log error if any
+      setSubmitError(error instanceof Error ? error.message : "Failed to send follow-up questions. Please try again.");
     } finally {
       setSubmitting(false);
       logEvent("btnSendFollowUpQuestionClick", {
@@ -555,7 +559,7 @@ function FollowUpQuestion() {
 
         <Box display="flex" justifyContent="center" my={2}>
           <Button variant="contained" onClick={handleFollowUp} sx={{ mx: 1 }} disabled={submitting}>
-            send
+            {submitting ? "Sending..." : "Send"}
           </Button>
           {/* <FormControlLabel
             sx={{ mx: 1 }}
@@ -563,6 +567,7 @@ function FollowUpQuestion() {
             label="Save Filter"
           /> */}
         </Box>
+        {submitError && <Typography role="alert" color="error" variant="body2" sx={{ mt: 1 }}>{submitError}</Typography>}
       </Container>
     </Container>
   );

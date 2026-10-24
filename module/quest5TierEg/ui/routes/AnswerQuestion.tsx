@@ -162,6 +162,7 @@ export default function AnswerQuestion({ loaderData }: { loaderData: any }) {
   // const [loading, setLoading] = useState(false);
   // const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   // const [startTime, setStartTime] = useState<number>(0);
   // const [newOptionText, setNewOptionText] = useState("");
 
@@ -208,10 +209,11 @@ export default function AnswerQuestion({ loaderData }: { loaderData: any }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
+    setSubmitError("");
     const correlationId = setOperationId();
     console.log("Correlation ID:", correlationId);
     if (!id || !question) {
-      // alert("Invalid question ID.");
+      setSubmitError("Invalid question ID.");
       setSubmitting(false);
       return;
     }
@@ -238,7 +240,7 @@ export default function AnswerQuestion({ loaderData }: { loaderData: any }) {
     };
 
     if (!answerPayload.option && !answerPayload.answerText) {
-      // alert("Please provide an answer.");
+      setSubmitError("Please provide an answer.");
       setSubmitting(false);
       return;
     }
@@ -258,7 +260,7 @@ export default function AnswerQuestion({ loaderData }: { loaderData: any }) {
     // return;
     try {
       await submitAnswer(id, answerPayload, question.questionText);
-      // alert("Answer submitted successfully!");
+      navigate("/quest5TierEg", { replace: true, state: { saved: true } });
       setPrevAns((prev) => {
         if (!prev)
           return {
@@ -276,7 +278,7 @@ export default function AnswerQuestion({ loaderData }: { loaderData: any }) {
       // navigate(`/quest5TierEg/${id}`);
     } catch (err) {
       console.error("Error submitting answer:", err);
-      // alert("Failed to submit the answer.");
+      setSubmitError(err instanceof Error ? err.message : "Failed to submit the answer. Please try again.");
     } finally {
       logEvent("btnAnswerQuestionClick", {
         parentId: "SubmitButton",
@@ -566,13 +568,14 @@ export default function AnswerQuestion({ loaderData }: { loaderData: any }) {
         />
 
         <Box display="flex" justifyContent="left">
-          <Button type="submit" variant="contained">
-            Submit
+          <Button type="submit" variant="contained" disabled={submitting}>
+            {submitting ? "Submitting..." : "Submit"}
           </Button>
           <Button variant="outlined" color="secondary" onClick={() => handleFollowUp(question.id)} sx={{ ml: 2 }}>
             Send follow up question
           </Button>
         </Box>
+        {submitError && <Typography role="alert" color="error" variant="body2" sx={{ mt: 1 }}>{submitError}</Typography>}
       </form>
 
       {(pieChartData.length > 0 || wordCloudData.length > 0) && (

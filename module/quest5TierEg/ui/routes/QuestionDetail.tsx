@@ -34,6 +34,7 @@ function QuestionDetail() {
   const [editedData, setEditedData] = useState<Question | null>(null); // Edited data
   const [editingFields, setEditingFields] = useState<{ [key: string]: boolean }>({}); // Fields currently being edited
   const [isEditing, setIsEditing] = useState(false); // Whether the update/cancel buttons are visible
+  const [submitError, setSubmitError] = useState("");
   const navigate = useNavigate();
 
   // Fetch question data by ID when component mounts
@@ -92,6 +93,7 @@ function QuestionDetail() {
       const patches: any = compare(questionData, editedData);
 
       try {
+        setSubmitError("");
         setIsEditing(false);
         await updateQuestionPatch(id!, patches);
         console.log("Updated successfully!");
@@ -99,12 +101,11 @@ function QuestionDetail() {
           parentId: "SubmitButton",
           questionId: id,
         });
+        navigate("/quest5TierEg", { replace: true, state: { saved: true } });
       } catch (error) {
         setIsEditing(true);
+        setSubmitError(error instanceof Error ? error.message : "Failed to update the question. Please try again.");
         console.error("Error updating question:", error);
-      } finally {
-        setQuestionData(editedData);
-        setEditingFields({});
       }
     }
   };
@@ -236,6 +237,7 @@ function QuestionDetail() {
             </Button>
           </Box>
         )}
+        {submitError && <Typography role="alert" color="error" variant="body2" sx={{ mt: 1 }}>{submitError}</Typography>}
       </Box>
     </Container>
   );

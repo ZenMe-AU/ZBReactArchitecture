@@ -39,6 +39,7 @@ function AddQuestion() {
   const [options, setOptions] = useState<string[]>([]);
   const [newOption, setNewOption] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const navigate = useNavigate();
 
   const handleBackClick = () => {
@@ -67,27 +68,19 @@ function AddQuestion() {
     e.preventDefault(); // Prevent default form submission behavior
     const correlationId = setOperationId();
     console.log("Correlation ID:", correlationId);
-    let isSuccess: boolean = false;
     try {
       setSubmitting(true);
-      isSuccess = await createQuestion(title, questionText, options.length === 0 ? null : options); // Create a new question
+      setSubmitError("");
+      await createQuestion(title, questionText, options.length === 0 ? null : options);
+      logEvent("btnQuestionCreatedClick", { parentId: "QuestionForm" });
+      navigate("/quest5TierEg", { replace: true, state: { saved: true } });
     } catch (error) {
       console.error("Error creating question:", error); // Log error if any
-      throw error; // Re-throw the error to be handled by the UI
+      setSubmitError(error instanceof Error ? error.message : "Failed to create question. Please try again.");
     } finally {
       setSubmitting(false); // Reset submitting state
-      if (isSuccess) {
-        logEvent("btnQuestionCreatedClick", {
-          parentId: "QuestionForm",
-          // questionId: id,
-        });
-        // navigate(`/quest5TierEg/${id}`, { replace: true }); // Redirect to the question detail page after successful submission
-        navigate(-1);
-      }
     }
   };
-
-  if (submitting) return <p>Submitting...</p>;
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
@@ -144,10 +137,11 @@ function AddQuestion() {
           {/* <Button variant="outlined" color="secondary" component={Link} to="/question">
             Back to Question List
           </Button> */}
-          <Button type="submit" variant="contained" color="primary">
-            Submit
+          <Button type="submit" variant="contained" color="primary" disabled={submitting}>
+            {submitting ? "Saving..." : "Submit"}
           </Button>
         </Box>
+        {submitError && <Typography role="alert" color="error" variant="body2" sx={{ mt: 1 }}>{submitError}</Typography>}
       </form>
     </Container>
   );

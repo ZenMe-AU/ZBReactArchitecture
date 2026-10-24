@@ -49,6 +49,7 @@ function QuestionDetailAdd({ loaderData }: { loaderData: { question: Question } 
   const [editedData, setEditedData] = useState<Question | null>(question); // Edited data
   const [editingFields, setEditingFields] = useState<{ [key: string]: boolean }>({}); // Fields currently being edited
   const [isEditing, setIsEditing] = useState(false); // Whether the update/cancel buttons are visible
+  const [submitError, setSubmitError] = useState("");
   const navigate = useNavigate();
 
   // Fetch question data by ID when component mounts
@@ -113,20 +114,19 @@ function QuestionDetailAdd({ loaderData }: { loaderData: { question: Question } 
       const patches = compare(questionData, editedData);
       if (patches.length > 0) {
         try {
+          setSubmitError("");
           setIsEditing(false);
           await createQuestion(editedData.title, editedData.questionText, editedData.option || []);
           console.log("ADD!!!!");
-        } catch (error) {
-          setIsEditing(true);
-          console.error("Error editing question:", error);
-        } finally {
-          setQuestionData(editedData);
-          setEditingFields({});
           logEvent("btnSubmitAddQuestionClick", {
             parentId: "SubmitButton",
             questionId: id,
           });
-          navigate(`/question`, { replace: true });
+          navigate("/quest5TierEg", { replace: true, state: { saved: true } });
+        } catch (error) {
+          setIsEditing(true);
+          setSubmitError(error instanceof Error ? error.message : "Failed to create the question. Please try again.");
+          console.error("Error editing question:", error);
         }
       }
     }
@@ -259,6 +259,7 @@ function QuestionDetailAdd({ loaderData }: { loaderData: { question: Question } 
             </Button>
           </Box>
         )}
+        {submitError && <Typography role="alert" color="error" variant="body2" sx={{ mt: 1 }}>{submitError}</Typography>}
       </Box>
     </Container>
   );

@@ -73,12 +73,12 @@ function ShareQuestion() {
         parentId: "SubmitButton",
         questionId: id,
       });
+      navigate("/quest5TierEg", { replace: true, state: { saved: true } });
     } catch (err) {
-      setError("Failed to share the question. Please try again.");
+      setError(err instanceof Error ? err.message : "Failed to share the question. Please try again.");
       console.error(err);
     } finally {
       setLoading(false);
-      navigate(`/quest5TierEg/${id}/answer`); // Navigate back to the question detail
     }
   };
 
@@ -95,12 +95,6 @@ function ShareQuestion() {
         </IconButton>
         <Typography variant="h4">Share Question</Typography>
       </Box>
-
-      {error && (
-        <Box mb={2}>
-          <Alert severity="error">{error}</Alert>
-        </Box>
-      )}
 
       <form onSubmit={handleShare}>
         <Box mb={3}>
@@ -129,6 +123,7 @@ function ShareQuestion() {
             {loading ? "Sharing..." : "Share"}
           </Button>
         </Box>
+        {error && <Alert severity="error" role="alert" sx={{ mt: 1, py: 0 }}>{error}</Alert>}
       </form>
     </Container>
   );

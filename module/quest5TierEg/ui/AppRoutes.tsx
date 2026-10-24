@@ -4,9 +4,10 @@
  */
 // @ts-nocheck
 
-import { Navigate, Outlet, useRoutes } from "react-router-dom";
+import { Navigate, Outlet, useNavigate, useRoutes } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
+import Snackbar from "@mui/material/Snackbar";
 import { useAuthState } from "./auth/AuthProvider";
 import * as AddQuestionModule from "./routes/AddQuestion";
 import * as AnswerQuestionModule from "./routes/AnswerQuestion";
@@ -132,6 +133,20 @@ export default function Quest5TierEgAppRoutes() {
       ],
     },
   ]);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const saved = (location.state as { saved?: boolean } | null)?.saved === true;
 
-  return routes;
+  return (
+    <>
+      {routes}
+      <Snackbar
+        open={saved}
+        message="Saved Successfully"
+        autoHideDuration={3000}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        onClose={() => navigate(location.pathname, { replace: true, state: null })}
+      />
+    </>
+  );
 }
