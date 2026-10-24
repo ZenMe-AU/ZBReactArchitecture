@@ -3,7 +3,7 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import { InteractionStatus, type AccountInfo, type IPublicClientApplication } from "@azure/msal-browser";
+import { InteractionRequiredAuthError, InteractionStatus, type AccountInfo, type IPublicClientApplication } from "@azure/msal-browser";
 import { MsalProvider, useMsal } from "@azure/msal-react";
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 import { appScopes } from "./msalInstance";
@@ -47,18 +47,30 @@ function AuthProviderInner({ children }: { children: ReactNode }) {
     setAccount(currentAccount);
     localStorage.setItem("profileId", currentAccount.idTokenClaims?.oid ?? "");
     setIsAuthReady(false);
+    let redirectingForToken = false;
     instance
       .acquireTokenSilent({ account: currentAccount, scopes: appScopes })
       .then((token) => {
         if (cancelled) return;
         localStorage.setItem("appToken", token.accessToken);
       })
-      .catch((error: unknown) => {
+      .catch(async (error: unknown) => {
+        if (error instanceof InteractionRequiredAuthError) {
+          redirectingForToken = true;
+          try {
+            await instance.acquireTokenRedirect({ account: currentAccount, scopes: appScopes });
+            return;
+          } catch (redirectError) {
+            error = redirectError;
+            redirectingForToken = false;
+          }
+        }
         console.error("Unable to acquire the Quest 5 Tier EG API token", error);
         localStorage.removeItem("appToken");
+        setAccount(null);
       })
       .finally(() => {
-        if (!cancelled) setIsAuthReady(true);
+        if (!cancelled && !redirectingForToken) setIsAuthReady(true);
       });
 
     return () => {
