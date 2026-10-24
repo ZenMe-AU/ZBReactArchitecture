@@ -52,10 +52,14 @@
       "name": "Profile Func",
       "path": "./module/profile/func",
     },
-    {
-      "name": "Coordinate Func",
-      "path": "./module/coordinate/func",
+      {
+        "name": "Coordinate Func",
+        "path": "./module/coordinate/func",
     },
+    {
+      "name": "Dashboard UI",
+      "path": "./module/dashboard",
+    }
   ],
   "launch": {
     "version": "0.2.0",
@@ -92,7 +96,7 @@
     "powershell.cwd": "ROOT",
     "powershell.scriptAnalysis.settingsPath": "PSScriptAnalyzerSettings.psd1",
     "powershell.scriptAnalysis.enable": true,
-
+    "js/ts.updateImportsOnFileMove.enabled": "always",
     "debug.internalConsoleOptions": "neverOpen",
     "editor.formatOnSave": true,
     "editor.defaultFormatter": "dbaeumer.vscode-eslint",

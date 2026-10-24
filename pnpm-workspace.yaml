@@ -2,14 +2,17 @@ packages:
   - ui
   - module/*/ui
   - module/*/func
+  - module/dashboard
   - deploy/corpSetup/c11cloudfront/source/authGuardLambdaEdge
   - deploy/corpSetup/c11cloudfront/source/msalSpa
 allowBuilds:
   "@scarf/scarf": false
   azure-functions-core-tools: true
   esbuild: true
+  openvino-genai-node: true
+  openvino-node: true
   protobufjs: true
-  
+
 overrides:
   react: 18.x.x
   react-router: ^7.x.x

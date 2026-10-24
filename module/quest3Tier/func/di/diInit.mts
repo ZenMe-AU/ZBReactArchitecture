@@ -6,20 +6,25 @@
 import { register, startup } from "./diRegistry.mjs";
 import container from "./diContainer.mjs";
 import * as authEntraID from "../service/authEntraID.mjs";
-import * as authLocal from "../service/authLocal.mjs";
+import * as authDev from "../service/authDev.mjs";
 
 register("authProvider", async () => {
   const authProviders = {
-    authEntraID,
-    authLocal,
+    Dev: authDev,
+    Prod: authEntraID,
   };
-  const authProviderName = process.env.AUTH_PROVIDER ?? "authEntraID";
+  const authProviderName = process.env.AUTH_PROVIDER ?? "Prod";
   const authProviderModule = authProviders[authProviderName];
+  if (!authProviderModule) {
+    throw new Error(`Invalid AUTH_PROVIDER: ${authProviderName}. Expected Dev or Prod.`);
+  }
   container.register("authProvider", authProviderModule);
-  console.log("🔐Auth provider initialized :", authProviders);
+  console.log("Auth provider initialized:", authProviderName);
 });
 
-register("repository", async () => {
+// Register only one of sql or table repository into the DI container. This is intentionally not made configurable to avoid confusion.
+// TODO: Delete the repository that is not needed when you have confirmed your prefered data source choice.
+if(false) register("repository", async () => {
   // Initialize SQL repository variable
   const { initRepository: initSqlRepository } = await import("../repository/sql/repository.mjs");
   const { repository: sqlRepository } = await initSqlRepository({
@@ -31,17 +36,25 @@ register("repository", async () => {
     ignoreMigrationState: process.env.DB_IGNORE_MIGRATION_STATE,
   });
   console.log("SQL repository initialized");
-
-  // Initialize table repository variable
-  const { default: tableRepository } = await import("../repository/table/repository.mjs");
-  console.log("Table repository initialized");
-
-  // Register only one of sql or table repository into the DI container. This is intentionally not made configurable to avoid confusion.
-  // TODO: Delete the repository that is not needed when you have confirmed your prefered data source choice.
   container.register("repository", sqlRepository);
   console.log("Repository registered with DI container");
 });
 
-(async () => {
-  await startup();
-})();
+
+register("repository", async () => {
+  // Initialize table repository variable
+  const { initRepository:initTableRepository } = await import("../repository/table/repository.mjs");
+  const tableRepository = initTableRepository({
+    AzureWebJobsStorage: process.env.AzureWebJobsStorage,
+    AzureWebJobsStorage__tableServiceUri: process.env.AzureWebJobsStorage__tableServiceUri,
+    AzureWebJobsStorage__clientId: process.env.AzureWebJobsStorage__clientId,
+  });
+  console.log("Table repository initialized");
+  container.register("repository", tableRepository);
+  console.log("Repository registered with DI container");
+});
+
+// register anything else like telemetry etc.
+const startupPromise = startup();
+
+export { startupPromise };

@@ -8,6 +8,23 @@ export interface ProfileRecord {
   externalId: string;
 }
 
+export interface ProfileDetails {
+  name?: string;
+  preferredName?: string;
+}
+
+export interface EnsureProfileResult {
+  profile: ProfileRecord;
+  created: boolean;
+}
+
+export interface FriendRecord {
+  id: string;
+  name: string;
+  degree: number;
+  path: string[];
+}
+
 export interface QuestionRecord {
   id: string;
   title: string | null;
@@ -21,11 +38,17 @@ export interface AnswerRecord {
   id: string;
   questionId: string;
   profileId: string;
+  recipientProfileId?: string;
+  pairwiseId?: string;
   answerText: string | null;
   optionId: string | null;
   duration: number;
   createdAt: Date | string;
   answerCount?: number;
+}
+
+export interface QuestionListRecord extends QuestionRecord {
+  latestAnswer: AnswerRecord | null;
 }
 
 export interface CommandRecord {
@@ -35,12 +58,16 @@ export interface CommandRecord {
 export interface QuestRepository {
   findProfileByExternalId(externalId: string): Promise<ProfileRecord | null>;
   createProfile(externalId: string): Promise<ProfileRecord>;
+  ensureProfile(externalId: string, details?: ProfileDetails): Promise<EnsureProfileResult>;
+  updatePreferredName(externalId: string, preferredName: string): Promise<ProfileRecord>;
+  addFriend(profileId: string, friendId: string): Promise<FriendRecord>;
+  listFriends(profileId: string): Promise<FriendRecord[]>;
   getById(questionId: string): Promise<QuestionRecord | null>;
   create(profileId: string, title?: string | null, question?: string | null, option?: string[] | null): Promise<QuestionRecord>;
   updateById(questionId: string, title?: string | null, questionText?: string | null, option?: string[] | null): Promise<{ id: string }>;
-  getCombinationListByUser(profileId: string): Promise<QuestionRecord[]>;
+  getCombinationListByUser(profileId: string): Promise<QuestionListRecord[]>;
   patchById(questionId: string, action: unknown, profileId: string): Promise<{ id: string }>;
-  addAnswerByQuestionId(questionId: string, profileId: string, duration: number, answer?: string | null, option?: string | null): Promise<AnswerRecord>;
+  addAnswerByQuestionId(questionId: string, profileId: string, duration: number, answer?: string | null, option?: string | null, recipientProfileId?: string): Promise<AnswerRecord>;
   getAnswerById(questionId: string, answerId: string): Promise<AnswerRecord | null>;
   getAnswerListByQuestionId(questionId: string): Promise<AnswerRecord[]>;
   getEventByCorrelationId(name: string, correlationId: string): Promise<unknown[]>;

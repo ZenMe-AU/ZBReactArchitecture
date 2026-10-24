@@ -98,8 +98,15 @@ function Install-DevAiTools {
     Install-Yq
     Install-GitHubCli
     Install-GitHubCopilotCli
+    Install-ClaudeCode
     Install-Packer
+    Install-Python
     #Install-DockerCli
+    Install-Ollama
+    #Install-OllamaModels
+    Install-OpenVino
+    Install-HuggingFace
+    #Install-OpenVinoModels
 }
 
 function Install-Pnpm {
@@ -353,7 +360,7 @@ function Install-PostgreSql {
     if (-not $postgresqlInstalled) {
         if ($script:IsWindows) {
             Write-Output "postgresql not found. Installing postgresql using winget..."
-            winget install PostgreSQL.PostgreSQL -e --silent
+            winget install PostgreSQL.PostgreSQL.18 -e --silent
         } elseif ($script:IsMacOS) {
             Write-Output "postgresql not found. Installing postgresql using Homebrew..."
             Invoke-Brew install postgresql
@@ -657,6 +664,180 @@ function Install-GitHubCopilotCli {
     }
 }
 
+function Install-ClaudeCode {
+    if (Get-Command claude -ErrorAction SilentlyContinue) {
+        Write-Output "Claude Code is already installed."
+        return
+    }
+    if (-not $script:IsWindows) {
+        Write-Warning "Automatic Claude Code installation using winget is only supported on Windows."
+        return 1
+    }
+    if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+        Write-Error "winget is not installed. Please install App Installer before installing Claude Code."
+        return 1
+    }
+    Write-Output "Claude Code not found. Installing Claude Code using winget..."
+    winget install --id Anthropic.ClaudeCode -e --source winget --silent --accept-source-agreements --accept-package-agreements
+    if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne -1978335189) {
+        Write-Error "Claude Code installation failed with exit code $LASTEXITCODE."
+        return 1
+    }
+    Update-ProcessPathFromEnvironment
+    if (-not (Get-Command claude -ErrorAction SilentlyContinue)) {
+        Write-Error "Claude Code was not found after installation. Please restart your terminal or install it manually."
+        return 1
+    }
+    Write-Output "Claude Code is installed."
+}
+
+function Install-Ollama {
+    if (Get-Command ollama -ErrorAction SilentlyContinue) {
+        Write-Output "Ollama is already installed."
+        return
+    }
+    if (-not $script:IsWindows) {
+        Write-Warning "Automatic Ollama installation using winget is only supported on Windows."
+        return 1
+    }
+    if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+        Write-Error "winget is not installed. Please install App Installer before installing Ollama."
+        return 1
+    }
+    Write-Output "Ollama not found. Installing Ollama using winget..."
+    winget install --id Ollama.Ollama -e --source winget --silent --accept-source-agreements --accept-package-agreements
+    if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne -1978335189) {
+        Write-Error "Ollama installation failed with exit code $LASTEXITCODE."
+        return 1
+    }
+    Update-ProcessPathFromEnvironment
+    if (-not (Get-Command ollama -ErrorAction SilentlyContinue)) {
+        Write-Error "Ollama was not found after installation. Please restart your terminal or install it manually."
+        return 1
+    }
+    Write-Output "Ollama is installed."
+}
+
+function Install-OllamaModels {
+    if (-not (Get-Command ollama -ErrorAction SilentlyContinue)) {
+        Write-Error "Ollama is not installed. Run Install-Ollama before downloading models."
+        return 1
+    }
+    try {
+        ollama pull qwen2.5:3b
+        if ($LASTEXITCODE -ne 0) { throw "Failed to download qwen2.5:3b (exit code $LASTEXITCODE)." }
+        ollama pull qwen2.5:7b
+        if ($LASTEXITCODE -ne 0) { throw "Failed to download qwen2.5:7b (exit code $LASTEXITCODE)." }
+    } catch {
+        Write-Error "$_ Ensure Ollama is running and retry."
+        return 1
+    }
+    Write-Output "Ollama models are installed."
+}
+
+function Install-OpenVino {
+    if (-not $script:IsWindows) {
+        Write-Warning "Automatic OpenVINO installation using winget is only supported on Windows."
+        return 1
+    }
+    if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+        Write-Error "winget is not installed. Please install App Installer before installing OpenVINO."
+        return 1
+    }
+
+    $installed = winget list --id Intel.OpenVINOToolkit.2026.3.0 -e --accept-source-agreements 2>$null
+    if ($LASTEXITCODE -eq 0 -and ($installed -match 'Intel\.OpenVINOToolkit\.2026\.3\.0')) {
+        Write-Output "OpenVINO is already installed."
+        return
+    }
+
+    Write-Output "OpenVINO not found. Installing OpenVINO using winget..."
+    winget install --id Intel.OpenVINOToolkit.2026.3.0 -e --source winget --silent --accept-source-agreements --accept-package-agreements
+    if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne -1978335189) {
+        Write-Error "OpenVINO installation failed with exit code $LASTEXITCODE."
+        return 1
+    }
+    Update-ProcessPathFromEnvironment
+    Write-Output "OpenVINO is installed."
+}
+
+function Install-HuggingFace {
+    if (Get-Command hfdownloader -ErrorAction SilentlyContinue) {
+        Write-Output "HuggingFace Model Downloader is already installed."
+        return
+    }
+    if (-not $script:IsWindows) {
+        Write-Warning "Automatic HuggingFace Model Downloader installation using winget is only supported on Windows."
+        return 1
+    }
+    if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+        Write-Error "winget is not installed. Please install App Installer before installing HuggingFace Model Downloader."
+        return 1
+    }
+
+    $installed = winget list --id bodaay.hfdownloader -e --accept-source-agreements 2>$null
+    if ($LASTEXITCODE -eq 0 -and ($installed -match 'bodaay\.hfdownloader')) {
+        Write-Output "HuggingFace Model Downloader is already installed."
+        return
+    }
+
+    Write-Output "HuggingFace Model Downloader not found. Installing using winget..."
+    winget install --id=bodaay.hfdownloader -e --silent --accept-source-agreements --accept-package-agreements
+    if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne -1978335189) {
+        Write-Error "HuggingFace Model Downloader installation failed with exit code $LASTEXITCODE."
+        return 1
+    }
+    Update-ProcessPathFromEnvironment
+    if (-not (Get-Command hfdownloader -ErrorAction SilentlyContinue)) {
+        Write-Warning "hfdownloader was not found in PATH immediately after installation. Please restart your terminal or verify %LOCALAPPDATA%\Microsoft\WinGet\Links is in PATH."
+    }
+    Write-Output "HuggingFace Model Downloader is installed."
+}
+
+function Install-OpenVinoModels {
+    param(
+        [string]$model = "OpenVINO/Qwen2.5-Coder-3B-Instruct-int4-ov"
+    )
+    if (-not (Get-Command hfdownloader -ErrorAction SilentlyContinue)) {
+        Write-Error "hfdownloader is not installed. Run Install-HuggingFace before downloading models."
+        return 1
+    }
+    try {
+        hfdownloader download $model
+        if ($LASTEXITCODE -ne 0) { throw "Failed to download $model (exit code $LASTEXITCODE)." }
+    } catch {
+        Write-Error "$_ Ensure network connection and hfdownloader are working, then retry."
+        return 1
+    }
+    Write-Output "OpenVINO models are installed."
+}
+
+function Install-Python {
+    if (-not $script:IsWindows) {
+        Write-Warning "Automatic Python installation using winget is only supported on Windows."
+        return 1
+    }
+    if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+        Write-Error "winget is not installed. Please install App Installer before installing Python."
+        return 1
+    }
+
+    $installed = winget list --id Python.PythonInstallManager -e --accept-source-agreements 2>$null
+    if ($LASTEXITCODE -eq 0 -and ($installed -match 'Python\.PythonInstallManager')) {
+        Write-Output "Python Install Manager is already installed."
+        return
+    }
+
+    Write-Output "Python Install Manager not found. Installing using winget..."
+    winget install -e --id Python.PythonInstallManager --silent --accept-source-agreements --accept-package-agreements
+    if ($LASTEXITCODE -ne 0 -and $LASTEXITCODE -ne -1978335189) {
+        Write-Error "Python Install Manager installation failed with exit code $LASTEXITCODE."
+        return 1
+    }
+    Update-ProcessPathFromEnvironment
+    Write-Output "Python Install Manager is installed."
+}
+
 function Set-TerraformEnvironmentType {
     param(
         [string]$type = "dev"
@@ -780,4 +961,4 @@ function Update-ProcessPathFromEnvironment {
     }
 }
 
-Export-ModuleMember -Function Initialize-PlatformState,Install-Pnpm,Install-NodeJsAndNpm,Install-Terraform,Install-Packer,Install-DockerCli,Install-PostgreSql,Install-AwsCli,Install-AzureCli,Install-AzureStorageExplorer,Install-Ripgrep,Install-Fd,Install-Jq,Install-Yq,Install-GitHubCli,Install-GitHubCopilotCli,Set-TerraformEnvironmentType,Set-ProjectRootFolder,Install-ProjectDependencies,Initialize-ResourceGroupBootstrap,Publish-MainEnvironment,Publish-ModuleDeployments,Publish-UserInterface,Test-InitializationEnvironment,Install-DevTools,Install-DevAiTools
+Export-ModuleMember -Function Initialize-PlatformState,Install-Pnpm,Install-NodeJsAndNpm,Install-Terraform,Install-Packer,Install-DockerCli,Install-PostgreSql,Install-AwsCli,Install-AzureCli,Install-AzureStorageExplorer,Install-Ripgrep,Install-Fd,Install-Jq,Install-Yq,Install-GitHubCli,Install-GitHubCopilotCli,Install-ClaudeCode,Install-Ollama,Install-OllamaModels,Install-OpenVino,Install-HuggingFace,Install-OpenVinoModels,Install-Python,Set-TerraformEnvironmentType,Set-ProjectRootFolder,Install-ProjectDependencies,Initialize-ResourceGroupBootstrap,Publish-MainEnvironment,Publish-ModuleDeployments,Publish-UserInterface,Test-InitializationEnvironment,Install-DevTools,Install-DevAiTools

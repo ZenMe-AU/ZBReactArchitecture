@@ -3,27 +3,20 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-const baseUrl = process.env.QUESTION_URL;
-const questionUrl = new URL("/question", baseUrl);
 import { test, expect } from "vitest";
+import answerHandler from "../../handler/answerHandler.mjs";
+import { invokeHandler } from "./functionAppMock.mjs";
 
 const createAnswer = (profileIdLookup, questionIdLookup) => {
-  test.each(answerData())("answer question $questionId by user $userId", async (a) => {
-    const response = await fetch(questionUrl + "/" + questionIdLookup.getQuestionId(a.questionId) + "/answer", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", authorization: `Bearer ${profileIdLookup.getAuthToken(a.userId)}` },
-      body: JSON.stringify({
-        question: a.question,
-        option: a.option,
-        answer: a.answer,
-        duration: a.duration,
-      }),
+  test.each(answerData())("answer question $questionId by user $userId", async (answer) => {
+    const response = await invokeHandler(answerHandler.AddAnswer, {
+      userData: {
+        profileId: await profileIdLookup.getProfileId(answer.userId),
+      },
+      params: { id: questionIdLookup.getQuestionId(answer.questionId) },
+      clientParams: answer,
     });
-
-    let answer = await response.json();
-    // let answerId = answer.return.id;
-    // console.log(answerId);
-    expect(response.ok).toBeTruthy();
+    expect(response.return.id).toBeDefined();
   });
 };
 

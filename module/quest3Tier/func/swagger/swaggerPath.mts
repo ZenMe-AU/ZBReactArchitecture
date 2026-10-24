@@ -7,6 +7,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import swaggerUi from "swagger-ui-dist";
+import { openAPIDocument, apiScope } from "./openapi.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,7 +18,24 @@ export default async function (request, context) {
   if (fs.existsSync(filePath)) {
     let content: string | Buffer = fs.readFileSync(filePath);
     if (request.params.path === "swagger-initializer.js") {
-      content = content.toString().replace("https://petstore.swagger.io/v2/swagger.json", "/swagger.json");
+      const oauth = {
+        clientId: process.env.SWAGGER_CLIENT_ID ?? process.env.CLIENT_ID,
+        usePkceWithAuthorizationCodeGrant: true,
+        scopes: [apiScope],
+      };
+      content = `window.onload = () => {
+  window.ui = SwaggerUIBundle({
+    url: "/${openAPIDocument.url}",
+    dom_id: "#swagger-ui",
+    deepLinking: true,
+    presets: [SwaggerUIBundle.presets.apis, SwaggerUIStandalonePreset],
+    plugins: [SwaggerUIBundle.plugins.DownloadUrl],
+    layout: "StandaloneLayout",
+    oauth2RedirectUrl: location.origin + "/swagger/oauth2-redirect.html",
+  });
+  window.ui.initOAuth(${JSON.stringify(oauth)});
+};
+`;
     }
     context.res = {
       status: 200,

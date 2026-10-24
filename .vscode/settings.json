@@ -21,7 +21,15 @@
   "azurite.location": "${workspaceFolder}/azurite",
   "azurite.debug": true,
   "azurite.silent": true,
+  "typescript.tsdk": "../node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
   "eslint.workingDirectories": [{ "mode": "auto" }],
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
   "sarif-viewer.connectToGithubCodeScanning": "off",
   "cSpell.language": "en-AU",
   "cSpell.dictionaries": ["en-au"],

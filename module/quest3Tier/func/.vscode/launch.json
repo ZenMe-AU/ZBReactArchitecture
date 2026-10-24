@@ -8,6 +8,22 @@
       "restart": true,
       "port": 9229,
       "preLaunchTask": "Start"
+    },
+     {
+      "name": "Start OpenVino",
+      "type": "msedge",
+      "request": "launch",
+      "url": "http://127.0.0.1:4178",
+      "webRoot": "${workspaceFolder}/../../dashboard/viewer",
+      "preLaunchTask": "Start OpenVino"
+    },
+    {
+      "name": "Start Ollama",
+      "type": "msedge",
+      "request": "launch",
+      "url": "http://127.0.0.1:4178",
+      "webRoot": "${workspaceFolder}/../../dashboard/viewer",
+      "preLaunchTask": "Start Ollama"
     }
   ]
 }

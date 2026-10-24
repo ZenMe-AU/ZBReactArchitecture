@@ -6,7 +6,7 @@
 // This is the repository layer for managing question-related models and their interactions with the database.
 
 import { DataTypes } from "@sequelize/core";
-import { initDbConnection, type DbConfig } from "./initDbConnection.mjs";
+import { initDbConnection, type DbConfig } from "./init.mjs";
 import container from "../../di/diContainer.mjs";
 import questionModel from "./models/Question.mjs";
 import questionAnswerModel from "./models/QuestionAnswer.mjs";
@@ -358,7 +358,7 @@ async function updateById(questionId, title = null, questionText = null, option 
  */
 async function getCombinationListByUser(profileId) {
   try {
-    return await models.Question.findAll({
+    const questions = await models.Question.findAll({
       where: {
         [Op.or]: [
           { profileId: profileId },
@@ -375,6 +375,14 @@ async function getCombinationListByUser(profileId) {
         },
       ],
     });
+    // shortcut: one answer lookup per question, batch only if question-list latency becomes measurable.
+    return Promise.all(questions.map(async (question) => ({
+      ...question.toJSON(),
+      latestAnswer: (await models.QuestionAnswer.findOne({
+        where: { questionId: question.id, profileId },
+        order: [["createdAt", "DESC"]],
+      }))?.toJSON() ?? null,
+    })));
   } catch (err) {
     console.log(err);
     throw new Error(`Failed to retrieve questions for profileId: ${profileId}; ${err.message}`, { cause: err });
@@ -424,6 +432,32 @@ async function createProfile(externalId) {
   }
 }
 
+async function ensureProfile(externalId, _details = {}) {
+  const existing = await findProfileByExternalId(externalId);
+  if (existing) return { profile: existing, created: false };
+  return { profile: await createProfile(externalId), created: true };
+}
+
+async function updatePreferredName(externalId, preferredName) {
+  const [updated] = await models.Profile.update({ preferred_name: preferredName }, { where: { external_id: externalId } });
+  if (updated === 0) throw new Error("Profile not found");
+  const profile = await findProfileByExternalId(externalId);
+  if (!profile) throw new Error("Profile not found");
+  return profile;
+}
+
+async function addFriend(_profileId: string, _friendId: string): Promise<never> {
+  const error = new Error("Friend relationships require the Azure Table repository");
+  error.status = 501;
+  throw error;
+}
+
+async function listFriends(_profileId: string): Promise<never> {
+  const error = new Error("Friend relationships require the Azure Table repository");
+  error.status = 501;
+  throw error;
+}
+
 async function getSharedQuestionListByProfileId(profileId) {
   try {
     return await models.Question.findAll({
@@ -463,6 +497,10 @@ const repository = {
   getSharedQuestionListByProfileId,
   findProfileByExternalId,
   createProfile,
+  ensureProfile,
+  updatePreferredName,
+  addFriend,
+  listFriends,
   getById,  
   patchById,
   getCombinationListByUser,
