@@ -7,7 +7,7 @@
 import { Navigate, Outlet, useNavigate, useRoutes } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import Snackbar from "@mui/material/Snackbar";
+import { Button, Snackbar } from "@mui/material";
 import { useAuthState } from "./auth/AuthProvider";
 import * as AddQuestionModule from "./routes/AddQuestion";
 import * as AnswerQuestionModule from "./routes/AnswerQuestion";
@@ -135,10 +135,16 @@ export default function Quest5TierEgAppRoutes() {
   ]);
   const location = useLocation();
   const navigate = useNavigate();
+  const { isAuthenticated, logout } = useAuthState();
   const saved = (location.state as { saved?: boolean } | null)?.saved === true;
 
   return (
     <>
+      {isAuthenticated ? (
+        <Button onClick={logout} sx={{ position: "fixed", top: 8, right: 16, zIndex: 1300 }}>
+          Sign out
+        </Button>
+      ) : null}
       {routes}
       <Snackbar
         open={saved}
