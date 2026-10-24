@@ -23,10 +23,11 @@ import { Question } from "./interfaces.js";
 import type { QuestRepository } from "../contracts.mjs";
 import cmdName from "../../enum/cmdName.mjs";
 import { v4 as uuidv4 } from "uuid";
-import {  Op } from "@sequelize/core";
+import { Op } from "@sequelize/core";
 
 let models: Record<string, any> | null = null;
 
+// TODO: add code to capture the authenticated user to enforce row level rbac at query time.
 export async function initRepository(config: DbConfig) {
   if (models) return { sequelize: models.Question.sequelize, models, repository };
   const sequelize = await initDbConnection(config);
@@ -73,7 +74,7 @@ export async function initRepository(config: DbConfig) {
  * @param {string|null} [option=null] - Selected option identifier.
  * @returns {Promise<any>} Created answer model instance.
  */
-async function addAnswerByQuestionId(questionId, profileId, duration, answer = null, option = null, _recipientProfileId = undefined, when = null) {
+async function addAnswerByQuestionId(questionId, profileId, duration, answer = null, option = null, when = null) {
   try {
     const options = option === null ? null : Array.isArray(option) ? option : [option];
     return await models.QuestionAnswer.create({
@@ -382,13 +383,18 @@ async function getCombinationListByUser(profileId) {
       ],
     });
     // shortcut: one answer lookup per question, batch only if question-list latency becomes measurable.
-    return Promise.all(questions.map(async (question) => ({
-      ...question.toJSON(),
-      latestAnswer: (await models.QuestionAnswer.findOne({
-        where: { questionId: question.id, profileId },
-        order: [["createdAt", "DESC"]],
-      }))?.toJSON() ?? null,
-    })));
+    return Promise.all(
+      questions.map(async (question) => ({
+        ...question.toJSON(),
+        latestAnswer:
+          (
+            await models.QuestionAnswer.findOne({
+              where: { questionId: question.id, profileId },
+              order: [["createdAt", "DESC"]],
+            })
+          )?.toJSON() ?? null,
+      }))
+    );
   } catch (err) {
     console.log(err);
     throw new Error(`Failed to retrieve questions for profileId: ${profileId}; ${err.message}`, { cause: err });
@@ -484,19 +490,18 @@ async function getSharedQuestionListByProfileId(profileId) {
 }
 
 export async function getById(questionId) {
-    try {
-        const question = await models.Question.findByPk(questionId);
-        if (!question) {
-            return null;
-        }
-        const { id, title, questionText, optionList, profileId } = question.dataValues;
-        return { id, title, questionText, optionList, profileId };
+  try {
+    const question = await models.Question.findByPk(questionId);
+    if (!question) {
+      return null;
     }
-    catch (err) {
-        console.log(err);
-        const message = err instanceof Error ? err.message : String(err);
-        throw new Error(`Failed to retrieve question for questionId: ${questionId}; ${message}`, { cause: err });
-    }
+    const { id, title, questionText, optionList, profileId } = question.dataValues;
+    return { id, title, questionText, optionList, profileId };
+  } catch (err) {
+    console.log(err);
+    const message = err instanceof Error ? err.message : String(err);
+    throw new Error(`Failed to retrieve question for questionId: ${questionId}; ${message}`, { cause: err });
+  }
 }
 
 const repository = {
@@ -507,7 +512,7 @@ const repository = {
   updatePreferredName,
   addFriend,
   listFriends,
-  getById,  
+  getById,
   patchById,
   getCombinationListByUser,
   updateById,

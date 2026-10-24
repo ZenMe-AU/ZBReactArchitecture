@@ -8,5 +8,6 @@ import cmdName from "../enum/cmdName.mjs";
 import { apiResponses } from "./commonSchema.mjs";
 
 export const params = z.object({ name: z.enum(cmdName), correlationId: z.string() });
+export const correlationParams = params.pick({ correlationId: true });
 
 export const responses = apiResponses([200, 401, 403, 500], z.object({ qty: z.int() }));

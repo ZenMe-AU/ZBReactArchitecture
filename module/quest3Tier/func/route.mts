@@ -29,6 +29,8 @@ import * as getEventByCorrelationId from "./handler/getEventByCorrelationId.mjs"
 import profileHandler from "./handler/profileHandler.mjs";
 import * as Profile from "./handler/Profile.mjs";
 import { updateMyProfileSchema } from "./handler/updateMyProfileSchema.mjs";
+import { commandHeaders } from "./handler/commonSchema.mjs";
+import cmdName from "./enum/cmdName.mjs";
 
 //TODO: Review schema usage and ensure all endpoints have a correct schema assigned which is also in sync with the relevant function and relevant swagger doc.
 
@@ -37,6 +39,7 @@ app.openAPIPath("CreateQuestion", "Create a question", {
   methods: ["POST"],
   authLevel: "anonymous",
   tags: ["Question"],
+  headers: commandHeaders,
   body: CreateQuestionschema.body,
   responses: CreateQuestionschema.responses,
   handler: requestHandler(CreateQuestion, {
@@ -45,7 +48,7 @@ app.openAPIPath("CreateQuestion", "Create a question", {
 });
 
 app.openAPIPath("GetQuestionById", "Get a question by ID", {
-  route: "questionQry/getQuestion/{id}",
+  route: "questionQry/getQuestion/{questionId}",
   methods: ["GET"],
   authLevel: "anonymous",
   tags: ["Question"],
@@ -71,13 +74,19 @@ app.openAPIPath("UpdateQuestionById", "Update a question", {
 });
 
 app.openAPIPath("PatchQuestionById", "Update a question using JSON Patch", {
-  route: "questionCmd/updateQuestion/{id}",
+  route: "questionCmd/updateQuestion/{questionId}",
   methods: ["POST"],
   authLevel: "anonymous",
   tags: ["Question"],
   request: {
     params: PatchQuestionByIdsc.params,
-    body: { content: { "application/json-patch+json": { schema: PatchQuestionByIdsc.body } } },
+    headers: commandHeaders,
+    body: {
+      content: {
+        "application/json-patch+json": { schema: PatchQuestionByIdsc.patchBody },
+        "application/json": { schema: PatchQuestionByIdsc.body },
+      },
+    },
   },
   responses: PatchQuestionByIdsc.responses,
   handler: requestHandler(PatchQuestionById, {
@@ -87,10 +96,11 @@ app.openAPIPath("PatchQuestionById", "Update a question using JSON Patch", {
 });
 
 app.openAPIPath("AddAnswer", "Answer a question", {
-  route: "questionCmd/createAnswer/{id}",
+  route: "questionCmd/createAnswer/{questionId}",
   methods: ["POST"],
   authLevel: "anonymous",
   tags: ["Answer"],
+  headers: commandHeaders,
   params: AddAnswer.params,
   body: AddAnswer.body,
   responses: AddAnswer.responses,
@@ -113,7 +123,7 @@ app.openAPIPath("GetAnswerById", "Get an answer by ID", {
 });
 
 app.openAPIPath("GetQuestionListByUser", "List questions created by or shared with the caller", {
-  route: "questionQry/getQuestions/{profileId?}",
+  route: "questionQry/getQuestions",
   methods: ["GET"],
   authLevel: "anonymous",
   responses: GetQuestionListByUsersc.responses,
@@ -147,7 +157,7 @@ app.openAPIPath("ShareQuestion", "Share a question", {
 });
 
 app.openAPIPath("GetSharedQuestionList", "List questions shared with the caller", {
-  route: "questionQry/getSharedQuestions/{profileId}",
+  route: "questionQry/getSharedQuestions",
   methods: ["GET"],
   authLevel: "anonymous",
   tags: ["Share"],
@@ -232,5 +242,31 @@ app.openAPIPath("getEventByCorrelationId", "Count events recorded for a command"
   responses: getEventByCorrelationId.responses,
   handler: requestHandler(followupHandler.GetEventByCorrelationId, {
     params: getEventByCorrelationId.params,
+  }),
+});
+
+app.openAPIPath("GetQuestionShareEventList", "Count share events recorded for a command", {
+  route: "questionQry/getQuestionShareEvents/{correlationId}",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  tags: ["Command"],
+  params: getEventByCorrelationId.correlationParams,
+  responses: getEventByCorrelationId.responses,
+  handler: requestHandler(followupHandler.GetEventByCorrelationId, {
+    params: getEventByCorrelationId.correlationParams,
+    customParams: { name: cmdName.QuestionShareCmd },
+  }),
+});
+
+app.openAPIPath("GetFollowUpEventList", "Count follow-up events recorded for a command", {
+  route: "questionQry/getFollowUpEvents/{correlationId}",
+  methods: ["GET"],
+  authLevel: "anonymous",
+  tags: ["Command"],
+  params: getEventByCorrelationId.correlationParams,
+  responses: getEventByCorrelationId.responses,
+  handler: requestHandler(followupHandler.GetEventByCorrelationId, {
+    params: getEventByCorrelationId.correlationParams,
+    customParams: { name: cmdName.FollowUpCmd },
   }),
 });

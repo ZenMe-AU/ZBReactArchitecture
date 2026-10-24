@@ -17,6 +17,6 @@ const question = z
   })
   .meta({ id: "Question" });
 
-export const params = z.object({ id: z.uuid() });
+export const params = z.object({ questionId: z.uuid() });
 
 export const responses = apiResponses([200, 401, 403, 500], z.object({ detail: question.nullable() }));

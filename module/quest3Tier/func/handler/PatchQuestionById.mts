@@ -4,26 +4,30 @@
  */
 
 import { z } from "zod";
-import { apiResponses } from "./commonSchema.mjs";
+import { commandResponses } from "./commonSchema.mjs";
 
-export const params = z.object({ id: z.uuid() });
+export const params = z.object({ questionId: z.uuid() });
+
+export const patchBody = z
+  .array(
+    z.object({
+      op: z.enum(["add", "remove", "replace", "move", "copy", "test"]),
+      path: z.string(),
+      from: z.string().optional(),
+      value: z.unknown().optional(),
+    })
+  )
+  .meta({ id: "JsonPatch" });
 
 export const body = z
   .union([
-    z.array(
-      z.object({
-        op: z.enum(["add", "remove", "replace", "move", "copy", "test"]),
-        path: z.string(),
-        from: z.string().optional(),
-        value: z.unknown().optional(),
-      })
-    ),
+    patchBody,
     z.object({
       title: z.string().nullable().optional(),
       questionText: z.string(),
       optionList: z.array(z.string()).nullable().optional(),
     }),
   ])
-  .meta({ id: "JsonPatch" });
+  .meta({ id: "UpdateQuestionCommandBody" });
 
-export const responses = apiResponses([200, 400, 401, 403, 500], z.object({ id: z.uuid() }));
+export const responses = commandResponses;

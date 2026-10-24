@@ -42,7 +42,7 @@ describe("multiple option answers", () => {
 
   it("forwards multiple selections from the answer handler to the repository", async () => {
     const result = await answerHandler.AddAnswer({
-      params: { id: "question" },
+      params: { questionId: "question" },
       userData: { profileId: "respondent" },
       clientParams: { option: ["Pizza", "Sushi"], duration: 10 },
     }, {});

@@ -11,7 +11,8 @@ import { toExternalProfileId, toInternalProfileId } from "./profileId.mjs";
 
 async function GetEventByCorrelationId(request, context) {
   const repository = getRepository();
-  const { name, correlationId } = request.params;
+  const { correlationId } = request.params;
+  const name = request.customParams?.name ?? request.params.name;
   const result = await repository.getEventByCorrelationId(name, correlationId);
   return { return: { qty: result.length } };
 }
