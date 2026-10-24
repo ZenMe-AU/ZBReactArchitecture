@@ -3,8 +3,8 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import { jwtFetch } from "@zenmechat/shared-ui/api/jwtFetch";
-import { getConfig, loadConfig } from "@zenmechat/shared-ui/config/loadConfig";
+import { jwtFetch } from "./jwtFetch";
+import { getConfig, loadConfig } from "../config/loadConfig";
 
 export interface ShareFriend {
   id: string;

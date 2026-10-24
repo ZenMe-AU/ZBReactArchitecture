@@ -1,5 +1,5 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
@@ -10,7 +10,7 @@ import { createQuestion } from "../api/question";
 import { Container, Typography, Box, TextField, Button, List, ListItem, IconButton } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { logEvent, setOperationId } from "@zenmechat/shared-ui/monitor/telemetry";
+import { logEvent, setOperationId } from "../monitor/telemetry";
 
 // export async function clientAction({ request }: { request: Request }) {
 //   const navigate = useNavigate();
@@ -120,13 +120,7 @@ function AddQuestion() {
             ))}
           </List>
           <Box display="flex" alignItems="center" gap={2}>
-            <TextField
-              label="New Option"
-              value={newOption}
-              onChange={(e) => setNewOption(e.target.value)}
-              placeholder="Enter an option"
-              sx={{ flexGrow: 1 }}
-            />
+            <TextField label="New Option" value={newOption} onChange={(e) => setNewOption(e.target.value)} placeholder="Enter an option" sx={{ flexGrow: 1 }} />
             <Button variant="contained" onClick={handleAddOption}>
               Add
             </Button>
@@ -141,7 +135,11 @@ function AddQuestion() {
             {submitting ? "Saving..." : "Submit"}
           </Button>
         </Box>
-        {submitError && <Typography role="alert" color="error" variant="body2" sx={{ mt: 1 }}>{submitError}</Typography>}
+        {submitError && (
+          <Typography role="alert" color="error" variant="body2" sx={{ mt: 1 }}>
+            {submitError}
+          </Typography>
+        )}
       </form>
     </Container>
   );

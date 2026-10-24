@@ -1,5 +1,6 @@
 packages:
   - ui
+  - module/questUi
   - module/*/ui
   - module/*/func
   - module/dashboard
