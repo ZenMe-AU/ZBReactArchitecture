@@ -5,6 +5,7 @@
 
 import { getRepository } from "../../repository/getRepository.mjs";
 import type { QuestionRecord } from "../../repository/contracts.mjs";
+import { toExternalProfileId } from "../profileId.mjs";
 
 type RequestWithQuestionId = {
   params: { id: string };
@@ -46,6 +47,7 @@ type HandlerResponse = {
  */
 export async function GetQuestionById(request: RequestWithQuestionId, context: unknown): Promise<HandlerResponse> {
   const { id: questionId } = request.params;
-  const questionnaire: QuestionRecord | null = await getRepository().getById(questionId);
-  return { return: { detail: questionnaire } };
+  let questionnaire: QuestionRecord | null = await getRepository().getById(questionId);
+  if (!questionnaire) return { return: { detail: null } };
+  return { return: { detail: { ...questionnaire, profileId: await toExternalProfileId(questionnaire.profileId) } } };
 }

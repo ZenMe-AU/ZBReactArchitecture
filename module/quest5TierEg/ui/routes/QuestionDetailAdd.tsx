@@ -49,6 +49,7 @@ function QuestionDetailAdd({ loaderData }: { loaderData: { question: Question } 
   const [editedData, setEditedData] = useState<Question | null>(question); // Edited data
   const [editingFields, setEditingFields] = useState<{ [key: string]: boolean }>({}); // Fields currently being edited
   const [isEditing, setIsEditing] = useState(false); // Whether the update/cancel buttons are visible
+  const [submitError, setSubmitError] = useState("");
   const navigate = useNavigate();
 
   // Fetch question data by ID when component mounts
@@ -100,7 +101,7 @@ function QuestionDetailAdd({ loaderData }: { loaderData: { question: Question } 
   // Update options list
   const handleOptionsEdit = (options: string[]) => {
     if (editedData) {
-      setEditedData((prev) => ({ ...prev, option: options } as Question));
+      setEditedData((prev) => ({ ...prev, optionList: options } as Question));
       setIsEditing(true);
     }
   };
@@ -113,20 +114,19 @@ function QuestionDetailAdd({ loaderData }: { loaderData: { question: Question } 
       const patches = compare(questionData, editedData);
       if (patches.length > 0) {
         try {
+          setSubmitError("");
           setIsEditing(false);
-          await createQuestion(editedData.title, editedData.questionText, editedData.option || []);
+          await createQuestion(editedData.title, editedData.questionText, editedData.optionList || []);
           console.log("ADD!!!!");
-        } catch (error) {
-          setIsEditing(true);
-          console.error("Error editing question:", error);
-        } finally {
-          setQuestionData(editedData);
-          setEditingFields({});
           logEvent("btnSubmitAddQuestionClick", {
             parentId: "SubmitButton",
             questionId: id,
           });
-          navigate(`/question`, { replace: true });
+          navigate("/quest5TierEg", { replace: true, state: { saved: true } });
+        } catch (error) {
+          setIsEditing(true);
+          setSubmitError(error instanceof Error ? error.message : "Failed to create the question. Please try again.");
+          console.error("Error editing question:", error);
         }
       }
     }
@@ -173,34 +173,34 @@ function QuestionDetailAdd({ loaderData }: { loaderData: { question: Question } 
       mb={3}
       onBlur={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget)) {
-          handleBlur("option");
+          handleBlur("optionList");
         }
       }}
     >
       <Typography variant="h6" gutterBottom>
         Options
-        {!editingFields.option && (
-          <IconButton onClick={() => toggleFieldEdit("option")} size="small" sx={{ ml: 1 }}>
+        {!editingFields.optionList && (
+          <IconButton onClick={() => toggleFieldEdit("optionList")} size="small" sx={{ ml: 1 }}>
             <EditIcon fontSize="small" />
           </IconButton>
         )}
       </Typography>
       <List>
-        {editingFields.option ? (
-          editedData?.option?.map((option, index) => (
+        {editingFields.optionList ? (
+          editedData?.optionList?.map((option, index) => (
             <ListItem key={index}>
               <TextField
                 fullWidth
                 value={option}
                 onChange={(e) => {
-                  const updatedOptions = [...(editedData.option || [])];
+                  const updatedOptions = [...(editedData.optionList || [])];
                   updatedOptions[index] = e.target.value;
                   handleOptionsEdit(updatedOptions);
                 }}
               />
               <Button
                 onClick={() => {
-                  const updatedOptions = [...(editedData.option || [])];
+                  const updatedOptions = [...(editedData.optionList || [])];
                   updatedOptions.splice(index, 1);
                   handleOptionsEdit(updatedOptions);
                 }}
@@ -210,8 +210,8 @@ function QuestionDetailAdd({ loaderData }: { loaderData: { question: Question } 
             </ListItem>
           ))
         ) : (
-          <Box onClick={() => toggleFieldEdit("option")}>
-            {editedData?.option?.map((option, index) => (
+          <Box onClick={() => toggleFieldEdit("optionList")}>
+            {editedData?.optionList?.map((option, index) => (
               <ListItem key={index}>
                 <ReadOnlyText>{option}</ReadOnlyText>
               </ListItem>
@@ -219,12 +219,12 @@ function QuestionDetailAdd({ loaderData }: { loaderData: { question: Question } 
           </Box>
         )}
       </List>
-      {editingFields.option && (
+      {editingFields.optionList && (
         <Button
           variant="outlined"
           startIcon={<AddIcon />}
           onClick={() => {
-            const updatedOptions = [...(editedData?.option || []), ""];
+            const updatedOptions = [...(editedData?.optionList || []), ""];
             handleOptionsEdit(updatedOptions);
           }}
         >
@@ -259,6 +259,7 @@ function QuestionDetailAdd({ loaderData }: { loaderData: { question: Question } 
             </Button>
           </Box>
         )}
+        {submitError && <Typography role="alert" color="error" variant="body2" sx={{ mt: 1 }}>{submitError}</Typography>}
       </Box>
     </Container>
   );

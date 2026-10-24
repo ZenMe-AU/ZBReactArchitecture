@@ -20,6 +20,8 @@ export interface AddAnswerInput {
   recipientProfileId?: string;
   answerText: string | null;
   optionId: string | null;
+  optionAnswerList?: string[] | null;
+  when?: string | null;
   duration: number;
 }
 
@@ -50,6 +52,8 @@ export async function addAnswer(input: AddAnswerInput): Promise<{ id: string }> 
     pairwiseId,
     answerText: input.answerText,
     optionId: input.optionId,
+    optionAnswerList: input.optionAnswerList ? JSON.stringify(input.optionAnswerList) : input.optionId === null ? null : JSON.stringify([input.optionId]),
+    when: input.when ?? null,
     duration: input.duration,
     createdAt,
   };
@@ -62,6 +66,11 @@ export async function addAnswer(input: AddAnswerInput): Promise<{ id: string }> 
 
 // Table Storage drops null properties, so nullable fields come back undefined; restore the Postgres nulls here.
 function toAnswerRecord(e: AnswerEntity): AnswerRecord {
+  const optionAnswerList = e.optionAnswerList
+    ? JSON.parse(e.optionAnswerList)
+    : e.optionId === null || e.optionId === undefined
+      ? null
+      : [e.optionId];
   return {
     id: e.id,
     questionId: e.questionId,
@@ -70,6 +79,8 @@ function toAnswerRecord(e: AnswerEntity): AnswerRecord {
     pairwiseId: e.pairwiseId ?? createHash("sha256").update(`legacy:${e.questionId}:${e.profileId}`).digest("hex"),
     answerText: e.answerText ?? null,
     optionId: e.optionId ?? null,
+    optionAnswerList,
+    when: e.when ?? null,
     duration: e.duration,
     createdAt: e.createdAt,
   };

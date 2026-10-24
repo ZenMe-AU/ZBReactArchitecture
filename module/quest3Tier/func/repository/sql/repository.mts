@@ -73,13 +73,16 @@ export async function initRepository(config: DbConfig) {
  * @param {string|null} [option=null] - Selected option identifier.
  * @returns {Promise<any>} Created answer model instance.
  */
-async function addAnswerByQuestionId(questionId, profileId, duration, answer = null, option = null) {
+async function addAnswerByQuestionId(questionId, profileId, duration, answer = null, option = null, _recipientProfileId = undefined, when = null) {
   try {
+    const options = option === null ? null : Array.isArray(option) ? option : [option];
     return await models.QuestionAnswer.create({
       questionId: questionId,
       profileId: profileId, // Use the actual profileId when available
       answerText: answer,
-      optionId: option,
+      optionId: options?.[0] ?? null,
+      optionAnswerList: options,
+      when,
       duration: duration,
     });
   } catch (err) {
@@ -134,6 +137,8 @@ async function getAnswerListByQuestionId(questionId) {
             "questionId",
             "answerText",
             "optionId",
+            "optionAnswerList",
+            "when",
             "duration"
           FROM "questionAnswer"
           WHERE "questionId" = :questionId
@@ -257,6 +262,7 @@ async function shareQuestion(newQuestionId, senderId, receiverIds) {
     const addData = receiverIds.map(function (receiverId) {
       return {
         newQuestionId: newQuestionId,
+        questionId: newQuestionId,
         senderProfileId: senderId,
         receiverProfileId: receiverId,
       };
@@ -302,16 +308,16 @@ async function updateQuestionShareCmdStatus(id) {
  * @param {string} profileId - Owner profile identifier.
  * @param {string|null} [title=null] - Question title.
  * @param {string|null} [question=null] - Question body text.
- * @param {string|null} [option=null] - Question option metadata.
+ * @param {string[]|null} [optionList=null] - Question option metadata.
  * @returns {Promise<any>} Created question model instance.
  */
-async function create(profileId, title = null, question = null, option = null) {
+async function create(profileId, title = null, question = null, optionList = null) {
   try {
     return await models.Question.create({
       profileId: profileId,
       title: title,
       questionText: question,
-      option: option,
+      optionList,
     });
   } catch (err) {
     console.log(err);
@@ -325,16 +331,16 @@ async function create(profileId, title = null, question = null, option = null) {
  * @param {string} questionId - Identifier of the question to update.
  * @param {string|null} [title=null] - New question title.
  * @param {string|null} [questionText=null] - New question text.
- * @param {string|null} [option=null] - Updated option metadata.
+ * @param {string[]|null} [optionList=null] - Updated question option metadata.
  * @returns {Promise<any>} Result of the update operation.
  */
-async function updateById(questionId, title = null, questionText = null, option = null) {
+async function updateById(questionId, title = null, questionText = null, optionList = null) {
   try {
     await models.Question.update(
       {
         title: title,
         questionText: questionText,
-        option: option,
+        optionList,
       },
       {
         where: {
@@ -483,8 +489,8 @@ export async function getById(questionId) {
         if (!question) {
             return null;
         }
-        const { id, title, questionText, option, profileId } = question.dataValues;
-        return { id, title, questionText, option, profileId };
+        const { id, title, questionText, optionList, profileId } = question.dataValues;
+        return { id, title, questionText, optionList, profileId };
     }
     catch (err) {
         console.log(err);

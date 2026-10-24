@@ -7,6 +7,7 @@ import { useEffect, useState, useRef } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { getQuestionById, submitAnswer, getAnswerListByQuestionId } from "../api/question";
+import { friendlyError } from "../api/friendlyError";
 import type { Question, Answer } from "../types/interfaces";
 import {
   Container,
@@ -160,6 +161,7 @@ export default function AnswerQuestion({ loaderData }: { loaderData: unknown }) 
   // const [loading, setLoading] = useState(false);
   // const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   // const [startTime, setStartTime] = useState<number>(0);
   // const [newOptionText, setNewOptionText] = useState("");
 
@@ -206,10 +208,11 @@ export default function AnswerQuestion({ loaderData }: { loaderData: unknown }) 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
+    setSubmitError("");
     const correlationId = setOperationId();
     console.log("Correlation ID:", correlationId);
     if (!id || !question) {
-      alert("Invalid question ID.");
+      setSubmitError("Invalid question ID.");
       setSubmitting(false);
       return;
     }
@@ -236,7 +239,7 @@ export default function AnswerQuestion({ loaderData }: { loaderData: unknown }) 
     };
 
     if (!answerPayload.option && !answerPayload.answerText) {
-      alert("Please provide an answer.");
+      setSubmitError("Please provide an answer.");
       setSubmitting(false);
       return;
     }
@@ -256,7 +259,7 @@ export default function AnswerQuestion({ loaderData }: { loaderData: unknown }) 
     // return;
     try {
       await submitAnswer(id, answerPayload, question.questionText);
-      //alert("Answer submitted successfully!");
+      navigate("/quest5TierEg", { replace: true, state: { saved: true } });
       setPrevAns((prev) => {
         if (!prev)
           return {
@@ -274,7 +277,7 @@ export default function AnswerQuestion({ loaderData }: { loaderData: unknown }) 
       // navigate(`/quest5TierEg/${id}`);
     } catch (err) {
       console.error("Error submitting answer:", err);
-      alert("Failed to submit the answer.");
+      setSubmitError(friendlyError(err, "We couldn’t submit your answer. Please try again.", "Please check your answer and options, then try again."));
     } finally {
       logEvent("btnAnswerQuestionClick", {
         parentId: "SubmitButton",
@@ -564,13 +567,14 @@ export default function AnswerQuestion({ loaderData }: { loaderData: unknown }) 
         />
 
         <Box display="flex" justifyContent="left">
-          <Button type="submit" variant="contained">
-            Submit
+          <Button type="submit" variant="contained" disabled={submitting}>
+            {submitting ? "Submitting..." : "Submit"}
           </Button>
           <Button variant="outlined" color="secondary" onClick={() => handleFollowUp(question.id)} sx={{ ml: 2 }}>
             Send follow up question
           </Button>
         </Box>
+        {submitError && <Typography role="alert" color="error" variant="body2" sx={{ mt: 1 }}>{submitError}</Typography>}
       </form>
 
       {(pieChartData.length > 0 || wordCloudData.length > 0) && (

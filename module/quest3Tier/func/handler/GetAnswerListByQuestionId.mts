@@ -13,12 +13,14 @@ const answer = z
     profileId: z.uuid().nullable(),
     answerText: z.string().nullable(),
     optionId: z.string().nullable(),
+    optionAnswerList: z.array(z.string()).nullable().optional(),
+    when: z.string().nullable(),
     duration: z.int(),
     createdAt: z.iso.datetime(),
     isEdited: z.boolean(),
   })
   .meta({ id: "AnswerListItem" });
 
-export const params = z.object({ id: z.uuid() });
+export const params = z.object({ questionId: z.uuid() });
 
 export const responses = apiResponses([200, 401, 403, 500], z.object({ list: z.array(answer) }));

@@ -1,31 +1,43 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
 import { Helmet } from "react-helmet";
 import { Link } from "react-router";
-import { getQuestionsByUser } from "../api/question";
-import { Container, Typography, List, ListItem, ListItemButton, ListItemText, Button, Box, Divider } from "@mui/material";
+import { useState } from "react";
+import { getAnswerListByQuestionId, getQuestionsByUser } from "../api/question";
+import { Container, Typography, List, ListItem, ListItemButton, ListItemText, Button, Box, Divider, Chip, Checkbox, FormControlLabel } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import ShareIcon from "@mui/icons-material/Share";
 import type { Question } from "../types/interfaces";
 import { logEvent, setOperationId } from "@zenmechat/shared-ui/monitor/telemetry";
 
 export async function clientLoader() {
-  const profileId = localStorage.getItem("profileId");
-
   try {
+    const profileId = localStorage.getItem("profileId");
     const questions: Question[] = await getQuestionsByUser();
-    return { questions, profileId };
+    const questionsWithStatus = await Promise.all(
+      questions.map(async (question) => {
+        const answers = await getAnswerListByQuestionId(question.id);
+        return { ...question, isAnswered: answers.some((answer: { profileId: string | null }) => answer.profileId === profileId) };
+      })
+    );
+    return { questions: questionsWithStatus, profileId };
   } catch (error) {
     console.error("Error fetching question:", error);
     throw error;
   }
 }
 
-export default function QuestionCombinationList({ loaderData }: { loaderData: any }) {
+export default function QuestionCombinationList({ loaderData }: { loaderData: unknown }) {
   const { questions, profileId } = loaderData;
+  const [statusFilter, setStatusFilter] = useState({ answered: true, unanswered: true });
+  const visibleQuestions = questions.filter((question: Question & { isAnswered: boolean }) =>
+    question.isAnswered ? statusFilter.answered : statusFilter.unanswered
+  );
+  const answeredCount = questions.filter((question: Question & { isAnswered: boolean }) => question.isAnswered).length;
+  const allSelected = statusFilter.answered && statusFilter.unanswered;
   const handleOpenAnswer = (questionId: string) => {
     const correlationId = setOperationId();
     logEvent("btnAnswerDetailClick", {
@@ -57,19 +69,51 @@ export default function QuestionCombinationList({ loaderData }: { loaderData: an
   };
 
   return (
-    <Container maxWidth="md" sx={{ mt: 4 }}>
+    <Container maxWidth="md" sx={{ mt: 4, position: "relative" }}>
       <Helmet>
         <title>Question List</title>
       </Helmet>
+      <Box
+        role="group"
+        aria-label="Filter questions by answer status"
+        sx={{
+          position: { xs: "static", lg: "absolute" },
+          left: { lg: -176 },
+          top: 0,
+          display: "flex",
+          flexDirection: { xs: "row", lg: "column" },
+          flexWrap: "wrap",
+        }}
+      >
+        <FormControlLabel
+          label={`All (${questions.length})`}
+          control={<Checkbox size="small" checked={allSelected} onChange={(event) => setStatusFilter({ answered: event.target.checked, unanswered: event.target.checked })} />}
+        />
+        <FormControlLabel
+          label={`Answered (${answeredCount})`}
+          control={<Checkbox size="small" checked={statusFilter.answered && !statusFilter.unanswered} onChange={() => setStatusFilter({ answered: true, unanswered: false })} />}
+        />
+        <FormControlLabel
+          label={`Unanswered (${questions.length - answeredCount})`}
+          control={<Checkbox size="small" checked={!statusFilter.answered && statusFilter.unanswered} onChange={() => setStatusFilter({ answered: false, unanswered: true })} />}
+        />
+      </Box>
       <Typography variant="h4" gutterBottom>
         Question List
       </Typography>
       <List>
-        {questions.map((q: Question, index: number) => (
+        {visibleQuestions.map((q: Question & { isAnswered: boolean }, index: number) => (
           <div key={q.id}>
             <ListItem disablePadding>
               <ListItemButton component={Link} to={`/quest5TierEg/${q.id}/answer`} onClick={() => handleOpenAnswer(q.id)}>
-                <ListItemText primary={q.title} />
+                <ListItemText
+                  primary={
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <span>{q.title}</span>
+                      {q.isAnswered ? <Chip label="Answered" size="small" sx={{ height: 22, bgcolor: "action.hover", color: "text.secondary" }} /> : null}
+                    </Box>
+                  }
+                />
                 <Box display="flex" gap={1} ml={2}>
                   <Button
                     variant="outlined"

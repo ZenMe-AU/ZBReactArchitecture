@@ -74,6 +74,11 @@ export async function PatchQuestionById(request: PatchQuestionByIdRequest, conte
   const repository = getRepository();
   const profileId = request.userData.profileId;
   const { id: questionId } = request.params;
+  if (!Array.isArray(request.clientParams)) {
+    const { title = null, questionText, optionList = null } = request.clientParams as { title?: string | null; questionText: string; optionList?: string[] | null };
+    const question = await repository.updateById(questionId, title, questionText, optionList);
+    return { return: { id: question.id } };
+  }
   const questionAction = await repository.patchById(questionId, request.clientParams, profileId);
   return { return: { id: questionAction.id } };
 }
