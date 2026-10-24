@@ -5,9 +5,24 @@
 
 import { randomUUID } from "crypto";
 import { odata } from "@azure/data-tables";
-import { createQuestion, getQuestionById, getQuestionListByProfileId, getSharedQuestionListByProfileId, patchQuestionById, shareQuestion, updateQuestionById } from "./questionRepository.mjs";
+import {
+  createQuestion,
+  getQuestionById,
+  getQuestionListByProfileId,
+  getSharedQuestionListByProfileId,
+  patchQuestionById,
+  shareQuestion,
+  updateQuestionById,
+} from "./questionRepository.mjs";
 import { addAnswer, getAnswerById, getAnswerListByQuestionId } from "./answerRepository.mjs";
-import { addFriend as addTableFriend, createProfile, ensureProfile as ensureTableProfile, findProfileByExternalId, listFriends as listTableFriends, updatePreferredName as updateTablePreferredName } from "./profileRepository.mjs";
+import {
+  addFriend as addTableFriend,
+  createProfile,
+  ensureProfile as ensureTableProfile,
+  findProfileByExternalId,
+  listFriends as listTableFriends,
+  updatePreferredName as updateTablePreferredName,
+} from "./profileRepository.mjs";
 import { configureTableStorage, getTableClient, type TableStorageSettings } from "./init.mjs";
 import { QUESTION_DATA_TABLE } from "./keys.mjs";
 import type { QuestRepository } from "../contracts.mjs";
@@ -177,10 +192,12 @@ const repository = {
   async getCombinationListByUser(profileId: string) {
     const questions = await getQuestionListByProfileId(profileId);
     // shortcut: one answer lookup per question, batch only if question-list latency becomes measurable.
-    return Promise.all(questions.map(async (question) => ({
-      ...question,
-      latestAnswer: (await getAnswerListByQuestionId(question.id)).find((answer) => answer.profileId === profileId) ?? null,
-    })));
+    return Promise.all(
+      questions.map(async (question) => ({
+        ...question,
+        latestAnswer: (await getAnswerListByQuestionId(question.id)).find((answer) => answer.profileId === profileId) ?? null,
+      }))
+    );
   },
 
   async patchById(questionId: string, action: unknown, profileId: string) {
@@ -218,7 +235,7 @@ const repository = {
     const client = await getTableClient(QUESTION_DATA_TABLE);
     const filterId = randomUUID();
     const newQuestionId = String(data.newQuestionId);
-    const filters = data.question.map((item: any, index) => ({
+    const filters = data.question.map((item: { questionId: string; option: unknown }, index) => ({
       partitionKey: senderId,
       rowKey: `filter:${newQuestionId}:${filterId}:${index + 1}`,
       id: filterId,

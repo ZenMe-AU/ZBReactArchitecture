@@ -17,7 +17,7 @@
     "CLIENT_ID": "87aa3687-66a4-4fab-bf59-70de6bf768fa",
     "TENANT_ID": "15fb0613-7977-4551-801b-6aadac824241",
     "QUESTION_URL": "http://localhost:7073",
-    "LLM_PROVIDER": "openvino",
+    "LLM_PROVIDER": "claude",
     "LLM_MODEL": "D:\\Models\\OpenVINO\\Qwen2.5-Coder-3B-Instruct-int4-ov",
     "OPENVINO_MODEL_DIR": "D:\\Models\\OpenVINO\\Qwen2.5-Coder-3B-Instruct-int4-ov",
     "OPENVINO_DEVICE": "NPU",

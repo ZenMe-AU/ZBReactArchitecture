@@ -12,6 +12,7 @@ import { connect } from "node:net";
 import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
+import { initRepository } from "quest3Tier/dist/repository/table/repository.mjs";
 import { sendLiveChat } from "../agentChat.live.mjs";
 import { answerResults } from "./results-chat.mjs";
 
@@ -94,10 +95,6 @@ async function getTableRepository() {
   if (!tableRepositoryState.value) {
     tableRepositoryState.value = (async () => {
       const settings = await localSettings();
-      const repoPath = path.resolve(REPO_DIR, "module/quest3Tier/func/dist/repository/table/repository.mjs");
-      const { initRepository } = (await import(repoPath)) as {
-        initRepository: (settings: unknown) => { listFriends: (profileId: string) => Promise<unknown[]> };
-      };
       return initRepository({
         AzureWebJobsStorage: process.env.AzureWebJobsStorage ?? settings.AzureWebJobsStorage,
         AzureWebJobsStorage__tableServiceUri: process.env.AzureWebJobsStorage__tableServiceUri ?? settings.AzureWebJobsStorage__tableServiceUri,

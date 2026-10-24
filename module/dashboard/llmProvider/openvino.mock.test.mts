@@ -3,13 +3,17 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-// Run from parent folder: pnpm exec vitest run llmProvider/openvino.provider.test.mts
+// Run from parent folder: pnpm exec vitest run llmProvider/openvino.mock.test.mts
 
 import os from "node:os";
 import path from "node:path";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { type ILlmProvider, type LlmRequest, OpenvinoProvider } from "./index.mjs";
+import {
+  type ILlmProvider,
+  type LlmRequest,
+  OpenvinoProvider,
+} from "./index.mjs";
 
 vi.mock("openvino-genai-node", async (importOriginal) => {
   const runtime = await importOriginal<typeof import("openvino-genai-node")>();
@@ -26,30 +30,47 @@ describe("OpenvinoProvider", () => {
       vi.resetAllMocks();
     });
 
-    it.each(["LLMPipeline", "VLMPipeline"] as const)("mock - selects %s for the exported model layout", async (pipelineName) => {
-      const modelDir = mkdtempSync(path.join(os.tmpdir(), "openvino-provider-"));
-      const runtime = await import("openvino-genai-node");
-      const failure = new Error("Selected pipeline factory");
-      const llmFactory = vi.mocked(runtime.LLMPipeline).mockRejectedValue(failure);
-      const vlmFactory = vi.mocked(runtime.VLMPipeline).mockRejectedValue(failure);
+    it.each(["LLMPipeline", "VLMPipeline"] as const)(
+      "mock - selects %s for the exported model layout",
+      async (pipelineName) => {
+        const modelDir = mkdtempSync(
+          path.join(os.tmpdir(), "openvino-provider-"),
+        );
+        const runtime = await import("openvino-genai-node");
+        const failure = new Error("Selected pipeline factory");
+        const llmFactory = vi
+          .mocked(runtime.LLMPipeline)
+          .mockRejectedValue(failure);
+        const vlmFactory = vi
+          .mocked(runtime.VLMPipeline)
+          .mockRejectedValue(failure);
 
-      try {
-        if (pipelineName === "VLMPipeline") {
-          writeFileSync(path.join(modelDir, "openvino_vision_embeddings_model.xml"), "");
+        try {
+          if (pipelineName === "VLMPipeline") {
+            writeFileSync(
+              path.join(modelDir, "openvino_vision_embeddings_model.xml"),
+              "",
+            );
+          }
+          const provider = new OpenvinoProvider({
+            localModelDir: modelDir,
+            device: "CPU",
+          });
+          await expect(provider.assertReady()).rejects.toBe(failure);
+          const selectedFactory =
+            pipelineName === "LLMPipeline" ? llmFactory : vlmFactory;
+          const otherFactory =
+            pipelineName === "LLMPipeline" ? vlmFactory : llmFactory;
+          expect(selectedFactory).toHaveBeenCalledExactlyOnceWith(
+            modelDir,
+            "CPU",
+          );
+          expect(otherFactory).not.toHaveBeenCalled();
+        } finally {
+          rmSync(modelDir, { recursive: true });
         }
-        const provider = new OpenvinoProvider({
-          localModelDir: modelDir,
-          device: "CPU",
-        });
-        await expect(provider.assertReady()).rejects.toBe(failure);
-        const selectedFactory = pipelineName === "LLMPipeline" ? llmFactory : vlmFactory;
-        const otherFactory = pipelineName === "LLMPipeline" ? vlmFactory : llmFactory;
-        expect(selectedFactory).toHaveBeenCalledExactlyOnceWith(modelDir, "CPU");
-        expect(otherFactory).not.toHaveBeenCalled();
-      } finally {
-        rmSync(modelDir, { recursive: true });
-      }
-    });
+      },
+    );
 
     it("mock - rejects a missing explicitly selected model instead of loading the configured model", async () => {
       const pipelineFactory = vi.fn();
@@ -57,18 +78,28 @@ describe("OpenvinoProvider", () => {
         localModelDir: os.tmpdir(),
         pipelineFactory,
       });
-      const missingModel = path.join(os.tmpdir(), "non-existent-openvino-model-dir-12345");
+      const missingModel = path.join(
+        os.tmpdir(),
+        "non-existent-openvino-model-dir-12345",
+      );
 
-      await expect(provider.getPipeline(missingModel)).rejects.toThrow(`OpenVINO model directory not found: ${missingModel}`);
+      await expect(provider.getPipeline(missingModel)).rejects.toThrow(
+        `OpenVINO model directory not found: ${missingModel}`,
+      );
       expect(pipelineFactory).not.toHaveBeenCalled();
     });
 
-    it("mock - asserts unready when directory is invalid and ready when valid via ILlmProvider", async () => {
+    it("rejects an unready backend and accepts a ready backend", async () => {
       const unreadyProvider: ILlmProvider = new OpenvinoProvider({
-        localModelDir: path.join(os.tmpdir(), "non-existent-openvino-model-dir-12345"),
+        localModelDir: path.join(
+          os.tmpdir(),
+          "non-existent-openvino-model-dir-12345",
+        ),
       });
 
-      await expect(unreadyProvider.assertReady()).rejects.toThrow(/OpenVINO model directory does not exist/);
+      await expect(unreadyProvider.assertReady()).rejects.toThrow(
+        /OpenVINO model directory does not exist/,
+      );
 
       const readyPipeline = {
         generate: vi.fn().mockResolvedValue({ texts: ['{"ok":true}'] }),
@@ -81,11 +112,14 @@ describe("OpenvinoProvider", () => {
       await expect(readyProvider.assertReady()).resolves.toBeUndefined();
     });
 
-    it("mock - completes JSON and validates schema via ILlmProvider interface", async () => {
+    it("returns structured JSON and reports output metrics", async () => {
       const mockGenerate = vi.fn().mockResolvedValue({
         texts: ['{"result":"calculated","value":100}'],
+        perfMetrics: { getNumGeneratedTokens: () => 8 },
       });
-      const pipelineFactory = vi.fn().mockResolvedValue({ generate: mockGenerate });
+      const pipelineFactory = vi
+        .fn()
+        .mockResolvedValue({ generate: mockGenerate });
 
       const provider: ILlmProvider = new OpenvinoProvider({
         localModelDir: os.tmpdir(),
@@ -93,8 +127,10 @@ describe("OpenvinoProvider", () => {
         pipelineFactory,
       });
 
+      const onMetrics = vi.fn();
       const request: LlmRequest = {
         systemPrompt: "Solve this",
+        onMetrics,
         input: { x: 10 },
         model: "test-model",
         schema: {
@@ -112,6 +148,28 @@ describe("OpenvinoProvider", () => {
       expect(pipelineFactory).toHaveBeenCalledWith(os.tmpdir(), "GPU");
       expect(mockGenerate).toHaveBeenCalledTimes(1);
       expect(output).toEqual({ result: "calculated", value: 100 });
+      expect(onMetrics).toHaveBeenCalledWith({
+        outputTokens: 8,
+        elapsedMs: expect.any(Number),
+      });
+    });
+
+    it("propagates backend failures", async () => {
+      const failure = new Error("Pipeline generation crash");
+      const provider = new OpenvinoProvider({
+        localModelDir: os.tmpdir(),
+        pipelineFactory: vi
+          .fn()
+          .mockResolvedValue({ generate: vi.fn().mockRejectedValue(failure) }),
+      });
+      await expect(
+        provider.completeJson({
+          systemPrompt: "Return JSON.",
+          input: { ok: true },
+          model: "mock-model",
+          schema: { type: "object" },
+        }),
+      ).rejects.toBe(failure);
     });
 
     it("mock - serializes concurrent calls and continues after a generation fails", async () => {
@@ -152,8 +210,8 @@ describe("OpenvinoProvider", () => {
             input: { id },
             model: "model",
             schema,
-          })
-        )
+          }),
+        ),
       );
 
       try {
@@ -170,20 +228,5 @@ describe("OpenvinoProvider", () => {
         { status: "fulfilled", value: { ok: 3 } },
       ]);
     });
-  });
-
-  describe("unmocked backend", () => {
-    it("quick integration and performance", async () => {
-      const { providerSettings, testProviderSmoke } = await import("./providerSmoke.mjs");
-      const settings = providerSettings();
-      const activeModelDir = settings.OPENVINO_MODEL_DIR ?? settings.LLM_MODEL;
-      const provider = new OpenvinoProvider({
-        localModelDir: activeModelDir,
-        device: settings.OPENVINO_DEVICE ?? "GPU",
-      });
-      await testProviderSmoke(provider, activeModelDir);
-      const pipeline = await provider.getPipeline();
-      expect(await provider.getPipeline()).toBe(pipeline);
-    }, 180_000);
   });
 });

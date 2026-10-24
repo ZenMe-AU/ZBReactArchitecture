@@ -3,7 +3,7 @@ param(
     [string]$InstallDir = 'D:\Program Files\ovms',
     [string]$ModelDir = 'D:\Models\OpenVINO\Qwen2.5-Coder-3B-Instruct-int4-ov',
     [string]$ModelName,
-    [string]$Device = 'NPU',
+    [string]$Device,
     [int]$RestPort,
     [int]$Port,
     [ValidateSet('DEBUG', 'INFO', 'ERROR')]

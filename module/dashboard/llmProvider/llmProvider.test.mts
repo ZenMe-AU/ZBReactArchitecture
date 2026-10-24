@@ -8,7 +8,7 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { getLlmProvider, getProviderInstance, type ILlmProvider } from "../agentChat.llm.mjs";
 import { ClaudeProvider, OpenaiCompatibleProvider, OpenvinoProvider } from "./index.mjs";
-import { testProviderSmoke } from "./providerSmoke.mjs";
+import { testCompletionSmall } from "./perftestHelper.mjs";
 
 describe.sequential("LLM provider integration", () => {
   describe("LLM provider from localsettings", () => {
@@ -108,7 +108,7 @@ function registerProviderTests(createProvider: () => ILlmProvider, configuredMod
 }
 
 export async function testJsonObject(provider: ILlmProvider, model: string): Promise<void> {
-  await testProviderSmoke(provider, model);
+  await testCompletionSmall(provider, model);
 }
 
 export async function testBasicRequest(provider: ILlmProvider, model: string): Promise<void> {

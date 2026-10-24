@@ -3,14 +3,18 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-// Run from parent folder: pnpm exec vitest run llmProvider/claude.provider.test.mts
+// Run from parent folder: pnpm exec vitest run llmProvider/claude.mock.test.mts
 
 import { describe, expect, it, vi } from "vitest";
-import { type ILlmProvider, type LlmRequest, ClaudeProvider } from "./index.mjs";
+import {
+  type ILlmProvider,
+  type LlmRequest,
+  ClaudeProvider,
+} from "./index.mjs";
 
 describe("ClaudeProvider", () => {
   describe("mocked backend", () => {
-    it("mock - verifies login status in assertReady via ILlmProvider interface", async () => {
+    it("rejects an unready backend and accepts a ready backend", async () => {
       const mockLoggedOutRunner = vi.fn().mockResolvedValue({
         stdout: JSON.stringify({ loggedIn: false }),
       });
@@ -20,7 +24,9 @@ describe("ClaudeProvider", () => {
         runner: mockLoggedOutRunner,
       });
 
-      await expect(unreadyProvider.assertReady()).rejects.toThrow(/Claude CLI is not logged in/);
+      await expect(unreadyProvider.assertReady()).rejects.toThrow(
+        /Claude CLI is not logged in/,
+      );
 
       const mockLoggedInRunner = vi.fn().mockResolvedValue({
         stdout: JSON.stringify({ loggedIn: true }),
@@ -34,28 +40,39 @@ describe("ClaudeProvider", () => {
       await expect(readyProvider.assertReady()).resolves.toBeUndefined();
     });
 
-    it("mock - completes JSON structured output via ILlmProvider interface", async () => {
+    it("returns structured JSON and reports output metrics", async () => {
       let capturedArgs: string[] = [];
       let capturedInput: string | undefined;
 
-      const mockRunner = vi.fn().mockImplementation(async (_file: string, args: string[], options: { input?: string }) => {
-        capturedArgs = args;
-        capturedInput = options.input;
-        return {
-          stdout: JSON.stringify({
-            is_error: false,
-            structured_output: { success: true, notes: "processed" },
-          }),
-        };
-      });
+      const mockRunner = vi
+        .fn()
+        .mockImplementation(
+          async (
+            _file: string,
+            args: string[],
+            options: { input?: string },
+          ) => {
+            capturedArgs = args;
+            capturedInput = options.input;
+            return {
+              stdout: JSON.stringify({
+                is_error: false,
+                structured_output: { success: true, notes: "processed" },
+                usage: { output_tokens: 8 },
+              }),
+            };
+          },
+        );
 
       const provider: ILlmProvider = new ClaudeProvider({
         binPath: "claude-mock",
         runner: mockRunner,
       });
 
+      const onMetrics = vi.fn();
       const request: LlmRequest = {
         systemPrompt: "System instruction",
+        onMetrics,
         input: { data: 123 },
         model: "claude-3-5-sonnet",
         schema: {
@@ -86,9 +103,13 @@ describe("ClaudeProvider", () => {
       expect(capturedArgs).toContain("json");
       expect(capturedInput).toBe(JSON.stringify({ data: 123 }));
       expect(result).toEqual({ success: true, notes: "processed" });
+      expect(onMetrics).toHaveBeenCalledWith({
+        outputTokens: 8,
+        elapsedMs: expect.any(Number),
+      });
     });
 
-    it("mock - handles CLI execution error", async () => {
+    it("propagates backend failures", async () => {
       const mockRunner = vi.fn().mockRejectedValue({
         code: 1,
         stdout: JSON.stringify({ result: "Process crash" }),
@@ -106,15 +127,9 @@ describe("ClaudeProvider", () => {
         schema: { type: "object", properties: { ok: { type: "boolean" } } },
       };
 
-      await expect(provider.completeJson(request)).rejects.toThrow(/claude exited 1/);
+      await expect(provider.completeJson(request)).rejects.toThrow(
+        /claude exited 1/,
+      );
     });
-  });
-
-  describe("unmocked backend", () => {
-    it("quick integration and performance", async () => {
-      const { providerSettings, testProviderSmoke } = await import("./providerSmoke.mjs");
-      const provider: ILlmProvider = new ClaudeProvider();
-      await testProviderSmoke(provider, providerSettings().CLAUDE_MODEL);
-    }, 180_000);
   });
 });
