@@ -101,12 +101,15 @@ app.openAPIPath("AddAnswer", "Answer a question", {
 });
 
 app.openAPIPath("GetAnswerById", "Get an answer by ID", {
-  route: "question/{id}/answer/{answerId}",
+  route: "questionQry/getAnswer/{answerId}",
   methods: ["GET"],
   authLevel: "anonymous",
   tags: ["Answer"],
+  params: GetAnswerById.params,
   responses: GetAnswerById.responses,
-  handler: requestHandler(answerHandler.GetAnswerById),
+  handler: requestHandler(answerHandler.GetAnswerById, {
+    params: GetAnswerById.params,
+  }),
 });
 
 app.openAPIPath("GetQuestionListByUser", "List questions created by or shared with the caller", {
@@ -118,12 +121,15 @@ app.openAPIPath("GetQuestionListByUser", "List questions created by or shared wi
 });
 
 app.openAPIPath("GetAnswerListByQuestionId", "List answers to a question", {
-  route: "questionQry/getAnswers/{id}",
+  route: "questionQry/getAnswers/{questionId}",
   methods: ["GET"],
   authLevel: "anonymous",
   tags: ["Answer"],
+  params: GetAnswerListByQuestionId.params,
   responses: GetAnswerListByQuestionId.responses,
-  handler: requestHandler(answerHandler.GetAnswerListByQuestionId),
+  handler: requestHandler(answerHandler.GetAnswerListByQuestionId, {
+    params: GetAnswerListByQuestionId.params,
+  }),
 });
 
 app.openAPIPath("ShareQuestion", "Share a question", {
@@ -193,19 +199,6 @@ app.openAPIPath("GetMyFriends", "List the caller's friends", {
 
 app.openAPIPath("SendFollowUpCmd", "Send a follow-up question to matching respondents", {
   route: "questionCmd/sendFollowUp",
-  methods: ["POST"],
-  authLevel: "anonymous",
-  tags: ["Command"],
-  headers: SendFollowUpCmd.headers,
-  body: SendFollowUpCmd.body,
-  responses: SendFollowUpCmd.responses,
-  handler: requestHandler(followupHandler.SendFollowUpCmd, {
-    schemas: [SendFollowUpCmd.body],
-  }),
-});
-
-app.openAPIPath("SendFollowUpCmdLegacy", "Send a follow-up question to matching respondents", {
-  route: "sendFollowUpCmd",
   methods: ["POST"],
   authLevel: "anonymous",
   tags: ["Command"],
