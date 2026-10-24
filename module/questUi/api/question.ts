@@ -3,8 +3,8 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import { jwtFetch } from "@zenmechat/shared-ui/api/jwtFetch";
-import { getConfig, loadConfig } from "@zenmechat/shared-ui/config/loadConfig";
+import { jwtFetch } from "./jwtFetch";
+import { getConfig, loadConfig } from "../config/loadConfig";
 import { getMyProfileId } from "./profile";
 // const apiDomain = getConfig("QUEST5TIEREG_DOMAIN");
 // Fetch list of questions for a specific user

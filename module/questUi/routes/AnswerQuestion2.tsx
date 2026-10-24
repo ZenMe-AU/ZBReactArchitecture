@@ -26,7 +26,7 @@ import {
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
 import WordCloud from "react-d3-cloud";
-import { logEvent, setOperationId } from "@zenmechat/shared-ui/monitor/telemetry";
+import { logEvent, setOperationId } from "../monitor/telemetry";
 
 export async function clientLoader({ params }: LoaderFunctionArgs) {
   const { id } = params;

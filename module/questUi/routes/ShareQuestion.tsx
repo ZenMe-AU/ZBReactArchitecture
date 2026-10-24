@@ -12,7 +12,7 @@ import type { Profile } from "../types/interfaces";
 import { Container, Typography, Box, Button, IconButton, Alert, TextField } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Autocomplete from "@mui/material/Autocomplete";
-import { logEvent, setOperationId } from "@zenmechat/shared-ui/monitor/telemetry";
+import { logEvent, setOperationId } from "../monitor/telemetry";
 
 const relationshipLabels = ["", "Friend", "Friend's friend", "3rd-degree connection", "4th-degree connection"];
 

@@ -30,7 +30,7 @@ import Divider from "@mui/material/Divider";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ClearIcon from "@mui/icons-material/Clear";
 import AddIcon from "@mui/icons-material/Add";
-import { logEvent, setOperationId } from "@zenmechat/shared-ui/monitor/telemetry";
+import { logEvent, setOperationId } from "../monitor/telemetry";
 
 type CardErrors = Record<string, { question?: boolean; option?: boolean }>;
 

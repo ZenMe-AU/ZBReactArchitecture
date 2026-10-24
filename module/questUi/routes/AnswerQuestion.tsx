@@ -36,7 +36,7 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
 import WordCloud from "react-d3-cloud";
-import { logEvent, setOperationId } from "@zenmechat/shared-ui/monitor/telemetry.ts";
+import { logEvent, setOperationId } from "../monitor/telemetry.ts";
 import _ from "lodash";
 // import { useFetcher, useLoaderData, useParams } from "react-router-dom";
 import type { LoaderFunctionArgs, ActionFunctionArgs } from "react-router";

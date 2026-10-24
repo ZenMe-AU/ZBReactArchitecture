@@ -16,7 +16,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import { styled } from "@mui/material/styles";
 import type { Question } from "../types/interfaces";
-import { logEvent, setOperationId } from "@zenmechat/shared-ui/monitor/telemetry";
+import { logEvent, setOperationId } from "../monitor/telemetry";
 import pkg from "fast-json-patch";
 
 const { compare } = pkg;
