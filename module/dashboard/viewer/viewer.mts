@@ -20,6 +20,7 @@ const state = {
   currentEvents: [],
   currentReport: parseReport(""),
   network: {},
+  agentOids: {} as Record<string, string>,
   selectedEventId: null,
   chatMessages: [] as { role: "user" | "assistant"; content: string }[],
   selectedChatMessage: -1,
@@ -120,6 +121,7 @@ function renderProfiles(participants) {
     events: state.currentEvents,
     network: state.network,
     participants,
+    agentOids: state.agentOids,
     questions: state.currentReport.questionList,
     onSelect: (name) => {
       state.activeAgent = state.activeAgent === name ? "" : name;
@@ -317,20 +319,24 @@ async function loadRunState() {
 
 async function refreshLog() {
   if (!state.selectedRun) return render([], 0);
-  const [response, reportResponse, networkResponse] = await Promise.all([
+  const [response, reportResponse, networkResponse, agentsResponse] = await Promise.all([
     fetch(`/api/log?run=${encodeURIComponent(state.selectedRun)}`, { cache: "no-store" }),
     fetch(`/api/report?run=${encodeURIComponent(state.selectedRun)}`, { cache: "no-store" }),
     fetch(`/api/network?run=${encodeURIComponent(state.selectedRun)}`, { cache: "no-store" }),
+    fetch("/api/agents", { cache: "no-store" }),
   ]);
   if (!response.ok) throw new Error("Could not load the selected run");
+  if (!agentsResponse.ok) throw new Error("Could not load agent OIDs");
+  const { oids } = await agentsResponse.json();
   const data = await response.json();
   const report = reportResponse.ok ? await reportResponse.json() : { text: "" };
   const network = networkResponse.ok ? await networkResponse.json() : { networks: {} };
-  const signature = `${data.run}:${data.mtime}:${data.text.length}:${report.text.length}:${JSON.stringify(network.networks)}`;
+  const signature = `${data.run}:${data.mtime}:${data.text.length}:${report.text.length}:${JSON.stringify(network.networks)}:${JSON.stringify(oids)}`;
   if (signature === state.renderedSignature) return;
   state.renderedSignature = signature;
   state.currentReport = parseReport(report.text);
   state.network = network.networks;
+  state.agentOids = oids;
   render(parseLog(data.text), data.mtime);
 }
 

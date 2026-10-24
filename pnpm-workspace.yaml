@@ -2,6 +2,7 @@ packages:
   - ui
   - module/*/ui
   - module/*/func
+  - module/dashboard
   - deploy/corpSetup/c11cloudfront/source/authGuardLambdaEdge
   - deploy/corpSetup/c11cloudfront/source/msalSpa
 allowBuilds:

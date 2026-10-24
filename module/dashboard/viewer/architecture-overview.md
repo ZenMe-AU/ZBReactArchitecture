@@ -78,10 +78,32 @@ when it is not already listening, but requires the Q3 API on port 7073 to be
 running. Run output is streamed to the server terminal as well as written to
 run files.
 
-The optional chat endpoint passes the selected run's report and recent chat log
-to the configured LLM. For agent-persona chat it also reads that participant's
-persona file server-side. Persona files are not served as static assets or
-returned by a viewer API endpoint.
+### Design decision: live agent chat
+
+Selecting a participant routes dashboard chat to that same agent in the active
+harness, not a second persona simulation. The harness exposes an authenticated
+loopback endpoint recorded in `<run>.chat.md.live.json` while agents are active.
+The viewer forwards only the selected agent and message; browser-supplied
+history is not trusted as agent memory. Each agent handles its pending message
+between action turns with its current persona, observations, memory and recent
+steps, through the existing shared provider queue. No extra model is loaded
+in the viewer during the run.
+
+Dashboard conversation remains in the agent's bounded run context and can
+guide subsequent actions, but does not bypass API rules or budgets and is not
+stored as verified factual memory. Replies acknowledge requests; actual API
+actions still occur in normal action turns and appear in the activity log.
+Offline/finished agents and completed runs reject live messages explicitly.
+Replies can wait for existing inference and the next agent turn.
+
+Without an agent selected, the results assistant uses the report and recent
+chat log after the active run ends. It is unavailable during a run to avoid a
+second concurrent model allocation. Persona files are not served as static
+assets or returned by a viewer API endpoint.
+
+The post-run results assistant alone uses a disposable inference subprocess;
+it is not an agent session. Its model is released before another run can start,
+and native inference failures are reported without terminating the HTTP viewer.
 
 ## Build and start
 

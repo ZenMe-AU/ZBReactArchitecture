@@ -3,9 +3,49 @@
  * @license SPDX-License-Identifier: MIT
  */
 
-import { configureTableStorage, getTableClient } from "../../repository/table/init.mjs";
-import { QUESTION_DATA_TABLE } from "../../repository/table/keys.mjs";
-import { PROFILE_DISCLOSURES_TABLE } from "../../repository/table/profileRepository.mjs";
+import { TableClient } from "@azure/data-tables";
+import { DefaultAzureCredential } from "@azure/identity";
+
+export const QUESTION_DATA_TABLE = "QuestionData";
+export const PROFILE_DISCLOSURES_TABLE = "ProfileDisclosures";
+
+export interface TableStorageSettings {
+  AzureWebJobsStorage?: string;
+  AzureWebJobsStorage__tableServiceUri?: string;
+  AzureWebJobsStorage__clientId?: string;
+}
+
+const clients = new Map<string, TableClient>();
+let settings: TableStorageSettings | undefined;
+
+export function configureTableStorage(tableStorageSettings: TableStorageSettings): void {
+  settings = tableStorageSettings;
+  clients.clear();
+}
+
+export async function getTableClient(tableName: string): Promise<TableClient> {
+  let client = clients.get(tableName);
+  if (!client) {
+    const connectionString = settings?.AzureWebJobsStorage;
+    if (connectionString) {
+      client = TableClient.fromConnectionString(connectionString, tableName, {
+        allowInsecureConnection: true,
+      });
+    } else {
+      const tableServiceUri = settings?.AzureWebJobsStorage__tableServiceUri;
+      if (!tableServiceUri) {
+        throw new Error("Table storage is not configured: set AzureWebJobsStorage (local) or AzureWebJobsStorage__tableServiceUri.");
+      }
+      const credential = new DefaultAzureCredential(
+        settings?.AzureWebJobsStorage__clientId ? { managedIdentityClientId: settings.AzureWebJobsStorage__clientId } : undefined
+      );
+      client = new TableClient(tableServiceUri, tableName, credential);
+    }
+    clients.set(tableName, client);
+  }
+  await client.createTable().catch(() => {});
+  return client;
+}
 
 export function belongsToExperiment(row, profileIds, questionIds) {
   return (

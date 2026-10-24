@@ -1,12 +1,61 @@
 [CmdletBinding()]
 param(
-    [string]$Model = 'qwen2.5:3b',
-    [string]$OllamaUrl = 'http://localhost:11434',
+    [string]$Model,
+    [string]$OllamaUrl,
     [switch]$SmokeOnly,
     [switch]$ViewerOnly
 )
 
 $ErrorActionPreference = 'Stop'
+
+# Load LLM settings from local.settings.json as the single source of truth,
+# falling back to environment variables or defaults when unspecified.
+$localSettingsPath = Join-Path $PSScriptRoot 'local.settings.json'
+$settingsValues = @{}
+if (Test-Path $localSettingsPath) {
+    try {
+        $parsedJson = Get-Content -Raw $localSettingsPath | ConvertFrom-Json
+        if ($parsedJson.Values) {
+            foreach ($prop in $parsedJson.Values.PSObject.Properties) {
+                $settingsValues[$prop.Name] = [string]$prop.Value
+            }
+        }
+    }
+    catch {
+        Write-Warning "Could not parse local.settings.json: $($_.Exception.Message)"
+    }
+}
+
+if (-not $OllamaUrl) {
+    if ($settingsValues.ContainsKey('LLM_BASE_URL') -and $settingsValues['LLM_BASE_URL']) {
+        $OllamaUrl = $settingsValues['LLM_BASE_URL'].TrimEnd('/').Replace('/v1', '')
+    }
+    elseif ($env:LLM_BASE_URL) {
+        $OllamaUrl = $env:LLM_BASE_URL.TrimEnd('/').Replace('/v1', '')
+    }
+    else {
+        $OllamaUrl = 'http://localhost:11434'
+    }
+}
+
+if (-not $Model) {
+    if ($settingsValues.ContainsKey('AGENT_MODEL') -and $settingsValues['AGENT_MODEL']) {
+        $Model = $settingsValues['AGENT_MODEL']
+    }
+    elseif ($settingsValues.ContainsKey('LLM_MODEL') -and $settingsValues['LLM_MODEL']) {
+        $Model = $settingsValues['LLM_MODEL']
+    }
+    elseif ($env:AGENT_MODEL) {
+        $Model = $env:AGENT_MODEL
+    }
+    elseif ($env:LLM_MODEL) {
+        $Model = $env:LLM_MODEL
+    }
+    else {
+        $Model = 'qwen2.5:3b'
+    }
+}
+
 $baseUrl = $OllamaUrl.TrimEnd('/')
 
 Write-Host "Checking Ollama at $baseUrl..."
@@ -46,7 +95,7 @@ $savedEnvironment = @{}
 foreach ($name in @('LLM_BASE_URL', 'LLM_API_KEY', 'AGENT_MODEL', 'JUDGE_MODEL', 'AGENT_RUN')) {
     $savedEnvironment[$name] = [Environment]::GetEnvironmentVariable($name, 'Process')
 }
-Push-Location (Join-Path $PSScriptRoot '../../../../..')
+Push-Location (Join-Path $PSScriptRoot '../..')
 try {
     $env:LLM_BASE_URL = "$baseUrl/v1"
     $env:AGENT_MODEL = $Model
@@ -58,7 +107,7 @@ try {
     if ($LASTEXITCODE -ne 0) {
         throw "Q3 build failed with exit code $LASTEXITCODE."
     }
-    & pnpm exec tsc --project module/quest3Tier/func/vitest/agents/tsconfig.json
+    & pnpm --dir module/dashboard run build
     if ($LASTEXITCODE -ne 0) {
         throw "Viewer build failed with exit code $LASTEXITCODE."
     }
@@ -77,7 +126,7 @@ try {
     }
     Write-Host "Start the test from the viewer UI at $viewerUrl. The Q3 API must already be running."
     Write-Host 'Viewer and test output will appear here. Press Ctrl+C to stop the viewer.'
-    & node module/quest3Tier/func/dist/vitest/agents/viewer/server.mjs
+    & node module/dashboard/dist/viewer/server.mjs
     if ($LASTEXITCODE -ne 0) {
         throw "Viewer exited with code $LASTEXITCODE."
     }

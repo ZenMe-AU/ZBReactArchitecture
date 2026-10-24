@@ -10,8 +10,8 @@ import path from "node:path";
 import { TableClient } from "@azure/data-tables";
 import { invalidAction, learningCoverage, needsAnswer, offlineActionReason, participantFriends, rules } from "./agentChat.config.mjs";
 import { factMemory } from "./agentChat.memory.mjs";
-import { assertLlmReady, getLlmProvider } from "./agentChat.llm.mjs";
-import { list, runAgentChat } from "./agentChat.run.mjs";
+import { assertLlmReady, getLlmProvider, getProviderInstance, llm, OpenvinoProvider } from "./agentChat.llm.mjs";
+import { list, receiveDashboardMessage, replyToDashboard, runAgentChat } from "./agentChat.run.mjs";
 import { report } from "./agentChat.report.mjs";
 import { HUMAN_NAME, writeMemory } from "./agentChat.setup.mjs";
 import { belongsToExperiment, isLocalAzurite, resetExperiment } from "./agentChat.reset.mjs";
@@ -275,6 +275,113 @@ describe("LLM provider configuration", () => {
     vi.stubEnv("LLM_PROVIDER", "ollama");
     vi.stubEnv("LLM_BASE_URL", "");
     await expect(assertLlmReady()).rejects.toThrow(/LLM_PROVIDER='ollama' requires 'LLM_BASE_URL'/);
+  });
+});
+
+describe("OpenVINO generation queue", () => {
+  test("serializes concurrent calls and continues after a generation fails", async () => {
+    vi.stubEnv("LLM_PROVIDER", "openvino");
+
+    let release: () => void;
+    let started: () => void;
+    const blocked = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const firstStarted = new Promise<void>((resolve) => {
+      started = resolve;
+    });
+    const failure = new Error("generation failed");
+    const generate = vi
+      .fn()
+      .mockImplementationOnce(async () => {
+        started();
+        await blocked;
+        return { texts: ['{"ok":1}'] };
+      })
+      .mockRejectedValueOnce(failure)
+      .mockResolvedValueOnce({ texts: ['{"ok":3}'] });
+    const provider = getProviderInstance();
+    expect(provider).toBeInstanceOf(OpenvinoProvider);
+    if (!(provider instanceof OpenvinoProvider)) {
+      throw new Error("Expected the selected provider to be OpenVINO");
+    }
+    const getPipeline = vi.spyOn(provider, "getPipeline").mockResolvedValue({ generate });
+
+    try {
+      const schema = { type: "object", properties: { ok: { type: "number" } }, required: ["ok"] };
+      const results = Promise.allSettled([1, 2, 3].map((id) => llm("system", { id }, "", schema, "", {})));
+      try {
+        await Promise.race([
+          firstStarted,
+          results.then(() => {
+            throw new Error("LLM calls settled before the mocked generation started");
+          }),
+        ]);
+        await new Promise<void>((resolve) => setImmediate(resolve));
+        expect(getPipeline).toHaveBeenCalledTimes(1);
+        expect(generate).toHaveBeenCalledTimes(1);
+      } finally {
+        release();
+      }
+      expect(await results).toEqual([
+        { status: "fulfilled", value: { ok: 1 } },
+        { status: "rejected", reason: failure },
+        { status: "fulfilled", value: { ok: 3 } },
+      ]);
+      expect(getPipeline).toHaveBeenCalledTimes(3);
+      expect(generate.mock.calls.map(([prompt]) => [1, 2, 3].find((id) => prompt.includes(JSON.stringify({ id }))))).toEqual([1, 2, 3]);
+    } finally {
+      getPipeline.mockRestore();
+    }
+  });
+});
+
+describe("live dashboard conversation", () => {
+  test("updates the active agent context and replies through the shared provider without loading another pipeline", async () => {
+    vi.stubEnv("LLM_PROVIDER", "openvino");
+    const provider = getProviderInstance();
+    if (!(provider instanceof OpenvinoProvider)) throw new Error("Expected OpenVINO provider");
+    const generate = vi.fn().mockResolvedValue({ texts: ['{"answer":"I will consider sharing next."}'] });
+    const getPipeline = vi.spyOn(provider, "getPipeline").mockResolvedValue({ generate });
+    globalThis.fetch = vi.fn().mockImplementation(async () => new Response(JSON.stringify({ return: { list: [] } })));
+    const agent = {
+      name: "Ian",
+      persona: "I am Ian.",
+      model: "haiku",
+      token: "test-token",
+      shareableIds: new Set(),
+      labelsByName: {},
+      seen: new Set(),
+      digested: new Set(),
+      memory: { Mike: "### Facts\n- Known Q3 fact" },
+      recent: [{ step: 2, note: "Waiting for answers" }],
+      used: { questionWrites: 1, answerWrites: 0 },
+      steps: 2,
+      online: ["Person 1"],
+      dashboardChat: [],
+      waiting: true,
+      idle: 3,
+    };
+    const say = vi.fn().mockResolvedValue(undefined);
+    const context = await receiveDashboardMessage(agent, "Share questions with Jake", say);
+    expect(agent.waiting).toBe(false);
+    expect(agent.idle).toBe(0);
+    expect(context.dashboardChat).toEqual([{ role: "user", content: "Share questions with Jake" }]);
+    expect(context.recent).toBeDefined();
+    expect(context.memory).toEqual({ Mike: "### Facts\n- Known Q3 fact" });
+    await expect(replyToDashboard(agent, context, os.tmpdir(), say)).resolves.toBe("I will consider sharing next.");
+    expect(getPipeline).toHaveBeenCalledExactlyOnceWith("haiku");
+    const prompt = generate.mock.calls[0][0];
+    expect(prompt).toContain("Share questions with Jake");
+    expect(prompt).toContain("Waiting for answers");
+    expect(prompt).toContain("I am Ian.");
+    expect(agent.dashboardChat).toEqual([
+      { role: "user", content: "Share questions with Jake" },
+      { role: "assistant", content: "I will consider sharing next." },
+    ]);
+    expect(agent.steps).toBe(2);
+    expect(agent.used.questionWrites).toBe(1);
+    expect(agent.memory).toEqual({ Mike: "### Facts\n- Known Q3 fact" });
   });
 });
 

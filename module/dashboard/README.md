@@ -7,6 +7,9 @@ AI personas sign in to Quest3 with their own profiles and try to get to know eac
 - **Personas**: `Mike/`, `Bella/`, `Ian/`, `Eric/` each hold a `<Name>.agent.md`. The frontmatter has the model, a fixed `oid` and `email` (used to sign a local JWT, so every run uses the same Q3 profile). The body is the private persona: identity, personality, hidden links to the others, and disclosure tiers (Public, Trust, Never). Every record, including the private inner voice, is in English.
 - **Options**: every new question has 4-10 distinct options of at most four words. An agent answers with exactly one existing option, or one new short option when none fits. Long-text answers are invalid under the harness rules.
 - **Harness**: `agentChat.run.mts` contains the run logic; `agentChat.test.mts` is the small Vitest entry point. Three of the four agents join each run. The trio rotates, so every pair meets equally often. Agents act concurrently, **one Q3 API call per step**, like people tapping through the app. Each step the LLM gets a compact snapshot (news since its last look, profiles, the questions and answers it can see, its memory, its last few steps). It returns `{note, action, findings}`.
+- **OpenVINO**: local inference calls are queued because the shared pipeline supports only one generation at a time. A failed call is reported to its caller without blocking later calls; Q3 API activity remains concurrent.
+- **Live dashboard chat**: selecting an active participant sends messages to that same agent in the running harness, between action turns. Replies use its current context and existing provider queue; conversation can guide later actions but never bypasses rules or budgets, and is not verified factual memory. The viewer does not load a second model during the run. Offline/finished agents reject messages instead of simulating replies. The separate results assistant is available after the run, with inference isolated in a disposable subprocess.
+- **OpenVINO model loading**: text-only exports use `LLMPipeline`; multimodal exports containing `openvino_vision_embeddings_model.xml` (including Qwen3.5) use `VLMPipeline`, even for text-only requests. Select the model with `LLM_MODEL`, or `OPENVINO_MODEL_DIR` when `LLM_MODEL` is unset. Run `pnpm --dir module/quest3Tier/func test:openvino` to verify the selected model loads, reuses its pipeline, and generates structured JSON on successive calls. These hardware integration tests require a local model and never substitute a different model when the selected directory is missing.
 - **Security boundary**: the LLM runs through `claude -p` with no tools, no MCP and an empty temp dir as cwd. It cannot read files. The harness signs each call with the agent's own token, only calls `QUESTION_URL`, and enforces the run limits before anything reaches the API.
 - **Limits per agent per run**: 10 question creates/edits, 100 answer writes, text only. Lengths: title 60, questionText 200, answer 500 characters. Over-limit calls are invalid and logged.
 - **Memory**: after meaningful activity and once at the end, the harness rebuilds one private `<Name>/memory/<Other>.md` file per person from Q3 evidence. This is deterministic code, not another LLM call.
@@ -36,6 +39,25 @@ AI personas sign in to Quest3 with their own profiles and try to get to know eac
 
 ## Run
 
+### Provider integration smoke test
+
+Run `pnpm --dir module/quest3Tier/func test:llm` to test the provider selected by `Values.LLM_PROVIDER` in `local.settings.json` first, followed sequentially by a separate suite for each predefined backend below. The existing Q3 Vitest setup loads those settings; the tests use real providers without mocks. Each suite checks readiness, an exact JSON echo, and basic arithmetic in a second independent request.
+
+| Preset | Model | Connection |
+|---|---|---|
+| OpenVINO | `D:\Models\OpenVINO\Qwen3.5-9B-int4-ov` | GPU, with the provider's CPU fallback |
+| Ollama | `qwen2.5:3b` | `http://localhost:11434/v1`, no API key |
+| OpenAI | `gpt-5-mini` | `https://api.openai.com/v1`; requires `OPENAI_API_KEY` or `LLM_API_KEY` |
+| Claude | `haiku` | Logged-in Claude CLI; respects `CLAUDE_BIN` |
+
+Presets run even when they duplicate the locally selected provider. Unavailable backends fail their suite rather than skip. Models/endpoints are hardcoded; credentials remain in local settings or environment variables.
+
+The local-settings suite uses `AGENT_MODEL`, then `LLM_MODEL`, or the provider default when neither is set. Configure the selected backend's usual connection/authentication settings and model (for example, `AGENT_MODEL` for OpenAI/Ollama, or `LLM_MODEL` / `OPENVINO_MODEL_DIR` for OpenVINO). These tests make real LLM calls and can incur API costs. They do not require the Q3 API or Azurite.
+
+The same file exports `testJsonObject(provider, model)` and `testBasicRequest(provider, model)` for reuse in other Vitest tests. Both perform the request and assert its result. Importing [llmProvider.test.mts](llmProvider/llmProvider.test.mts) also registers all its integration suites.
+
+### Agent chat run
+
 Use three terminals:
 
 ```sh
@@ -55,9 +77,11 @@ Each agent run resets only records connected to its current participants. The re
 
 To watch the conversation live, use the terminal, or open `runs/<time>_<participants>.chat.md`.
 
-### Visual observer
+### Visual observer and helper scripts
 
 See the [viewer architecture overview](viewer/architecture-overview.md) for the UI, data flow, and build details.
+
+**Configuration Single Source of Truth**: All LLM settings (`LLM_PROVIDER`, `LLM_MODEL`, `OPENVINO_MODEL_DIR`, `OPENVINO_DEVICE`, `OPENVINO_LOG_LEVEL`, `LLM_BASE_URL`, `AGENT_MODEL`, etc.) are configured under `Values` in [local.settings.json](../../local.settings.json). The helper scripts `run-openvino.ps1` and `run-ollama.ps1` read `local.settings.json` automatically, ensuring that the launcher scripts, VS Code tasks, integration tests, and the agent chat runner all use the exact same LLM configuration. Explicit parameters passed to the scripts or existing environment variables can still be used to override these values.
 
 From the repo root, start the local viewer in another terminal:
 
@@ -65,6 +89,10 @@ From the repo root, start the local viewer in another terminal:
 pnpm exec tsc --project module/quest3Tier/func/vitest/agents/tsconfig.json
 node module/quest3Tier/func/dist/vitest/agents/viewer/server.mjs
 ```
+
+Or run via the helper scripts / VS Code tasks:
+- `pwsh module/quest3Tier/func/vitest/agents/run-openvino.ps1` (or the VS Code task **Start OpenVino**)
+- `pwsh module/quest3Tier/func/vitest/agents/run-ollama.ps1` (or the VS Code task **Start Ollama**)
 
 Open `http://127.0.0.1:4178`. It follows the selected `.chat.md` once per second, can replay earlier runs and shows the completed judge report under **Results**. **New test** starts Azurite when needed and refuses to spend an agent run if the Q3 API is not available. The viewer does not expose persona files or change what the agents see. Set `AGENT_VIEW_PORT` to use another port. A quick check is available after the build with `node module/quest3Tier/func/dist/vitest/agents/viewer/server.mjs --check`.
 

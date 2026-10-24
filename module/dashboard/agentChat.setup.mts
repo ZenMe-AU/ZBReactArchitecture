@@ -6,10 +6,11 @@
 import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import * as authDev from "../../service/authDev.mjs";
+import * as authDev from "./service/authDev.mjs";
 import { NAMES } from "./agentChat.config.mjs";
 
-export const AGENTS_DIR = path.dirname(fileURLToPath(import.meta.url));
+const setupDir = path.dirname(fileURLToPath(import.meta.url));
+export const AGENTS_DIR = path.basename(setupDir) === "dist" ? path.resolve(setupDir, "..") : setupDir;
 export const RUNS_DIR = path.join(AGENTS_DIR, "runs");
 export const LOCK_PATH = path.join(RUNS_DIR, ".lock");
 export const HUMAN_NAME = process.env.HUMAN_NAME ?? "Human";
@@ -40,9 +41,7 @@ const readMemoryFile = async (file, subject) => {
 export async function writeMemory(directory, owner, memory) {
   await mkdir(directory, { recursive: true });
   await Promise.all(
-    memorySubjects(owner).map((subject) =>
-      writeFile(path.join(directory, `${subject}.md`), `${memoryTitle(owner, subject)}\n\n${memory[subject] ?? ""}\n`)
-    )
+    memorySubjects(owner).map((subject) => writeFile(path.join(directory, `${subject}.md`), `${memoryTitle(owner, subject)}\n\n${memory[subject] ?? ""}\n`))
   );
 }
 async function loadMemory(name) {
@@ -94,11 +93,9 @@ export async function pickParticipants() {
 export async function loadAgent(name) {
   const text = await readFile(path.join(AGENTS_DIR, name, `${name}.agent.md`), "utf8");
   const match = text.replace(/\r\n/g, "\n").match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
-if (!match) throw new Error(`Invalid frontmatter in ${name}.agent.md`);
-const [, frontmatter, persona] = match;
-  const meta = Object.fromEntries(
-    frontmatter.split("\n").map((line) => [line.slice(0, line.indexOf(":")).trim(), line.slice(line.indexOf(":") + 1).trim()])
-  );
+  if (!match) throw new Error(`Invalid frontmatter in ${name}.agent.md`);
+  const [, frontmatter, persona] = match;
+  const meta = Object.fromEntries(frontmatter.split("\n").map((line) => [line.slice(0, line.indexOf(":")).trim(), line.slice(line.indexOf(":") + 1).trim()]));
   const { directory: memoryDirectory, memory } = await loadMemory(name);
   return {
     name,
@@ -116,6 +113,7 @@ const [, frontmatter, persona] = match;
     seen: new Set(),
     digested: new Set(),
     recent: [],
+    dashboardChat: [] as { role: "user" | "assistant"; content: string }[],
     findings: [],
     steps: 0,
     errors: 0,

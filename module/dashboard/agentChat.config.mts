@@ -35,11 +35,13 @@ export function learningCoverage(agent, questions) {
     if (!topic) continue;
     for (const answer of question.answers ?? []) if (learned[answer.memoryAuthor]) learned[answer.memoryAuthor].add(topic);
   }
-  return Object.fromEntries(names.map((name) => {
-    const known = BASIC_TOPICS.filter((topic) => learned[name].has(topic));
-    const missing = BASIC_TOPICS.filter((topic) => !learned[name].has(topic));
-    return [agent.labelsByName[name] ?? name, { known, missing, phase: missing.length ? "basics" : "connections" }];
-  }));
+  return Object.fromEntries(
+    names.map((name) => {
+      const known = BASIC_TOPICS.filter((topic) => learned[name].has(topic));
+      const missing = BASIC_TOPICS.filter((topic) => !learned[name].has(topic));
+      return [agent.labelsByName[name] ?? name, { known, missing, phase: missing.length ? "basics" : "connections" }];
+    })
+  );
 }
 
 export const STEP_SCHEMA = {
@@ -197,7 +199,8 @@ export const invalidAction = (method, pathname, body) => {
     const isAnswer = method === "POST" && /^\/question\/[^/]+\/answer\/?$/.test(pathname);
 
     if (isQuestion && (isCreate || fields.option !== undefined)) {
-      if (!Array.isArray(fields.option)) throw new Error(`options:must-be-array (expected ${OPTION_LIMITS.minOptionCount}-${OPTION_LIMITS.maxOptionCount} options)`);
+      if (!Array.isArray(fields.option))
+        throw new Error(`options:must-be-array (expected ${OPTION_LIMITS.minOptionCount}-${OPTION_LIMITS.maxOptionCount} options)`);
       if (fields.option.length < OPTION_LIMITS.minOptionCount || fields.option.length > OPTION_LIMITS.maxOptionCount) {
         throw new Error(`options:count:${fields.option.length} (must have ${OPTION_LIMITS.minOptionCount}-${OPTION_LIMITS.maxOptionCount} options)`);
       }
@@ -206,11 +209,15 @@ export const invalidAction = (method, pathname, body) => {
       if (new Set(fields.option.map((option) => option.trim().toLowerCase())).size !== fields.option.length) {
         throw new Error(`options:duplicate-values-detected`);
       }
-      const longIndex = fields.option.findIndex((option) => option.length > OPTION_LIMITS.maxCharsPerOption || option.trim().split(/\s+/).length > OPTION_LIMITS.maxWordsPerOption);
+      const longIndex = fields.option.findIndex(
+        (option) => option.length > OPTION_LIMITS.maxCharsPerOption || option.trim().split(/\s+/).length > OPTION_LIMITS.maxWordsPerOption
+      );
       if (longIndex >= 0) {
         const opt = fields.option[longIndex];
         const wordCount = opt.trim().split(/\s+/).length;
-        throw new Error(`options:length:option-${longIndex + 1}-too-long (got ${wordCount} words, ${opt.length} chars; max ${OPTION_LIMITS.maxWordsPerOption} words, ${OPTION_LIMITS.maxCharsPerOption} chars)`);
+        throw new Error(
+          `options:length:option-${longIndex + 1}-too-long (got ${wordCount} words, ${opt.length} chars; max ${OPTION_LIMITS.maxWordsPerOption} words, ${OPTION_LIMITS.maxCharsPerOption} chars)`
+        );
       }
     }
 
@@ -218,14 +225,17 @@ export const invalidAction = (method, pathname, body) => {
       if (typeof fields.option !== "string" || !fields.option.trim()) throw new Error(`option:required (answer option text must not be empty)`);
       const wordCount = fields.option.trim().split(/\s+/).length;
       if (fields.option.length > OPTION_LIMITS.maxCharsPerOption || wordCount > OPTION_LIMITS.maxWordsPerOption) {
-        throw new Error(`option:too-long (got ${wordCount} words, ${fields.option.length} chars; max ${OPTION_LIMITS.maxWordsPerOption} words, ${OPTION_LIMITS.maxCharsPerOption} chars)`);
+        throw new Error(
+          `option:too-long (got ${wordCount} words, ${fields.option.length} chars; max ${OPTION_LIMITS.maxWordsPerOption} words, ${OPTION_LIMITS.maxCharsPerOption} chars)`
+        );
       }
       if (fields.answer != null && String(fields.answer).trim()) throw new Error(`option-only (long-text answer field is disallowed; use option only)`);
     }
 
     return null;
-  } catch (err: any) {
-    console.error(`[ERROR] Invalid action: ${err.message}`, { method, pathname, body });
-    return err.message;
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(`[ERROR] Invalid action: ${message}`, { method, pathname, body });
+    return message;
   }
 };

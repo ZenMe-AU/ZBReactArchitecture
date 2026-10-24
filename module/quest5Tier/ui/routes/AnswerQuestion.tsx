@@ -1,5 +1,5 @@
 /**
- * @license SPDX-FileCopyrightText: © 2025 Zenme Pty Ltd <info@zenme.com.au>
+ * @license SPDX-FileCopyrightText: © 2026 Zenme Pty Ltd <info@zenme.com.au>
  * @license SPDX-License-Identifier: MIT
  */
 
@@ -135,7 +135,7 @@ export async function clientLoader({ params }: LoaderFunctionArgs) {
 //   return { success: true };
 // }
 
-export default function AnswerQuestion({ loaderData }: { loaderData: any }) {
+export default function AnswerQuestion({ loaderData }: { loaderData: unknown }) {
   const { profileId, question, answer, othersAnswers, othersText, id, pieChart, wordCloud } = loaderData;
 
   console.log("loaderData", loaderData);
@@ -146,9 +146,7 @@ export default function AnswerQuestion({ loaderData }: { loaderData: any }) {
   } | null>(answer);
   const [when, setWhen] = useState<string | null>(answer?.when || null);
   const [textAnswer, setTextAnswer] = useState<string>(answer?.answerText || "");
-  const [selectedOptions, setSelectedOptions] = useState<string[]>(
-    answer?.optionAnswerList?.filter((opt) => question?.optionList?.includes(opt)) || []
-  );
+  const [selectedOptions, setSelectedOptions] = useState<string[]>(answer?.optionAnswerList?.filter((opt) => question?.optionList?.includes(opt)) || []);
   const startTime = useRef<number | null>(null);
 
   useEffect(() => {
@@ -211,7 +209,7 @@ export default function AnswerQuestion({ loaderData }: { loaderData: any }) {
     const correlationId = setOperationId();
     console.log("Correlation ID:", correlationId);
     if (!id || !question) {
-      // alert("Invalid question ID.");
+      alert("Invalid question ID.");
       setSubmitting(false);
       return;
     }
@@ -238,7 +236,7 @@ export default function AnswerQuestion({ loaderData }: { loaderData: any }) {
     };
 
     if (!answerPayload.option && !answerPayload.answerText) {
-      // alert("Please provide an answer.");
+      alert("Please provide an answer.");
       setSubmitting(false);
       return;
     }
@@ -258,7 +256,7 @@ export default function AnswerQuestion({ loaderData }: { loaderData: any }) {
     // return;
     try {
       await submitAnswer(id, answerPayload, question.questionText);
-      // alert("Answer submitted successfully!");
+      //alert("Answer submitted successfully!");
       setPrevAns((prev) => {
         if (!prev)
           return {
@@ -276,7 +274,7 @@ export default function AnswerQuestion({ loaderData }: { loaderData: any }) {
       // navigate(`/quest5Tier/${id}`);
     } catch (err) {
       console.error("Error submitting answer:", err);
-      // alert("Failed to submit the answer.");
+      alert("Failed to submit the answer.");
     } finally {
       logEvent("btnAnswerQuestionClick", {
         parentId: "SubmitButton",
